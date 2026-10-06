@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84a18982c8bae4e46b084c46d83fd4eb, type: 3}
+  m_Name: class_warrior
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.AdventurerClassDefinition
+  id: class.warrior
+  displayName: Warrior
+  contentVersion: 1
+  might: 8
+  survival: 8
+  insight: 3
+  gainPerLevel: 1
+  weaponTags: 0100000002000000
+  counters: []
+  baseFee: 8
+  bonusRareRoll: 0
+  overlay: {fileID: 21300000, guid: e54da967b90f447fdbe36043b9f93bee, type: 3}
+  role: Reliable combat and survival.

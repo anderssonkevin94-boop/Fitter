@@ -77,6 +77,7 @@ namespace Ravenholm.EditorTools
             var catalogue = EnsureContent();
             EnsureSiteContent(catalogue);
             EnsureProductionContent(catalogue);
+            EnsureJobContent(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
@@ -490,6 +491,122 @@ namespace Ravenholm.EditorTools
             }
         }
 
+        public const string JobsDir = Root + "Content/Jobs/";
+
+        /// <summary>Phase 4 content (GDD 10/11/17 balance starting points). Creates missing assets only.</summary>
+        private static void EnsureJobContent(ContentCatalogue catalogue)
+        {
+            T Make<T>(string file, string id, string name, out bool created) where T : ContentDefinition
+            {
+                var path = JobsDir + file + ".asset";
+                created = !File.Exists(path);
+                var a = EnsureAsset<T>(path);
+                if (created) a.EditorInitialize(id, name);
+                return a;
+            }
+            List<CounterValue> C(params (CounterTag t, int s)[] c)
+            {
+                var l = new List<CounterValue>();
+                foreach (var (t, st) in c) l.Add(new CounterValue { tag = t, strength = st });
+                return l;
+            }
+
+            AdventurerClassDefinition Class(string key, string name, int m, int s, int i, WeaponTag[] tags, List<CounterValue> counters, int fee, bool rare, string overlay, string role)
+            {
+                var c = Make<AdventurerClassDefinition>("class_" + key, "class." + key, name, out var created);
+                if (created) { c.EditorSetupClass(m, s, i, new List<WeaponTag>(tags), counters, fee, rare, LoadSprite("Characters/" + overlay), role); EditorUtility.SetDirty(c); }
+                return c;
+            }
+            var warrior = Class("warrior", "Warrior", 8, 8, 3, new[] { WeaponTag.Blade, WeaponTag.Blunt }, C(), 8, false, "ov_warrior", "Reliable combat and survival.");
+            var ranger = Class("ranger", "Ranger", 5, 7, 8, new[] { WeaponTag.Bow }, C((CounterTag.Exploration, 2)), 9, false, "ov_ranger", "Exploration: +2 exploration counter.");
+            var rogue = Class("rogue", "Rogue", 7, 4, 8, new[] { WeaponTag.LightBlade }, C((CounterTag.Traps, 2)), 10, true, "ov_rogue", "+2 trap counter and a bonus rare reward roll on success; fragile.");
+            var mage = Class("mage", "Mage", 9, 4, 7, new[] { WeaponTag.Staff }, C((CounterTag.Arcane, 4)), 13, false, "ov_mage", "+4 arcane counter; expensive.");
+
+            TraitDefinition Trait(string key, string name, WillingnessRule w, List<CounterValue> counters, TraitScope scope, string desc)
+            {
+                var t = Make<TraitDefinition>("trait_" + key, "trait." + key, name, out var created);
+                if (created) { t.EditorSetupTrait(w, counters, scope, desc); EditorUtility.SetDirty(t); }
+                return t;
+            }
+            var cautious = Trait("cautious", "Cautious", WillingnessRule.Cautious, C(), TraitScope.Application, "Applies only when the job looks Good or better.");
+            var bold = Trait("bold", "Bold", WillingnessRule.Bold, C(), TraitScope.Application, "Will take jobs that look Dangerous.");
+            var woodland = Trait("woodland_familiar", "Woodland Familiar", WillingnessRule.Neutral, C((CounterTag.Exploration, 2)), TraitScope.Resolution, "+2 exploration counter.");
+            var poison = Trait("poison_trained", "Poison Trained", WillingnessRule.Neutral, C((CounterTag.Poison, 2)), TraitScope.Resolution, "+2 poison counter (helps, but needs 4 to counter poison).");
+
+            ThreatDefinition Threat(string key, string name, CounterTag tag, int req, int unmetSurv, int armor, string reveal)
+            {
+                var t = Make<ThreatDefinition>("threat_" + key, "threat." + key, name, out var created);
+                if (created) { t.EditorSetupThreat(tag, req, -4, unmetSurv, armor, armor > 0 ? 2 : 0, armor > 0 ? 2 : 0, reveal); EditorUtility.SetDirty(t); }
+                return t;
+            }
+            var exploration = Threat("exploration", "Hard to find the way", CounterTag.Exploration, 2, 0, 0, "Rangers or a known route help.");
+            var arcane = Threat("arcane", "Arcane hazard", CounterTag.Arcane, 4, 0, 0, "Mages or ward gear counter it.");
+            var heavy = Threat("heavy_blows", "Heavy blows", CounterTag.HeavyBlows, 0, 0, 8, "Armor with Protection 8 or more holds.");
+            var poisonT = Threat("poison", "Poison", CounterTag.Poison, 4, -3, 0, "An antidote counters it; uncountered it also threatens survival.");
+            var traps = Threat("traps", "Traps", CounterTag.Traps, 2, 0, 0, "Rogues spot and disarm traps.");
+
+            QuestDefinition Quest(string key, string name, int d, float seconds, int gold, bool recovery, int prestige, string brief, params (ThreatDefinition t, bool known)[] threats)
+            {
+                var q = Make<QuestDefinition>("quest_" + key, "quest." + key, name, out var created);
+                if (!created) return q;
+                var list = new List<QuestThreat>();
+                foreach (var (t, known) in threats) list.Add(new QuestThreat { threat = t, knownAtStart = known });
+                q.EditorSetupQuest(d, seconds, list, gold, true, recovery, prestige, brief);
+                EditorUtility.SetDirty(q);
+                return q;
+            }
+            var quests = new List<QuestDefinition>
+            {
+                Quest("local_supply_survey", "Local Supply Survey", 0, 60f, 8, true, 20, "A patron-sponsored survey of the nearby roads. Always safe; pays little."),
+                Quest("roadside_patrol", "Roadside Patrol", 14, 90f, 28, false, 20, "Walk the trade road and see off anything bothering travellers."),
+                Quest("briar_track", "Briar Track", 18, 120f, 36, false, 25, "An overgrown trail into the hills.", (exploration, true)),
+                Quest("old_shrine", "Old Shrine", 20, 150f, 44, false, 30, "A ruined shrine where strange lights are reported.", (arcane, true)),
+                Quest("quarry_road", "Quarry Road", 22, 180f, 48, false, 35, "The abandoned quarry road.", (heavy, false)),
+                Quest("fen_path", "Fen Path", 23, 180f, 50, false, 35, "A path through the fens; travellers come back sick.", (poisonT, true)),
+                Quest("fallen_watchtower", "Fallen Watchtower", 24, 210f, 54, false, 40, "A collapsed watchtower with something still inside.", (traps, false)),
+                Quest("shrine_chamber", "Shrine Chamber", 27, 240f, 65, false, 45, "The sealed chamber beneath the Old Shrine.", (arcane, true), (exploration, false)),
+            };
+
+            ContractorDefinition Contractor(string key, string name, AdventurerClassDefinition cls, TraitDefinition trait, bool sponsored, int skin)
+            {
+                var c = Make<ContractorDefinition>("contractor_" + key, "contractor." + key, name, out var created);
+                if (created)
+                {
+                    c.EditorSetupContractor(cls, 1, trait != null ? new List<TraitDefinition> { trait } : new List<TraitDefinition>(), 1f, sponsored, skin);
+                    EditorUtility.SetDirty(c);
+                }
+                return c;
+            }
+            // GDD 11 example fixtures (neutral personality price 1.0 so the GDD's example quotes hold).
+            var contractors = new List<ContractorDefinition>
+            {
+                Contractor("elin_moss", "Elin Moss", ranger, woodland, false, 0),
+                Contractor("bram_flint", "Bram Flint", warrior, cautious, false, 1),
+                Contractor("nessa_quick", "Nessa Quick", rogue, bold, false, 2),
+                Contractor("ivo_reed", "Ivo Reed", mage, poison, false, 1),
+                Contractor("wren_tallow", "Wren Tallow (sponsored)", warrior, null, true, 0),
+            };
+
+            var poolPath = ConfigDir + "ContractorNamePool.asset";
+            var poolCreated = !File.Exists(poolPath);
+            var pool = EnsureAsset<ContractorNamePool>(poolPath);
+            if (poolCreated)
+            {
+                pool.EditorSetup(
+                    new List<string> { "Aldis", "Bryn", "Cato", "Delia", "Edda", "Fenn", "Garrow", "Hale", "Isolde", "Joss", "Kestra", "Lark", "Maren", "Nils", "Orla", "Pim", "Rook", "Sable", "Tamsin", "Ulric" },
+                    new List<string> { "Ashdown", "Brackwater", "Cinderfell", "Dunmore", "Elmsworth", "Fallow", "Greythorn", "Holloway", "Ironside", "Juniper", "Kettleby", "Larkmoor", "Mossgrave", "Northcote", "Oakhurst", "Pellow", "Quarrie", "Rushford", "Stonebridge", "Thistlewood" });
+                EditorUtility.SetDirty(pool);
+            }
+
+            if (catalogue.Classes.Count == 0)
+            {
+                catalogue.EditorSetJobs(new List<AdventurerClassDefinition> { warrior, ranger, rogue, mage },
+                    new List<TraitDefinition> { cautious, bold, woodland, poison },
+                    new List<ThreatDefinition> { exploration, arcane, heavy, poisonT, traps }, quests, contractors, pool);
+                EditorUtility.SetDirty(catalogue);
+            }
+        }
+
         private static UiTheme EnsureUiTheme()
         {
             var path = ConfigDir + "UiTheme.asset";
@@ -499,6 +616,7 @@ namespace Ravenholm.EditorTools
             if (t.joystickRing == null) { t.joystickRing = LoadSprite("UI/ui_joystick_ring"); EditorUtility.SetDirty(t); }
             if (t.joystickKnob == null) { t.joystickKnob = LoadSprite("UI/ui_joystick_knob"); EditorUtility.SetDirty(t); }
             if (t.treeIcon == null) { t.treeIcon = LoadSprite("Nature/tree_cedar"); EditorUtility.SetDirty(t); }
+            if (t.board == null) { t.board = LoadSprite("UI/Icons/ic_board"); EditorUtility.SetDirty(t); }
             if (!created && t.panel != null) return t;
             t.panel = LoadSprite("UI/ui_panel");
             t.panelDark = LoadSprite("UI/ui_panel_dark");

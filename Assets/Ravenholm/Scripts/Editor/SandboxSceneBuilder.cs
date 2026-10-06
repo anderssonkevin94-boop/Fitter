@@ -157,14 +157,11 @@ namespace Ravenholm.EditorTools
             // --- people ---
             var player = Character(people, "Supplier (you)", new Vector2(0f, 0f), 0, "ov_supplier",
                 "You run the supply company. You walk, carry and craft; you never fight.", "", isPlayer: true);
-            Character(people, "Bram Flint · Warrior", new Vector2(-1.9f, 1.75f), 1, "ov_warrior",
-                "Example contractor fixture (level 1, Cautious). Independent; quotes their own fee.", "Phase 4 applicants");
-            Character(people, "Elin Moss · Ranger", new Vector2(-1.15f, 1.35f), 0, "ov_ranger",
-                "Example contractor fixture (level 1, Woodland Familiar).", "Phase 4 applicants");
-            Character(people, "Nessa Quick · Rogue", new Vector2(1.15f, 1.35f), 2, "ov_rogue",
-                "Example contractor fixture (level 1, Bold).", "Phase 4 applicants");
-            Character(people, "Ivo Reed · Mage", new Vector2(1.9f, 1.75f), 1, "ov_mage",
-                "Example contractor fixture (level 1, Poison Trained).", "Phase 4 applicants");
+            // Applicants gather at the Store front for the open posting (Phase 4).
+            var crowd = new GameObject("Applicants").AddComponent<ApplicantCrowdView>();
+            crowd.transform.SetParent(people, false);
+            crowd.EditorSetup(new List<Vector2> { new Vector2(-1.9f, 1.75f), new Vector2(-1.15f, 1.35f), new Vector2(1.15f, 1.35f), new Vector2(1.9f, 1.75f) },
+                new List<Sprite> { ProjectSetup.LoadSprite("Characters/char_base_0"), ProjectSetup.LoadSprite("Characters/char_base_1"), ProjectSetup.LoadSprite("Characters/char_base_2") });
             var mouth = new GameObject("MouthPoint").transform;
             mouth.SetParent(mine.transform, false);
             mouth.localPosition = new Vector3(0f, 0.15f, 0f);

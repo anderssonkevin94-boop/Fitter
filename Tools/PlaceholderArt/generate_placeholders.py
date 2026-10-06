@@ -890,6 +890,14 @@ def ic_gear(d, cx, cy, r):
     d.ellipse([cx - r * 0.3, cy - r * 0.3, cx + r * 0.3, cy + r * 0.3], fill=(244, 236, 220, 255), outline=INK, width=2 * S)
 
 
+def ic_board(d, cx, cy, r):
+    d.rounded_rectangle([cx - r, cy - r * 0.8, cx + r, cy + r * 0.75], radius=r * 0.12, fill=TIMBER_L, outline=INK, width=OL)
+    for i, (x, y) in enumerate(((-0.55, -0.45), (0.05, -0.5), (-0.25, 0.05))):
+        poly(d, [(cx + x * r, cy + y * r), (cx + (x + 0.45) * r, cy + (y + 0.05) * r), (cx + (x + 0.45) * r, cy + (y + 0.5) * r), (cx + x * r, cy + (y + 0.45) * r)],
+             (244, 232, 208, 255), width=2 * S)
+    d.ellipse([cx + 0.35 * r, cy + 0.15 * r, cx + 0.65 * r, cy + 0.45 * r], fill=(200, 72, 60, 255), outline=INK, width=2 * S)
+
+
 def ui_round_button():
     img = Image.new("RGBA", (128 * S, 128 * S), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -1048,6 +1056,7 @@ def main():
         ("ic_warning", ic_warning, "Status icon: warning/blocked"), ("ic_lock", ic_lock, "Status icon: locked"),
         ("ic_clock", ic_clock, "Status icon: timer"), ("ic_unknown", ic_unknown, "Status icon: unknown/not identified"),
         ("ic_hand", ic_hand, "Status icon: interact"), ("ic_gear", ic_gear, "Status icon: settings/debug"),
+        ("ic_board", ic_board, "Status icon: Job Board"),
     ):
         ui_icon(name, fn, desc)
     write_meta_and_provenance()

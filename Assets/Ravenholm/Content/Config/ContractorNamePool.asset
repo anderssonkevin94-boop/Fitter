@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 263cf78ad55484835ab9e7c7a743f6d6, type: 3}
+  m_Name: ContractorNamePool
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ContractorNamePool
+  givenNames:
+  - Aldis
+  - Bryn
+  - Cato
+  - Delia
+  - Edda
+  - Fenn
+  - Garrow
+  - Hale
+  - Isolde
+  - Joss
+  - Kestra
+  - Lark
+  - Maren
+  - Nils
+  - Orla
+  - Pim
+  - Rook
+  - Sable
+  - Tamsin
+  - Ulric
+  familyNames:
+  - Ashdown
+  - Brackwater
+  - Cinderfell
+  - Dunmore
+  - Elmsworth
+  - Fallow
+  - Greythorn
+  - Holloway
+  - Ironside
+  - Juniper
+  - Kettleby
+  - Larkmoor
+  - Mossgrave
+  - Northcote
+  - Oakhurst
+  - Pellow
+  - Quarrie
+  - Rushford
+  - Stonebridge
+  - Thistlewood

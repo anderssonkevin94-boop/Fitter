@@ -103,6 +103,7 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Tiles/tile_path.png` | Isometric ground tile (pebbles) |
 | `Tiles/tile_plaza.png` | Isometric ground tile (flags) |
 | `UI/Icons/ic_bag.png` | Status icon: carry |
+| `UI/Icons/ic_board.png` | Status icon: Job Board |
 | `UI/Icons/ic_check.png` | Status icon: ready/ok |
 | `UI/Icons/ic_clock.png` | Status icon: timer |
 | `UI/Icons/ic_coin.png` | Status icon: gold |

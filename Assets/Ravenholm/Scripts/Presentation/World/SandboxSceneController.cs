@@ -29,6 +29,9 @@ namespace Ravenholm.Presentation
         public Transform Player => player;
         public Inspectable ContextTarget => _contextTarget;
 
+        /// <summary>Re-collects inspectables after the scene spawns or removes some (applicants).</summary>
+        public void RefreshInspectables() => _inspectables = FindObjectsByType<Inspectable>(FindObjectsInactive.Exclude);
+
         public void EditorSetup(Camera cam, Transform playerTransform)
         {
             worldCamera = cam;
@@ -63,6 +66,7 @@ namespace Ravenholm.Presentation
             // Simulation keeps running during menus (GDD 2); only direct movement stops under a modal.
             _root.Services.Sites.Tick(Time.deltaTime);
             _root.Services.Production.Tick(Time.deltaTime);
+            _root.Services.Jobs.Tick(Time.deltaTime);
             // Pickup and delivery are automatic and never depend on the context button (GDD 3).
             _root.Services.Logistics.System.Tick(Time.deltaTime, player.position.x, player.position.y);
 

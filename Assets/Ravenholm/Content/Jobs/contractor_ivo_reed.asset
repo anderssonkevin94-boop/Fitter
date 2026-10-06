@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74f8a88d2b5d4410ea26a84c0f699b5e, type: 3}
+  m_Name: contractor_ivo_reed
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ContractorDefinition
+  id: contractor.ivo_reed
+  displayName: Ivo Reed
+  contentVersion: 1
+  adventurerClass: {fileID: 11400000, guid: 5e78eb1e32aba4e2c8a6c575689021ff, type: 2}
+  level: 1
+  traits:
+  - {fileID: 11400000, guid: d2e6c0c6ef9304b009b6811bdc7b0478, type: 2}
+  personalityPrice: 1
+  sponsored: 0
+  skin: 1

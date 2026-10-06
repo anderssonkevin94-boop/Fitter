@@ -138,6 +138,7 @@ namespace Ravenholm.Services
 
         void ISaveSection.Read(SaveEnvelope env)
         {
+            System.ClearAllReservations();
             _state.Carry.Clear();
             _state.Containers.Clear();
             _state.SharedMaterials.Clear();

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c4b1ae7790f243f99270112d70e2d93, type: 3}
+  m_Name: quest_fallen_watchtower
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
+  id: quest.fallen_watchtower
+  displayName: Fallen Watchtower
+  contentVersion: 1
+  difficulty: 24
+  durationSeconds: 210
+  threats:
+  - threat: {fileID: 11400000, guid: 05274abe26a254da895ea72c3ffe399b, type: 2}
+    knownAtStart: 0
+  baseGold: 54
+  repeatable: 1
+  recoveryContract: 0
+  prestigeTarget: 40
+  brief: A collapsed watchtower with something still inside.

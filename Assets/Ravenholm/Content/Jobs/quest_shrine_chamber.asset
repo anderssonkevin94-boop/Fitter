@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c4b1ae7790f243f99270112d70e2d93, type: 3}
+  m_Name: quest_shrine_chamber
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
+  id: quest.shrine_chamber
+  displayName: Shrine Chamber
+  contentVersion: 1
+  difficulty: 27
+  durationSeconds: 240
+  threats:
+  - threat: {fileID: 11400000, guid: 8a652df0113ae41a793c249e7281096e, type: 2}
+    knownAtStart: 1
+  - threat: {fileID: 11400000, guid: b7dd25e2d92894af285942483ce1cd21, type: 2}
+    knownAtStart: 0
+  baseGold: 65
+  repeatable: 1
+  recoveryContract: 0
+  prestigeTarget: 45
+  brief: The sealed chamber beneath the Old Shrine.

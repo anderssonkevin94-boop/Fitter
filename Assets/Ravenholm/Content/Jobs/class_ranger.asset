@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84a18982c8bae4e46b084c46d83fd4eb, type: 3}
+  m_Name: class_ranger
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.AdventurerClassDefinition
+  id: class.ranger
+  displayName: Ranger
+  contentVersion: 1
+  might: 5
+  survival: 7
+  insight: 8
+  gainPerLevel: 1
+  weaponTags: 03000000
+  counters:
+  - tag: 3
+    strength: 2
+  baseFee: 9
+  bonusRareRoll: 0
+  overlay: {fileID: 21300000, guid: f97ba693d3f4542c89a75516472c4cf6, type: 3}
+  role: 'Exploration: +2 exploration counter.'

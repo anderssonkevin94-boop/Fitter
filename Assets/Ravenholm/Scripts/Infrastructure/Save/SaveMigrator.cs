@@ -16,6 +16,7 @@ namespace Ravenholm.Infrastructure.Save
             { 2, MigrateV2ToV3 },
             { 3, MigrateV3ToV4 },
             { 4, MigrateV4ToV5 },
+            { 5, MigrateV5ToV6 },
         };
 
         /// <summary>Migrates <paramref name="root"/> in place up to the current schema.</summary>
@@ -46,6 +47,12 @@ namespace Ravenholm.Infrastructure.Save
             // Schema 1 used "version"; later schemas use "schemaVersion".
             var token = root["schemaVersion"] ?? root["version"];
             return token != null && token.Type == JTokenType.Integer ? token.Value<int>() : 0;
+        }
+
+        /// <summary>Schema 6 (Phase 4) adds "jobs": the company starts with the GDD 15 gold and reputation.</summary>
+        private static void MigrateV5ToV6(JObject o)
+        {
+            if (o["jobs"] == null) o["jobs"] = JValue.CreateNull();
         }
 
         /// <summary>

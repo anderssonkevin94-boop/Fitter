@@ -106,5 +106,56 @@ namespace Ravenholm.Presentation
             v.childForceExpandHeight = false;
             return v;
         }
+    
+        /// <summary>Modal layer with a parchment card, a title and a vertically scrolling content column.</summary>
+        public RectTransform ModalScroll(Transform parent, string name, out GameObject layer, out TextMeshProUGUI title)
+        {
+            var l = Rect(name, parent);
+            Stretch(l);
+            l.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.07f, 0.05f, 0.4f);
+            var card = Panel("Card", l, _theme.panel);
+            Stretch(card.rectTransform, 28f);
+            title = Text("Title", card.transform, "", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(980f, 80f));
+            var viewport = Rect("Viewport", card.transform);
+            Stretch(viewport);
+            viewport.offsetMin = new Vector2(36f, 36f);
+            viewport.offsetMax = new Vector2(-36f, -130f);
+            viewport.gameObject.AddComponent<RectMask2D>();
+            viewport.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, 0);
+            var content = Rect("Content", viewport);
+            content.anchorMin = new Vector2(0, 1);
+            content.anchorMax = new Vector2(1, 1);
+            content.pivot = new Vector2(0.5f, 1);
+            content.sizeDelta = Vector2.zero;
+            Column(content.gameObject, 16f, new RectOffset(12, 12, 8, 24));
+            content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var scroll = viewport.gameObject.AddComponent<ScrollRect>();
+            scroll.content = content;
+            scroll.viewport = viewport;
+            scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            layer = l.gameObject;
+            return content;
+        }
+
+        /// <summary>A text row whose content is re-read on every refresh.</summary>
+        public TextMeshProUGUI LiveText(Transform parent, float size)
+        {
+            var t = Text("Text", parent, "", size, _theme.ink, TextAlignmentOptions.TopLeft);
+            t.richText = true;
+            return t;
+        }
+
+        /// <summary>A full-width button with an auto-sized label.</summary>
+        public Button RowButton(Transform parent, Action onClick, out TextMeshProUGUI label)
+        {
+            var b = Button("Button", parent, "", onClick, out label);
+            label.fontSize = _theme.smallSize;
+            label.enableAutoSizing = true;
+            label.fontSizeMin = 20f;
+            label.fontSizeMax = _theme.smallSize;
+            return b;
+        }
     }
 }

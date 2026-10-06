@@ -30,6 +30,7 @@ MonoBehaviour:
   unknown: {fileID: 21300000, guid: e72c8f62426e64199bb53a4bd10ff6be, type: 3}
   interact: {fileID: 21300000, guid: 998ccc022595c4cf6a934230b1a73097, type: 3}
   settings: {fileID: 21300000, guid: c17fd5f473cc24fe1b65a20c45f9e304, type: 3}
+  board: {fileID: 21300000, guid: 73f2ffa163b1548ffa4b9c7d73a006a4, type: 3}
   ink: {r: 0.23137255, g: 0.16470589, b: 0.1254902, a: 1}
   inkOnDark: {r: 0.98039216, g: 0.9490196, b: 0.8862745, a: 1}
   accent: {r: 0.27450982, g: 0.53333336, b: 0.59607846, a: 1}
@@ -38,5 +39,3 @@ MonoBehaviour:
   smallSize: 32
   titleSize: 54
   minTouchTarget: 132
-  fixtureGold: 60
-  fixtureReputation: 20

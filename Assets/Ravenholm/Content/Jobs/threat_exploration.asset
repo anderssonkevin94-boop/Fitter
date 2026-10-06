@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b2426e8fef03429287f6a5ea7beb4e9, type: 3}
+  m_Name: threat_exploration
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ThreatDefinition
+  id: threat.exploration
+  displayName: Hard to find the way
+  contentVersion: 1
+  counterTag: 3
+  requiredCounterStrength: 2
+  unmetReadinessPenalty: -4
+  unmetSurvivalPenalty: 0
+  armorThreshold: 0
+  armorReadinessBonus: 0
+  armorSurvivalBonus: 0
+  revealText: Rangers or a known route help.

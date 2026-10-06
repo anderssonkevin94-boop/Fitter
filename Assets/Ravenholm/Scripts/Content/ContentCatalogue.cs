@@ -32,6 +32,12 @@ namespace Ravenholm.Content
         [SerializeField] private List<RecipeDefinition> recipes = new List<RecipeDefinition>();
         [SerializeField] private List<BlueprintDefinition> blueprints = new List<BlueprintDefinition>();
         [SerializeField] private StartingState startingState;
+        [SerializeField] private List<AdventurerClassDefinition> classes = new List<AdventurerClassDefinition>();
+        [SerializeField] private List<TraitDefinition> traits = new List<TraitDefinition>();
+        [SerializeField] private List<ThreatDefinition> threats = new List<ThreatDefinition>();
+        [SerializeField] private List<QuestDefinition> quests = new List<QuestDefinition>();
+        [SerializeField] private List<ContractorDefinition> contractors = new List<ContractorDefinition>();
+        [SerializeField] private ContractorNamePool namePool;
 
         private Dictionary<string, ContentDefinition> _byId;
 
@@ -46,6 +52,12 @@ namespace Ravenholm.Content
         public IReadOnlyList<RecipeDefinition> Recipes => recipes;
         public IReadOnlyList<BlueprintDefinition> Blueprints => blueprints;
         public StartingState StartingState => startingState;
+        public IReadOnlyList<AdventurerClassDefinition> Classes => classes;
+        public IReadOnlyList<TraitDefinition> Traits => traits;
+        public IReadOnlyList<ThreatDefinition> Threats => threats;
+        public IReadOnlyList<QuestDefinition> Quests => quests;
+        public IReadOnlyList<ContractorDefinition> Contractors => contractors;
+        public ContractorNamePool NamePool => namePool;
 
         public IEnumerable<ContentDefinition> All()
         {
@@ -59,6 +71,11 @@ namespace Ravenholm.Content
             foreach (var x in processes) yield return x;
             foreach (var x in recipes) yield return x;
             foreach (var x in blueprints) yield return x;
+            foreach (var x in classes) yield return x;
+            foreach (var x in traits) yield return x;
+            foreach (var x in threats) yield return x;
+            foreach (var x in quests) yield return x;
+            foreach (var x in contractors) yield return x;
         }
 
         public bool TryGet<T>(string id, out T definition) where T : ContentDefinition
@@ -126,7 +143,30 @@ namespace Ravenholm.Content
                 if (r.Station != null && !stations.Contains(r.Station)) report.Errors.Add($"{r.Describe()}: station not in the catalogue");
             }
             if (recipes.Count > 0 && startingState == null) report.Errors.Add("Content catalogue has recipes but no StartingState");
+
+            if (quests.Count > 0)
+            {
+                // GDD 15/22: a guaranteed recovery contract and a starter weapon for every class.
+                if (!quests.Exists(q => q != null && q.RecoveryContract)) report.Errors.Add("No recovery contract quest (GDD 15 requires one)");
+                foreach (var c in classes)
+                {
+                    if (c == null) continue;
+                    var ok = false;
+                    foreach (var r in recipes)
+                        if (r != null && r.OutputItem != null && r.RequiredBlueprint != null && r.RequiredBlueprint.OwnedAtStart &&
+                            r.OutputItem.Category == ItemCategory.Weapon && ContainsTag(c.WeaponTags, r.OutputItem.WeaponTag)) ok = true;
+                    if (!ok) report.Errors.Add($"{c.Describe()}: no starter weapon blueprint");
+                }
+                if (!contractors.Exists(x => x != null && x.Sponsored)) report.Errors.Add("No sponsored contractor for the recovery contract");
+                if (namePool == null) report.Errors.Add("No contractor name pool");
+            }
             return report;
+        }
+
+        private static bool ContainsTag(IReadOnlyList<WeaponTag> tags, WeaponTag t)
+        {
+            foreach (var x in tags) if (x == t) return true;
+            return false;
         }
 
         private void EnsureLookup()
@@ -156,6 +196,18 @@ namespace Ravenholm.Content
             recipes = newRecipes;
             blueprints = newBlueprints;
             startingState = start;
+            _byId = null;
+        }
+
+        public void EditorSetJobs(List<AdventurerClassDefinition> newClasses, List<TraitDefinition> newTraits, List<ThreatDefinition> newThreats,
+            List<QuestDefinition> newQuests, List<ContractorDefinition> newContractors, ContractorNamePool pool)
+        {
+            classes = newClasses;
+            traits = newTraits;
+            threats = newThreats;
+            quests = newQuests;
+            contractors = newContractors;
+            namePool = pool;
             _byId = null;
         }
 

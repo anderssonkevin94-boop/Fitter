@@ -28,6 +28,7 @@ namespace Ravenholm.Presentation
         public Sprite unknown;
         public Sprite interact;
         public Sprite settings;
+        public Sprite board;
 
         [Header("Colours")]
         public Color ink = new Color32(59, 42, 32, 255);
@@ -44,8 +45,5 @@ namespace Ravenholm.Presentation
         [Tooltip("Minimum touch target in reference pixels (44 pt at 3x = 132).")]
         [Min(44)] public float minTouchTarget = 132f;
 
-        [Header("Fixture HUD values (layout only, not systems yet)")]
-        public int fixtureGold = 60;
-        public int fixtureReputation = 20;
     }
 }

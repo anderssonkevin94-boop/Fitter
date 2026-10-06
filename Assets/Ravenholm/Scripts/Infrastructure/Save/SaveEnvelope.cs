@@ -12,7 +12,7 @@ namespace Ravenholm.Infrastructure.Save
     public sealed class SaveEnvelope
     {
         /// <summary>Current schema written by this build. Bump it and add a migration when the shape changes.</summary>
-        public const int CurrentSchemaVersion = 5;
+        public const int CurrentSchemaVersion = 6;
 
         [JsonProperty("schemaVersion", Required = Required.Always)] public int SchemaVersion = CurrentSchemaVersion;
         [JsonProperty("gameBuild")] public string GameBuild = "";
@@ -36,6 +36,9 @@ namespace Ravenholm.Infrastructure.Save
 
         /// <summary>Processing lines, facility levels and owned blueprints (schema 5+). Null = fresh start (starting stock granted).</summary>
         [JsonProperty("production")] public ProductionSaveData Production;
+
+        /// <summary>Company gold and reputation, contractors, the open posting and expeditions (schema 6+). Null = fresh.</summary>
+        [JsonProperty("jobs")] public JobsSaveData Jobs;
 
         public ulong GetWorldSeed() => ulong.Parse(WorldSeed, System.Globalization.CultureInfo.InvariantCulture);
 
@@ -168,5 +171,82 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("startMs")] public long StartMs;
         [JsonProperty("endMs")] public long EndMs;
         [JsonProperty("reserves")] public SortedDictionary<string, int> Reserves = new SortedDictionary<string, int>();
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class JobsSaveData
+    {
+        [JsonProperty("simMs")] public long SimMs;
+        [JsonProperty("gold")] public int Gold;
+        [JsonProperty("reputationTenths")] public int ReputationTenths;
+        [JsonProperty("contractors")] public List<ContractorSaveData> Contractors = new List<ContractorSaveData>();
+        [JsonProperty("posting")] public PostingSaveData Posting;
+        [JsonProperty("expeditions")] public List<ExpeditionSaveData> Expeditions = new List<ExpeditionSaveData>();
+        [JsonProperty("windowIndex")] public SortedDictionary<string, int> WindowIndex = new SortedDictionary<string, int>();
+        [JsonProperty("nextExpedition")] public long NextExpeditionNumber = 1;
+        [JsonProperty("generated")] public int GeneratedContractors;
+        [JsonProperty("firstDispatchDone")] public bool FirstDispatchDone;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class ContractorSaveData
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("class")] public string ClassId;
+        [JsonProperty("level")] public int Level;
+        [JsonProperty("xp")] public int Xp;
+        [JsonProperty("traits")] public List<string> Traits = new List<string>();
+        [JsonProperty("personalityPrice")] public double PersonalityPrice;
+        [JsonProperty("status")] public string Status;
+        [JsonProperty("injuredUntilMs")] public long InjuredUntilMs;
+        [JsonProperty("sponsored")] public bool Sponsored;
+        [JsonProperty("skin")] public int Skin;
+        [JsonProperty("jobs")] public int Jobs;
+        [JsonProperty("successes")] public int Successes;
+        [JsonProperty("lastNote")] public string LastNote;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class PostingSaveData
+    {
+        [JsonProperty("quest")] public string QuestId;
+        [JsonProperty("createdMs")] public long CreatedMs;
+        [JsonProperty("windowSeed")] public string WindowSeed;
+        [JsonProperty("applicants")] public List<ApplicantSaveData> Applicants = new List<ApplicantSaveData>();
+        [JsonProperty("noApplicantReason")] public string NoApplicantReason;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class ApplicantSaveData
+    {
+        [JsonProperty("contractor")] public string ContractorId;
+        [JsonProperty("fee")] public int Fee;
+        [JsonProperty("arriveMs")] public long ArriveMs;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class ExpeditionSaveData
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("quest")] public string QuestId;
+        [JsonProperty("contractor")] public string ContractorId;
+        [JsonProperty("feeQuoted")] public int FeeQuoted;
+        [JsonProperty("feePaid")] public int FeePaid;
+        [JsonProperty("sponsored")] public bool Sponsored;
+        [JsonProperty("items")] public List<string> Items = new List<string>();
+        [JsonProperty("startMs")] public long StartMs;
+        [JsonProperty("endMs")] public long EndMs;
+        [JsonProperty("seed")] public string Seed;
+        [JsonProperty("might")] public int Might;
+        [JsonProperty("survival")] public int Survival;
+        [JsonProperty("insight")] public int Insight;
+        [JsonProperty("weaponPower")] public int WeaponPower;
+        [JsonProperty("armorProtection")] public int ArmorProtection;
+        [JsonProperty("survivalPotionBonus")] public int SurvivalPotionBonus;
+        [JsonProperty("counters")] public SortedDictionary<string, int> Counters = new SortedDictionary<string, int>();
+        [JsonProperty("threats")] public List<string> ThreatIds = new List<string>();
+        [JsonProperty("forecast")] public string ForecastBand;
+        [JsonProperty("testDeparture")] public bool TestDeparture;
     }
 }

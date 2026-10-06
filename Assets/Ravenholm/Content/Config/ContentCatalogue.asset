@@ -85,3 +85,35 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8b5aa6630cd484e349f2cf17479b9917, type: 2}
   - {fileID: 11400000, guid: 558b7570f0bf5460f9e14aabb34d886f, type: 2}
   startingState: {fileID: 11400000, guid: 67bd531cd392f4f409178f6396e0877c, type: 2}
+  classes:
+  - {fileID: 11400000, guid: 4b7e772e5e83a4017b6709ebcd6ef955, type: 2}
+  - {fileID: 11400000, guid: eb99bb59e27ad4fc7b27fd75ad79cb76, type: 2}
+  - {fileID: 11400000, guid: 4b4d7215bdccd4834bd34cfbfe1c62d4, type: 2}
+  - {fileID: 11400000, guid: 5e78eb1e32aba4e2c8a6c575689021ff, type: 2}
+  traits:
+  - {fileID: 11400000, guid: 9fdccbb9b01084c038fb496eff69c52c, type: 2}
+  - {fileID: 11400000, guid: 129e1dfc6bf574f2aa037d82937bbd88, type: 2}
+  - {fileID: 11400000, guid: 99092f82971934ab9aed564554c4aa91, type: 2}
+  - {fileID: 11400000, guid: d2e6c0c6ef9304b009b6811bdc7b0478, type: 2}
+  threats:
+  - {fileID: 11400000, guid: b7dd25e2d92894af285942483ce1cd21, type: 2}
+  - {fileID: 11400000, guid: 8a652df0113ae41a793c249e7281096e, type: 2}
+  - {fileID: 11400000, guid: 7db2a1f0ea6374e259fc46a80e456a1b, type: 2}
+  - {fileID: 11400000, guid: b66ec082958954f34abb9e5d14ea3fcf, type: 2}
+  - {fileID: 11400000, guid: 05274abe26a254da895ea72c3ffe399b, type: 2}
+  quests:
+  - {fileID: 11400000, guid: cc8f2f8b7e539489f9a5bf9637bf6404, type: 2}
+  - {fileID: 11400000, guid: 33a81fdee718a4072802e64ab69802fc, type: 2}
+  - {fileID: 11400000, guid: fcbade42719714b5d8b755ea04fc400e, type: 2}
+  - {fileID: 11400000, guid: bb04e40da975c4bfe82854be0ad8de12, type: 2}
+  - {fileID: 11400000, guid: f6d3cb441f397438288554c047967242, type: 2}
+  - {fileID: 11400000, guid: 5d2290eed8aa742dfbf4df2ab281d2bc, type: 2}
+  - {fileID: 11400000, guid: 09dccb5b6909f4c369b4be65fef5a5d5, type: 2}
+  - {fileID: 11400000, guid: 613c08cae02c14471a56302edc7699ef, type: 2}
+  contractors:
+  - {fileID: 11400000, guid: 908ff0c48a47f4a0d8d760d94ff59b4e, type: 2}
+  - {fileID: 11400000, guid: abfe2449e8be64e1caa5bbcbba245917, type: 2}
+  - {fileID: 11400000, guid: 7e62df97c94134947af77392a9df14a1, type: 2}
+  - {fileID: 11400000, guid: a30f51021bc2e43c0b60ce8b7d4d2a22, type: 2}
+  - {fileID: 11400000, guid: a81715e7ee8fb4bcf8cfb19e939eaf9a, type: 2}
+  namePool: {fileID: 11400000, guid: 4fe746c185d534de59b231bff8def0ae, type: 2}

@@ -116,6 +116,34 @@ the GDD excludes monetization and analytics.
 - **Station panels:** every production building (and the Store) opens its panel via the context button. Each panel has a DEBUG level toggle for testing gates (upgrades are Phase 6).
 - **Saves:** schema 5 adds `production` (sim clock, processors with in-flight batches, reserves and queued changes, facility levels, blueprints) and `logistics.materialsConsumed`. The v4→v5 migration is tested with `save_v4_fixture.json`.
 
+## Phase 4 decisions (2026-10-06)
+
+- **Company:** gold (integer) and reputation (tenths, displayed rounded) live in the `jobs` save section. A new company starts with 60 gold and reputation 20 (BalanceProfile). The HUD chips are live.
+- **Classes and traits (GDD 10, data):** Warrior 8/8/3 fee 8 (blade, blunt); Ranger 5/7/8 fee 9 (bow, exploration +2); Rogue 7/4/8 fee 10 (light blade, traps +2, bonus rare roll flag); Mage 9/4/7 fee 13 (staff, arcane +4); +1 to all stats per level. Traits: Cautious (applies at Good or better), Bold (applies at Dangerous), Woodland Familiar (exploration +2), Poison Trained (poison +2).
+- **Forecast:** one shared calculator (`ForecastCalculator`) implements GDD 12 exactly: readiness A, clamped context C, survival V excluding the roll, risk words from the mean margin, and one step worse when V < 0.
+  - Counters add per threat. Reaching the required strength removes the unmet penalties ("countered"); below it the strength still adds ("helps").
+  - Heavy blows use the armor threshold. Unknown threats are left out and flagged "Limited knowledge".
+  - Tests cover the GDD worked example and monotonicity.
+- **Fees:** the GDD 10 formula (tested against the GDD's example quotes 15/13/17/21). Quoted once per applicant per posting and saved.
+- **Contractor pool:** the GDD's four example contractors (personality price 1.0) plus a sponsored contractor "Wren Tallow" and generated contractors up to 12. Generated names come from an editable `ContractorNamePool` (original names); levels scale with reputation (1 + rand(0..rep/30)); 60 % get one trait. Generation is deterministic per world.
+- **Posting:** one open posting; free; at most one active expedition per quest.
+  - **Applicants:** 2, then 3 at reputation 30 and 4 at 60. They arrive 10–30 s after posting. Screening uses the best compatible available gear with each contractor's willingness rule; Suicidal never applies.
+  - **No reroll:** the candidate window seed advances only when a posting is filled, so cancelling and reposting gives the same applicants and quotes.
+  - **Nobody applies:** a plain reason is given (availability, reputation or danger) and points to the Local Supply Survey.
+- **Recovery contract:** the "Local Supply Survey" is flagged in data. Its single applicant is always the sponsored contractor (a replacement is generated if needed), and the patron pays the fee. It has no threats; its safe result comes in Phase 5.
+- **Quest fixtures:** the eight GDD 17 quests are all postable now; prerequisites and unlocks come in Phase 5.
+  - Known at start (my choice): Briar Track exploration, Old Shrine arcane, Fen Path poison, Shrine Chamber arcane.
+  - Shown as "Threat not yet identified": Quarry Road heavy blows, Fallen Watchtower traps, Shrine Chamber exploration.
+- **Loadout:**
+  - Meeting an applicant (tap them at the Store, or via the Job Board) opens their card and four slots, prefilled with the best compatible weapon, best armor and one potion.
+  - Slots cycle through available item types. Store items are reserved while the editor is open and released on Back or cancel. Reservations are transient and never saved.
+  - **Review:** risk word, Limited knowledge, per-threat countered/helps/not countered, unidentified threats, potion triggers, fee or patron, and the "gear is permanently lost" line.
+  - The very first dispatch needs a second tap.
+- **Dispatch:** atomic. It re-validates posting, arrival, availability, slot limit (2), item custody and reservations, class compatibility, potion slots, refusal on a Suicidal actual loadout, and gold. Then it commits the fee, gear custody (Store → expedition), contractor status, timings, threat set, seed and a stat snapshot together.
+  - Phase 4 expeditions stop at a labelled TEST DEPARTURE. A debug button returns gear, refunds fees and frees contractors.
+- **Fix found by tests:** loadout-reserved items could be taken out of the Store by another caller. Only the reservation holder may take reserved items now.
+- **Saves:** schema 6 adds `jobs` (gold, reputation, contractors, posting with quotes and seed, expeditions with snapshots). The v5→v6 migration is tested with `save_v5_fixture.json`.
+
 ## Open blockers
 
 - **iOS build:** the Unity → Xcode device export succeeded headlessly on 2026-10-06 (0 errors, 1 warning, IL2CPP, 114 s). The Xcode compile/sign/install step has not run yet: the startup disk had only ~2.5 GB free, too little for Xcode intermediates. To do: free disk space, export again (Ravenholm > Build > iOS Xcode Project (Device)), open `Builds/iOS-Device/Unity-iPhone.xcodeproj`, pick a signing team, then Run on the iPhone.
@@ -123,7 +151,9 @@ the GDD excludes monetization and analytics.
 ## Playtest feedback
 
 - 2026-10-06: Phase 1 approved by the user ("proceed"). No playtest notes given yet; the Phase 1 tuning questions (joystick comfort, camera, pickup cadence, capacity, walk speed, trip length, interior) carry over.
-- Phases 2 and 3: awaiting the user's playtest (both implemented under the overnight authorization below).
+- Phases 2 and 3: built under the overnight authorization; installed on the user's iPhone 16 Pro on 2026-10-06 for playtesting.
+- Phase 4: built 2026-10-06 under "keep going with the phases"; awaiting playtest.
+- 2026-10-06: user: "ok keep going with the phases" (no playtest notes yet). Plan: Phase 4, then Phase 5 (full core loop); stop after Phase 5 for the GDD's extended multi-session playtest.
 - 2026-10-06 (night): the user explicitly authorized continuing through "one or two more phases" unattended ("feel free to do one or two more phases tonight while I sleep"). Plan: finish Phase 2, then Phase 3, each with its own checkpoint notes and commits; stop after Phase 3 at the latest. Playtest feedback for Phases 1 to 3 is still owed, and later tuning may redirect any of them.
 
 - 2026-10-06: Phase 0 approved by the user ("keep going" → "Yes, start Phase 1"). No tuning notes given; the Phase 0 framing questions (view width, character scale, silhouettes, HUD footprint) carry over to the Phase 1 playtest.

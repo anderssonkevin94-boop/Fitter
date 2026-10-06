@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Ravenholm.Domain.Jobs;
 using Ravenholm.Domain.Production;
 using Ravenholm.Domain.Sites;
 
@@ -19,12 +20,15 @@ namespace Ravenholm.Domain.Logistics
     /// either fully commits or changes nothing. Events fire only after the state change.
     /// Presentation feeds the player position; it never edits containers directly.
     /// </summary>
-    public sealed class LogisticsSystem : ISiteLedger, IProductionLedger
+    public sealed class LogisticsSystem : ISiteLedger, IProductionLedger, IGearLedger
     {
         private readonly LogisticsState _s;
         private readonly IAcceptanceRules _rules;
         private readonly LogisticsTuning _tuning;
         private readonly List<Func<IEnumerable<string>>> _externalHolders = new List<Func<IEnumerable<string>>>();
+        private readonly List<Func<IEnumerable<string>>> _externalItemHolders = new List<Func<IEnumerable<string>>>();
+        /// <summary>Transient Store reservations: instance → owner (GDD 4: released on clean load, never saved).</summary>
+        private readonly Dictionary<string, string> _reservations = new Dictionary<string, string>(StringComparer.Ordinal);
         private readonly LinkedList<TransactionRecord> _history = new LinkedList<TransactionRecord>();
         public const int HistoryLimit = 40;
         private float _accumulator;
@@ -309,6 +313,76 @@ namespace Ravenholm.Domain.Logistics
             return string.Join(", ", parts);
         }
 
+        // ------------------------------------------------------------------ gear custody (IGearLedger)
+
+        /// <summary>Item owners outside this state (expeditions), included in the audit.</summary>
+        public void RegisterExternalItemHolder(Func<IEnumerable<string>> holder) => _externalItemHolders.Add(holder);
+
+        public IReadOnlyList<string> StoreItems => _s.StoreItems;
+
+        public string DefinitionOfItem(string instanceId) =>
+            instanceId != null && _s.ItemDefinitions.TryGetValue(instanceId, out var d) ? d : null;
+
+        public bool IsReserved(string instanceId) => _reservations.ContainsKey(instanceId);
+
+        /// <summary>Reservations are transient: a clean load starts with none (GDD 4).</summary>
+        public void ClearAllReservations() => _reservations.Clear();
+
+        public bool IsReservedByOther(string instanceId, string owner) =>
+            _reservations.TryGetValue(instanceId, out var o) && o != owner;
+
+        public bool Reserve(string owner, IReadOnlyList<string> instanceIds)
+        {
+            foreach (var id in instanceIds)
+            {
+                if (_s.StoreItems.BinarySearch(id, StringComparer.Ordinal) < 0) return false;
+                if (IsReservedByOther(id, owner)) return false;
+            }
+            ReleaseReservations(owner);
+            foreach (var id in instanceIds) _reservations[id] = owner;
+            return true;
+        }
+
+        public void ReleaseReservations(string owner)
+        {
+            var mine = new List<string>();
+            foreach (var kv in _reservations) if (kv.Value == owner) mine.Add(kv.Key);
+            foreach (var id in mine) _reservations.Remove(id);
+        }
+
+        public bool TakeFromStore(IReadOnlyList<string> instanceIds, string owner, string reason)
+        {
+            foreach (var id in instanceIds)
+            {
+                if (_s.StoreItems.BinarySearch(id, StringComparer.Ordinal) < 0) return false;
+                // Only the reservation's own holder may take a reserved item out of the Store.
+                if (_reservations.TryGetValue(id, out var o) && o != owner) return false;
+            }
+            foreach (var id in instanceIds)
+            {
+                _s.StoreItems.RemoveAt(_s.StoreItems.BinarySearch(id, StringComparer.Ordinal));
+                _reservations.Remove(id);
+            }
+            if (instanceIds.Count > 0) Log(reason, $"{instanceIds.Count} item(s) → {owner}");
+            Changed?.Invoke();
+            return true;
+        }
+
+        public void ReturnToStore(IReadOnlyList<string> instanceIds, string reason)
+        {
+            foreach (var id in instanceIds) InsertSorted(_s.StoreItems, id);
+            if (instanceIds.Count > 0) Log(reason, $"{instanceIds.Count} item(s) → Store");
+            Changed?.Invoke();
+        }
+
+        /// <summary>Permanently destroys items held outside the Store (expedition loss). The instances stop existing.</summary>
+        public void DestroyItems(IReadOnlyList<string> instanceIds, string reason)
+        {
+            foreach (var id in instanceIds) _s.ItemDefinitions.Remove(id);
+            if (instanceIds.Count > 0) Log(reason, $"{instanceIds.Count} item(s) lost");
+            Changed?.Invoke();
+        }
+
         /// <summary>DEBUG: empties the carry into Store/shared inventory regardless of receivers ("Store return").</summary>
         public int DebugUnloadCarry()
         {
@@ -362,6 +436,7 @@ namespace Ravenholm.Domain.Logistics
             foreach (var c in _s.Containers.Values) foreach (var i in c.Items) Own(i);
             foreach (var u in _s.Carry) if (u.Kind == UnitKind.Item) Own(u.Id);
             foreach (var i in _s.StoreItems) Own(i);
+            foreach (var holder in _externalItemHolders) foreach (var i in holder()) Own(i);
             foreach (var id in _s.ItemDefinitions.Keys)
             {
                 owners.TryGetValue(id, out var n);

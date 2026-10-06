@@ -24,6 +24,11 @@ namespace Ravenholm.Presentation
 
         private TextMeshProUGUI _persistText;
         private TextMeshProUGUI _carryText;
+        private TextMeshProUGUI _goldText;
+        private TextMeshProUGUI _repText;
+        private TextMeshProUGUI _boardBadge;
+        private JobBoardPanel _jobBoard;
+        private LoadoutPanel _loadout;
         private RectTransform _carryChip;
         private float _carryPulse;
         private Image _joyRing;
@@ -61,6 +66,25 @@ namespace Ravenholm.Presentation
         {
             HideInfo();
             _stationPanel.Show(station);
+        }
+
+        public JobBoardPanel JobBoard => _jobBoard;
+        public LoadoutPanel Loadout => _loadout;
+
+        public void ShowJobBoard()
+        {
+            HideInfo();
+            _storePanel.Close();
+            _loadout.Close();
+            _jobBoard.Show();
+        }
+
+        /// <summary>Meet an applicant: card, loadout, forecast and Send (closes the board behind it).</summary>
+        public void ShowLoadout(string contractorId)
+        {
+            HideInfo();
+            _jobBoard.Close();
+            _loadout.Show(contractorId);
         }
 
         public void ShowStore()
@@ -131,6 +155,8 @@ namespace Ravenholm.Presentation
             _sitePanel = SitePanel.Create(safe, _ui, root);
             _stationPanel = StationPanel.Create(safe, _ui, root);
             _storePanel = StorePanel.Create(safe, _ui, root);
+            _jobBoard = JobBoardPanel.Create(safe, _ui, root);
+            _loadout = LoadoutPanel.Create(safe, _ui, root);
             BuildDebugLayer(safe);
 
             _root.Services.Saves.StatusChanged += _ => Refresh();
@@ -165,10 +191,23 @@ namespace Ravenholm.Presentation
             h.childControlWidth = h.childControlHeight = true;
             h.childForceExpandWidth = h.childForceExpandHeight = false;
 
-            Chip(chips, _theme.coin, _theme.fixtureGold.ToString(), 250f);
-            Chip(chips, _theme.reputation, _theme.fixtureReputation.ToString(), 220f);
+            _goldText = Chip(chips, _theme.coin, "0", 250f);
+            _repText = Chip(chips, _theme.reputation, "0", 220f);
             _carryText = Chip(chips, _theme.carry, "0/0", 270f);
             _carryChip = (RectTransform)_carryText.transform.parent;
+
+            // Job Board shortcut (GDD 11: also reachable from the Store).
+            var board = _ui.Panel("BoardButton", bar, _theme.roundButton);
+            board.type = Image.Type.Simple;
+            UiFactory.Place(board.rectTransform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-150f, 0), new Vector2(132f, 132f));
+            board.gameObject.AddComponent<Button>().onClick.AddListener(ShowJobBoard);
+            var bi = _ui.Icon("Icon", board.transform, _theme.board != null ? _theme.board : _theme.interact, 80f);
+            UiFactory.Place(bi.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 4f), new Vector2(80f, 80f));
+            var badge = _ui.Panel("Badge", board.transform, _theme.chip, new Color32(200, 72, 60, 255));
+            badge.raycastTarget = false;
+            UiFactory.Place(badge.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(10f, 10f), new Vector2(64f, 56f));
+            _boardBadge = _ui.Text("Count", badge.transform, "", _theme.smallSize - 4f, Color.white, TextAlignmentOptions.Center, FontStyles.Bold);
+            UiFactory.Stretch(_boardBadge.rectTransform);
 
             var gear = _ui.Panel("DebugButton", bar, _theme.roundButton);
             gear.type = Image.Type.Simple;
@@ -180,7 +219,7 @@ namespace Ravenholm.Presentation
             var banner = _ui.Panel("PhaseBanner", safe, _theme.panelDark);
             UiFactory.Place(banner.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180f), new Vector2(560f, 76f));
             banner.raycastTarget = false;
-            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 3", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 4", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(bt.rectTransform, 8f);
         }
 
@@ -320,7 +359,7 @@ namespace Ravenholm.Presentation
             var panel = _ui.Panel("Panel", layer, _theme.panel);
             UiFactory.Stretch(panel.rectTransform, 28f);
 
-            var title = _ui.Text("Title", panel.transform, "Debug · Phase 3", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            var title = _ui.Text("Title", panel.transform, "Debug · Phase 4", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             UiFactory.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(800f, 80f));
 
             // Scrollable body so the panel fits short (16:9) and tall phones alike.
@@ -402,6 +441,23 @@ namespace Ravenholm.Presentation
                 _root.Services.Production.DebugGrantMaterials(grant);
                 Report("Added 10 iron ingots, 6 copper ingots, 10 cedar lumber, 6 herbs to shared inventory (debug source).");
             }, out _);
+            _ui.Button("Departures", content, "Return test departures (debug)", () =>
+            {
+                var n = _root.Services.Jobs.DebugReturnTestDepartures();
+                Report($"{n} test departure(s) undone: gear back in the Store, fees refunded, contractors available.");
+            }, out _);
+            _ui.Button("Gold", content, "Set gold: 0 / 60 / 500 (debug)", () =>
+            {
+                var g = _root.Services.Jobs.State.Gold;
+                _root.Services.Jobs.DebugSetGold(g == 0 ? 60 : g == 60 ? 500 : 0);
+                Report($"Gold set to {_root.Services.Jobs.State.Gold}.");
+            }, out _);
+            _ui.Button("Rep", content, "Set reputation: 0 / 20 / 40 / 70 (debug)", () =>
+            {
+                var r = _root.Services.Jobs.State.Reputation;
+                _root.Services.Jobs.DebugSetReputation(r < 20 ? 20 : r < 40 ? 40 : r < 70 ? 70 : 0);
+                Report($"Reputation set to {_root.Services.Jobs.State.Reputation} (changes applicant count and fees for new postings).");
+            }, out _);
             _ui.Button("Validate", content, "Validate content", ValidateContent, out _);
 
             _debugStatus = _ui.Text("Status", content, "", _theme.smallSize - 4f, _theme.ink, TextAlignmentOptions.TopLeft);
@@ -420,6 +476,13 @@ namespace Ravenholm.Presentation
             _toastGroup.alpha = Mathf.MoveTowards(_toastGroup.alpha, Time.unscaledTime < _toastUntil ? 1f : 0f, Time.unscaledDeltaTime * 6f);
             _carryPulse = Mathf.MoveTowards(_carryPulse, 0f, Time.unscaledDeltaTime * 3f);
             _carryChip.localScale = Vector3.one * (1f + _carryPulse * 0.12f);
+            var jobs = _root.Services.Jobs.State;
+            _goldText.text = jobs.Gold.ToString();
+            _repText.text = jobs.Reputation.ToString();
+            var arrived = 0;
+            if (jobs.Posting != null) foreach (var a in jobs.Posting.Applicants) if (_root.Services.Jobs.Board.HasArrived(a)) arrived++;
+            _boardBadge.text = arrived > 0 ? arrived.ToString() : "";
+            _boardBadge.transform.parent.gameObject.SetActive(arrived > 0);
             if (_resetArmedUntil > 0 && Time.unscaledTime > _resetArmedUntil)
             {
                 _resetArmedUntil = -1f;
@@ -488,6 +551,8 @@ namespace Ravenholm.Presentation
             _sitePanel.Close();
             _stationPanel.Close();
             _storePanel.Close();
+            _jobBoard.Close();
+            _loadout.Close();
             _debugLayer.SetActive(true);
             TouchInputRouter.PushModal();
             _debugMessage = "";
@@ -627,7 +692,7 @@ namespace Ravenholm.Presentation
             sb.Append($"Screen {Screen.width}x{Screen.height}  ·  aspect {(float)Screen.height / Mathf.Max(1, Screen.width):0.00}:1\n");
             sb.Append($"Safe area {Screen.safeArea}\n");
             sb.Append($"Build {UnityEngine.Application.version}  ·  Unity {UnityEngine.Application.unityVersion}\n");
-            sb.Append("\nGold and reputation chips are layout fixtures, not systems yet.");
+            
             return sb.ToString();
         }
 

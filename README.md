@@ -3,7 +3,7 @@
 iOS-first, portrait fantasy supply-company management game in Unity.
 Design authority: *Ravenholm Supply Co Unity GDD* (design baseline 1.0, 6 Oct 2026).
 
-**Current state: Phase 3 checkpoint (processing, crafting and Store logistics). Phases 0–1 approved; Phases 2–3 built under the user's overnight authorization and awaiting playtest. Phase 4 has not started.**
+**Current state: Phase 4 checkpoint (Job Board and applicant selection). Phases 0–1 approved; Phases 2–4 built under the user's authorization to keep going, awaiting playtest.**
 
 ## Open and run
 
@@ -26,6 +26,10 @@ Tool and pack tiers can be swapped in the site panel (DEBUG, no cost yet) to com
 Phase 3: delivered ore and logs are processed automatically (Smelter, Lumbermill; open them to pick the recipe, reserve, see progress).
 Open the Forge, Workbench or Apothecary to craft instantly from starter blueprints; the item appears on the station's output pad. Carry it to the Store's receiving strip; the racks fill, and "Open Store" lists everything (Weapons / Armor / Potions / All / Materials / Blueprints).
 Debug panel adds: grant the test blueprint (Copper ward staff), add test materials, recent transactions.
+
+Phase 4: open the Job Board (board button top right, or Store → Job Board), post a job, and wait ~10–30 s for applicants to gather at the Store.
+Tap an applicant (or use their card on the board) to meet them, set their loadout, read the forecast, and Send. Expeditions stop at a TEST DEPARTURE until Phase 5.
+Debug panel adds: return test departures (refund), set gold, set reputation.
 
 ## Reset the test save
 

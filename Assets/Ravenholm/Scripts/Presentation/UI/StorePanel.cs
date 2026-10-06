@@ -73,7 +73,7 @@ namespace Ravenholm.Presentation
 
             var viewport = UiFactory.Rect("Viewport", card.transform);
             UiFactory.Stretch(viewport);
-            viewport.offsetMin = new Vector2(36f, 190f);
+            viewport.offsetMin = new Vector2(36f, 340f);
             viewport.offsetMax = new Vector2(-36f, -420f);
             viewport.gameObject.AddComponent<RectMask2D>();
             viewport.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, 0);
@@ -89,6 +89,14 @@ namespace Ravenholm.Presentation
             scroll.viewport = viewport;
             scroll.horizontal = false;
             scroll.movementType = ScrollRect.MovementType.Clamped;
+
+            var boardBtn = _ui.Button("JobBoard", card.transform, "Job Board", () => _root.Hud.ShowJobBoard(), out _);
+            var brt = (RectTransform)boardBtn.transform;
+            brt.anchorMin = new Vector2(0, 0);
+            brt.anchorMax = new Vector2(1, 0);
+            brt.pivot = new Vector2(0.5f, 0);
+            brt.sizeDelta = new Vector2(-72f, _theme.minTouchTarget);
+            brt.anchoredPosition = new Vector2(0, 36f + _theme.minTouchTarget + 12f);
 
             var close = _ui.Button("Close", card.transform, "Close", Close, out _);
             var crt = (RectTransform)close.transform;

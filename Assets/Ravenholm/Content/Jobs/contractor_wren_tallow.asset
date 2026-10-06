@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74f8a88d2b5d4410ea26a84c0f699b5e, type: 3}
+  m_Name: contractor_wren_tallow
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ContractorDefinition
+  id: contractor.wren_tallow
+  displayName: Wren Tallow (sponsored)
+  contentVersion: 1
+  adventurerClass: {fileID: 11400000, guid: 4b7e772e5e83a4017b6709ebcd6ef955, type: 2}
+  level: 1
+  traits: []
+  personalityPrice: 1
+  sponsored: 1
+  skin: 0
