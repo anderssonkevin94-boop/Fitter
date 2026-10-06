@@ -629,6 +629,15 @@ namespace Ravenholm.Domain.Jobs
             if (due.Count > 0) Changed?.Invoke();
         }
 
+        /// <summary>Milliseconds until the next expedition completes (long.MaxValue if none). Used to order events.</summary>
+        public long NextCompletionDelay()
+        {
+            var best = long.MaxValue;
+            foreach (var e in _s.Expeditions)
+                if (!e.TestDeparture) best = Math.Min(best, Math.Max(0, e.EndMs - _s.SimMs));
+            return best;
+        }
+
         /// <summary>DEBUG: brings every running expedition's end time to now (they resolve on the next tick).</summary>
         public void DebugFinishExpeditionsNow()
         {

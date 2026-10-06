@@ -78,6 +78,7 @@ namespace Ravenholm.EditorTools
             EnsureSiteContent(catalogue);
             EnsureProductionContent(catalogue);
             EnsureJobContent(catalogue);
+            EnsureEconomyContent(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
@@ -658,6 +659,113 @@ namespace Ravenholm.EditorTools
                     new List<ThreatDefinition> { exploration, arcane, heavy, poisonT, traps }, quests, contractors, pool);
                 EditorUtility.SetDirty(catalogue);
             }
+        }
+
+        public const string EconomyDir = Root + "Content/Economy/";
+
+        /// <summary>Phase 6: the Trader's stock, GDD 16 upgrades and crew recruits (balance starting points).</summary>
+        private static void EnsureEconomyContent(ContentCatalogue catalogue)
+        {
+            ResourceDefinition R(string key) => catalogue.Get<ResourceDefinition>("resource." + key);
+            List<ResourceCost> M(params (string r, int q)[] c)
+            {
+                var l = new List<ResourceCost>();
+                foreach (var (r, qty) in c) l.Add(new ResourceCost { resource = R(r), quantity = qty });
+                return l;
+            }
+            var mine = catalogue.Get<SiteDefinition>("site.mine");
+            var forest = catalogue.Get<SiteDefinition>("site.forest");
+            StationDefinition St(string key) => catalogue.Get<StationDefinition>("station." + key);
+            QuestDefinition Q(string key) => catalogue.Get<QuestDefinition>("quest." + key);
+
+            // Crew expansion recruits (GDD 16: one additional named worker per site).
+            WorkerDefinition Recruit(string key, string name, int seed)
+            {
+                var path = WorkerDir + "worker_" + key + ".asset";
+                var created = !File.Exists(path);
+                var w = EnsureAsset<WorkerDefinition>(path);
+                if (!created) return w;
+                w.EditorInitialize("worker." + key, name);
+                w.EditorSetupWorker(seed, catalogue.Get<WorkerEquipmentDefinition>("equipment.tool_basic"), catalogue.Get<WorkerEquipmentDefinition>("equipment.pack_basic"));
+                EditorUtility.SetDirty(w);
+                return w;
+            }
+            var mara = Recruit("mara", "Mara Quill", 303);
+            var osk = Recruit("osk", "Osk Fennel", 404);
+            if (mine.Recruits.Count == 0) { mine.EditorSetRecruits(new List<WorkerDefinition> { mara }); EditorUtility.SetDirty(mine); }
+            if (forest.Recruits.Count == 0) { forest.EditorSetRecruits(new List<WorkerDefinition> { osk }); EditorUtility.SetDirty(forest); }
+            var workers = new List<WorkerDefinition>(catalogue.Workers);
+            if (!workers.Contains(mara) || !workers.Contains(osk))
+            {
+                if (!workers.Contains(mara)) workers.Add(mara);
+                if (!workers.Contains(osk)) workers.Add(osk);
+                catalogue.EditorSetSites(new List<SiteDefinition>(catalogue.Sites), new List<SiteBandDefinition>(catalogue.Bands), workers,
+                    new List<WorkerEquipmentDefinition>(catalogue.Equipment));
+                EditorUtility.SetDirty(catalogue);
+            }
+
+            UpgradeDefinition Up(string key, string name, UpgradeKind kind, StationDefinition st, SiteDefinition si, int level, int gold,
+                List<ResourceCost> mats, string effect, UpgradeDefinition reqUp = null, SiteDefinition reqSite = null, int reqBand = 0,
+                QuestDefinition reqQuest = null, int reqSuccesses = 0)
+            {
+                var path = EconomyDir + "upgrade_" + key + ".asset";
+                var created = !File.Exists(path);
+                var u = EnsureAsset<UpgradeDefinition>(path);
+                if (!created) return u;
+                u.EditorInitialize("upgrade." + key, name);
+                u.EditorSetupUpgrade(kind, st, si, level, gold, mats, effect, reqUp, reqSite, reqBand, reqQuest, reqSuccesses);
+                EditorUtility.SetDirty(u);
+                return u;
+            }
+            var smelter2 = Up("smelter_2", "Smelter 2", UpgradeKind.StationLevel, St("smelter"), null, 2, 50, M(("cedar_lumber", 8), ("iron_ingot", 6)),
+                "Unlocks steel; basic batch time ×0.85", reqSite: mine, reqBand: 3);
+            var mill2 = Up("lumbermill_2", "Lumbermill 2", UpgradeKind.StationLevel, St("lumbermill"), null, 2, 40, M(("iron_ingot", 6), ("cedar_lumber", 8)),
+                "Unlocks maple sawing; basic batch time ×0.85", reqSite: forest, reqBand: 2);
+            var forge2 = Up("forge_2", "Forge 2", UpgradeKind.StationLevel, St("forge"), null, 2, 70, M(("iron_ingot", 10), ("maple_lumber", 8)),
+                "Enables advanced metal recipes", reqUp: smelter2);
+            var apo2 = Up("apothecary_2", "Apothecary 2", UpgradeKind.StationLevel, St("apothecary"), null, 2, 45, M(("cedar_lumber", 6), ("copper_ingot", 4)),
+                "Enables advanced potions", reqQuest: Q("old_shrine"));
+            var mineEq2 = Up("mine_equipment_2", "Mine Equipment 2", UpgradeKind.SiteEquipment, null, mine, 2, 45, M(("iron_ingot", 6), ("cedar_lumber", 6)),
+                "Unlocks iron tools and framed packs for purchase", reqSuccesses: 2);
+            var forestEq2 = Up("forest_equipment_2", "Forest Equipment 2", UpgradeKind.SiteEquipment, null, forest, 2, 40, M(("iron_ingot", 6), ("cedar_lumber", 6)),
+                "Unlocks iron axes and framed packs for purchase", reqSuccesses: 2);
+            // Level 3 is not in the GDD table: an invented balance starting point for the tier 3 tools and packs.
+            var mineEq3 = Up("mine_equipment_3", "Mine Equipment 3", UpgradeKind.SiteEquipment, null, mine, 3, 90, M(("steel_ingot", 8), ("maple_lumber", 6)),
+                "Unlocks tempered tools and reinforced packs for purchase", reqUp: mineEq2, reqSuccesses: 5);
+            var forestEq3 = Up("forest_equipment_3", "Forest Equipment 3", UpgradeKind.SiteEquipment, null, forest, 3, 90, M(("steel_ingot", 8), ("maple_lumber", 6)),
+                "Unlocks tempered axes and reinforced packs for purchase", reqUp: forestEq2, reqSuccesses: 5);
+            var mineCrew = Up("mine_crew", "Mine crew expansion", UpgradeKind.CrewExpansion, null, mine, 1, 100, M(("iron_ingot", 10), ("cedar_lumber", 10)),
+                "One more named miner", reqUp: mineEq2);
+            var forestCrew = Up("forest_crew", "Forest crew expansion", UpgradeKind.CrewExpansion, null, forest, 1, 100, M(("iron_ingot", 10), ("cedar_lumber", 10)),
+                "One more named woodcutter", reqUp: forestEq2);
+
+            var traderPath = EconomyDir + "trader_stock.asset";
+            var traderCreated = !File.Exists(traderPath);
+            var trader = EnsureAsset<TraderStockDefinition>(traderPath);
+            if (traderCreated)
+            {
+                trader.EditorInitialize("trader.wandering", "Wandering Trader");
+                TraderStockEntry E(string key, string res, int price, int qty, StockAvailability a, float chance = 1f, QuestDefinition after = null) =>
+                    new TraderStockEntry { key = key, resource = res != null ? R(res) : null, sideBlueprint = res == null, price = price, quantity = qty, availability = a, chance = chance, afterQuest = after };
+                trader.EditorSetupTrader(new List<TraderStockEntry>
+                {
+                    E("rope", "rope", 8, 3, StockAvailability.Chance, 0.7f),
+                    E("fur", "fur", 8, 3, StockAvailability.Chance, 0.7f),
+                    E("arcane_dust", "arcane_dust", 12, 2, StockAvailability.AfterQuest, 1f, Q("old_shrine")),
+                    E("iron_bundle", "iron_ingot", 3, 6, StockAvailability.Guaranteed),
+                    E("cedar_bundle", "cedar_lumber", 3, 6, StockAvailability.Guaranteed),
+                    E("herbs", "herb", 4, 4, StockAvailability.Chance, 0.7f),
+                    E("side_blueprint", null, 45, 1, StockAvailability.Chance, 0.2f),
+                }, new List<BlueprintDefinition>(), 20f, 5f, 60f);
+                EditorUtility.SetDirty(trader);
+            }
+
+            if (catalogue.TraderStock == null || catalogue.Upgrades.Count == 0)
+            {
+                catalogue.EditorSetEconomy(trader, new List<UpgradeDefinition> { smelter2, mill2, forge2, apo2, mineEq2, forestEq2, mineEq3, forestEq3, mineCrew, forestCrew });
+                EditorUtility.SetDirty(catalogue);
+            }
+            AssetDatabase.SaveAssets();
         }
 
         private static UiTheme EnsureUiTheme()

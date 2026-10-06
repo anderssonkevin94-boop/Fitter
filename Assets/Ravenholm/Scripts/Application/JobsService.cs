@@ -217,8 +217,15 @@ namespace Ravenholm.Services
         {
             _completedThisTick = false;
             Board.Advance(ms);
-            if (_completedThisTick) _scheduler.SaveNow("expedition completed");
+            if (_completedThisTick && !DeferCompletionSaves) _scheduler.SaveNow("expedition completed");
+            else _scheduler.MarkDirty();
         }
+
+        /// <summary>
+        /// Offline catch-up commits once at the end: until then nothing is written, so an interrupted
+        /// catch-up simply re-runs from the previous save and no completion is ever applied twice.
+        /// </summary>
+        public bool DeferCompletionSaves { get; set; }
 
         public bool Post(string questId, out string failure)
         {
@@ -257,6 +264,25 @@ namespace Ravenholm.Services
         public void DebugForceNext(Outcome? outcome) => _state.ForcedNext = outcome;
 
         public void DebugFinishExpeditionsNow() => Board.DebugFinishExpeditionsNow();
+
+        /// <summary>Company gold change (purchases, sales). Never goes below zero: callers check first (no debt, GDD 15).</summary>
+        public void AddGold(int delta)
+        {
+            _state.Gold = Math.Max(0, _state.Gold + delta);
+            _scheduler.MarkDirty();
+        }
+
+        /// <summary>Ordinary (non-recovery) quest successes so far, for upgrade prerequisites.</summary>
+        public int OrdinarySuccesses()
+        {
+            var n = 0;
+            foreach (var kv in _state.Progress)
+            {
+                var q = _content.Quest(kv.Key);
+                if (q != null && !q.Recovery) n += kv.Value.Successes;
+            }
+            return n;
+        }
 
         public void DebugSetGold(int gold)
         {

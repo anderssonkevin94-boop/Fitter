@@ -33,6 +33,9 @@ namespace Ravenholm.Services
             _scheduler.SaveNow("session start");
         }
 
+        /// <summary>Counts a session without loading (the boot sequence loads and catches up first).</summary>
+        public void CountSession() => _state.SessionCount++;
+
         /// <summary>DEBUG: reload every section from disk.</summary>
         public void LoadFromDisk() => _scheduler.LoadAll();
 

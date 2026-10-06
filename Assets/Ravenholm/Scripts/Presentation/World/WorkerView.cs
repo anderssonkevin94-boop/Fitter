@@ -80,9 +80,31 @@ namespace Ravenholm.Presentation
             return w != null;
         }
 
+        private bool? _present;
+
+        /// <summary>Crew recruits exist in the scene from the start but appear only once hired (GDD 16).</summary>
+        private void SetPresent(bool present)
+        {
+            if (_present == present) return;
+            _present = present;
+            visual.gameObject.SetActive(present);
+            if (!present)
+            {
+                if (bubble != null) bubble.gameObject.SetActive(false);
+                foreach (var p in _packPieces) p.gameObject.SetActive(false);
+            }
+            var col = GetComponent<Collider2D>();
+            if (col != null) col.enabled = present;
+            var insp = GetComponent<WorkerInspectable>();
+            if (insp != null) insp.enabled = present;
+            if (present && stagingPoint != null) transform.position = stagingPoint.position + new Vector3(0.55f, -0.1f, 0f);
+            _from = transform.position;
+        }
+
         private void Update()
         {
-            if (!TryGetWorker(out var sim, out var w)) return;
+            if (!TryGetWorker(out var sim, out var w)) { SetPresent(false); return; }
+            SetPresent(true);
             var s = sim.Record;
 
             if (w.PhaseStartMs != _seenPhaseStart || w.State != _seenState)

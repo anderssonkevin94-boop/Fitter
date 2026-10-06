@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1dd781785472412e87ab6adecaf5cf9, type: 3}
+  m_Name: upgrade_mine_crew
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.UpgradeDefinition
+  id: upgrade.mine_crew
+  displayName: Mine crew expansion
+  contentVersion: 1
+  kind: 2
+  station: {fileID: 0}
+  site: {fileID: 11400000, guid: f06cacf8a875440fcb999361f272ff41, type: 2}
+  level: 1
+  goldCost: 100
+  materialCost:
+  - resource: {fileID: 11400000, guid: 7c9623d2f89ef4f0bb58c106302da3e3, type: 2}
+    quantity: 10
+  - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
+    quantity: 10
+  effect: One more named miner
+  requiresUpgrade: {fileID: 11400000, guid: 820b4ccea7e644ea58e10aa306d3be69, type: 2}
+  requiresSiteBand: {fileID: 0}
+  requiresBand: 0
+  requiresQuestSuccess: {fileID: 0}
+  requiresOrdinarySuccesses: 0

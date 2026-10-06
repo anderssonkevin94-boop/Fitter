@@ -87,8 +87,9 @@ namespace Ravenholm.EditorTools
                 "Crafts bows and staves instantly. Finished goods appear on its output pad.", "", new Vector2(1.5f, 1.5f), stationId: "station.workbench");
             var apothecary = Building(buildings, "Apothecary", "bld_apothecary", new Vector2(-2.9f, -1.7f), new Vector2(2.2f, 2.2f),
                 "Receives herbs (no processing needed). Potions are crafted here.", "", new Vector2(2f, 2f), ReceiverKind.Apothecary, stationId: "station.apothecary");
-            Building(buildings, "Trader Pad", "bld_trader_pad", new Vector2(3.0f, -2.1f), new Vector2(2.2f, 2.0f),
-                "A periodic visitor sets up here to sell external materials and buy equipment at poor prices.", "Phase 6 Trader", new Vector2(2f, 2f));
+            var traderPad = Building(buildings, "Trader Pad", "bld_trader_pad", new Vector2(3.0f, -2.1f), new Vector2(2.2f, 2.0f),
+                "A periodic visitor sets up here to sell external materials and buy Store goods at poor prices.", "", new Vector2(2f, 2f));
+            TraderStall(traderPad);
             var mine = Building(buildings, "Mine", "bld_mine_mouth", new Vector2(-9.0f, 6.0f), new Vector2(4.2f, 2.8f),
                 "One active production site. Workers strike the current face; you choose to continue this layer or reveal a deeper one.",
                 "", footprint: null, siteId: "site.mine");
@@ -167,6 +168,9 @@ namespace Ravenholm.EditorTools
             mouth.localPosition = new Vector3(0f, 0.15f, 0f);
             Worker(people, "Dagna Holt", "site.mine", "worker.dagna", 2, "ov_miner", mineStaging, mouth, null);
             Worker(people, "Tobin Ash", "site.forest", "worker.tobin", 0, "ov_woodcutter", forestStaging, null, pocket);
+            // Crew expansion recruits (Phase 6): hidden until hired.
+            Worker(people, "Mara Quill", "site.mine", "worker.mara", 1, "ov_miner", mineStaging, mouth, null);
+            Worker(people, "Osk Fennel", "site.forest", "worker.osk", 1, "ov_woodcutter", forestStaging, null, pocket);
             SiteMarker(mine.transform, "site.mine", 1.7f);
             SiteMarker(gate.transform, "site.forest", 2.0f);
 
@@ -537,6 +541,27 @@ namespace Ravenholm.EditorTools
             var insp = root.AddComponent<WorkerInspectable>();
             insp.EditorSetup(title, "Worker.", "");
             insp.EditorSetupWorker(view);
+        }
+
+        /// <summary>Phase 6: the visiting Trader and goods, shown only while the Trader is in town.</summary>
+        private static void TraderStall(SpriteRenderer pad)
+        {
+            var generic = pad.GetComponent<Inspectable>();
+            var title = generic.Title;
+            Object.DestroyImmediate(generic);
+            var stall = new GameObject("Stall");
+            stall.transform.SetParent(pad.transform, false);
+            stall.AddComponent<SortingGroup>();
+            Sprite(stall.transform, "Base", "Characters/char_base_1", new Vector2(-0.45f, 0.1f), 0);
+            Sprite(stall.transform, "Overlay", "Characters/ov_supplier", new Vector2(-0.45f, 0.1f), 1);
+            Sprite(stall.transform, "Goods", "Props/pile_lumber", new Vector2(0.45f, 0.05f), 0);
+            Sprite(stall.transform, "Ingots", "Props/pile_ingots", new Vector2(0.15f, -0.2f), 1);
+            var coin = Sprite(stall.transform, "Coin", "UI/Icons/ic_coin", new Vector2(-0.45f, 1.45f), 3);
+            coin.transform.localScale = Vector3.one * 0.6f;
+            stall.SetActive(false);
+            var trader = pad.gameObject.AddComponent<TraderInspectable>();
+            trader.EditorSetup(title, "A periodic visitor sets up here to sell external materials and buy Store goods at poor prices.", "");
+            trader.EditorSetupTrader(stall);
         }
 
         private static void SiteMarker(Transform site, string siteId, float height)

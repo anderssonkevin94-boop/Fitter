@@ -3,7 +3,7 @@
 iOS-first, portrait fantasy supply-company management game in Unity.
 Design authority: *Ravenholm Supply Co Unity GDD* (design baseline 1.0, 6 Oct 2026).
 
-**Current state: Phase 5 checkpoint (quest resolution and the full core loop). Phases 0–1 approved; Phases 2–5 built under the user's authorization to keep going. Awaiting the extended full-loop playtest before Phase 6.**
+**Current state: Phase 6 checkpoint (Trader, upgrades, worker equipment and crew, offline catch-up, recovery): the functional MVP. Phases 0–1 approved; Phases 2–6 built under the user's authorization to keep going. Awaiting playtest before Phase 7.**
 
 ## Open and run
 
@@ -35,6 +35,11 @@ Phase 5: expeditions now resolve when their timer ends (Roadside Patrol 90 s; us
 A toast announces the return; open the Job Board to read the result card (gold, materials, gear back or lost, injuries, reputation, new knowledge, why).
 Successes unlock new jobs on the map and first-success blueprints. Deaths are permanent and lose the carried gear.
 Debug panel adds: force next outcome, finish expeditions now. The loadout shows a small DEBUG line with exact odds.
+
+Phase 6: after your first ordinary quest returns, the Trader arrives at the Trader Pad a minute later. Visits last 5 minutes every 20 minutes; a toast announces each arrival. Buy materials (iron and cedar are always on offer) or sell Store goods cheaply.
+Building panels show their next upgrade with its exact cost and prerequisite. The Mine and Forest panels show site equipment, crew expansion, and tool and pack purchases for each worker.
+Close the app and come back later: sites and facilities keep working for up to 8 hours, expeditions finish, and a "While you were away" card sums it up.
+Debug panel adds: simulate time away (+1 h / +8 h / +24 h), summon the Trader now.
 
 ## Reset the test save
 

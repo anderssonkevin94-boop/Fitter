@@ -232,6 +232,8 @@ namespace Ravenholm.Tests
             _g.Production.System.GrantBlueprint("blueprint.copper_ward_staff");
             var count = _g.Production.System.State.Blueprints.Count;
             var copper = Log.SharedAvailable("resource.copper_ingot");
+            // Test fixture: the applicant pool is random per world seed; seasoned contractors make sure someone takes Old Shrine.
+            foreach (var c0 in _g.Jobs.State.Contractors.Values) c0.Level = 6;
             var r2 = Finish(Send("quest.old_shrine", Outcome.Success));
             Assert.IsNull(r2.BlueprintGranted);
             Assert.IsTrue(r2.SubstituteGranted);

@@ -38,6 +38,8 @@ namespace Ravenholm.Content
         [SerializeField] private List<QuestDefinition> quests = new List<QuestDefinition>();
         [SerializeField] private List<ContractorDefinition> contractors = new List<ContractorDefinition>();
         [SerializeField] private ContractorNamePool namePool;
+        [SerializeField] private TraderStockDefinition traderStock;
+        [SerializeField] private List<UpgradeDefinition> upgrades = new List<UpgradeDefinition>();
 
         private Dictionary<string, ContentDefinition> _byId;
 
@@ -58,6 +60,8 @@ namespace Ravenholm.Content
         public IReadOnlyList<QuestDefinition> Quests => quests;
         public IReadOnlyList<ContractorDefinition> Contractors => contractors;
         public ContractorNamePool NamePool => namePool;
+        public TraderStockDefinition TraderStock => traderStock;
+        public IReadOnlyList<UpgradeDefinition> Upgrades => upgrades;
 
         public IEnumerable<ContentDefinition> All()
         {
@@ -76,6 +80,8 @@ namespace Ravenholm.Content
             foreach (var x in threats) yield return x;
             foreach (var x in quests) yield return x;
             foreach (var x in contractors) yield return x;
+            if (traderStock != null) yield return traderStock;
+            foreach (var x in upgrades) yield return x;
         }
 
         public bool TryGet<T>(string id, out T definition) where T : ContentDefinition
@@ -212,6 +218,13 @@ namespace Ravenholm.Content
             recipes = newRecipes;
             blueprints = newBlueprints;
             startingState = start;
+            _byId = null;
+        }
+
+        public void EditorSetEconomy(TraderStockDefinition trader, List<UpgradeDefinition> newUpgrades)
+        {
+            traderStock = trader;
+            upgrades = newUpgrades;
             _byId = null;
         }
 

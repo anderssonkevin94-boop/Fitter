@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Ravenholm.Content;
@@ -97,14 +98,128 @@ namespace Ravenholm.Presentation
             _continueLabel.fontSizeMin = _deeperLabel.fontSizeMin = 20f;
             _continueLabel.fontSizeMax = _deeperLabel.fontSizeMax = _theme.smallSize;
 
+            _facilities = UiFactory.Rect("Facilities", content);
+            UiFactory.Column(_facilities.gameObject, 14f, new RectOffset(0, 0, 8, 8));
+
             _ui.Button("Tool", content, "", () => Cycle(EquipmentSlot.Tool), out _toolLabel);
             _ui.Button("Pack", content, "", () => Cycle(EquipmentSlot.Pack), out _packLabel);
             _toolLabel.fontSize = _packLabel.fontSize = _theme.smallSize;
             _ui.Button("Close", content, "Close", Close, out _);
         }
 
+        // ------------------------------------------------------------------ site facilities (GDD 16)
+
+        private RectTransform _facilities;
+        private string _facilitiesKey = "";
+        private readonly List<(Button button, TextMeshProUGUI label, Func<string> text, Func<bool> enabled)> _facilityButtons =
+            new List<(Button, TextMeshProUGUI, Func<string>, Func<bool>)>();
+        private readonly List<(TextMeshProUGUI text, Func<string> provider)> _facilityTexts = new List<(TextMeshProUGUI, Func<string>)>();
+        public string LastMessage { get; private set; } = "";
+
+        private void RefreshFacilities(SiteSimulator sim)
+        {
+            var eco = _root.Services.Economy;
+            var key = new StringBuilder(_siteId).Append('|').Append(eco.Purchased.Count);
+            foreach (var w in sim.Record.Workers) key.Append('|').Append(w.Id).Append(w.ToolId).Append(w.PackId);
+            if (key.ToString() != _facilitiesKey)
+            {
+                _facilitiesKey = key.ToString();
+                RebuildFacilities(sim);
+            }
+            foreach (var t in _facilityTexts) t.text.text = t.provider();
+            foreach (var b in _facilityButtons)
+            {
+                b.label.text = b.text();
+                b.button.interactable = b.enabled == null || b.enabled();
+            }
+        }
+
+        private void RebuildFacilities(SiteSimulator sim)
+        {
+            for (var i = _facilities.childCount - 1; i >= 0; i--) Destroy(_facilities.GetChild(i).gameObject);
+            _facilityButtons.Clear();
+            _facilityTexts.Clear();
+            var eco = _root.Services.Economy;
+            var cat = _root.Services.Catalogue;
+            var siteId = _siteId;
+
+            var h = _ui.Text("Header", _facilities, "Site equipment and crew", _theme.bodySize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            h.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
+            FacilityText(() => $"Site equipment level {eco.SiteEquipmentLevel(siteId)}. Upgrading only unlocks better tools and packs for purchase; buy them for each worker below." +
+                               (string.IsNullOrEmpty(LastMessage) ? "" : $"\n<b>{UnitVisuals.PrettyIds(LastMessage)}</b>"));
+
+            foreach (var u in cat.Upgrades)
+            {
+                if (u == null || u.Site == null || u.Site.Id != siteId || eco.Purchased.Contains(u.Id)) continue;
+                if (u.Kind == UpgradeKind.SiteEquipment && u.Level != eco.SiteEquipmentLevel(siteId) + 1) continue;
+                var up = u;
+                FacilityText(() => StationPanel.UpgradeCard(_root, up));
+                FacilityButton(() => StationPanel.UpgradeButtonText(_root, up), () => BuyUpgrade(up), () => eco.UpgradeBlockedReason(up) == null);
+            }
+
+            foreach (var w in sim.Record.Workers)
+            {
+                var workerId = w.Id;
+                foreach (var e in cat.Equipment)
+                {
+                    if (e == null || e.Tier <= 1) continue;
+                    var cur = e.Slot == EquipmentSlot.Tool ? w.ToolId : w.PackId;
+                    var curTier = cat.TryGet<WorkerEquipmentDefinition>(cur, out var ce) ? ce.Tier : 1;
+                    if (e.Tier != curTier + 1) continue;   // only the next step is offered
+                    var eq = e;
+                    FacilityButton(() => EquipmentButtonText(workerId, eq), () => BuyEquipment(workerId, eq),
+                        () => eco.EquipmentBlockedReason(siteId, workerId, eq) == null);
+                }
+            }
+        }
+
+        private string EquipmentButtonText(string workerId, WorkerEquipmentDefinition e)
+        {
+            var w = Sim?.Record.Workers.Find(x => x.Id == workerId);
+            var name = w != null ? w.Name : workerId;
+            var unit = e.Slot == EquipmentSlot.Tool ? "/s" : " units";
+            var cost = new StringBuilder($"{e.GoldCost} gold");
+            foreach (var c in e.MaterialCost) cost.Append($" + {c.quantity} {c.resource.DisplayName}");
+            var reason = _root.Services.Economy.EquipmentBlockedReason(_siteId, workerId, e);
+            return reason == null ? $"Buy {e.DisplayName} ({e.Value}{unit}) for {name} · {cost}" : $"{e.DisplayName} for {name}: {reason}";
+        }
+
+        public bool BuyUpgrade(UpgradeDefinition u)
+        {
+            var ok = _root.Services.Economy.BuyUpgrade(u, out var failure);
+            LastMessage = ok ? $"{u.DisplayName} done. {u.Effect}." : failure;
+            if (ok) FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
+            _facilitiesKey = "";
+            Refresh();
+            return ok;
+        }
+
+        public bool BuyEquipment(string workerId, WorkerEquipmentDefinition e)
+        {
+            var ok = _root.Services.Economy.BuyEquipment(_siteId, workerId, e, out var failure);
+            LastMessage = ok ? $"{e.DisplayName} bought and equipped." : failure;
+            if (ok) FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
+            _facilitiesKey = "";
+            Refresh();
+            return ok;
+        }
+
+        private void FacilityText(Func<string> provider)
+        {
+            var t = _ui.LiveText(_facilities, _theme.smallSize);
+            _facilityTexts.Add((t, provider));
+        }
+
+        private void FacilityButton(Func<string> text, Action onClick, Func<bool> enabled)
+        {
+            var b = _ui.RowButton(_facilities, onClick, out var label);
+            _facilityButtons.Add((b, label, text, enabled));
+        }
+
         public void Show(string siteId)
         {
+            LastMessage = "";
+            _facilitiesKey = "";
             _siteId = siteId;
             _deeperArmedUntil = -1f;
             _diagramKey = "";
@@ -233,6 +348,8 @@ namespace Ravenholm.Presentation
                     _deeper.interactable = false;
                 }
             }
+
+            RefreshFacilities(sim);
 
             var w0 = s.Workers.Count > 0 ? s.Workers[0] : null;
             _toolLabel.text = w0 != null ? $"DEBUG tool: {UnitVisuals.DisplayName(w0.ToolId)} ({Value(w0.ToolId)}/s) · tap to change" : "";

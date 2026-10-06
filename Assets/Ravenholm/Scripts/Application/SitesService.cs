@@ -71,6 +71,23 @@ namespace Ravenholm.Services
             _scheduler.MarkDirty();
         }
 
+        /// <summary>Advances every site by exact simulated milliseconds (used by the shared simulation clock).</summary>
+        public void AdvanceMs(long ms)
+        {
+            if (ms <= 0) return;
+            foreach (var sim in _sims) sim.Advance(ms);
+            _scheduler.MarkDirty();
+        }
+
+        /// <summary>Crew expansion: adds a named recruit to a site (no-op if already present).</summary>
+        public bool AddWorker(string siteId, WorkerDefinition w)
+        {
+            var sim = Get(siteId);
+            if (sim == null || w == null || sim.Record.Workers.Exists(x => x.Id == w.Id)) return false;
+            sim.AddWorker(new WorkerRecord { Id = w.Id, Name = w.DisplayName, ToolId = w.StartingTool?.Id, PackId = w.StartingPack?.Id });
+            return true;
+        }
+
         // ------------------------------------------------------------------ player decisions
 
         public bool ChooseContinue(string siteId)

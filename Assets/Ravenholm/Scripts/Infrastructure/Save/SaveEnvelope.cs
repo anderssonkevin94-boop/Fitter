@@ -12,7 +12,7 @@ namespace Ravenholm.Infrastructure.Save
     public sealed class SaveEnvelope
     {
         /// <summary>Current schema written by this build. Bump it and add a migration when the shape changes.</summary>
-        public const int CurrentSchemaVersion = 7;
+        public const int CurrentSchemaVersion = 8;
 
         [JsonProperty("schemaVersion", Required = Required.Always)] public int SchemaVersion = CurrentSchemaVersion;
         [JsonProperty("gameBuild")] public string GameBuild = "";
@@ -39,6 +39,9 @@ namespace Ravenholm.Infrastructure.Save
 
         /// <summary>Company gold and reputation, contractors, the open posting and expeditions (schema 6+). Null = fresh.</summary>
         [JsonProperty("jobs")] public JobsSaveData Jobs;
+
+        /// <summary>Trader schedule and stock, purchased upgrades (schema 8+). Null = nothing bought yet.</summary>
+        [JsonProperty("economy")] public EconomySaveData Economy;
 
         public ulong GetWorldSeed() => ulong.Parse(WorldSeed, System.Globalization.CultureInfo.InvariantCulture);
 
@@ -321,5 +324,15 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("resolverVersion")] public int ResolverVersion;
         [JsonProperty("threatSpecs")] public List<ThreatSpecData> ThreatSpecs = new List<ThreatSpecData>();
         [JsonProperty("potions")] public List<CarriedPotionData> Potions = new List<CarriedPotionData>();
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class EconomySaveData
+    {
+        [JsonProperty("traderAnchorMs")] public long TraderAnchorMs = -1;
+        [JsonProperty("traderVisitIndex")] public long TraderVisitIndex = -1;
+        [JsonProperty("traderRemaining")] public SortedDictionary<string, int> TraderRemaining = new SortedDictionary<string, int>();
+        [JsonProperty("upgrades")] public List<string> Upgrades = new List<string>();
+        [JsonProperty("lastCatchUpId")] public string LastCatchUpId = "";
     }
 }

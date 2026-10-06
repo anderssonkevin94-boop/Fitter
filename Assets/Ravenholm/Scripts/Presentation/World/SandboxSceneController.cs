@@ -64,9 +64,7 @@ namespace Ravenholm.Presentation
             if (player == null || _root == null) return;
 
             // Simulation keeps running during menus (GDD 2); only direct movement stops under a modal.
-            _root.Services.Sites.Tick(Time.deltaTime);
-            _root.Services.Production.Tick(Time.deltaTime);
-            _root.Services.Jobs.Tick(Time.deltaTime);
+            _root.Services.Simulation.Tick(Time.deltaTime);
             // Pickup and delivery are automatic and never depend on the context button (GDD 3).
             _root.Services.Logistics.System.Tick(Time.deltaTime, player.position.x, player.position.y);
 
@@ -74,7 +72,7 @@ namespace Ravenholm.Presentation
             var bestDist = float.MaxValue;
             foreach (var i in _inspectables)
             {
-                if (i == null || i.transform == player) continue;   // the player is tappable but never a context target
+                if (i == null || !i.isActiveAndEnabled || i.transform == player) continue;   // the player is tappable but never a context target
                 var d = Vector2.Distance(player.position, i.transform.position);
                 if (i == _contextTarget) d -= contextHysteresis;
                 if (d < bestDist) { bestDist = d; best = i; }

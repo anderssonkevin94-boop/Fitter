@@ -20,6 +20,8 @@ namespace Ravenholm.Content
         [Tooltip("Mine: LayerDefinitions. Forest: ForestZoneDefinitions. Ordered by index 1..n; the last is the charted frontier.")]
         [SerializeField] private List<SiteBandDefinition> bands = new List<SiteBandDefinition>();
         [SerializeField] private List<WorkerDefinition> workers = new List<WorkerDefinition>();
+        [Tooltip("Named recruits added one at a time by crew expansion upgrades (GDD 5).")]
+        [SerializeField] private List<WorkerDefinition> recruits = new List<WorkerDefinition>();
 
         [Header("Staging (GDD 3)")]
         [Tooltip("World container ID of this site's staging pile.")]
@@ -55,6 +57,7 @@ namespace Ravenholm.Content
         public SiteType SiteType => siteType;
         public IReadOnlyList<SiteBandDefinition> Bands => bands;
         public IReadOnlyList<WorkerDefinition> Workers => workers;
+        public IReadOnlyList<WorkerDefinition> Recruits => recruits;
         public string StagingContainerId => stagingContainerId;
         public int StagingCapacity => stagingCapacity;
         public int UnitsPerSectionOrTree => unitsPerSectionOrTree;
@@ -86,6 +89,8 @@ namespace Ravenholm.Content
         }
 
 #if UNITY_EDITOR
+        public void EditorSetRecruits(List<WorkerDefinition> r) => recruits = r;
+
         public void EditorSetupSite(SiteType type, List<SiteBandDefinition> newBands, List<WorkerDefinition> newWorkers, string staging,
             int units, int trees, float baseD, float growth, float round, float kl, float kq, float hop)
         {

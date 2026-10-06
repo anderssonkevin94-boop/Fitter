@@ -139,6 +139,15 @@ namespace Ravenholm.Domain.Sites
             Resolve();
         }
 
+        /// <summary>Adds a recruited worker (crew expansion) who walks straight out to work.</summary>
+        public void AddWorker(WorkerRecord w)
+        {
+            if (_s.Workers.Exists(x => x.Id == w.Id)) return;
+            _s.Workers.Add(w);
+            StartWalkToWork(w);
+            Resolve();
+        }
+
         public void ResetMeasurement()
         {
             _s.MeasureStartMs = _s.SimMs;

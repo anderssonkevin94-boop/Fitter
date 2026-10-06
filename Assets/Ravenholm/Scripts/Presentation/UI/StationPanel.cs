@@ -149,6 +149,7 @@ namespace Ravenholm.Presentation
         {
             var sb = new StringBuilder(_station.StationId);
             sb.Append('|').Append(Prod.Level(_station.StationId));
+            sb.Append('|').Append(_root.Services.Economy.Purchased.Count);
             foreach (var bp in Prod.State.Blueprints) sb.Append('|').Append(bp);
             return sb.ToString();
         }
@@ -201,10 +202,63 @@ namespace Ravenholm.Presentation
                 }
             }
 
+            if (stationDef != null) UpgradeSection(stationDef);
+
             if (stationDef != null)
                 Button(() => $"DEBUG station level: {Prod.Level(stationId)} of {stationDef.MaxLevel} · tap to change",
                     () => _root.Services.Production.DebugCycleLevel(stationDef), null);
             Button(() => "Close", Close, null);
+        }
+
+        // ------------------------------------------------------------------ upgrades (GDD 16)
+
+        private void UpgradeSection(StationDefinition station)
+        {
+            UpgradeDefinition next = null;
+            foreach (var u in Cat.Upgrades)
+                if (u != null && u.Kind == UpgradeKind.StationLevel && u.Station == station && u.Level == Prod.Level(station.Id) + 1) next = u;
+            Header("Upgrade");
+            if (next == null)
+            {
+                Text(() => Prod.Level(station.Id) >= station.MaxLevel ? "Fully upgraded." : "No further upgrade available yet.", _theme.smallSize);
+                return;
+            }
+            var u2 = next;
+            Text(() => UpgradeCard(_root, u2), _theme.smallSize);
+            Button(() => UpgradeButtonText(_root, u2), () => BuyUpgrade(u2), () => _root.Services.Economy.UpgradeBlockedReason(u2) == null);
+        }
+
+        public bool BuyUpgrade(UpgradeDefinition u)
+        {
+            var ok = _root.Services.Economy.BuyUpgrade(u, out var failure);
+            _lastMessage = ok ? $"{u.DisplayName} built. {u.Effect}." : failure;
+            if (ok) FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
+            _structureKey = "";
+            Refresh();
+            return ok;
+        }
+
+        /// <summary>Exact effect, cost against what you have, and prerequisite (shared with the site panel).</summary>
+        public static string UpgradeCard(GameRoot root, UpgradeDefinition u)
+        {
+            var sb = new StringBuilder();
+            sb.Append("<b>").Append(u.DisplayName).Append("</b>: ").Append(u.Effect);
+            var gold = root.Services.Jobs.State.Gold;
+            sb.Append("\nCost: ").Append($"<color={(gold >= u.GoldCost ? "#3B6E2E" : "#B44034")}>{u.GoldCost} gold (have {gold})</color>");
+            foreach (var c in u.MaterialCost)
+            {
+                var have = root.Services.Logistics.System.SharedAvailable(c.resource.Id);
+                sb.Append(" · ").Append($"<color={(have >= c.quantity ? "#3B6E2E" : "#B44034")}>{c.resource.DisplayName} {c.quantity} (have {have})</color>");
+            }
+            var prereq = root.Services.Economy.UpgradePrerequisiteReason(u);
+            if (prereq != null) sb.Append("\n<color=#B44034>").Append(prereq).Append("</color>");
+            return sb.ToString();
+        }
+
+        public static string UpgradeButtonText(GameRoot root, UpgradeDefinition u)
+        {
+            var reason = root.Services.Economy.UpgradeBlockedReason(u);
+            return reason == null ? $"Build {u.DisplayName}" : reason;
         }
 
         // ------------------------------------------------------------------ row helpers
@@ -284,7 +338,7 @@ namespace Ravenholm.Presentation
             foreach (var i in r.Inputs) inputs.Append(inputs.Length > 0 ? " + " : "").Append(i.Value).Append(' ').Append(UnitVisuals.DisplayName(i.Key));
             var mark = p.Selected == r.Id ? "• Selected · " : p.Queued == r.Id ? "Next · " : "";
             var gate = Prod.Level(_station.StationId) < r.MinLevel ? $" · needs level {r.MinLevel}" : "";
-            return $"{mark}{r.Name}: {inputs} → {r.OutputQuantity} {UnitVisuals.DisplayName(r.Output)} · {r.DurationMs / 1000f:0.#} s{gate}";
+            return $"{mark}{r.Name}: {inputs} → {r.OutputQuantity} {UnitVisuals.DisplayName(r.Output)} · {Prod.EffectiveDurationMs(r) / 1000f:0.##} s{gate}";
         }
 
         private static readonly int[] ReserveSteps = { 0, 2, 4, 8, 16 };

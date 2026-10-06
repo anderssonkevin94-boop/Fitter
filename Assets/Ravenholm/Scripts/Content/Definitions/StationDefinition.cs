@@ -16,12 +16,15 @@ namespace Ravenholm.Content
         [Min(1)] [SerializeField] private int outputPadCapacity = 6;
         [Min(1)] [SerializeField] private int startingLevel = 1;
         [Min(1)] [SerializeField] private int maxLevel = 2;
+        [Tooltip("Batch time multiplier per level above 1 (GDD 16: ×0.85 at level 2). Applies to the next batch.")]
+        [Range(0.3f, 1f)] [SerializeField] private float batchTimePerLevel = 0.85f;
 
         public override string IdKind => "station";
         public string OutputPadContainerId => outputPadContainerId;
         public int OutputPadCapacity => outputPadCapacity;
         public int StartingLevel => startingLevel;
         public int MaxLevel => maxLevel;
+        public float BatchTimePerLevel => batchTimePerLevel;
 
         public override void Validate(List<string> errors)
         {

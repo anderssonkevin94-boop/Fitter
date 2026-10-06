@@ -49,6 +49,10 @@ namespace Ravenholm.Presentation
         private SitePanel _sitePanel;
         private StationPanel _stationPanel;
         private StorePanel _storePanel;
+        private TraderPanel _traderPanel;
+        private AwayReportPanel _awayPanel;
+        private bool _traderWasPresent;
+        private bool _awayChecked;
         private TextMeshProUGUI _speedButtonText;
         private TextMeshProUGUI _debugStatus;
         private TextMeshProUGUI _labelsButtonText;
@@ -63,6 +67,20 @@ namespace Ravenholm.Presentation
         public SitePanel SitePanel => _sitePanel;
         public StationPanel StationPanel => _stationPanel;
         public StorePanel StorePanel => _storePanel;
+        public TraderPanel TraderPanel => _traderPanel;
+        public AwayReportPanel AwayPanel => _awayPanel;
+
+        public void ShowTrader()
+        {
+            HideInfo();
+            _traderPanel.Show();
+        }
+
+        public void ShowAwayReport(Services.AwayReport report)
+        {
+            HideInfo();
+            _awayPanel.Show(report);
+        }
 
         public void ShowStation(StationInspectable station)
         {
@@ -169,6 +187,9 @@ namespace Ravenholm.Presentation
             _jobBoard = JobBoardPanel.Create(safe, _ui, root);
             _loadout = LoadoutPanel.Create(safe, _ui, root);
             _result = ResultPanel.Create(safe, _ui, root);
+            _traderPanel = TraderPanel.Create(safe, _ui, root);
+            _awayPanel = AwayReportPanel.Create(safe, _ui, root);
+            root.ReturnedFromAway += ShowAwayReport;
             _root.Services.Jobs.Completed += r =>
                 ShowToast(r.Died ? $"{r.ContractorName} did not return" : $"{r.ContractorName} is back: {ResultPanel.OutcomeWord(r.Outcome)}");
             BuildDebugLayer(safe);
@@ -185,6 +206,7 @@ namespace Ravenholm.Presentation
         {
             if (IsInfoOpen) TouchInputRouter.PopModal();
             if (IsDebugOpen) TouchInputRouter.PopModal();
+            if (_root != null) _root.ReturnedFromAway -= ShowAwayReport;
         }
 
         // ------------------------------------------------------------------ layout
@@ -233,7 +255,7 @@ namespace Ravenholm.Presentation
             var banner = _ui.Panel("PhaseBanner", safe, _theme.panelDark);
             UiFactory.Place(banner.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180f), new Vector2(560f, 76f));
             banner.raycastTarget = false;
-            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 5", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 6", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(bt.rectTransform, 8f);
         }
 
@@ -373,7 +395,7 @@ namespace Ravenholm.Presentation
             var panel = _ui.Panel("Panel", layer, _theme.panel);
             UiFactory.Stretch(panel.rectTransform, 28f);
 
-            var title = _ui.Text("Title", panel.transform, "Debug · Phase 5", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            var title = _ui.Text("Title", panel.transform, "Debug · Phase 6", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             UiFactory.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(800f, 80f));
 
             // Scrollable body so the panel fits short (16:9) and tall phones alike.
@@ -486,6 +508,21 @@ namespace Ravenholm.Presentation
                 _root.Services.Jobs.DebugSetReputation(r < 20 ? 20 : r < 40 ? 40 : r < 70 ? 70 : 0);
                 Report($"Reputation set to {_root.Services.Jobs.State.Reputation} (changes applicant count and fees for new postings).");
             }, out _);
+            foreach (var (label, hours) in new[] { ("+1 h", 1), ("+8 h", 8), ("+24 h", 24) })
+            {
+                var h = hours;
+                _ui.Button("Away" + h, content, $"Simulate time away {label} (debug)", () =>
+                {
+                    CloseDebug();
+                    var report = _root.Services.DebugTimeAway(h * 3600000L);
+                    ShowAwayReport(report);
+                }, out _);
+            }
+            _ui.Button("Trader", content, "Summon the Trader now (debug)", () =>
+            {
+                _root.Services.Economy.DebugSummonTrader();
+                Report("The Trader is in town (schedule re-anchored to now).");
+            }, out _);
             _ui.Button("Validate", content, "Validate content", ValidateContent, out _);
 
             _debugStatus = _ui.Text("Status", content, "", _theme.smallSize - 4f, _theme.ink, TextAlignmentOptions.TopLeft);
@@ -512,6 +549,18 @@ namespace Ravenholm.Presentation
             arrived += _root.Services.Jobs.Board.UnacknowledgedResults;
             _boardBadge.text = arrived > 0 ? arrived.ToString() : "";
             _boardBadge.transform.parent.gameObject.SetActive(arrived > 0);
+
+            // Away summary from the boot catch-up, once the scene is up (GDD 15).
+            if (!_awayChecked && SandboxSceneController.Current != null)
+            {
+                _awayChecked = true;
+                var pending = _root.Services.Simulation.PendingReport;
+                if (pending != null) ShowAwayReport(pending);
+            }
+            var trader = _root.Services.Economy.Trader;
+            var present = trader != null && trader.IsPresent(_root.Services.Economy.Now);
+            if (present && !_traderWasPresent) ShowToast("The Trader has arrived at the Trader Pad");
+            _traderWasPresent = present;
             if (_resetArmedUntil > 0 && Time.unscaledTime > _resetArmedUntil)
             {
                 _resetArmedUntil = -1f;
@@ -580,6 +629,8 @@ namespace Ravenholm.Presentation
             _sitePanel.Close();
             _stationPanel.Close();
             _storePanel.Close();
+            _traderPanel.Close();
+            _awayPanel.Close();
             _jobBoard.Close();
             _loadout.Close();
             if (_result.IsOpen) _result.Continue();

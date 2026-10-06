@@ -42,6 +42,11 @@ namespace Ravenholm.Services
         }
 
         public SaveStatus Status { get; } = new SaveStatus();
+
+        /// <summary>Last accepted UTC of the save that was just loaded (null for a fresh profile). Basis of offline catch-up.</summary>
+        public DateTime? LoadedLastAcceptedUtc { get; private set; }
+
+        public IClock Clock => _clock;
         public ulong WorldSeed { get; private set; }
         public SaveStore Store => _store;
 
@@ -71,11 +76,13 @@ namespace Ravenholm.Services
                 WorldSeed = envelope.GetWorldSeed();
                 Status.Generation = envelope.SaveGeneration;
                 _lastAcceptedUtc = envelope.LastAcceptedUtc;
+                LoadedLastAcceptedUtc = envelope.LastAcceptedUtc;
                 _store.NoteLoadedGeneration(envelope.SaveGeneration);
             }
             else
             {
                 envelope = null;
+                LoadedLastAcceptedUtc = null;
                 WorldSeed = NewWorldSeed();
             }
 

@@ -183,12 +183,35 @@ the GDD excludes monetization and analytics.
 - **Debug:** force the next outcome (marked on the result), finish expeditions now, and exact odds over 2000 seeds in the loadout panel (designer-only line, never player-facing percentages). Phase 4 test departures remain for old saves only.
 - **Saves:** schema 7 adds quest progress, results and frozen expedition inputs. Older expeditions are rebuilt from content once (resolverVersion 0 → 1). The v6→v7 migration is tested with `save_v6_fixture.json`.
 
+## Phase 6 decisions (2026-10-06)
+
+- **One simulation clock.** `SimulationService.Advance(total, resource)` drives sites, processing and expeditions, both online (per frame) and offline (catch-up). It steps exactly to each quest completion, so processing and sites reach that moment before the expedition returns. A test checks that 12 minutes of frame-sized steps and one 12-minute absence give identical logistics, sites, production and jobs sections.
+- **Offline catch-up (GDD 15):** at boot, after loading and before the session save, from the save's last accepted time to now. Resume from the background does the same. Gathering and processing are capped at **8 hours**; expeditions and the Trader schedule see the whole absence. No player decisions are made: no hauling, no depth choice, no purchases. A clock that went backwards adds nothing. Completion saves are deferred during catch-up and committed once, so an interrupted catch-up simply re-runs from the previous save and never applies a reward twice. Each catch-up gets an id (`catchup.<generation>`) stored in the save for diagnosis.
+- **Away summary:** shown at boot or resume when the absence is at least 60 s. It covers deposits per site and why each site stopped, processed output, returned expeditions (results stay unread on the Job Board), recoveries from injury and the Trader's status.
+- **Trader (GDD 16):** the first visit comes 60 s after the first ordinary (non-sponsored) quest return. After that, visits last 5 minutes every 20 minutes of game time.
+  - The schedule is derived from an anchor, so missed visits never accumulate.
+  - Each visit's stock comes from (world seed, visit index) and cannot be rerolled by reopening or reloading.
+  - Remaining quantities are saved per visit.
+  - Stock follows the GDD table. The iron ingot and cedar lumber bundles (3 g, ×6) appear on every visit. Arcane dust needs an Old Shrine success; the GDD says "Shrine discovery", interpreted here as the first success. "Common" entries use a 70 % chance. The 20 % side blueprint pool is empty until Phase 7 content. The artifact weapon is deferred (v1).
+  - Selling takes unreserved Store items only, at `TraderBuyValue` (1–3 g). Reserved or away gear cannot be sold.
+- **Upgrades (GDD 16 table, balance starting points):** apply instantly at the building or site panel. Gold and materials are debited together after all checks pass.
+  - Smelter 2, Lumbermill 2, Forge 2, Apothecary 2, Mine/Forest Equipment 2, and crew expansion per site.
+  - Batch time: each level above a process's own gate multiplies by 0.85, so iron smelts in 3.4 s at Smelter 2 while steel stays 6 s. The new speed applies to the next batch.
+  - **Invented (not in the GDD):** Mine/Forest Equipment 3 at 90 g + 8 steel + 6 maple lumber, needing Equipment 2 and 5 ordinary successes. These gate the tier 3 tools and packs that already existed in content.
+- **Worker tools and packs** are bought per worker from the site panel and applied directly to the worker. They are not crafted goods. Site equipment level only unlocks the next tier, and each purchase must be one step up.
+- **Crew expansion:** recruits Mara Quill (Mine) and Osk Fennel (Forest). Their town figures exist in the scene but stay hidden until hired.
+- **Saves:** schema 8 adds an `economy` section (Trader anchor, visit, remaining stock; upgrades; last catch-up id). Saves from v7 get the Trader scheduled from their earliest ordinary result. Tested with `save_v7_fixture.json`.
+- **Balance guards (tests):** selling a whole starter kit (13 g) earns less than one Roadside Patrol (28 g). No recipe can be crafted from Trader goods and sold at a profit. Recovery from 0 gold, 0 reputation and an empty Store works through the sponsored Local Supply Survey plus the guaranteed Trader bundle.
+- **Debug:** simulate time away (+1 h, +8 h, +24 h; same code path as a real absence) and summon the Trader now.
+- **Test fix:** `FirstSuccessBlueprintIsGrantedOnceAndDuplicatesBecomeMaterials` was flaky. The applicant pool is random per world seed, and sometimes nobody would take Old Shrine. Its fixture now uses seasoned contractors, as the Quarry Road test already did.
+
 ## Open blockers
 
 - **iOS build:** the Unity → Xcode device export succeeded headlessly on 2026-10-06 (0 errors, 1 warning, IL2CPP, 114 s). The Xcode compile/sign/install step has not run yet: the startup disk had only ~2.5 GB free, too little for Xcode intermediates. To do: free disk space, export again (Ravenholm > Build > iOS Xcode Project (Device)), open `Builds/iOS-Device/Unity-iPhone.xcodeproj`, pick a signing team, then Run on the iPhone.
 
 ## Playtest feedback
 
+- 2026-10-06: user: "start next phase". Phase 6 built (Trader, economy, offline catch-up, recovery). This is the functional MVP boundary: STOP for playtest before Phase 7.
 - 2026-10-06: Phase 1 approved by the user ("proceed"). No playtest notes given yet; the Phase 1 tuning questions (joystick comfort, camera, pickup cadence, capacity, walk speed, trip length, interior) carry over.
 - Phases 2 and 3: built under the overnight authorization; installed on the user's iPhone 16 Pro on 2026-10-06 for playtesting.
 - Phases 4 and 5: built 2026-10-06 under "keep going with the phases". STOP here: the GDD asks for an extended full-loop playtest (at least three 20–30 minute sessions) before Phase 6.

@@ -34,6 +34,9 @@ namespace Ravenholm.Services
                 foreach (var r in catalogue.Recipes) if (r != null) recipes.Add(Build(r));
             }
             System = new ProductionSystem(_state, logistics.System, processes, recipes);
+            if (catalogue != null)
+                foreach (var st in catalogue.Stations)
+                    if (st != null) System.BatchTimePerLevel[st.Id] = st.BatchTimePerLevel;
             scheduler.Register(this);
         }
 
@@ -51,6 +54,14 @@ namespace Ravenholm.Services
             _msRemainder = exact - whole;
             if (whole <= 0) return;
             System.Advance(whole);
+            _scheduler.MarkDirty();
+        }
+
+        /// <summary>Advances processing by exact simulated milliseconds (shared simulation clock).</summary>
+        public void AdvanceMs(long ms)
+        {
+            if (ms <= 0) return;
+            System.Advance(ms);
             _scheduler.MarkDirty();
         }
 

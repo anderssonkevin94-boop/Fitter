@@ -54,6 +54,8 @@ MonoBehaviour:
   workers:
   - {fileID: 11400000, guid: a4ff5ca602dc84d9ab303180fae31f6d, type: 2}
   - {fileID: 11400000, guid: 5cbc397550cf94e188d6e07f4859d069, type: 2}
+  - {fileID: 11400000, guid: d9d872a20526f4e7ebb416a6730a501f, type: 2}
+  - {fileID: 11400000, guid: 9f3351a30e28c4c5ab80648add31200b, type: 2}
   equipment:
   - {fileID: 11400000, guid: 4c69414ca501e4cdbab99e0743174aae, type: 2}
   - {fileID: 11400000, guid: 453b56d8853e644b79c1e9c310d79a55, type: 2}
@@ -132,3 +134,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a30f51021bc2e43c0b60ce8b7d4d2a22, type: 2}
   - {fileID: 11400000, guid: a81715e7ee8fb4bcf8cfb19e939eaf9a, type: 2}
   namePool: {fileID: 11400000, guid: 4fe746c185d534de59b231bff8def0ae, type: 2}
+  traderStock: {fileID: 11400000, guid: 3575cd26384c849ab83837d9dea9539a, type: 2}
+  upgrades:
+  - {fileID: 11400000, guid: 21a8b443ec4b9443dacaa517dd8f2dc1, type: 2}
+  - {fileID: 11400000, guid: 742dc5e53931646aa847662e0fbf67b5, type: 2}
+  - {fileID: 11400000, guid: 62363e83ca6a044f586d362001b8d54e, type: 2}
+  - {fileID: 11400000, guid: 2d186a4b52359494c90569a212ee8be5, type: 2}
+  - {fileID: 11400000, guid: 820b4ccea7e644ea58e10aa306d3be69, type: 2}
+  - {fileID: 11400000, guid: bdec13f898af54b2b81c4c696b0c64c6, type: 2}
+  - {fileID: 11400000, guid: 20b05add08bfa4d93a3cee95c681bddd, type: 2}
+  - {fileID: 11400000, guid: 4e66af6f8188b4edb9e28c38dc0c1081, type: 2}
+  - {fileID: 11400000, guid: b4f6f1005bb1649728cf87a8b873a958, type: 2}
+  - {fileID: 11400000, guid: d13b6f50dbb9741eea0ceb1f5eecad43, type: 2}

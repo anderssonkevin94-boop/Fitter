@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dee01b30a30164cd0b3d25cbdc206cac, type: 3}
+  m_Name: trader_stock
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.TraderStockDefinition
+  id: trader.wandering
+  displayName: Wandering Trader
+  contentVersion: 1
+  entries:
+  - key: rope
+    resource: {fileID: 11400000, guid: 25819f9025cc84311bdfe1999e38525c, type: 2}
+    item: {fileID: 0}
+    sideBlueprint: 0
+    price: 8
+    quantity: 3
+    availability: 1
+    chance: 0.7
+    afterQuest: {fileID: 0}
+  - key: fur
+    resource: {fileID: 11400000, guid: 141c159cc394a40f2b3fcf56fc77958d, type: 2}
+    item: {fileID: 0}
+    sideBlueprint: 0
+    price: 8
+    quantity: 3
+    availability: 1
+    chance: 0.7
+    afterQuest: {fileID: 0}
+  - key: arcane_dust
+    resource: {fileID: 11400000, guid: 5885b88db36ff46568810cd380656407, type: 2}
+    item: {fileID: 0}
+    sideBlueprint: 0
+    price: 12
+    quantity: 2
+    availability: 2
+    chance: 1
+    afterQuest: {fileID: 11400000, guid: bb04e40da975c4bfe82854be0ad8de12, type: 2}
+  - key: iron_bundle
+    resource: {fileID: 11400000, guid: 7c9623d2f89ef4f0bb58c106302da3e3, type: 2}
+    item: {fileID: 0}
+    sideBlueprint: 0
+    price: 3
+    quantity: 6
+    availability: 0
+    chance: 1
+    afterQuest: {fileID: 0}
+  - key: cedar_bundle
+    resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
+    item: {fileID: 0}
+    sideBlueprint: 0
+    price: 3
+    quantity: 6
+    availability: 0
+    chance: 1
+    afterQuest: {fileID: 0}
+  - key: herbs
+    resource: {fileID: 11400000, guid: d9423a863cc414f9ea62df0297b743c1, type: 2}
+    item: {fileID: 0}
+    sideBlueprint: 0
+    price: 4
+    quantity: 4
+    availability: 1
+    chance: 0.7
+    afterQuest: {fileID: 0}
+  - key: side_blueprint
+    resource: {fileID: 0}
+    item: {fileID: 0}
+    sideBlueprint: 1
+    price: 45
+    quantity: 1
+    availability: 1
+    chance: 0.2
+    afterQuest: {fileID: 0}
+  sideBlueprints: []
+  minutesBetweenVisits: 20
+  minutesPerVisit: 5
+  firstArrivalDelaySeconds: 60

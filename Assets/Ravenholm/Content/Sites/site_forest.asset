@@ -22,6 +22,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c471dd138d2404c6c9fe11ecba44111a, type: 2}
   workers:
   - {fileID: 11400000, guid: 5cbc397550cf94e188d6e07f4859d069, type: 2}
+  recruits:
+  - {fileID: 11400000, guid: 9f3351a30e28c4c5ab80648add31200b, type: 2}
   stagingContainerId: container.forest_staging
   stagingCapacity: 96
   unitsPerSectionOrTree: 4

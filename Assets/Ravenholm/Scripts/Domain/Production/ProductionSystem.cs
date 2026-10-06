@@ -84,6 +84,18 @@ namespace Ravenholm.Domain.Production
         }
 
         public ProductionState State => _s;
+
+        /// <summary>Batch time multiplier per level above 1, per facility (GDD 16: ×0.85 at level 2).</summary>
+        public readonly Dictionary<string, double> BatchTimePerLevel = new Dictionary<string, double>(StringComparer.Ordinal);
+
+        public int EffectiveDurationMs(ProcessRecipe r)
+        {
+            var level = Level(r.Facility);
+            var per = BatchTimePerLevel.TryGetValue(r.Facility, out var f) ? f : 1.0;
+            // GDD 16: each level above a process's own gate speeds it ("basic batch time ×0.85" at level 2).
+            var above = Math.Max(0, level - Math.Max(1, r.MinLevel));
+            return (int)Math.Max(1, Math.Round(r.DurationMs * Math.Pow(per, above)));
+        }
         public IEnumerable<ProcessRecipe> Processes => _processes.Values;
         public IEnumerable<CraftRecipe> Recipes => _recipes.Values;
 
@@ -213,7 +225,7 @@ namespace Ravenholm.Domain.Production
             if (!_ledger.TryConsumeShared(r.Inputs, "processing input")) return;
             p.InFlight = r.Id;
             p.StartMs = at;
-            p.EndMs = at + r.DurationMs;
+            p.EndMs = at + EffectiveDurationMs(r);   // level speed applies to new batches only
             BatchStarted?.Invoke(p.Facility, r);
         }
 

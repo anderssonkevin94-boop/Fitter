@@ -18,6 +18,7 @@ namespace Ravenholm.Infrastructure.Save
             { 4, MigrateV4ToV5 },
             { 5, MigrateV5ToV6 },
             { 6, MigrateV6ToV7 },
+            { 7, MigrateV7ToV8 },
         };
 
         /// <summary>Migrates <paramref name="root"/> in place up to the current schema.</summary>
@@ -48,6 +49,15 @@ namespace Ravenholm.Infrastructure.Save
             // Schema 1 used "version"; later schemas use "schemaVersion".
             var token = root["schemaVersion"] ?? root["version"];
             return token != null && token.Type == JTokenType.Integer ? token.Value<int>() : 0;
+        }
+
+        /// <summary>
+        /// Schema 8 (Phase 6) adds "economy": Trader schedule and stock, purchased upgrades.
+        /// Absent = none bought; the Trader is scheduled from the earliest ordinary quest result on load.
+        /// </summary>
+        private static void MigrateV7ToV8(JObject o)
+        {
+            if (o["economy"] == null) o["economy"] = JValue.CreateNull();
         }
 
         /// <summary>

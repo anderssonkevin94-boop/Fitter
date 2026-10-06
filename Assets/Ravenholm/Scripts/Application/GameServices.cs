@@ -1,3 +1,4 @@
+using System;
 using Ravenholm.Content;
 using Ravenholm.Domain.Logistics;
 using Ravenholm.Domain.Time;
@@ -26,6 +27,8 @@ namespace Ravenholm.Services
             Sites = new SitesService(Scheduler, Logistics, catalogue);
             Production = new ProductionService(Scheduler, Logistics, Sites, catalogue);
             Jobs = new JobsService(Scheduler, Logistics, Sites, Production, catalogue, balance);
+            Economy = new EconomyService(Scheduler, catalogue, Jobs, Logistics, Production, Sites);
+            Simulation = new SimulationService(Scheduler, Sites, Production, Jobs) { DescribeTrader = Economy.DescribeTrader };
         }
 
         public IClock Clock { get; }
@@ -40,9 +43,46 @@ namespace Ravenholm.Services
         public SitesService Sites { get; }
         public ProductionService Production { get; }
         public JobsService Jobs { get; }
+        public EconomyService Economy { get; }
+        public SimulationService Simulation { get; }
 
-        /// <summary>Loads every save section and records the session. Call once after construction.</summary>
-        public void Start() => Sandbox.Start();
+        /// <summary>
+        /// Boot: load every section, catch up the time away (GDD 15), count the session, then commit
+        /// everything with one save. Call once after construction.
+        /// </summary>
+        public void Start()
+        {
+            Scheduler.LoadAll();
+            var id = $"catchup.{Saves.Status.Generation + 1}";
+            var report = Simulation.CatchUp(Saves.LoadedLastAcceptedUtc, Clock.UtcNow, id);
+            if (report != null && report.ElapsedMs > 0) Economy.LastCatchUpId = id;
+            if (report != null && report.ElapsedMs >= SimulationService.ReportThresholdMs) Simulation.PendingReport = report;
+            Sandbox.CountSession();
+            Scheduler.SaveNow(report != null && report.ElapsedMs > 0 ? "session start (offline catch-up)" : "session start");
+        }
+
+        /// <summary>Returning from the background: catch up the paused interval like a cold start.</summary>
+        public AwayReport ResumeFrom(DateTime pausedUtc)
+        {
+            var id = $"catchup.{Saves.Status.Generation + 1}";
+            var report = Simulation.CatchUp(pausedUtc, Clock.UtcNow, id);
+            if (report == null || report.ElapsedMs <= 0) return null;
+            Economy.LastCatchUpId = id;
+            Scheduler.SaveNow("resume (offline catch-up)");
+            if (report.ElapsedMs >= SimulationService.ReportThresholdMs) Simulation.PendingReport = report;
+            return report;
+        }
+
+        /// <summary>DEBUG: simulate being away for <paramref name="ms"/> (same path as a real absence).</summary>
+        public AwayReport DebugTimeAway(long ms)
+        {
+            var id = $"debug-away.{Saves.Status.Generation + 1}";
+            var report = Simulation.Simulate(ms, id);
+            Economy.LastCatchUpId = id;
+            Scheduler.SaveNow("debug: time away");
+            Simulation.PendingReport = report;
+            return report;
+        }
 
         public ContentValidationReport RevalidateContent()
         {

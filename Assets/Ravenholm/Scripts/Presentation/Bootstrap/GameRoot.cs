@@ -80,11 +80,26 @@ namespace Ravenholm.Presentation
             Services?.Sandbox.Tick(Time.unscaledDeltaTime);
         }
 
+        private System.DateTime? _pausedUtc;
+
+        /// <summary>Raised after returning from the background with a summary worth showing.</summary>
+        public event System.Action<Ravenholm.Services.AwayReport> ReturnedFromAway;
+
         private void OnApplicationPause(bool paused)
         {
-            if (!paused) return;
+            if (Services == null) return;
+            if (!paused)
+            {
+                // Time spent suspended is caught up exactly like a cold start (GDD 15).
+                if (_pausedUtc == null) return;
+                var report = Services.ResumeFrom(_pausedUtc.Value);
+                _pausedUtc = null;
+                if (report != null && Services.Simulation.PendingReport == report) ReturnedFromAway?.Invoke(report);
+                return;
+            }
             InputRouter?.ResetInput();
-            Services?.Sandbox.Flush("app paused");
+            Services.Sandbox.Flush("app paused");
+            _pausedUtc = Services.Clock.UtcNow;
         }
 
         private void OnApplicationFocus(bool focused)

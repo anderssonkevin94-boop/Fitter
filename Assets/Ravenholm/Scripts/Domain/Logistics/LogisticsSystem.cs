@@ -368,6 +368,17 @@ namespace Ravenholm.Domain.Logistics
             return true;
         }
 
+        /// <summary>Creates a new item instance directly in the Store (Trader purchase).</summary>
+        public string CreateStoreItem(string itemDefinitionId, string reason)
+        {
+            var instanceId = $"inst.{_s.NextInstanceNumber++:D6}";
+            _s.ItemDefinitions.Add(instanceId, itemDefinitionId);
+            InsertSorted(_s.StoreItems, instanceId);
+            Log(reason, $"{itemDefinitionId} ({instanceId}) → Store");
+            Changed?.Invoke();
+            return instanceId;
+        }
+
         public void ReturnToStore(IReadOnlyList<string> instanceIds, string reason)
         {
             foreach (var id in instanceIds) InsertSorted(_s.StoreItems, id);
