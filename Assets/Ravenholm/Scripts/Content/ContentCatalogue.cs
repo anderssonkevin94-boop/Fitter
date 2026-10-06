@@ -42,6 +42,8 @@ namespace Ravenholm.Content
         [SerializeField] private List<UpgradeDefinition> upgrades = new List<UpgradeDefinition>();
         [SerializeField] private List<RegionDefinition> regions = new List<RegionDefinition>();
         [SerializeField] private List<TutorialStepDefinition> tutorial = new List<TutorialStepDefinition>();
+        [Tooltip("Applied balance revisions (Phase 9). Each revision is one documented, versioned set of tuning changes.")]
+        [SerializeField] private int balanceRevision;
 
         private Dictionary<string, ContentDefinition> _byId;
 
@@ -66,6 +68,7 @@ namespace Ravenholm.Content
         public IReadOnlyList<UpgradeDefinition> Upgrades => upgrades;
         public IReadOnlyList<RegionDefinition> Regions => regions;
         public IReadOnlyList<TutorialStepDefinition> Tutorial => tutorial;
+        public int BalanceRevision => balanceRevision;
 
         public IEnumerable<ContentDefinition> All()
         {
@@ -231,6 +234,8 @@ namespace Ravenholm.Content
             startingState = start;
             _byId = null;
         }
+
+        public void EditorSetBalanceRevision(int r) => balanceRevision = r;
 
         public void EditorSetTutorial(List<TutorialStepDefinition> steps)
         {

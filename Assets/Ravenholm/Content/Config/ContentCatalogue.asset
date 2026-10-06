@@ -224,3 +224,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 70e6574c180424ec0ab5588e0d1340cd, type: 2}
   - {fileID: 11400000, guid: fa7df07052d3344edacd3916ee37d8f0, type: 2}
   - {fileID: 11400000, guid: 7c006000b853e4447aef3efcf04815c4, type: 2}
+  balanceRevision: 2

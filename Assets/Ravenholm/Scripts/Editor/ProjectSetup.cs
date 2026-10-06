@@ -81,6 +81,7 @@ namespace Ravenholm.EditorTools
             EnsureEconomyContent(catalogue);
             EnsureCampaignContent(catalogue);
             EnsureTutorialContent(catalogue);
+            ApplyBalanceRevisions(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
@@ -118,10 +119,10 @@ namespace Ravenholm.EditorTools
         {
             PlayerSettings.companyName = "Kevin Andersson";
             PlayerSettings.productName = "Ravenholm Supply Co";   // working title
-            PlayerSettings.bundleVersion = "0.0.1";
+            PlayerSettings.bundleVersion = "0.9.0";   // Phase 9 release candidate line
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, BundleId);
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, BundleId);
-            PlayerSettings.iOS.buildNumber = "1";
+            PlayerSettings.iOS.buildNumber = "9";
             PlayerSettings.iOS.targetOSVersionString = MinIosVersion;
             PlayerSettings.iOS.targetDevice = iOSTargetDevice.iPhoneOnly;
             PlayerSettings.iOS.requiresFullScreen = true;

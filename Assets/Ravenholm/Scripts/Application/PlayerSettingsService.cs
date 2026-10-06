@@ -16,6 +16,8 @@ namespace Ravenholm.Services
         [JsonProperty("reducedMotion")] public bool ReducedMotion;
         [JsonProperty("textScale")] public float TextScale = 1f;
         [JsonProperty("joystickSide")] public JoystickSide JoystickSide = JoystickSide.Either;
+        /// <summary>Developer tools visible (null = default: on in development builds, off in release builds).</summary>
+        [JsonProperty("developerMode")] public bool? DeveloperMode;
 
         public PlayerSettings Clone() => (PlayerSettings)MemberwiseClone();
     }

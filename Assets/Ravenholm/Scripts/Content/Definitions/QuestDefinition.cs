@@ -141,6 +141,7 @@ namespace Ravenholm.Content
         }
 
         public void EditorSetRegion(RegionDefinition r) => region = r;
+        public void EditorSetDifficulty(int d) => difficulty = d;
 
         public void EditorSetupCampaign(int step, bool finale, List<QuestPreparation> preps, int minLevel, int dispatchRep, int minPower, int minProtection,
             bool counterPotion, bool repeat)

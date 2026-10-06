@@ -304,12 +304,39 @@ the GDD excludes monetization and analytics.
   - **Device results are still pending.** The Phase 8 build is installed on the iPhone 16 Pro, and the probe started (its autorun flag was consumed). The phone was locked, though, so iOS suspended the app straight after boot and no report has been written yet. It finishes after the app has been open in front for about a minute. Then pull it with `xcrun devicectl device copy from ... --source Documents/Perf`, or use Developer tools → Record performance.
   - Thermal behaviour over 20 minutes still needs a manual device session; there's no API for it without more native code.
 
+## Phase 9 decisions (2026-10-06)
+
+- **Balance harness (`BalanceTests`, writes `Docs/BALANCE_REPORT.md`):**
+  - For every quest it runs 2,000 resolver seeds per class, with the gear a player would own when the job first appears and on repeat runs.
+  - It reports outcome rates, fee, potion cost, expected gear loss and net gold.
+  - **GDD 15 rule:** every repeatable contract reaches Good by level 8 on repeat runs, with positive expected net gold.
+  - **No first-attempt walls:** some class reaches Risky within three levels of the expected level.
+- **Balance revisions** are versioned (`ContentCatalogue.balanceRevision`); each one is applied once and bumps the content version of what it touches.
+  - **Revision 1:** Fen Path difficulty 23→21, Fallen Watchtower 24→22, Hollow Warren 26→23.
+  - **Revision 2:** iron dagger Power 7→8 (Rogue starter weapon matches the sword), Fallen Watchtower 22→21, Hollow Warren 23→22.
+  - Reason: each tier-2/3 job's counter was its own reward, and the Rogue had no weapon to carry trap jobs.
+  - Fen Path, Quarry Road and Hollow Warren first attempts are still Dangerous at the expected level, but reach Risky within three levels. This fits the GDD's "deliberate dangerous attempt"; playtest to confirm.
+- **Recovery states (GDD 15):**
+  - Normal start: a viable patrol right away.
+  - After consecutive deaths: about 3 minutes of recovery surveys.
+  - Emptied account: about 7.5 minutes, plus up to 20 minutes for the next Trader visit (the iron and cedar bundle is guaranteed every visit).
+- **Soak test (`SoakTests`):** 3 seeds × 400 random steps (play, crashes by reload from disk, time jumps of up to a day, trades, upgrades, site choices, zero gold).
+  - After every step it checks: ownership audit, gold and reputation bounds, results recorded once, expedition/contractor/item consistency, slots, non-negative stock.
+  - Totals: 106 crashes, 111 time jumps, 73 trades, 0 violations.
+- **Save compatibility:** fixtures v1–v8 each load into a full company, run an hour, and round-trip cleanly. Schema 9 is frozen for this release line.
+- **Developer mode:** Developer tools show by default only in the editor and development builds. Release builds unlock them by tapping the Settings version line five times; the choice is stored in device settings.
+- **Diagnostic export** (Developer tools): build, schema, balance revision, save status and generation, migration and clock flags, campaign state, ownership audit, last 40 transactions. Contains no personal data.
+- **Version:** 0.9.0 (build 9). Minimum iOS 15.0, iPhone only.
+- **Device interruption test** (iPhone 16 Pro, release build): 16 forced relaunches at random 0.3–4 s intervals, killing the app during boot and saves. The main save and backup both kept valid checksums afterwards, schema 9, saves 651 and 652. The test ran without warning the user first; future device tests will be announced.
+- **Device performance (PerfProbe)** is still pending: it needs the app open in front for about a minute. See KNOWN_ISSUES.
+
 ## Open blockers
 
 - **iOS build:** the Unity → Xcode device export succeeded headlessly on 2026-10-06 (0 errors, 1 warning, IL2CPP, 114 s). The Xcode compile/sign/install step has not run yet: the startup disk had only ~2.5 GB free, too little for Xcode intermediates. To do: free disk space, export again (Ravenholm > Build > iOS Xcode Project (Device)), open `Builds/iOS-Device/Unity-iPhone.xcodeproj`, pick a signing team, then Run on the iPhone.
 
 ## Playtest feedback
 
+- 2026-10-06: user: "next phase pls". Phase 9 built (balance, hardening, release docs). Release or submission needs separate explicit authorization. STOP for sign-off of the playable build.
 - 2026-10-06: user: "keep going" after Phase 7 (no playtest notes yet). Phase 8 built except final art (needs the user's decision). STOP for presentation and usability approval.
 - 2026-10-06: user: "keep going with next phase" (Phase 6 not yet playtested). Phase 7 built (world content and campaign). STOP for progression approval before Phase 8.
 - 2026-10-06: user: "start next phase". Phase 6 built (Trader, economy, offline catch-up, recovery). This is the functional MVP boundary: STOP for playtest before Phase 7.

@@ -14,13 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ItemDefinition
   id: item.iron_dagger
   displayName: Iron Dagger
-  contentVersion: 1
+  contentVersion: 2
   category: 0
-  power: 7
+  power: 8
   protection: 0
   weaponTag: 4
   potionEffect: 0
   potionStrength: 0
+  counterTag: 0
+  counterStrength: 0
   traderBuyValue: 1
   icon: {fileID: 21300000, guid: cecf4e1cf4c42449797af6b6ad009c34, type: 3}
   stackSprite: {fileID: 21300000, guid: f6aa7a38146b4449c955ce6d3ea3c3fd, type: 3}

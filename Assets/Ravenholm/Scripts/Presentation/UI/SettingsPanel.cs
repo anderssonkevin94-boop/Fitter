@@ -63,7 +63,9 @@ namespace Ravenholm.Presentation
             Row(() => "Show tips again from the start", () => Tips.Restart());
             var note = _ui.LiveText(_content, _theme.smallSize - 2f);
             note.text = "Settings are kept on this device and never reset with a save profile.";
-            Row(() => "Developer tools…", () => { Close(); _root.Hud.OpenDebug(); });
+            _devRow = Row(() => "Developer tools…", () => { Close(); _root.Hud.OpenDebug(); });
+            _versionRow = Row(() => $"Version {UnityEngine.Application.version} · balance revision {_root.Services.Catalogue.BalanceRevision}" +
+                                    (DeveloperMode ? " · developer mode" : ""), TapVersion);
             Row(() => "Close", Close);
         }
 
@@ -80,14 +82,34 @@ namespace Ravenholm.Presentation
             Settings.Update(s => s.TextScale = scales[(Array.IndexOf(scales, s.TextScale) + 1) % scales.Length]);
         }
 
-        private void Row(Func<string> text, Action onClick)
+        private GameObject _devRow, _versionRow;
+        private int _versionTaps;
+        private float _lastVersionTap;
+
+        /// <summary>Developer tools are hidden in release builds unless unlocked (five taps on the version line).</summary>
+        public bool DeveloperMode => S.DeveloperMode ?? (Debug.isDebugBuild || UnityEngine.Application.isEditor);
+
+        public void TapVersion()
         {
-            _ui.RowButton(_content, () => { onClick(); FeedbackAudio.Play(FeedbackAudio.Cue.Tap); Refresh(); }, out var label);
+            _versionTaps = Time.unscaledTime - _lastVersionTap < 1.5f ? _versionTaps + 1 : 1;
+            _lastVersionTap = Time.unscaledTime;
+            if (_versionTaps < 5) return;
+            _versionTaps = 0;
+            var on = !DeveloperMode;
+            Settings.Update(s => s.DeveloperMode = on);
+            _root.Hud.ShowToast(on ? "Developer mode on" : "Developer mode off");
+        }
+
+        private GameObject Row(Func<string> text, Action onClick)
+        {
+            var b = _ui.RowButton(_content, () => { onClick(); FeedbackAudio.Play(FeedbackAudio.Cue.Tap); Refresh(); }, out var label);
             _live.Add((label, text));
+            return b.gameObject;
         }
 
         private void Refresh()
         {
+            if (_devRow != null) _devRow.SetActive(DeveloperMode);
             foreach (var (label, text) in _live) label.text = text();
         }
 

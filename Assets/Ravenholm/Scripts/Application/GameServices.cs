@@ -76,6 +76,30 @@ namespace Ravenholm.Services
             return report;
         }
 
+        /// <summary>
+        /// Compact diagnostic report for testers (GDD 24): versions, save status, ownership audit and recent
+        /// transactions. Contains no personal data: only game state.
+        /// </summary>
+        public string DiagnosticReport(string build, int balanceRevision)
+        {
+            var sb = new System.Text.StringBuilder();
+            var st = Saves.Status;
+            sb.AppendLine($"Ravenholm Supply Co diagnostic · {Clock.UtcNow:O}");
+            sb.AppendLine($"build {build} · schema {Infrastructure.Save.SaveEnvelope.CurrentSchemaVersion} · balance revision {balanceRevision} · content {ContentReport}");
+            sb.AppendLine($"save: {st.LoadStatus} · generation {st.Generation} · last saved {st.LastSavedUtc:O} ({st.LastSaveReason}) · error {st.LastError ?? "none"}");
+            if (!string.IsNullOrEmpty(st.LoadDetail)) sb.AppendLine("load detail: " + st.LoadDetail);
+            if (st.MigratedFromSchema > 0) sb.AppendLine($"migrated from schema {st.MigratedFromSchema}");
+            if (st.ClockWentBackwards) sb.AppendLine("device clock went backwards at least once");
+            sb.AppendLine($"world seed {Saves.WorldSeed} · last catch-up {Economy.LastCatchUpId}");
+            var j = Jobs.State;
+            sb.AppendLine($"gold {j.Gold} · reputation {j.Reputation} · expeditions {j.Expeditions.Count} · results {j.Results.Count} · campaign {(Jobs.Board.CampaignComplete ? "complete" : Jobs.Board.CampaignObjective())}");
+            var audit = Logistics.System.Audit();
+            sb.AppendLine(audit.Count == 0 ? "ownership audit: OK" : "ownership audit FAILED:\n  " + string.Join("\n  ", audit));
+            sb.AppendLine("recent transactions:");
+            foreach (var t in Logistics.System.History) sb.AppendLine($"  {t.Reason}: {t.Detail}");
+            return sb.ToString();
+        }
+
         /// <summary>DEBUG: simulate being away for <paramref name="ms"/> (same path as a real absence).</summary>
         public AwayReport DebugTimeAway(long ms)
         {

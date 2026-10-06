@@ -273,7 +273,7 @@ namespace Ravenholm.Presentation
             var banner = _ui.Panel("PhaseBanner", safe, _theme.panelDark);
             UiFactory.Place(banner.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180f), new Vector2(560f, 76f));
             banner.raycastTarget = false;
-            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 8", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 9", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(bt.rectTransform, 8f);
             AutoFit(bt, 18f);
         }
@@ -425,7 +425,7 @@ namespace Ravenholm.Presentation
             var panel = _ui.Panel("Panel", layer, _theme.panel);
             UiFactory.Stretch(panel.rectTransform, 28f);
 
-            var title = _ui.Text("Title", panel.transform, "Debug · Phase 8", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            var title = _ui.Text("Title", panel.transform, "Debug · Phase 9", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             UiFactory.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(800f, 80f));
 
             // Scrollable body so the panel fits short (16:9) and tall phones alike.
@@ -548,6 +548,14 @@ namespace Ravenholm.Presentation
                     ShowAwayReport(report);
                 }, out _);
             }
+            _ui.Button("Diag", content, "Export diagnostic report", () =>
+            {
+                var dir = System.IO.Path.Combine(UnityEngine.Application.persistentDataPath, "Diagnostics");
+                System.IO.Directory.CreateDirectory(dir);
+                var path = System.IO.Path.Combine(dir, $"diag_{System.DateTime.UtcNow:yyyyMMdd_HHmmss}.txt");
+                System.IO.File.WriteAllText(path, _root.Services.DiagnosticReport(UnityEngine.Application.version, _root.Services.Catalogue.BalanceRevision));
+                Report("Diagnostic report written to " + path);
+            }, out _);
             _ui.Button("Perf", content, "Record performance (60 s, writes a report)", () =>
             {
                 CloseDebug();

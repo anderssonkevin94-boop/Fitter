@@ -38,6 +38,9 @@ namespace Ravenholm.Content
 
 #if UNITY_EDITOR
         /// <summary>Editor-only authoring hook used by setup tools and tests.</summary>
+        /// <summary>Marks an authored balance or content change (recorded in saves for diagnosis).</summary>
+        public void EditorBumpVersion() => contentVersion++;
+
         public void EditorInitialize(string newId, string newDisplayName)
         {
             id = newId;

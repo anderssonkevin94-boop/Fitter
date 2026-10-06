@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
   id: quest.fen_path
   displayName: Fen Path
-  contentVersion: 1
-  difficulty: 23
+  contentVersion: 2
+  difficulty: 21
   durationSeconds: 180
   threats:
   - threat: {fileID: 11400000, guid: b66ec082958954f34abb9e5d14ea3fcf, type: 2}

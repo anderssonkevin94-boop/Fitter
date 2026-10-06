@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
   id: quest.fallen_watchtower
   displayName: Fallen Watchtower
-  contentVersion: 1
-  difficulty: 24
+  contentVersion: 3
+  difficulty: 21
   durationSeconds: 210
   threats:
   - threat: {fileID: 11400000, guid: 05274abe26a254da895ea72c3ffe399b, type: 2}

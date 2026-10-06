@@ -150,6 +150,8 @@ namespace Ravenholm.Content
         }
 
 #if UNITY_EDITOR
+        public void EditorSetPower(int p) => power = p;
+
         public void EditorSetCounter(CounterTag tag, int strength)
         {
             counterTag = tag;
