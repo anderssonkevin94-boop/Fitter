@@ -48,11 +48,11 @@ the GDD excludes monetization and analytics.
 
 ## Open blockers
 
-- **iOS build not yet verified (2026-10-06).** The simulator export ran, but Unity crashed while writing files during shutdown because the startup disk was full (≈120 MB free of 228 GB; a staged macOS update snapshot was present). Free disk space, then run the device export (README) and build in Xcode. Device deployment also needs a signing team selected in Xcode.
+- **iOS build:** the Unity → Xcode device export succeeded headlessly on 2026-10-06 (0 errors, 1 warning, IL2CPP, 114 s). The Xcode compile/sign/install step has not run yet: the startup disk had only ~2.5 GB free, too little for Xcode intermediates. To do: free disk space, export again (Ravenholm > Build > iOS Xcode Project (Device)), open `Builds/iOS-Device/Unity-iPhone.xcodeproj`, pick a signing team, then Run on the iPhone.
 
 ## Playtest feedback
 
-_Phase 0: awaiting the user's playtest._
+- 2026-10-06: Phase 0 approved by the user ("keep going" → "Yes, start Phase 1"). No tuning notes given; the Phase 0 framing questions (view width, character scale, silhouettes, HUD footprint) carry over to the Phase 1 playtest.
 
 ## Evidence log template (GDD 29)
 
