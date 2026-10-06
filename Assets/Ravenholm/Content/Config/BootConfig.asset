@@ -15,5 +15,6 @@ MonoBehaviour:
   catalogue: {fileID: 11400000, guid: 44dcb9a1e15f9459c9949e3027bab9b5, type: 2}
   sandboxSettings: {fileID: 11400000, guid: c889aa8d1bfbc461cab31d6b0929aa18, type: 2}
   uiTheme: {fileID: 11400000, guid: 2123dd1a556544330a0c9d7b97afe735, type: 2}
+  balance: {fileID: 11400000, guid: 5980d7508f19b4233874b67a440093d8, type: 2}
   saveProfile: sandbox
   firstScene: DebugSandbox

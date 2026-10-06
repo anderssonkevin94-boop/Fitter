@@ -10,23 +10,24 @@ using ETouchPhase = UnityEngine.InputSystem.TouchPhase;
 namespace Ravenholm.Presentation
 {
     /// <summary>
-    /// Touch input plumbing (Phase 0). Produces a normalized move vector from a drag anchored
-    /// at the first touch that does not start on UI, and tap events for short touches.
-    /// Input resets to zero on release, cancel, focus loss or while a modal is open.
-    /// Mouse drag and WASD/arrow keys are editor/dev conveniences.
-    ///
-    /// Phase 1 builds the visible floating joystick, lower-screen movement area and
-    /// collision-aware motor on top of this; it does not replace the contract.
+    /// Input plumbing (GDD 3). The first touch that does not start on UI is tracked:
+    /// if it starts in the lower movement area it drives the <see cref="FloatingJoystick"/>;
+    /// a short, still touch anywhere is a tap. Input resets to zero on release, cancel,
+    /// focus loss and while a modal is open, and a touch held across a modal is ignored
+    /// until it lifts. Mouse drag and WASD/arrows are editor conveniences.
     /// </summary>
     public sealed class TouchInputRouter : MonoBehaviour
     {
         private static int _modalDepth;
 
         private SandboxSettings _settings;
+        private readonly FloatingJoystick _joystick = new FloatingJoystick();
         private int _trackedTouchId = -1;
         private readonly HashSet<int> _ignoredTouchIds = new HashSet<int>();
         private bool _mouseTracking;
-        private Vector2 _anchor;
+        private bool _mouseIgnored;
+        private bool _joystickAllowed;
+        private Vector2 _pressStart;
         private Vector2 _current;
         private double _startTime;
         private bool _movedBeyondTap;
@@ -37,9 +38,11 @@ namespace Ravenholm.Presentation
         /// <summary>Normalized movement, magnitude 0..1, screen-up = +y.</summary>
         public Vector2 MoveVector { get; private set; }
 
-        public bool IsDragging => (_trackedTouchId >= 0 || _mouseTracking) && _movedBeyondTap;
-        public Vector2 DragAnchor => _anchor;
-        public Vector2 DragCurrent => _current;
+        /// <summary>Joystick state in screen pixels for the HUD visual.</summary>
+        public bool JoystickVisible => _joystick.Active && _movedBeyondTap;
+        public Vector2 JoystickAnchorPixels => _joystick.Anchor * PixelsPerPoint();
+        public Vector2 JoystickKnobPixels => _joystick.Knob * PixelsPerPoint();
+        public float JoystickRadiusPixels => _joystick.Radius * PixelsPerPoint();
 
         /// <summary>Raised with the screen position of a short, still touch or click that did not start on UI.</summary>
         public event Action<Vector2> Tapped;
@@ -51,7 +54,12 @@ namespace Ravenholm.Presentation
 
         public static void PopModal() => _modalDepth = Math.Max(0, _modalDepth - 1);
 
-        public void Configure(SandboxSettings settings) => _settings = settings;
+        public void Configure(SandboxSettings settings)
+        {
+            _settings = settings;
+            _joystick.DeadZone = settings.dragDeadZonePoints;
+            _joystick.Radius = settings.dragRadiusPoints;
+        }
 
         private void OnEnable() => EnhancedTouchSupport.Enable();
 
@@ -68,6 +76,7 @@ namespace Ravenholm.Presentation
             _trackedTouchId = -1;
             _mouseTracking = false;
             _movedBeyondTap = false;
+            _joystick.Reset();
             MoveVector = Vector2.zero;
         }
 
@@ -76,8 +85,9 @@ namespace Ravenholm.Presentation
             if (_settings == null) return;
             if (IsBlocked)
             {
-                // Swallow everything that happens under a modal, including touches still held when it closes.
+                // Swallow everything under a modal, including touches still held when it closes.
                 if (_trackedTouchId >= 0) _ignoredTouchIds.Add(_trackedTouchId);
+                if (_mouseTracking) _mouseIgnored = true;
                 ResetInput();
                 foreach (var t in ETouch.activeTouches) _ignoredTouchIds.Add(t.touchId);
                 return;
@@ -86,8 +96,7 @@ namespace Ravenholm.Presentation
             var drag = Vector2.zero;
             if (!UpdateTouches(ref drag)) UpdateMouse(ref drag);
 
-            var keys = ReadKeyboard();
-            var combined = drag + keys;
+            var combined = drag + ReadKeyboard();
             MoveVector = combined.sqrMagnitude > 1f ? combined.normalized : combined;
         }
 
@@ -106,26 +115,28 @@ namespace Ravenholm.Presentation
             {
                 if (_ignoredTouchIds.Contains(t.touchId)) continue;
 
-                if (_trackedTouchId < 0 && t.phase == ETouchPhase.Began)
+                // Adopt the first untracked touch even if its one-frame "Began" was missed (frame hitch),
+                // judging it by where it started.
+                if (_trackedTouchId < 0 && t.phase != ETouchPhase.Ended && t.phase != ETouchPhase.Canceled)
                 {
-                    if (IsOverUi(t.screenPosition)) { _ignoredTouchIds.Add(t.touchId); continue; }
-                    Begin(t.touchId, t.screenPosition, t.startTime);
+                    if (IsOverUi(t.startScreenPosition)) { _ignoredTouchIds.Add(t.touchId); continue; }
+                    Begin(t.startScreenPosition, t.startTime);
+                    _trackedTouchId = t.touchId;
                 }
 
                 if (t.touchId != _trackedTouchId) continue;
                 trackedStillActive = true;
-                _current = t.screenPosition;
 
                 switch (t.phase)
                 {
                     case ETouchPhase.Ended:
-                        EndPress(t.time);
+                        End(t.screenPosition, t.time);
                         return true;
                     case ETouchPhase.Canceled:
                         ResetInput();
                         return true;
                     default:
-                        drag = ComputeDrag();
+                        drag = Drag(t.screenPosition);
                         break;
                 }
             }
@@ -140,49 +151,51 @@ namespace Ravenholm.Presentation
             if (mouse == null) return;
             var pos = mouse.position.ReadValue();
 
+            if (_mouseIgnored)
+            {
+                if (!mouse.leftButton.isPressed) _mouseIgnored = false;
+                return;
+            }
+
             if (!_mouseTracking && mouse.leftButton.wasPressedThisFrame)
             {
                 if (IsOverUi(pos)) return;
-                Begin(-1, pos, Time.realtimeSinceStartupAsDouble);
+                Begin(pos, Time.realtimeSinceStartupAsDouble);
                 _mouseTracking = true;
             }
             if (!_mouseTracking) return;
 
-            _current = pos;
             if (mouse.leftButton.wasReleasedThisFrame || !mouse.leftButton.isPressed)
             {
-                EndPress(Time.realtimeSinceStartupAsDouble);
+                End(pos, Time.realtimeSinceStartupAsDouble);
                 return;
             }
-            drag = ComputeDrag();
+            drag = Drag(pos);
         }
 
-        private void Begin(int touchId, Vector2 pos, double startTime)
+        private void Begin(Vector2 pixels, double startTime)
         {
-            _trackedTouchId = touchId;
-            _anchor = pos;
-            _current = pos;
+            _pressStart = pixels;
+            _current = pixels;
             _startTime = startTime;
             _movedBeyondTap = false;
+            _joystickAllowed = pixels.y <= Screen.height * _settings.movementAreaHeight;
+            if (_joystickAllowed) _joystick.Begin(pixels / PixelsPerPoint());
         }
 
-        private void EndPress(double endTime)
+        private Vector2 Drag(Vector2 pixels)
         {
+            _current = pixels;
+            if ((pixels - _pressStart).magnitude / PixelsPerPoint() > _settings.tapMaxMovePoints) _movedBeyondTap = true;
+            return _joystickAllowed ? _joystick.Move(pixels / PixelsPerPoint()) : Vector2.zero;
+        }
+
+        private void End(Vector2 pixels, double endTime)
+        {
+            _current = pixels;
             var wasTap = !_movedBeyondTap && endTime - _startTime <= _settings.tapMaxSeconds;
-            var pos = _current;
             ResetInput();
-            if (wasTap) Tapped?.Invoke(pos);
-        }
-
-        private Vector2 ComputeDrag()
-        {
-            var deltaPoints = (_current - _anchor) / PixelsPerPoint();
-            var dist = deltaPoints.magnitude;
-            if (dist > _settings.tapMaxMovePoints) _movedBeyondTap = true;
-            if (dist <= _settings.dragDeadZonePoints) return Vector2.zero;
-            var range = Mathf.Max(1f, _settings.dragRadiusPoints - _settings.dragDeadZonePoints);
-            var strength = Mathf.Clamp01((dist - _settings.dragDeadZonePoints) / range);
-            return deltaPoints / dist * strength;
+            if (wasTap) Tapped?.Invoke(pixels);
         }
 
         private static Vector2 ReadKeyboard()
@@ -198,7 +211,7 @@ namespace Ravenholm.Presentation
         }
 
         /// <summary>Approximate UIKit points: iPhones report ~460 dpi at 3x.</summary>
-        private static float PixelsPerPoint() => Screen.dpi > 0 ? Mathf.Max(1f, Screen.dpi / 160f) : 1f;
+        public static float PixelsPerPoint() => Screen.dpi > 0 ? Mathf.Max(1f, Screen.dpi / 160f) : 1f;
 
         private bool IsOverUi(Vector2 screenPos)
         {

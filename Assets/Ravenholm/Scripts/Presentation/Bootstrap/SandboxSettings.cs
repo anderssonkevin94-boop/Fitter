@@ -3,16 +3,13 @@ using UnityEngine;
 namespace Ravenholm.Presentation
 {
     /// <summary>
-    /// Tunables for the Phase 0 sandbox. Movement values are GDD starting points; the
-    /// Phase 1 BalanceProfile will take ownership of the gameplay ones.
+    /// Presentation and control-feel tunables (camera, joystick, saving cadence). Gameplay
+    /// numbers such as walk speed and carry capacity live in <see cref="Content.BalanceProfile"/>.
     /// </summary>
     [CreateAssetMenu(menuName = "Ravenholm/Config/Sandbox Settings", fileName = "SandboxSettings")]
     public sealed class SandboxSettings : ScriptableObject
     {
-        [Header("Movement (GDD 3 starting points)")]
-        [Tooltip("World units per second. GDD default 3.5.")]
-        [Min(0.1f)] public float walkSpeed = 3.5f;
-
+        [Header("Town")]
         [Tooltip("Walkable town footprint in world units (GDD: about 24 x 18).")]
         public Rect plotBounds = new Rect(-12f, -9f, 24f, 18f);
 
@@ -22,8 +19,14 @@ namespace Ravenholm.Presentation
         [Min(0)] public int defaultViewWidthIndex = 1;
         [Tooltip("Shifts the camera up so the player sits slightly below centre, leaving thumb room.")]
         public float cameraLookAheadY = 0.6f;
+        [Tooltip("Half-size (units) of the box the player can move in before the camera follows.")]
+        public Vector2 cameraDeadZone = new Vector2(0.45f, 0.7f);
+        [Tooltip("Camera smoothing time in seconds (gentle damping, GDD 3).")]
+        [Min(0f)] public float cameraSmoothTime = 0.18f;
 
-        [Header("Touch (screen points)")]
+        [Header("Floating joystick (screen points)")]
+        [Tooltip("Joystick touches must start in this lower fraction of the screen (GDD 3: lower movement area). Taps work anywhere.")]
+        [Range(0.3f, 1f)] public float movementAreaHeight = 0.72f;
         [Tooltip("Drag distance before movement starts.")]
         [Min(0)] public float dragDeadZonePoints = 8f;
         [Tooltip("Drag distance that maps to full speed.")]
@@ -33,7 +36,7 @@ namespace Ravenholm.Presentation
         [Min(1)] public float tapMaxMovePoints = 12f;
 
         [Header("Saving")]
-        [Tooltip("Seconds after a cheap change (player position) before an autosave.")]
-        [Min(0.5f)] public float autosaveDebounceSeconds = 3f;
+        [Tooltip("Seconds after a cheap change (movement, hauling) before an autosave. Critical commands save at once.")]
+        [Min(0.5f)] public float autosaveDebounceSeconds = 1.5f;
     }
 }

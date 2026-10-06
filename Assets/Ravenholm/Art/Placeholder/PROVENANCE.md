@@ -62,9 +62,12 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Props/pile_lumber.png` | Processed output pile (lumber) |
 | `Props/pile_ore.png` | Mine staging pile (ore) |
 | `Props/prop_bell.png` | Store counter bell (sandbox persistence sample) |
+| `Props/prop_output_pad.png` | Station output pad (pallet) for finished goods |
 | `Props/rack_armor.png` | Store armor stand |
 | `Props/rack_potions.png` | Store potion shelf |
 | `Props/rack_weapons.png` | Store weapon rack |
+| `Props/receiver_zone.png` | Receiver zone ground marker (dashed diamond) |
+| `Props/ui_bubble.png` | World icon bubble above receivers |
 | `Stacks/stack_arcane_dust.png` | Carry/stack piece: arcane dust |
 | `Stacks/stack_cedar_bow.png` | Carry/stack piece: cedar bow |
 | `Stacks/stack_cedar_log.png` | Carry/stack piece: cedar log |
@@ -104,6 +107,8 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `UI/Icons/ic_warning.png` | Status icon: warning/blocked |
 | `UI/ui_button.png` | 9-slice timber/gold button |
 | `UI/ui_chip.png` | 9-slice pill chip for HUD counters |
+| `UI/ui_joystick_knob.png` | Floating joystick knob |
+| `UI/ui_joystick_ring.png` | Floating joystick ring |
 | `UI/ui_panel.png` | 9-slice parchment panel |
 | `UI/ui_panel_dark.png` | 9-slice dark translucent panel |
 | `UI/ui_round_button.png` | Round context button background |

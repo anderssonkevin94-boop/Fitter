@@ -10,6 +10,7 @@ namespace Ravenholm.Presentation
         [SerializeField] private ContentCatalogue catalogue;
         [SerializeField] private SandboxSettings sandboxSettings;
         [SerializeField] private UiTheme uiTheme;
+        [SerializeField] private BalanceProfile balance;
 
         [Tooltip("Save profile folder name. Debug sandboxes must never share the production profile.")]
         [SerializeField] private string saveProfile = "sandbox";
@@ -20,15 +21,17 @@ namespace Ravenholm.Presentation
         public ContentCatalogue Catalogue => catalogue;
         public SandboxSettings SandboxSettings => sandboxSettings;
         public UiTheme UiTheme => uiTheme;
+        public BalanceProfile Balance => balance;
         public string SaveProfile => saveProfile;
         public string FirstScene => firstScene;
 
 #if UNITY_EDITOR
-        public void EditorSetup(ContentCatalogue c, SandboxSettings s, UiTheme t)
+        public void EditorSetup(ContentCatalogue c, SandboxSettings s, UiTheme t, BalanceProfile b)
         {
             catalogue = c;
             sandboxSettings = s;
             uiTheme = t;
+            balance = b;
         }
 #endif
     }

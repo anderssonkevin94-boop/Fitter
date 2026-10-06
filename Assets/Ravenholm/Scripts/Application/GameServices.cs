@@ -1,4 +1,5 @@
 using Ravenholm.Content;
+using Ravenholm.Domain.Logistics;
 using Ravenholm.Domain.Time;
 using Ravenholm.Infrastructure.Save;
 
@@ -10,29 +11,48 @@ namespace Ravenholm.Services
     /// </summary>
     public sealed class GameServices
     {
-        public GameServices(IClock clock, ContentCatalogue catalogue, string saveDirectory, string profile,
+        public GameServices(IClock clock, ContentCatalogue catalogue, BalanceProfile balance, string saveDirectory, string profile,
             string gameBuild, float autosaveDebounceSeconds)
         {
             Clock = clock;
             Catalogue = catalogue;
+            Balance = balance;
             ContentReport = catalogue != null ? catalogue.Validate() : NullCatalogueReport();
             Profile = profile;
             Saves = new SaveCoordinator(clock, new SaveStore(saveDirectory), profile, gameBuild, ContentVersionOf(catalogue));
-            Sandbox = new SandboxSession(Saves, autosaveDebounceSeconds);
+            Scheduler = new SaveScheduler(Saves, autosaveDebounceSeconds);
+            Sandbox = new SandboxSession(Scheduler);
+            Logistics = new LogisticsService(Scheduler, new CatalogueAcceptanceRules(catalogue), TuningFrom(balance));
         }
 
         public IClock Clock { get; }
         public ContentCatalogue Catalogue { get; }
+        public BalanceProfile Balance { get; }
         public ContentValidationReport ContentReport { get; private set; }
         public string Profile { get; }
         public SaveCoordinator Saves { get; }
+        public SaveScheduler Scheduler { get; }
         public SandboxSession Sandbox { get; }
+        public LogisticsService Logistics { get; }
+
+        /// <summary>Loads every save section and records the session. Call once after construction.</summary>
+        public void Start() => Sandbox.Start();
 
         public ContentValidationReport RevalidateContent()
         {
             ContentReport = Catalogue != null ? Catalogue.Validate() : NullCatalogueReport();
             return ContentReport;
         }
+
+        public static LogisticsTuning TuningFrom(BalanceProfile b) => b == null
+            ? new LogisticsTuning()
+            : new LogisticsTuning
+            {
+                Capacity = b.carryCapacity,
+                PickupRadius = b.pickupRadius,
+                TransferInterval = b.transferInterval,
+                OutputPadPriority = b.outputPadPriority,
+            };
 
         /// <summary>Highest per-definition content version; recorded in saves for diagnosis.</summary>
         private static int ContentVersionOf(ContentCatalogue catalogue)

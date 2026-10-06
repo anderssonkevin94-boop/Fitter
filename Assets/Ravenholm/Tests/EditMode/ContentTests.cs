@@ -127,6 +127,7 @@ namespace Ravenholm.Tests
             Assert.NotNull(boot.Catalogue);
             Assert.NotNull(boot.SandboxSettings);
             Assert.NotNull(boot.UiTheme);
+            Assert.NotNull(boot.Balance);
             Assert.AreNotEqual("main", boot.SaveProfile, "the sandbox must not write to the production profile");
         }
 

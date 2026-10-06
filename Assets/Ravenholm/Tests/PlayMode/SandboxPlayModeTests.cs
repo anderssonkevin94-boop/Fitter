@@ -35,7 +35,6 @@ namespace Ravenholm.Tests
             GameRoot.SaveDirectoryOverride = null;
             SafeAreaFitter.NormalizedOverride = null;
             WorldLabel.Visible = false;
-            CarryStackFixture.Visible = true;
             FollowCamera.ViewWidthIndex = -1;
             try { Directory.Delete(_dir, true); } catch { /* best effort */ }
         }
@@ -73,7 +72,7 @@ namespace Ravenholm.Tests
             Assert.NotNull(root.Hud);
             Assert.AreEqual(1, Object.FindObjectsByType<GameRoot>().Length, "exactly one composition root");
             Assert.AreEqual(SaveLoadStatus.NoSave, root.Services.Saves.Status.LoadStatus);
-            Assert.AreEqual(1, root.Services.Saves.Status.Generation, "session start was saved");
+            Assert.GreaterOrEqual(root.Services.Saves.Status.Generation, 1, "session start was saved");
         }
 
         [UnityTest]

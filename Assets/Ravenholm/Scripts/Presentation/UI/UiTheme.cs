@@ -12,6 +12,8 @@ namespace Ravenholm.Presentation
         public Sprite button;
         public Sprite chip;
         public Sprite roundButton;
+        public Sprite joystickRing;
+        public Sprite joystickKnob;
 
         [Header("Status icons")]
         public Sprite coin;
@@ -40,9 +42,8 @@ namespace Ravenholm.Presentation
         [Tooltip("Minimum touch target in reference pixels (44 pt at 3x = 132).")]
         [Min(44)] public float minTouchTarget = 132f;
 
-        [Header("Fixture HUD values (layout only, not systems)")]
+        [Header("Fixture HUD values (layout only, not systems yet)")]
         public int fixtureGold = 60;
         public int fixtureReputation = 20;
-        public int fixtureCarryCapacity = 12;
     }
 }

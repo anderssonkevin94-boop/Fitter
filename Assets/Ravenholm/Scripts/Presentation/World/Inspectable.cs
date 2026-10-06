@@ -16,6 +16,9 @@ namespace Ravenholm.Presentation
 
         public string Title => title;
 
+        /// <summary>Verb shown on the context button (GDD 4 microcopy: short action names).</summary>
+        public virtual string ContextVerb => "Inspect";
+
         public virtual string BuildDetail()
         {
             return string.IsNullOrEmpty(plannedPhase) ? description : $"{description}\n\n<b>Planned:</b> {plannedPhase}";

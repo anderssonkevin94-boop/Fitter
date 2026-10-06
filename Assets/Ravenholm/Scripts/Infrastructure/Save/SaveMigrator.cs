@@ -13,6 +13,7 @@ namespace Ravenholm.Infrastructure.Save
         private static readonly Dictionary<int, Action<JObject>> Steps = new Dictionary<int, Action<JObject>>
         {
             { 1, MigrateV1ToV2 },
+            { 2, MigrateV2ToV3 },
         };
 
         /// <summary>Migrates <paramref name="root"/> in place up to the current schema.</summary>
@@ -43,6 +44,15 @@ namespace Ravenholm.Infrastructure.Save
             // Schema 1 used "version"; later schemas use "schemaVersion".
             var token = root["schemaVersion"] ?? root["version"];
             return token != null && token.Type == JTokenType.Integer ? token.Value<int>() : 0;
+        }
+
+        /// <summary>
+        /// Schema 3 (Phase 1) adds the "logistics" ownership section. Older saves have no
+        /// physical goods yet, so it starts empty (null) and the sandbox seeds its fixtures.
+        /// </summary>
+        private static void MigrateV2ToV3(JObject o)
+        {
+            if (o["logistics"] == null) o["logistics"] = JValue.CreateNull();
         }
 
         /// <summary>

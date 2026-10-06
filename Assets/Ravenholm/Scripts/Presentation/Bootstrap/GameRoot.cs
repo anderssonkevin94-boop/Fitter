@@ -46,7 +46,7 @@ namespace Ravenholm.Presentation
             DontDestroyOnLoad(gameObject);
             UnityEngine.Application.targetFrameRate = 60;
 
-            if (config == null || config.SandboxSettings == null || config.UiTheme == null)
+            if (config == null || config.SandboxSettings == null || config.UiTheme == null || config.Balance == null)
             {
                 Debug.LogError("[GameRoot] BootConfig is missing or incomplete. Run Ravenholm > Setup > Run Phase 0 Setup.");
                 enabled = false;
@@ -55,13 +55,13 @@ namespace Ravenholm.Presentation
 
             var settings = config.SandboxSettings;
             var saveDir = SaveDirectoryOverride ?? Path.Combine(SaveRootDirectory, config.SaveProfile);
-            Services = new GameServices(ClockOverride ?? new SystemClock(), config.Catalogue, saveDir, config.SaveProfile,
+            Services = new GameServices(ClockOverride ?? new SystemClock(), config.Catalogue, config.Balance, saveDir, config.SaveProfile,
                 UnityEngine.Application.version, settings.autosaveDebounceSeconds);
 
             if (Services.ContentReport.IsValid) Debug.Log("[GameRoot] " + Services.ContentReport);
             else Debug.LogError("[GameRoot] " + Services.ContentReport);
 
-            Services.Sandbox.Start();
+            Services.Start();
             var s = Services.Saves.Status;
             if (s.LoadStatus == Infrastructure.Save.SaveLoadStatus.RecoveredFromBackup || s.LoadStatus == Infrastructure.Save.SaveLoadStatus.Unrecoverable)
                 Debug.LogWarning($"[GameRoot] Save load: {s.LoadStatus}. {s.LoadDetail}");

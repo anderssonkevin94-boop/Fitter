@@ -3,10 +3,9 @@ using UnityEngine;
 namespace Ravenholm.Presentation
 {
     /// <summary>
-    /// Fixed-angle orthographic follow camera, fit to a world WIDTH so every portrait aspect
-    /// ratio shows the same horizontal slice of town. No rotation or zoom in the game (locked);
-    /// the width index exists only so the debug panel can compare framings.
-    /// Phase 1 adds the dead zone and damping.
+    /// Fixed-angle orthographic follow camera (GDD 3, locked: no rotation or zoom). Fit to a world
+    /// WIDTH so every portrait aspect shows the same slice of town; a dead zone and gentle damping
+    /// keep it calm; it is clamped to the town. The width index exists only for the debug panel.
     /// </summary>
     [RequireComponent(typeof(Camera))]
     public sealed class FollowCamera : MonoBehaviour
@@ -15,6 +14,9 @@ namespace Ravenholm.Presentation
 
         private static int _viewWidthIndex = -1;
         private Camera _camera;
+        private Vector2 _focus;
+        private Vector2 _velocity;
+        private bool _snapped;
 
         public static int ViewWidthIndex
         {
@@ -26,6 +28,9 @@ namespace Ravenholm.Presentation
 
         private void Awake() => _camera = GetComponent<Camera>();
 
+        /// <summary>Jump straight to the target (after load, teleport, or framing change).</summary>
+        public void Snap() => _snapped = false;
+
         private void LateUpdate()
         {
             var root = GameRoot.Instance;
@@ -33,18 +38,41 @@ namespace Ravenholm.Presentation
             var s = root.Config.SandboxSettings;
             if (_viewWidthIndex < 0) _viewWidthIndex = s.defaultViewWidthIndex;
             _viewWidthIndex = Mathf.Clamp(_viewWidthIndex, 0, s.viewWidthOptions.Length - 1);
+            _camera.orthographicSize = OrthoSizeForWidth(s.viewWidthOptions[_viewWidthIndex], _camera.aspect);
 
-            var width = s.viewWidthOptions[_viewWidthIndex];
-            _camera.orthographicSize = OrthoSizeForWidth(width, _camera.aspect);
+            var t = (Vector2)target.position + new Vector2(0f, s.cameraLookAheadY);
+            if (!_snapped)
+            {
+                _focus = t;
+                _velocity = Vector2.zero;
+            }
+            else
+            {
+                var dz = s.cameraDeadZone;
+                if (t.x > _focus.x + dz.x) _focus.x = t.x - dz.x;
+                if (t.x < _focus.x - dz.x) _focus.x = t.x + dz.x;
+                if (t.y > _focus.y + dz.y) _focus.y = t.y - dz.y;
+                if (t.y < _focus.y - dz.y) _focus.y = t.y + dz.y;
+            }
 
+            var desired = Clamp(_focus, s);
+            Vector2 pos = _snapped
+                ? Vector2.SmoothDamp(transform.position, desired, ref _velocity, s.cameraSmoothTime, Mathf.Infinity, Time.unscaledDeltaTime)
+                : desired;
+            pos = Clamp(pos, s);   // never show past the margin, even mid-smoothing
+            transform.position = new Vector3(pos.x, pos.y, -10f);
+            _snapped = true;
+        }
+
+        private Vector2 Clamp(Vector2 p, SandboxSettings s)
+        {
             var halfH = _camera.orthographicSize;
             var halfW = halfH * _camera.aspect;
-            var pos = (Vector2)target.position + new Vector2(0f, s.cameraLookAheadY);
             var b = s.plotBounds;
             const float margin = 1.5f;   // show a little of the diorama edge
-            pos.x = ClampAxis(pos.x, b.xMin - margin, b.xMax + margin, halfW);
-            pos.y = ClampAxis(pos.y, b.yMin - margin, b.yMax + margin, halfH);
-            transform.position = new Vector3(pos.x, pos.y, -10f);
+            p.x = ClampAxis(p.x, b.xMin - margin, b.xMax + margin, halfW);
+            p.y = ClampAxis(p.y, b.yMin - margin, b.yMax + margin, halfH);
+            return p;
         }
 
         public static float CurrentViewWidth(SandboxSettings s)

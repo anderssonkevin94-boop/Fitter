@@ -331,6 +331,12 @@
     0.079
    ]
   },
+  "Props/prop_output_pad.png": {
+   "pivot": [
+    0.4985,
+    0.4727
+   ]
+  },
   "Props/rack_armor.png": {
    "pivot": [
     0.5,
@@ -347,6 +353,18 @@
    "pivot": [
     0.5,
     0.1682
+   ]
+  },
+  "Props/receiver_zone.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Props/ui_bubble.png": {
+   "pivot": [
+    0.5,
+    0.0652
    ]
   },
   "Stacks/stack_arcane_dust.png": {
@@ -590,6 +608,18 @@
     40,
     40
    ],
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "UI/ui_joystick_knob.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "UI/ui_joystick_ring.png": {
    "pivot": [
     0.5,
     0.5

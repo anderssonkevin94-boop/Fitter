@@ -258,7 +258,7 @@ namespace Ravenholm.Tests
         public void SampleValueSurvivesRestart()
         {
             var clock = new ManualClock(T0);
-            var first = new SandboxSession(new SaveCoordinator(clock, new SaveStore(Dir), "sandbox", "test", 1), 3f);
+            var first = new SandboxSession(new SaveScheduler(new SaveCoordinator(clock, new SaveStore(Dir), "sandbox", "test", 1), 3f));
             first.Start();
             first.RingBell();
             first.RingBell();
@@ -266,7 +266,7 @@ namespace Ravenholm.Tests
             first.Flush("quit");
 
             // "Restart": brand new service graph over the same folder.
-            var second = new SandboxSession(new SaveCoordinator(clock, new SaveStore(Dir), "sandbox", "test", 1), 3f);
+            var second = new SandboxSession(new SaveScheduler(new SaveCoordinator(clock, new SaveStore(Dir), "sandbox", "test", 1), 3f));
             second.Start();
             Assert.AreEqual(2, second.State.BellRingCount);
             Assert.AreEqual(2, second.State.SessionCount);
@@ -279,9 +279,9 @@ namespace Ravenholm.Tests
         {
             var clock = new ManualClock(T0);
             var a = new SaveCoordinator(clock, new SaveStore(Dir), "sandbox", "test", 1);
-            new SandboxSession(a, 3f).Start();
+            new SandboxSession(new SaveScheduler(a, 3f)).Start();
             var b = new SaveCoordinator(clock, new SaveStore(Dir), "sandbox", "test", 1);
-            new SandboxSession(b, 3f).Start();
+            new SandboxSession(new SaveScheduler(b, 3f)).Start();
             Assert.AreEqual(a.WorldSeed, b.WorldSeed);
         }
 
@@ -289,7 +289,7 @@ namespace Ravenholm.Tests
         public void GenerationIncreasesPerSave()
         {
             var c = new SaveCoordinator(new ManualClock(T0), new SaveStore(Dir), "sandbox", "test", 1);
-            var s = new SandboxSession(c, 3f);
+            var s = new SandboxSession(new SaveScheduler(c, 3f));
             s.Start();
             var g = c.Status.Generation;
             s.RingBell();
@@ -301,7 +301,7 @@ namespace Ravenholm.Tests
         {
             var clock = new ManualClock(T0);
             var c = new SaveCoordinator(clock, new SaveStore(Dir), "sandbox", "test", 1);
-            var s = new SandboxSession(c, 3f);
+            var s = new SandboxSession(new SaveScheduler(c, 3f));
             s.Start();
             clock.Set(T0.AddDays(-2));
             s.RingBell();
@@ -313,7 +313,7 @@ namespace Ravenholm.Tests
         public void DebouncedPositionSavesAfterDelayOnly()
         {
             var c = new SaveCoordinator(new ManualClock(T0), new SaveStore(Dir), "sandbox", "test", 1);
-            var s = new SandboxSession(c, 3f);
+            var s = new SandboxSession(new SaveScheduler(c, 3f));
             s.Start();
             var g = c.Status.Generation;
             s.ReportPlayerPosition(1, 1);
@@ -327,11 +327,11 @@ namespace Ravenholm.Tests
         public void OtherProfileFolderIsNotLoaded()
         {
             var clock = new ManualClock(T0);
-            var main = new SandboxSession(new SaveCoordinator(clock, new SaveStore(Dir), "main", "test", 1), 3f);
+            var main = new SandboxSession(new SaveScheduler(new SaveCoordinator(clock, new SaveStore(Dir), "main", "test", 1), 3f));
             main.Start();
             main.RingBell();
             var c = new SaveCoordinator(clock, new SaveStore(Dir), "sandbox", "test", 1);
-            var sandbox = new SandboxSession(c, 3f);
+            var sandbox = new SandboxSession(new SaveScheduler(c, 3f));
             sandbox.Start();
             Assert.AreEqual(0, sandbox.State.BellRingCount);
             StringAssert.Contains("profile mismatch", c.Status.LoadDetail);
@@ -342,14 +342,14 @@ namespace Ravenholm.Tests
         {
             var clock = new ManualClock(T0);
             var c = new SaveCoordinator(clock, new SaveStore(Dir), "sandbox", "test", 1);
-            var s = new SandboxSession(c, 3f);
+            var s = new SandboxSession(new SaveScheduler(c, 3f));
             s.Start();          // gen 1
             s.RingBell();       // gen 2 (backup = gen 1)
             s.RingBell();       // gen 3 (backup = gen 2, bells 1)
             c.Store.DebugCorruptPrimary();
 
             var c2 = new SaveCoordinator(clock, new SaveStore(Dir), "sandbox", "test", 1);
-            var s2 = new SandboxSession(c2, 3f);
+            var s2 = new SandboxSession(new SaveScheduler(c2, 3f));
             s2.Start();
             Assert.AreEqual(SaveLoadStatus.RecoveredFromBackup, c2.Status.LoadStatus);
             Assert.AreEqual(1, s2.State.BellRingCount, "falls back to the last known good save");

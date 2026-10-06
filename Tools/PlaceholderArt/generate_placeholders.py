@@ -885,6 +885,59 @@ def ui_round_button():
     finish("ui_round_button", img, (64 * S, 64 * S), "UI", desc="Round context button background", crop=False)
 
 
+def output_pad():
+    """Wooden pallet where finished goods appear (station output pad)."""
+    img = canvas(1.6, 1.0)
+    d = ImageDraw.Draw(img)
+    a = b = 1.1
+    F = (img.width / 2, img.height - 0.2 * U)
+    F_, R, B, L = iso_pts(F, a, b)
+    shadow_ellipse(d, (F[0] + B[0]) / 2, (F[1] + B[1]) / 2 + 0.03 * U, 0.62 * U, 0.3 * U)
+    box(d, F, a, b, 0.1 * U, PLANK, TIMBER_M, TIMBER_D)
+    for t in (0.33, 0.66):   # plank gaps
+        p1 = (L[0] + (F_[0] - L[0]) * t, L[1] + (F_[1] - L[1]) * t - 0.1 * U)
+        p2 = (B[0] + (R[0] - B[0]) * t, B[1] + (R[1] - B[1]) * t - 0.1 * U)
+        d.line([p1, p2], fill=TIMBER_M, width=2 * S)
+    return finish("prop_output_pad", img, footprint_centre(F, a, b), "Props", desc="Station output pad (pallet) for finished goods")
+
+
+def receiver_zone():
+    """Dashed diamond ring marking a receiver zone; tinted and faded in-engine. 1 unit radius."""
+    img = Image.new("RGBA", (2 * U + 8 * S, U + 8 * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    cx, cy = img.width / 2, img.height / 2
+    pts = [(cx, cy - U / 2), (cx + U, cy), (cx, cy + U / 2), (cx - U, cy)]
+    d.polygon(pts, fill=(255, 244, 214, 70))
+    for i in range(4):
+        a, b = pts[i], pts[(i + 1) % 4]
+        for k in range(6):
+            t0, t1 = k / 6 + 0.02, k / 6 + 0.11
+            d.line([(a[0] + (b[0] - a[0]) * t0, a[1] + (b[1] - a[1]) * t0), (a[0] + (b[0] - a[0]) * t1, a[1] + (b[1] - a[1]) * t1)],
+                   fill=(255, 248, 226, 255), width=4 * S)
+    finish("receiver_zone", img, (cx, cy), "Props", desc="Receiver zone ground marker (dashed diamond)", crop=False)
+
+
+def icon_bubble():
+    img = Image.new("RGBA", (80 * S, 92 * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle([4 * S, 4 * S, 76 * S, 72 * S], radius=18 * S, fill=(252, 246, 232, 255), outline=INK, width=OL)
+    d.polygon([(30 * S, 70 * S), (50 * S, 70 * S), (40 * S, 86 * S)], fill=(252, 246, 232, 255), outline=INK)
+    d.line([(31 * S, 70 * S), (49 * S, 70 * S)], fill=(252, 246, 232, 255), width=OL)
+    finish("ui_bubble", img, (40 * S, 86 * S), "Props", desc="World icon bubble above receivers", crop=False)
+
+
+def joystick():
+    img = Image.new("RGBA", (256 * S, 256 * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.ellipse([6 * S, 6 * S, 250 * S, 250 * S], fill=(40, 30, 22, 50), outline=(252, 246, 232, 200), width=6 * S)
+    finish("ui_joystick_ring", img, (128 * S, 128 * S), "UI", desc="Floating joystick ring", crop=False)
+    img = Image.new("RGBA", (128 * S, 128 * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.ellipse([6 * S, 10 * S, 122 * S, 126 * S], fill=(40, 30, 22, 80))
+    d.ellipse([6 * S, 4 * S, 122 * S, 118 * S], fill=(252, 246, 232, 235), outline=INK, width=4 * S)
+    finish("ui_joystick_knob", img, (64 * S, 64 * S), "UI", desc="Floating joystick knob", crop=False)
+
+
 def write_meta_and_provenance():
     with open(os.path.join(OUT, "sprite_meta.json"), "w") as f:
         json.dump({"ppu": PPU, "sprites": meta}, f, indent=1, sort_keys=True)
@@ -939,6 +992,10 @@ def main():
     staging_pile("pile_lumber", "cedar_lumber", "Processed output pile (lumber)")
     blob_shadow()
     deco_flowers()
+    output_pad()
+    receiver_zone()
+    icon_bubble()
+    joystick()
     ui_panel("ui_panel", (246, 236, 214, 255), INK, 18, desc="9-slice parchment panel")
     ui_panel("ui_panel_dark", (64, 54, 50, 235), (30, 22, 18, 255), 18, desc="9-slice dark translucent panel")
     ui_panel("ui_button", (232, 186, 92, 255), INK, 22, desc="9-slice timber/gold button")

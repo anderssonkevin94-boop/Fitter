@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 2,
+  "gameBuild": "0.0.1",
+  "contentVersion": 1,
+  "profile": "sandbox",
+  "worldSeed": "4806365435330354309",
+  "saveGeneration": 12,
+  "lastAcceptedUtc": "2026-10-06T00:08:33Z",
+  "sandbox": {
+    "bellRingCount": 4,
+    "sessionCount": 2,
+    "playerX": 1.5,
+    "playerY": -0.5
+  }
+}

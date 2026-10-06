@@ -3,7 +3,7 @@
 iOS-first, portrait fantasy supply-company management game in Unity.
 Design authority: *Ravenholm Supply Co Unity GDD* (design baseline 1.0, 6 Oct 2026).
 
-**Current state: Phase 0 checkpoint (foundation + placeholder kit). Awaiting playtest approval. Phase 1 has not started.**
+**Current state: Phase 1 checkpoint (town movement and physical interaction). Phase 0 approved 2026-10-06. Awaiting Phase 1 playtest approval; Phase 2 has not started.**
 
 ## Open and run
 
@@ -12,8 +12,12 @@ Design authority: *Ravenholm Supply Co Unity GDD* (design baseline 1.0, 6 Oct 20
 3. Game view: switch to **Simulator** and pick an iPhone (e.g. iPhone 16 Pro), then an older 16:9 iPhone (SE) to compare.
 4. Press **Play**.
 
-Controls: drag anywhere outside UI to walk (mouse drag in the editor), or WASD/arrow keys. Tap things to inspect them.
-The round button bottom-right inspects the nearest thing. The gear (top right) opens the debug panel.
+Controls: touch and drag in the lower ~70 % of the screen for the floating joystick (mouse drag in the editor), or WASD/arrows.
+Tap things to inspect them. The round button bottom-right acts on the nearest thing ("Open Smelter", "Inspect …"). The gear (top right) opens the debug panel.
+
+Phase 1 loop: walk next to a pile or output pad and goods jump onto your stack automatically (capacity 12). Then stand on a receiver marker:
+ore, coal and gems go to the Smelter; logs to the Lumbermill; herbs to the Apothecary; finished weapons, armor and potions to the Store's receiving strip (walk in through the open front).
+Debug panel: refill piles/pads, unload carry, unstuck, ownership audit.
 
 ## Reset the test save
 

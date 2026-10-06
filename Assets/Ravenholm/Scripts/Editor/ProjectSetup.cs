@@ -28,6 +28,7 @@ namespace Ravenholm.EditorTools
         public const string SceneDir = Root + "Scenes/";
         public const string BootstrapScene = SceneDir + "Bootstrap.unity";
         public const string SandboxScene = SceneDir + "DebugSandbox.unity";
+        public const int BlockerLayerIndex = 8;
         public const string BundleId = "com.kevinandersson.ravenholmsupplyco";
         public const string MinIosVersion = "15.0";
         private const string TmpSettingsPath = "Assets/TextMesh Pro/Resources/TMP Settings.asset";
@@ -63,6 +64,7 @@ namespace Ravenholm.EditorTools
         {
             ConfigurePlayer();
             EnsureSortingLayers();
+            EnsurePhysicsLayer(BlockerLayerIndex, PlayerMotor.BlockerLayerName);
             if (!EnsureTmpEssentials())
             {
                 Debug.LogError("[Setup] TextMesh Pro essentials are missing. Batch mode cannot import packages from a method; run Unity once with " +
@@ -75,12 +77,14 @@ namespace Ravenholm.EditorTools
             var catalogue = EnsureContent();
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
+            var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
             var boot = EnsureAsset<BootConfig>(ConfigDir + "BootConfig.asset");
-            if (boot.Catalogue == null || boot.SandboxSettings == null || boot.UiTheme == null)
+            if (boot.Catalogue == null || boot.SandboxSettings == null || boot.UiTheme == null || boot.Balance == null)
             {
                 boot.EditorSetup(boot.Catalogue != null ? boot.Catalogue : catalogue,
                     boot.SandboxSettings != null ? boot.SandboxSettings : settings,
-                    boot.UiTheme != null ? boot.UiTheme : theme);
+                    boot.UiTheme != null ? boot.UiTheme : theme,
+                    boot.Balance != null ? boot.Balance : balance);
                 EditorUtility.SetDirty(boot);
             }
             EnsureTiles();
@@ -137,6 +141,18 @@ namespace Ravenholm.EditorTools
             // Unity draws later sorting layers on top. Ground goes before Default, Overlay after it.
             EnsureSortingLayer(layers, "Ground", insertAtStart: true);
             EnsureSortingLayer(layers, "Overlay", insertAtStart: false);
+            tagManager.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void EnsurePhysicsLayer(int index, string name)
+        {
+            var tagManager = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
+            var layers = tagManager.FindProperty("layers");
+            var slot = layers.GetArrayElementAtIndex(index);
+            if (slot.stringValue == name) return;
+            if (!string.IsNullOrEmpty(slot.stringValue))
+                throw new InvalidOperationException($"Physics layer {index} is already '{slot.stringValue}', expected '{name}'.");
+            slot.stringValue = name;
             tagManager.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -266,6 +282,9 @@ namespace Ravenholm.EditorTools
             var path = ConfigDir + "UiTheme.asset";
             var created = !File.Exists(path);
             var t = EnsureAsset<UiTheme>(path);
+            // Fields added in later phases are filled in without touching edited ones.
+            if (t.joystickRing == null) { t.joystickRing = LoadSprite("UI/ui_joystick_ring"); EditorUtility.SetDirty(t); }
+            if (t.joystickKnob == null) { t.joystickKnob = LoadSprite("UI/ui_joystick_knob"); EditorUtility.SetDirty(t); }
             if (!created && t.panel != null) return t;
             t.panel = LoadSprite("UI/ui_panel");
             t.panelDark = LoadSprite("UI/ui_panel_dark");

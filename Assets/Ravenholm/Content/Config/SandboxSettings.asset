@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bb0e6828ac424195b260464d4c0b45c, type: 3}
   m_Name: SandboxSettings
   m_EditorClassIdentifier: Ravenholm.Presentation::Ravenholm.Presentation.SandboxSettings
-  walkSpeed: 3.5
   plotBounds:
     serializedVersion: 2
     x: -12
@@ -29,4 +28,4 @@ MonoBehaviour:
   dragRadiusPoints: 60
   tapMaxSeconds: 0.3
   tapMaxMovePoints: 12
-  autosaveDebounceSeconds: 3
+  autosaveDebounceSeconds: 1.5

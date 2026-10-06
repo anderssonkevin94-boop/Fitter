@@ -23,6 +23,14 @@ namespace Ravenholm.Presentation
         private Canvas _canvas;
 
         private TextMeshProUGUI _persistText;
+        private TextMeshProUGUI _carryText;
+        private RectTransform _carryChip;
+        private float _carryPulse;
+        private Image _joyRing;
+        private Image _joyKnob;
+        private CanvasGroup _toastGroup;
+        private TextMeshProUGUI _toastText;
+        private float _toastUntil;
         private Image _persistIcon;
         private Button _contextButton;
         private CanvasGroup _contextGroup;
@@ -33,7 +41,6 @@ namespace Ravenholm.Presentation
         private GameObject _debugLayer;
         private TextMeshProUGUI _debugStatus;
         private TextMeshProUGUI _labelsButtonText;
-        private TextMeshProUGUI _stackButtonText;
         private TextMeshProUGUI _viewButtonText;
         private TextMeshProUGUI _resetButtonText;
         private string _debugMessage = "";
@@ -92,12 +99,17 @@ namespace Ravenholm.Presentation
             BuildTopBar(safe);
             BuildPersistenceCard(safe);
             BuildContextButton(safe);
+            BuildToast(safe);
+            BuildJoystick();
             BuildInfoLayer(safe);
             BuildDebugLayer(safe);
 
             _root.Services.Saves.StatusChanged += _ => Refresh();
             _root.Services.Sandbox.StateChanged += _ => Refresh();
+            _root.Services.Logistics.System.Changed += RefreshCarry;
+            _root.Services.Logistics.Reloaded += RefreshCarry;
             Refresh();
+            RefreshCarry();
         }
 
         private void OnDestroy()
@@ -126,7 +138,8 @@ namespace Ravenholm.Presentation
 
             Chip(chips, _theme.coin, _theme.fixtureGold.ToString(), 250f);
             Chip(chips, _theme.reputation, _theme.fixtureReputation.ToString(), 220f);
-            Chip(chips, _theme.carry, $"0/{_theme.fixtureCarryCapacity}", 270f);
+            _carryText = Chip(chips, _theme.carry, "0/0", 270f);
+            _carryChip = (RectTransform)_carryText.transform.parent;
 
             var gear = _ui.Panel("DebugButton", bar, _theme.roundButton);
             gear.type = Image.Type.Simple;
@@ -138,11 +151,11 @@ namespace Ravenholm.Presentation
             var banner = _ui.Panel("PhaseBanner", safe, _theme.panelDark);
             UiFactory.Place(banner.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180f), new Vector2(560f, 76f));
             banner.raycastTarget = false;
-            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 0", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 1", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(bt.rectTransform, 8f);
         }
 
-        private void Chip(Transform parent, Sprite icon, string value, float width)
+        private TextMeshProUGUI Chip(Transform parent, Sprite icon, string value, float width)
         {
             var chip = _ui.Panel("Chip", parent, _theme.chip);
             chip.raycastTarget = false;
@@ -159,6 +172,53 @@ namespace Ravenholm.Presentation
             var t = _ui.Text("Value", chip.transform, value, _theme.titleSize - 6f, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             t.textWrappingMode = TextWrappingModes.NoWrap;
             t.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
+            return t;
+        }
+
+        private void BuildToast(RectTransform safe)
+        {
+            var toast = _ui.Panel("Toast", safe, _theme.panelDark);
+            toast.raycastTarget = false;
+            UiFactory.Place(toast.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -280f), new Vector2(460f, 96f));
+            _toastText = _ui.Text("Text", toast.transform, "", _theme.bodySize, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+            UiFactory.Stretch(_toastText.rectTransform, 10f);
+            _toastGroup = toast.gameObject.AddComponent<CanvasGroup>();
+            _toastGroup.alpha = 0f;
+            _toastGroup.blocksRaycasts = false;
+        }
+
+        private void BuildJoystick()
+        {
+            // Sits on the canvas root (not the safe area) so it can follow the thumb anywhere.
+            _joyRing = _ui.Icon("JoystickRing", transform, _theme.joystickRing, 10f);
+            _joyKnob = _ui.Icon("JoystickKnob", transform, _theme.joystickKnob, 10f);
+            foreach (var img in new[] { _joyRing, _joyKnob })
+            {
+                Destroy(img.GetComponent<LayoutElement>());
+                img.rectTransform.anchorMin = img.rectTransform.anchorMax = Vector2.zero;
+                img.color = new Color(1, 1, 1, 0.85f);
+                img.gameObject.SetActive(false);
+            }
+        }
+
+        /// <summary>Brief, non-blocking message. Repeats of the same text while visible are ignored (no spam).</summary>
+        public void ShowToast(string message)
+        {
+            if (Time.unscaledTime < _toastUntil && _toastText.text == message) return;
+            _toastText.text = message;
+            _toastUntil = Time.unscaledTime + 1.4f;
+        }
+
+        public string ToastText => Time.unscaledTime < _toastUntil ? _toastText.text : "";
+
+        private void RefreshCarry()
+        {
+            var sys = _root.Services.Logistics.System;
+            var text = $"{sys.CarryCount}/{sys.Capacity}";
+            if (_carryText.text != text && sys.IsFull) _carryPulse = 1f;
+            _carryText.text = text;
+            _carryText.color = sys.IsFull ? _theme.danger : _theme.ink;
+            if (IsDebugOpen) Refresh();
         }
 
         private void BuildPersistenceCard(RectTransform safe)
@@ -231,7 +291,7 @@ namespace Ravenholm.Presentation
             var panel = _ui.Panel("Panel", layer, _theme.panel);
             UiFactory.Stretch(panel.rectTransform, 28f);
 
-            var title = _ui.Text("Title", panel.transform, "Debug · Phase 0", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            var title = _ui.Text("Title", panel.transform, "Debug · Phase 1", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             UiFactory.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(800f, 80f));
 
             // Scrollable body so the panel fits short (16:9) and tall phones alike.
@@ -260,9 +320,28 @@ namespace Ravenholm.Presentation
             _ui.Button("SaveNow", content, "Save now", () => Report(_root.Services.Sandbox.SaveNow("debug: save now") ? "Saved." : "Save FAILED, see status."), out _);
             _ui.Button("Reload", content, "Reload from disk", ReloadFromDisk, out _);
             _ui.Button("Corrupt", content, "Corrupt save file (test)", CorruptSave, out _);
+            _ui.Button("Refill", content, "Refill test piles and pads", () =>
+            {
+                _root.Services.Logistics.RefillFixtures();
+                Report("Fixtures refilled to their authored contents.");
+            }, out _);
+            _ui.Button("Unload", content, "Unload carry into Store (debug)", () =>
+            {
+                var n = _root.Services.Logistics.DebugUnloadCarry();
+                Report($"Unloaded {n} carried unit(s) into shared inventory / Store.");
+            }, out _);
+            _ui.Button("Unstuck", content, "Unstuck (keeps carried goods)", () =>
+            {
+                SandboxSceneController.Current?.Unstuck();
+                Report("Moved to the Store front. Carry unchanged.");
+            }, out _);
+            _ui.Button("Audit", content, "Run ownership audit", () =>
+            {
+                var problems = _root.Services.Logistics.System.Audit();
+                Report(problems.Count == 0 ? "Ownership audit OK: every unit has exactly one owner." : "AUDIT FAILED:\n" + string.Join("\n", problems));
+            }, out _);
             _ui.Button("Reset", content, "Reset sandbox save…", ResetPressed, out _resetButtonText);
             _ui.Button("Labels", content, "", ToggleLabels, out _labelsButtonText);
-            _ui.Button("Stack", content, "", ToggleStack, out _stackButtonText);
             _ui.Button("ViewWidth", content, "", CycleViewWidth, out _viewButtonText);
             _ui.Button("Validate", content, "Validate content", ValidateContent, out _);
 
@@ -278,11 +357,35 @@ namespace Ravenholm.Presentation
         private void Update()
         {
             UpdateContextButton();
+            UpdateJoystick();
+            _toastGroup.alpha = Mathf.MoveTowards(_toastGroup.alpha, Time.unscaledTime < _toastUntil ? 1f : 0f, Time.unscaledDeltaTime * 6f);
+            _carryPulse = Mathf.MoveTowards(_carryPulse, 0f, Time.unscaledDeltaTime * 3f);
+            _carryChip.localScale = Vector3.one * (1f + _carryPulse * 0.12f);
             if (_resetArmedUntil > 0 && Time.unscaledTime > _resetArmedUntil)
             {
                 _resetArmedUntil = -1f;
                 if (_resetButtonText != null) _resetButtonText.text = "Reset sandbox save…";
             }
+        }
+
+        private void UpdateJoystick()
+        {
+            var r = _root.InputRouter;
+            var show = r != null && r.JoystickVisible;
+            _joyRing.gameObject.SetActive(show);
+            _joyKnob.gameObject.SetActive(show);
+            if (!show) return;
+            var canvasRect = (RectTransform)transform;
+            var cam = _canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : _canvas.worldCamera;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, r.JoystickAnchorPixels, cam, out var anchor);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, r.JoystickKnobPixels, cam, out var knob);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, r.JoystickAnchorPixels + Vector2.right * r.JoystickRadiusPixels, cam, out var edge);
+            var diameter = (edge - anchor).magnitude * 2f;
+            var offset = canvasRect.rect.size * 0.5f;   // local points are centre-based; anchors are bottom-left
+            _joyRing.rectTransform.anchoredPosition = anchor + offset;
+            _joyRing.rectTransform.sizeDelta = Vector2.one * (diameter + 60f);
+            _joyKnob.rectTransform.anchoredPosition = knob + offset;
+            _joyKnob.rectTransform.sizeDelta = Vector2.one * 110f;
         }
 
         private void UpdateContextButton()
@@ -292,7 +395,7 @@ namespace Ravenholm.Presentation
             _shownContext = target;
             _contextButton.interactable = target != null;
             _contextGroup.alpha = target != null ? 1f : 0.55f;
-            _contextLabel.text = target != null ? target.Title : "Walk closer";
+            _contextLabel.text = target != null ? $"{target.ContextVerb} {target.Title}" : "Walk closer";
         }
 
         private void OnContextPressed()
@@ -370,11 +473,6 @@ namespace Ravenholm.Presentation
             Refresh();
         }
 
-        private void ToggleStack()
-        {
-            CarryStackFixture.Visible = !CarryStackFixture.Visible;
-            Refresh();
-        }
 
         private void CycleViewWidth()
         {
@@ -410,7 +508,6 @@ namespace Ravenholm.Presentation
                 (status.LastError != null ? "\n<color=#FFB3A0>Save error</color>" : "");
 
             if (_labelsButtonText != null) _labelsButtonText.text = $"Building labels: {(WorldLabel.Visible ? "ON" : "OFF")}";
-            if (_stackButtonText != null) _stackButtonText.text = $"Carry stack fixture: {(CarryStackFixture.Visible ? "ON" : "OFF")}";
             if (_viewButtonText != null) _viewButtonText.text = $"View width: {FollowCamera.CurrentViewWidth(_root.Config.SandboxSettings):0.#} units";
             if (_debugStatus != null && IsDebugOpen) _debugStatus.text = BuildStatusText(status, state);
         }
@@ -433,6 +530,15 @@ namespace Ravenholm.Presentation
             sb.Append($"World seed: {_root.Services.Saves.WorldSeed}\n");
             sb.Append($"Player pos: ({state.PlayerX:0.0}, {state.PlayerY:0.0})\n\n");
 
+            var st = _root.Services.Logistics.System.State;
+            sb.Append("<b>Logistics</b>\n");
+            sb.Append($"Carry {st.Carry.Count}/{_root.Services.Logistics.System.Capacity}: ");
+            foreach (var u in st.Carry) sb.Append(u.Kind == Domain.Logistics.UnitKind.Item ? "◆" : "•");
+            sb.Append('\n');
+            sb.Append("Shared: ");
+            foreach (var kv in st.SharedMaterials) sb.Append($"{UnitVisuals.DisplayName(kv.Key)} {kv.Value}  ");
+            sb.Append($"\nStore items: {st.StoreItems.Count}  ·  item instances: {st.ItemDefinitions.Count}\n\n");
+
             var r = _root.Services.ContentReport;
             sb.Append("<b>Content</b>\n").Append(r.IsValid ? $"OK: {r.DefinitionCount} definitions" : $"<color=#B44034>{r.Errors.Count} errors</color>").Append("\n\n");
 
@@ -440,7 +546,7 @@ namespace Ravenholm.Presentation
             sb.Append($"Screen {Screen.width}x{Screen.height}  ·  aspect {(float)Screen.height / Mathf.Max(1, Screen.width):0.00}:1\n");
             sb.Append($"Safe area {Screen.safeArea}\n");
             sb.Append($"Build {UnityEngine.Application.version}  ·  Unity {UnityEngine.Application.unityVersion}\n");
-            sb.Append("\nGold / reputation / carry chips are layout fixtures, not systems.");
+            sb.Append("\nGold and reputation chips are layout fixtures, not systems yet.");
             return sb.ToString();
         }
 
