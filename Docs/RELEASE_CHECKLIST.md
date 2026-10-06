@@ -5,7 +5,8 @@ Submitting to the App Store or releasing publicly needs the user's explicit auth
 ## Build
 - [x] Release (non-development) iOS build exports and signs (0 errors).
 - [x] Bundle id `com.kevinandersson.ravenholmsupplyco`, version 0.9.0 (9), iPhone only, iOS 15.0+.
-- [ ] Final title and app icon (the title is still a working title, GDD 29).
+- [ ] Final title (working title, GDD 29). App icon: a placeholder is in place; final art pending.
+- [x] Privacy manifests present in the export (Unity framework); game code uses no required-reason APIs.
 - [ ] Final art (Phase 8 open decision) and audio assets (currently synthesized placeholders).
 - [ ] Privacy policy and App Store privacy answers (the game collects nothing; confirm).
 - [ ] Store listing, screenshots, age rating.

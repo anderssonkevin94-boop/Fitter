@@ -7,6 +7,7 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 
 | File | Description |
 |---|---|
+| `../AppIcon/app_icon.png` | Placeholder app icon: supply crate under the Beacon flame (1024 px) |
 | `Buildings/bld_apothecary.png` | Apothecary: hut with round window, herb basket receiver |
 | `Buildings/bld_forest_gate.png` | Forest entrance: timber gate with trail marker |
 | `Buildings/bld_forge.png` | Forge: covered outdoor work area, anvil, hearth |

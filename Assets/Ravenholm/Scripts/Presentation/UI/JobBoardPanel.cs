@@ -297,6 +297,7 @@ namespace Ravenholm.Presentation
             var sb = new StringBuilder();
             sb.Append($"<b>{q.DisplayName}</b> · difficulty {q.Difficulty} · {q.DurationSeconds:0} s · pays {q.BaseGold} g base");
             if (q.RecoveryContract) sb.Append(" · <b>sponsored: patron pays the fee</b>");
+            if (q.Challenge) sb.Append(" · <b>challenge contract</b>");
             sb.Append('\n').Append(q.Brief);
             var view = Board.Quest(q.Id);
             if (view.Threats.Count == 0) sb.Append("\nThreats: none expected");

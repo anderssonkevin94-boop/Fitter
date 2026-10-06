@@ -52,6 +52,27 @@ namespace Ravenholm.EditorTools
                 catalogue.EditorSetBalanceRevision(2);
                 EditorUtility.SetDirty(catalogue);
             }
+            if (catalogue.BalanceRevision < 3)
+            {
+                // Revision 3: postgame challenge contracts were Good/Excellent with endgame gear (counters cap at +8);
+                // a challenge should be Risky for a typical level-6 contractor and reach Good around level 9-10.
+                Difficulty("challenge_long_hunt", 30, 36);
+                Difficulty("challenge_fen_gauntlet", 31, 40);
+                Difficulty("challenge_quarry_siege", 31, 37);
+                Difficulty("challenge_shrine_vigil", 32, 38);
+                catalogue.EditorSetBalanceRevision(3);
+                EditorUtility.SetDirty(catalogue);
+            }
+            if (catalogue.BalanceRevision < 4)
+            {
+                // Revision 4: harness follow-up to revision 3: two challenges never reached Good by level 10, one was
+                // still Good at level 6.
+                Difficulty("challenge_long_hunt", 36, 34);
+                Difficulty("challenge_quarry_siege", 37, 35);
+                Difficulty("challenge_shrine_vigil", 38, 40);
+                catalogue.EditorSetBalanceRevision(4);
+                EditorUtility.SetDirty(catalogue);
+            }
             if (changed.Count > 0) Debug.Log("[Setup] Balance revision applied: " + string.Join(", ", changed));
             AssetDatabase.SaveAssets();
         }

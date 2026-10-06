@@ -67,6 +67,8 @@ namespace Ravenholm.Content
         [Min(0)] [SerializeField] private int campaignStep;
         [Tooltip("Succeeding at this completes the campaign (settlement trophy). Exactly one quest.")]
         [SerializeField] private bool campaignFinale;
+        [Tooltip("Postgame challenge contract (GDD 14: optional challenge variants using existing systems).")]
+        [SerializeField] private bool challenge;
         [Tooltip("On first success, removes these threats from later quests (permanent expedition preparations).")]
         [SerializeField] private List<QuestPreparation> preparations = new List<QuestPreparation>();
 
@@ -112,6 +114,7 @@ namespace Ravenholm.Content
         public RegionDefinition Region => region;
         public int CampaignStep => campaignStep;
         public bool CampaignFinale => campaignFinale;
+        public bool Challenge => challenge;
         public IReadOnlyList<QuestPreparation> Preparations => preparations;
         public IReadOnlyList<KnowledgeStep> Knowledge => knowledge;
         public string FailureObservation => failureObservation;
@@ -147,6 +150,8 @@ namespace Ravenholm.Content
             }
             if (recoveryContract && (knowledge.Count > 0 || !string.IsNullOrEmpty(failureObservation))) errors.Add($"{Describe()}: the recovery contract teaches nothing (GDD 15)");
             if (campaignFinale && repeatable) errors.Add($"{Describe()}: the campaign finale is a one-time expedition");
+            if (challenge && !repeatable) errors.Add($"{Describe()}: challenge contracts are repeatable");
+            if (challenge && !prerequisites.Exists(p => p != null && p.CampaignFinale)) errors.Add($"{Describe()}: challenge contracts unlock after the campaign finale");
             foreach (var p in preparations)
             {
                 if (p.quest == null || p.threat == null) { errors.Add($"{Describe()}: preparation entry incomplete"); continue; }
@@ -166,6 +171,7 @@ namespace Ravenholm.Content
         }
 
         public void EditorSetRegion(RegionDefinition r) => region = r;
+        public void EditorSetChallenge(bool c) => challenge = c;
         public void EditorSetDifficulty(int d) => difficulty = d;
 
         public void EditorSetKnowledge(List<KnowledgeStep> steps, string observation)

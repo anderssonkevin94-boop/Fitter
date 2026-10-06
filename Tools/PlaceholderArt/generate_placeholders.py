@@ -1122,6 +1122,38 @@ def pennant():
     return finish("prop_pennant", img, (cx, base), "Props", desc="Building level pennant (one per upgrade level)")
 
 
+def app_icon():
+    """Placeholder app icon (1024 px, original): a supply crate under the Beacon's flame, warm sky. Not a sprite."""
+    N = 1024
+    img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+    d = ImageDraw.Draw(img)
+    top, bottom = (58, 82, 96), (232, 170, 92)
+    for y in range(N):
+        k = y / (N - 1)
+        d.line([(0, y), (N, y)], fill=tuple(int(top[i] + (bottom[i] - top[i]) * k) for i in range(3)) + (255,))
+    d.ellipse([90, 760, 934, 1100], fill=(110, 160, 84, 255))
+    # crate (isometric box)
+    cx, base, w, h = 512, 820, 250, 230
+    left = [(cx - w, base - w // 2), (cx, base), (cx, base - h), (cx - w, base - w // 2 - h)]
+    right = [(cx, base), (cx + w, base - w // 2), (cx + w, base - w // 2 - h), (cx, base - h)]
+    topf = [(cx - w, base - w // 2 - h), (cx, base - h), (cx + w, base - w // 2 - h), (cx, base - w - h)]
+    for face, col in ((left, (176, 116, 64)), (right, (140, 88, 46)), (topf, (214, 160, 100))):
+        d.polygon(face, fill=col + (255,), outline=(59, 42, 32, 255))
+        d.line(face + [face[0]], fill=(59, 42, 32, 255), width=14)
+    for k in (0.33, 0.66):
+        d.line([(cx - w, base - w // 2 - h * k), (cx, base - h * k)], fill=(59, 42, 32, 255), width=10)
+        d.line([(cx, base - h * k), (cx + w, base - w // 2 - h * k)], fill=(59, 42, 32, 255), width=10)
+    # beacon flame
+    fx, fy = 512, 300
+    d.ellipse([fx - 150, fy - 150, fx + 150, fy + 150], fill=(255, 200, 96, 120))
+    d.polygon([(fx, fy - 170), (fx + 95, fy + 40), (fx, fy + 120), (fx - 95, fy + 40)], fill=(255, 170, 64, 255), outline=(59, 42, 32, 255))
+    d.polygon([(fx, fy - 70), (fx + 45, fy + 50), (fx, fy + 95), (fx - 45, fy + 50)], fill=(255, 236, 170, 255))
+    out = os.path.join(ROOT, "Assets", "Ravenholm", "Art", "AppIcon")
+    os.makedirs(out, exist_ok=True)
+    img.convert("RGB").save(os.path.join(out, "app_icon.png"))
+    provenance.append(("../AppIcon/app_icon.png", "Placeholder app icon: supply crate under the Beacon flame (1024 px)"))
+
+
 def main():
     tile("tile_grass_a", GRASS_A, GRASS_D, "tufts", 1)
     tile("tile_grass_b", GRASS_B, GRASS_D, "tufts", 2)
@@ -1182,6 +1214,7 @@ def main():
         ("ic_board", ic_board, "Status icon: Job Board"),
     ):
         ui_icon(name, fn, desc)
+    app_icon()
     write_meta_and_provenance()
     print(f"wrote {len(meta)} sprites to {OUT}")
 

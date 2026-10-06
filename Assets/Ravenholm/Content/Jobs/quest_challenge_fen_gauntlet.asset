@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c4b1ae7790f243f99270112d70e2d93, type: 3}
+  m_Name: quest_challenge_fen_gauntlet
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
+  id: quest.challenge_fen_gauntlet
+  displayName: 'Challenge: Fen Gauntlet'
+  contentVersion: 2
+  difficulty: 40
+  durationSeconds: 300
+  threats:
+  - threat: {fileID: 11400000, guid: b66ec082958954f34abb9e5d14ea3fcf, type: 2}
+    knownAtStart: 1
+  - threat: {fileID: 11400000, guid: 8a652df0113ae41a793c249e7281096e, type: 2}
+    knownAtStart: 1
+  - threat: {fileID: 11400000, guid: 05274abe26a254da895ea72c3ffe399b, type: 2}
+    knownAtStart: 1
+  baseGold: 120
+  repeatable: 1
+  recoveryContract: 0
+  prestigeTarget: 90
+  brief: Poison, witch-lights and snares on one road. Bring every counter you own.
+  prerequisites:
+  - {fileID: 11400000, guid: af3c52165466f4161b403d063bf01a18, type: 2}
+  reputationGate: 0
+  mapTier: 9
+  region: {fileID: 11400000, guid: 18359f64f813649d4828fff75e0c2bc6, type: 2}
+  campaignStep: 0
+  campaignFinale: 0
+  challenge: 1
+  preparations: []
+  knowledge: []
+  failureObservation: 
+  minContractorLevel: 0
+  dispatchReputation: 0
+  minWeaponPower: 0
+  minArmorProtection: 0
+  requireCounterPotion: 0
+  successMaterials:
+  - resource: {fileID: 11400000, guid: 5885b88db36ff46568810cd380656407, type: 2}
+    quantity: 3
+  - resource: {fileID: 11400000, guid: d9423a863cc414f9ea62df0297b743c1, type: 2}
+    quantity: 4
+  greatBonusMaterials:
+  - resource: {fileID: 11400000, guid: c92566d6dffce434b835bb60a6198cba, type: 2}
+    quantity: 1
+  partialMaterials: []
+  firstSuccessBlueprint: {fileID: 0}
+  substituteMaterials: []
+  rareResource: {fileID: 11400000, guid: c92566d6dffce434b835bb60a6198cba, type: 2}
+  rareChance: 0.6

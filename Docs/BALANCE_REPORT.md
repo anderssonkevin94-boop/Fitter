@@ -27,6 +27,10 @@ First attempt: best class by net at the typical level with gear owned beforehand
 | Chart the Beacon Road (one-time) | 29 | 7 | Rogue | 6 | Risky | 0 % | 51 % | 40 % | 9 % | 0.0 % | 60.1 | 25 | 2.2 | 0.0 | **32.9** | 4 | Rogue L10 | 49.6 |
 | Hold the Beacon Pass (one-time) | 30 | 7 | Warrior | 6 | Excellent | 74 % | 26 % | 0 % | 0 % | 0.0 % | 112.0 | 20 | 20.0 | 0.0 | **72.0** | 1 | Warrior L1 | 66.8 |
 | The Beacon Expedition (one-time) | 32 | 8 | Mage | 6 | Risky | 0 % | 53 % | 38 % | 8 % | 0.1 % | 103.0 | 32 | 22.0 | 0.1 | **49.0** | 3 | Mage L9 | 72.5 |
+| Challenge: The Long Hunt | 34 | 9 | Ranger | 6 | Risky | 0 % | 45 % | 44 % | 12 % | 0.0 % | 71.5 | 22 | 2.8 | 0.0 | **46.7** | 4 | Ranger L10 | 73.4 |
+| Challenge: Quarry Siege | 35 | 9 | Rogue | 6 | Risky | 0 % | 51 % | 40 % | 9 % | 0.0 % | 83.5 | 25 | 2.2 | 0.0 | **56.3** | 4 | Rogue L10 | 81.3 |
+| Challenge: Fen Gauntlet | 40 | 9 | Warrior | 6 | Risky | 3 % | 70 % | 25 % | 1 % | 0.2 % | 101.5 | 21 | 31.0 | 0.2 | **49.4** | 4 | Warrior L7 | 52.8 |
+| Challenge: Shrine Vigil | 40 | 9 | Mage | 6 | Risky | 1 % | 61 % | 33 % | 5 % | 0.0 % | 98.2 | 34 | 21.1 | 0.0 | **43.1** | 2 | Mage L8 | 55.0 |
 
 ## Risk-word calibration
 
@@ -36,7 +40,7 @@ Outcome rates by the forecast word (best rows above; small samples for rare word
 |---|---|---|---|
 | Excellent | 1 | 100 % | 0.0 % |
 | Good | 3 | 87 % | 0.0 % |
-| Risky | 11 | 57 % | 0.4 % |
+| Risky | 15 | 57 % | 0.3 % |
 | Dangerous | 4 | 17 % | 5.9 % |
 | Suicidal | 0 | – | – |
 

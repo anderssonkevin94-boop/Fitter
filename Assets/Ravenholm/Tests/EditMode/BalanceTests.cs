@@ -180,8 +180,9 @@ namespace Ravenholm.Tests
             foreach (var r in rows)
             {
                 // GDD 15: at Good risk, repeatable contracts have positive long-run net gold.
-                if (r.Quest.Repeatable && (r.LevelForGood < 0 || r.LevelForGood > 8))
-                    problems.Add($"{r.Quest.Id}: no class reaches Good on repeat runs by level 8");
+                var cap = r.Quest.Challenge ? 10 : 8;   // postgame challenges are meant for the strongest contractors
+                if (r.Quest.Repeatable && (r.LevelForGood < 0 || r.LevelForGood > cap))
+                    problems.Add($"{r.Quest.Id}: no class reaches Good on repeat runs by level {cap}");
                 else if (r.Quest.Repeatable && r.RepeatNet <= 0)
                     problems.Add($"{r.Quest.Id}: Good on repeat but expected net {r.RepeatNet:0.0} ≤ 0");
                 // No first-attempt walls: some class reaches Risky within three levels of the typical level.

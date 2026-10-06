@@ -81,6 +81,7 @@ namespace Ravenholm.EditorTools
             EnsureEconomyContent(catalogue);
             EnsureCampaignContent(catalogue);
             EnsureTutorialContent(catalogue);
+            EnsurePostgameContent(catalogue);
             EnsureKnowledgeContent(catalogue);
             ApplyBalanceRevisions(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
@@ -127,6 +128,17 @@ namespace Ravenholm.EditorTools
             PlayerSettings.iOS.targetOSVersionString = MinIosVersion;
             PlayerSettings.iOS.targetDevice = iOSTargetDevice.iPhoneOnly;
             PlayerSettings.iOS.requiresFullScreen = true;
+            // Placeholder app icon (original, generated; see PROVENANCE.md). Unity derives every iOS size from it.
+            const string iconPath = "Assets/Ravenholm/Art/AppIcon/app_icon.png";
+            if (AssetImporter.GetAtPath(iconPath) is TextureImporter ti &&
+                (ti.textureCompression != TextureImporterCompression.Uncompressed || ti.mipmapEnabled))
+            {
+                ti.textureCompression = TextureImporterCompression.Uncompressed;   // icons must stay crisp
+                ti.mipmapEnabled = false;
+                ti.SaveAndReimport();
+            }
+            var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(iconPath);
+            if (icon != null) PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToPortrait = true;
