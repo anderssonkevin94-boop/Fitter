@@ -39,6 +39,8 @@ namespace Ravenholm.Presentation
         private TextMeshProUGUI _infoTitle;
         private TextMeshProUGUI _infoBody;
         private GameObject _debugLayer;
+        private SitePanel _sitePanel;
+        private TextMeshProUGUI _speedButtonText;
         private TextMeshProUGUI _debugStatus;
         private TextMeshProUGUI _labelsButtonText;
         private TextMeshProUGUI _viewButtonText;
@@ -49,6 +51,14 @@ namespace Ravenholm.Presentation
 
         public bool IsInfoOpen => _infoLayer != null && _infoLayer.activeSelf;
         public bool IsDebugOpen => _debugLayer != null && _debugLayer.activeSelf;
+        public SitePanel SitePanel => _sitePanel;
+
+        /// <summary>Opens the Mine or Forest panel (strata or trail, decisions).</summary>
+        public void ShowSite(string siteId)
+        {
+            HideInfo();
+            _sitePanel.Show(siteId);
+        }
         public Canvas Canvas => _canvas;
         public string PersistenceText => _persistText != null ? _persistText.text : "";
 
@@ -102,6 +112,7 @@ namespace Ravenholm.Presentation
             BuildToast(safe);
             BuildJoystick();
             BuildInfoLayer(safe);
+            _sitePanel = SitePanel.Create(safe, _ui, root);
             BuildDebugLayer(safe);
 
             _root.Services.Saves.StatusChanged += _ => Refresh();
@@ -151,7 +162,7 @@ namespace Ravenholm.Presentation
             var banner = _ui.Panel("PhaseBanner", safe, _theme.panelDark);
             UiFactory.Place(banner.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180f), new Vector2(560f, 76f));
             banner.raycastTarget = false;
-            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 1", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 2", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(bt.rectTransform, 8f);
         }
 
@@ -291,7 +302,7 @@ namespace Ravenholm.Presentation
             var panel = _ui.Panel("Panel", layer, _theme.panel);
             UiFactory.Stretch(panel.rectTransform, 28f);
 
-            var title = _ui.Text("Title", panel.transform, "Debug · Phase 1", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            var title = _ui.Text("Title", panel.transform, "Debug · Phase 2", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             UiFactory.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(800f, 80f));
 
             // Scrollable body so the panel fits short (16:9) and tall phones alike.
@@ -343,6 +354,22 @@ namespace Ravenholm.Presentation
             _ui.Button("Reset", content, "Reset sandbox save…", ResetPressed, out _resetButtonText);
             _ui.Button("Labels", content, "", ToggleLabels, out _labelsButtonText);
             _ui.Button("ViewWidth", content, "", CycleViewWidth, out _viewButtonText);
+            _ui.Button("Speed", content, "", CycleSpeed, out _speedButtonText);
+            _ui.Button("MineDone", content, "Complete Mine section (debug)", () =>
+            {
+                _root.Services.Sites.DebugCompleteSection("site.mine");
+                Report("Mine section completed instantly. Units were still extracted and must be hauled.");
+            }, out _);
+            _ui.Button("ForestDone", content, "Complete Forest clearing (debug)", () =>
+            {
+                _root.Services.Sites.DebugCompleteSection("site.forest");
+                Report("Forest clearing completed instantly. Units were still extracted and must be hauled.");
+            }, out _);
+            _ui.Button("Measure", content, "Reset throughput measurement", () =>
+            {
+                _root.Services.Sites.ResetMeasurements();
+                Report("Throughput measurement restarted for both sites.");
+            }, out _);
             _ui.Button("Validate", content, "Validate content", ValidateContent, out _);
 
             _debugStatus = _ui.Text("Status", content, "", _theme.smallSize - 4f, _theme.ink, TextAlignmentOptions.TopLeft);
@@ -426,6 +453,7 @@ namespace Ravenholm.Presentation
         {
             if (IsDebugOpen) return;
             HideInfo();
+            _sitePanel.Close();
             _debugLayer.SetActive(true);
             TouchInputRouter.PushModal();
             _debugMessage = "";
@@ -482,6 +510,16 @@ namespace Ravenholm.Presentation
             Refresh();
         }
 
+        private static readonly float[] Speeds = { 1f, 5f, 20f };
+
+        private void CycleSpeed()
+        {
+            var sites = _root.Services.Sites;
+            var i = System.Array.IndexOf(Speeds, sites.SpeedMultiplier);
+            sites.SpeedMultiplier = Speeds[(i + 1) % Speeds.Length];
+            Refresh();
+        }
+
         private void ValidateContent()
         {
             var r = _root.Services.RevalidateContent();
@@ -508,6 +546,7 @@ namespace Ravenholm.Presentation
                 (status.LastError != null ? "\n<color=#FFB3A0>Save error</color>" : "");
 
             if (_labelsButtonText != null) _labelsButtonText.text = $"Building labels: {(WorldLabel.Visible ? "ON" : "OFF")}";
+            if (_speedButtonText != null) _speedButtonText.text = $"Site sim speed: ×{_root.Services.Sites.SpeedMultiplier:0} (debug accelerated time)";
             if (_viewButtonText != null) _viewButtonText.text = $"View width: {FollowCamera.CurrentViewWidth(_root.Config.SandboxSettings):0.#} units";
             if (_debugStatus != null && IsDebugOpen) _debugStatus.text = BuildStatusText(status, state);
         }

@@ -23,6 +23,7 @@ namespace Ravenholm.Services
             Scheduler = new SaveScheduler(Saves, autosaveDebounceSeconds);
             Sandbox = new SandboxSession(Scheduler);
             Logistics = new LogisticsService(Scheduler, new CatalogueAcceptanceRules(catalogue), TuningFrom(balance));
+            Sites = new SitesService(Scheduler, Logistics, catalogue);
         }
 
         public IClock Clock { get; }
@@ -34,6 +35,7 @@ namespace Ravenholm.Services
         public SaveScheduler Scheduler { get; }
         public SandboxSession Sandbox { get; }
         public LogisticsService Logistics { get; }
+        public SitesService Sites { get; }
 
         /// <summary>Loads every save section and records the session. Call once after construction.</summary>
         public void Start() => Sandbox.Start();

@@ -60,6 +60,8 @@ namespace Ravenholm.Presentation
         {
             if (player == null || _root == null) return;
 
+            // Simulation keeps running during menus (GDD 2); only direct movement stops under a modal.
+            _root.Services.Sites.Tick(Time.deltaTime);
             // Pickup and delivery are automatic and never depend on the context button (GDD 3).
             _root.Services.Logistics.System.Tick(Time.deltaTime, player.position.x, player.position.y);
 
@@ -102,7 +104,7 @@ namespace Ravenholm.Presentation
         {
             if (target == null) return;
             target.OnInspected();
-            _root.Hud.ShowInfo(target);
+            if (!target.OpensOwnPanel) _root.Hud.ShowInfo(target);
         }
 
         private void OnTapped(Vector2 screenPos)

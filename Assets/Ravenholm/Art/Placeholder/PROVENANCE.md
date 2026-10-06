@@ -53,6 +53,7 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Nature/rock_stone.png` | Rock face: plain stone |
 | `Nature/tree_cedar.png` | Cedar tree: tiered conifer silhouette |
 | `Nature/tree_maple.png` | Maple tree: round warm canopy silhouette |
+| `Nature/tree_stump.png` | Felled tree stump |
 | `Props/blob_shadow.png` | Soft blob shadow |
 | `Props/deco_flowers_0.png` | Ground flower decal |
 | `Props/deco_flowers_1.png` | Ground flower decal |
@@ -67,6 +68,7 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Props/rack_potions.png` | Store potion shelf |
 | `Props/rack_weapons.png` | Store weapon rack |
 | `Props/receiver_zone.png` | Receiver zone ground marker (dashed diamond) |
+| `Props/trail_marker.png` | Forest trail marker post (one per area reached) |
 | `Props/ui_bubble.png` | World icon bubble above receivers |
 | `Stacks/stack_arcane_dust.png` | Carry/stack piece: arcane dust |
 | `Stacks/stack_cedar_bow.png` | Carry/stack piece: cedar bow |

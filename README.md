@@ -3,7 +3,7 @@
 iOS-first, portrait fantasy supply-company management game in Unity.
 Design authority: *Ravenholm Supply Co Unity GDD* (design baseline 1.0, 6 Oct 2026).
 
-**Current state: Phase 1 checkpoint (town movement and physical interaction). Phase 0 approved 2026-10-06. Awaiting Phase 1 playtest approval; Phase 2 has not started.**
+**Current state: Phase 2 checkpoint (Mine and Forest worker slice). Phases 0–1 approved; Phase 2 built under the user's overnight authorization and awaiting playtest.**
 
 ## Open and run
 
@@ -17,7 +17,11 @@ Tap things to inspect them. The round button bottom-right acts on the nearest th
 
 Phase 1 loop: walk next to a pile or output pad and goods jump onto your stack automatically (capacity 12). Then stand on a receiver marker:
 ore, coal and gems go to the Smelter; logs to the Lumbermill; herbs to the Apothecary; finished weapons, armor and potions to the Store's receiving strip (walk in through the open front).
-Debug panel: refill piles/pads, unload carry, unstuck, ownership audit.
+Debug panel: refill piles/pads, unload carry, unstuck, ownership audit, site sim speed (×1/×5/×20), complete Mine section / Forest clearing, reset throughput.
+
+Phase 2: Dagna mines and Tobin chops on their own and drop goods at the staging piles (capacity 96); you haul from there.
+When a section or clearing is worked out, a "Choose next section" marker appears. Open the Mine or Forest (context button) to Continue Here or Dig/Push Deeper.
+Tool and pack tiers can be swapped in the site panel (DEBUG, no cost yet) to compare throughput.
 
 ## Reset the test save
 

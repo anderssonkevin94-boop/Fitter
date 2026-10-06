@@ -40,11 +40,15 @@ namespace Ravenholm.Content
         [Tooltip("World piece used in carry stacks and piles.")]
         [SerializeField] private Sprite stackSprite;
 
+        [Tooltip("Colour used when this resource appears in site diagrams (strata, trail).")]
+        [SerializeField] private Color mapTint = new Color(0.6f, 0.6f, 0.6f, 1f);
+
         public override string IdKind => "resource";
         public ResourceCategory Category => category;
         public ReceiverType AcceptedReceiver => acceptedReceiver;
         public Sprite Icon => icon;
         public Sprite StackSprite => stackSprite;
+        public Color MapTint => mapTint;
 
         public override void Validate(List<string> errors)
         {
@@ -56,6 +60,8 @@ namespace Ravenholm.Content
         }
 
 #if UNITY_EDITOR
+        public void EditorSetTint(Color c) => mapTint = c;
+
         public void EditorSetup(ResourceCategory newCategory, ReceiverType receiver, Sprite newIcon, Sprite newStack)
         {
             category = newCategory;

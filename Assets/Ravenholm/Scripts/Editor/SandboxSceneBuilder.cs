@@ -91,29 +91,27 @@ namespace Ravenholm.EditorTools
                 "A periodic visitor sets up here to sell external materials and buy equipment at poor prices.", "Phase 6 Trader", new Vector2(2f, 2f));
             var mine = Building(buildings, "Mine", "bld_mine_mouth", new Vector2(-9.0f, 6.0f), new Vector2(4.2f, 2.8f),
                 "One active production site. Workers strike the current face; you choose to continue this layer or reveal a deeper one.",
-                "Phase 2 workers and depth decisions", footprint: null);
+                "", footprint: null, siteId: "site.mine");
             Box(mine.transform, new Vector2(0f, 0.75f), new Vector2(3.8f, 1.3f));
-            var gate = Building(buildings, "Forest", "bld_forest_gate", new Vector2(9.0f, 6.0f), new Vector2(2.2f, 1.9f),
+            var gate = Building(buildings, "Forest", "bld_forest_gate", new Vector2(6.5f, 6.1f), new Vector2(2.2f, 1.9f),
                 "Trail into the Forest. Workers chop the current clearing; Push Deeper reveals a new area further out.",
-                "Phase 2 workers and area decisions", footprint: null);
+                "", footprint: null, siteId: "site.forest");
             Circle(gate.transform, new Vector2(-0.85f, 0f), 0.12f);
             Circle(gate.transform, new Vector2(0.85f, 0f), 0.12f);
 
             // --- nature ---
-            var treeSpots = new[]
+            foreach (var (spot, cedar) in new[] { (new Vector2(5.4f, 8.2f), true), (new Vector2(11.4f, 5.0f), false), (new Vector2(7.2f, 8.8f), false) })
             {
-                new Vector2(7.0f, 7.0f), new Vector2(10.6f, 5.2f), new Vector2(8.2f, 8.1f), new Vector2(11.0f, 7.6f),
-                new Vector2(6.2f, 4.9f), new Vector2(11.3f, 3.6f), new Vector2(9.6f, 8.6f), new Vector2(5.4f, 7.6f),
-            };
-            for (var i = 0; i < treeSpots.Length; i++)
-            {
-                var cedar = i % 2 == 0;
-                var t = Prop(nature, cedar ? "Cedar Tree" : "Maple Tree", cedar ? "Nature/tree_cedar" : "Nature/tree_maple", treeSpots[i],
-                    cedar ? "Placeholder cedar. Forest workers will claim individual trees." : "Placeholder maple. Deeper areas mix in more maple.",
-                    "Phase 2");
+                var t = Prop(nature, cedar ? "Cedar Tree" : "Maple Tree", cedar ? "Nature/tree_cedar" : "Nature/tree_maple", spot,
+                    "Background tree outside the active clearing.", "");
                 Circle(t.transform, Vector2.zero, 0.22f);
                 t.gameObject.AddComponent<ObstructionFader>();
             }
+            var pocket = TreePocket(nature, new[]
+            {
+                new Vector2(8.1f, 6.7f), new Vector2(9.5f, 6.4f), new Vector2(10.9f, 6.8f),
+                new Vector2(8.7f, 7.9f), new Vector2(10.1f, 8.1f), new Vector2(11.3f, 8.3f),
+            }, new[] { new Vector2(6.9f, 5.2f), new Vector2(7.3f, 5.0f), new Vector2(7.7f, 4.8f) });
             Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(8.6f, 3.3f), "Herbs come as a bonus while chopping.", "Phase 2");
             Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(10.2f, 2.5f), "Herbs come as a bonus while chopping.", "Phase 2");
             foreach (var (name, sprite, pos, desc) in new[]
@@ -140,12 +138,10 @@ namespace Ravenholm.EditorTools
             Receiver(logistics, "receiver.apothecary", ReceiverKind.Apothecary, new Vector2(-2.15f, -2.45f), 0.55f, apothecary.transform, "icon_herb", true);
             Receiver(logistics, "receiver.store", ReceiverKind.Store, new Vector2(-0.55f, 2.95f), 0.55f, store.transform, "icon_iron_sword", false);
 
-            Container(logistics, "container.mine_staging", "Mine Staging", ContainerKind.RawPile, new Vector2(-8.4f, 3.7f),
-                "Test fixture: ore the miners will drop here in Phase 2. Walk close to pick it up automatically, then carry it to the Smelter.",
-                Mats(("resource.iron_ore", 18), ("resource.copper_ore", 6), ("resource.gem", 1)), null);
-            Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(8.6f, 4.4f),
-                "Test fixture: logs and herbs. Logs go to the Lumbermill, herbs to the Apothecary.",
-                Mats(("resource.cedar_log", 16), ("resource.maple_log", 4), ("resource.herb", 6)), null);
+            var mineStaging = Container(logistics, "container.mine_staging", "Mine Staging", ContainerKind.RawPile, new Vector2(-8.4f, 3.7f),
+                "The miner drops ore here (capacity 96). Workers never haul further: you carry it to the Smelter.", null, null, 96);
+            var forestStaging = Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(8.6f, 4.4f),
+                "The woodcutter drops logs and herbs here (capacity 96). Logs go to the Lumbermill, herbs to the Apothecary.", null, null, 96);
             Container(logistics, "container.forge_pad", "Forge Output", ContainerKind.OutputPad, new Vector2(-4.3f, -4.55f),
                 "Test fixture: finished goods waiting on the Forge output pad. Carry them to the Store.",
                 null, new[] { "item.iron_sword", "item.iron_sword", "item.iron_dagger", "item.riveted_coat", "item.riveted_coat" });
@@ -165,10 +161,13 @@ namespace Ravenholm.EditorTools
                 "Example contractor fixture (level 1, Bold).", "Phase 4 applicants");
             Character(people, "Ivo Reed · Mage", new Vector2(1.9f, 1.75f), 1, "ov_mage",
                 "Example contractor fixture (level 1, Poison Trained).", "Phase 4 applicants");
-            Character(people, "Miner", new Vector2(-7.5f, 4.7f), 2, "ov_miner",
-                "Worker placeholder. Workers keep their names and improve only through equipment.", "Phase 2 workers");
-            Character(people, "Woodcutter", new Vector2(7.9f, 5.6f), 0, "ov_woodcutter",
-                "Worker placeholder. Workers keep their names and improve only through equipment.", "Phase 2 workers");
+            var mouth = new GameObject("MouthPoint").transform;
+            mouth.SetParent(mine.transform, false);
+            mouth.localPosition = new Vector3(0f, 0.15f, 0f);
+            Worker(people, "Dagna Holt", "site.mine", "worker.dagna", 2, "ov_miner", mineStaging, mouth, null);
+            Worker(people, "Tobin Ash", "site.forest", "worker.tobin", 0, "ov_woodcutter", forestStaging, null, pocket);
+            SiteMarker(mine.transform, "site.mine", 1.7f);
+            SiteMarker(gate.transform, "site.forest", 2.0f);
 
             player.gameObject.AddComponent<PlayerMotor>().EditorSetup(player.Find("Visual"));
             player.gameObject.AddComponent<CarryStackView>();
@@ -299,14 +298,20 @@ namespace Ravenholm.EditorTools
         /// diamond collision footprint (a × b tiles) independent of the roof art (GDD 3).
         /// </summary>
         private static SpriteRenderer Building(Transform parent, string title, string sprite, Vector2 pos, Vector2 tapSize,
-            string description, string phase, Vector2? footprint, ReceiverKind? station = null)
+            string description, string phase, Vector2? footprint, ReceiverKind? station = null, string siteId = null)
         {
             var sr = Sprite(parent, title, "Buildings/" + sprite, pos);
             var col = sr.gameObject.AddComponent<BoxCollider2D>();
             col.isTrigger = true;
             col.size = tapSize;
             col.offset = new Vector2(0f, tapSize.y * 0.3f);
-            if (station.HasValue)
+            if (siteId != null)
+            {
+                var site = sr.gameObject.AddComponent<SiteInspectable>();
+                site.EditorSetup(title, description, phase);
+                site.EditorSetupSite(siteId);
+            }
+            else if (station.HasValue)
             {
                 var s = sr.gameObject.AddComponent<StationInspectable>();
                 s.EditorSetup(title, description, phase);
@@ -407,8 +412,8 @@ namespace Ravenholm.EditorTools
             root.AddComponent<ReceiverView>().EditorSetup(id, kind, radius, decal, bubble, icon, bump);
         }
 
-        private static void Container(Transform parent, string id, string title, ContainerKind kind, Vector2 pos, string description,
-            List<WorldContainerView.ResourceAmount> materials, string[] itemIds)
+        private static Transform Container(Transform parent, string id, string title, ContainerKind kind, Vector2 pos, string description,
+            List<WorldContainerView.ResourceAmount> materials, string[] itemIds, int capacity = 0)
         {
             var root = new GameObject(title);
             root.transform.SetParent(parent, false);
@@ -419,13 +424,104 @@ namespace Ravenholm.EditorTools
 
             var items = new List<ItemDefinition>();
             if (itemIds != null) foreach (var i in itemIds) items.Add(_catalogue.Get<ItemDefinition>(i));
-            root.AddComponent<WorldContainerView>().EditorSetup(id, kind, 0.45f, materials, items);
+            var view = root.AddComponent<WorldContainerView>();
+            view.EditorSetup(id, kind, 0.45f, materials, items);
+            view.EditorSetCapacity(capacity);
 
             var col = root.AddComponent<BoxCollider2D>();
             col.isTrigger = true;
             col.size = new Vector2(1.0f, 0.9f);
             col.offset = new Vector2(0f, 0.3f);
-            root.AddComponent<Inspectable>().EditorSetup(title, description, "Phase 1 test fixture");
+            root.AddComponent<Inspectable>().EditorSetup(title, description, kind == ContainerKind.OutputPad ? "Phase 1 test fixture (crafting fills pads in Phase 3)" : "");
+            return root.transform;
+        }
+
+        private static TreePocketView TreePocket(Transform parent, Vector2[] spots, Vector2[] markerSpots)
+        {
+            var root = new GameObject("Forest Clearing");
+            root.transform.SetParent(parent, false);
+            var renderers = new List<SpriteRenderer>();
+            for (var i = 0; i < spots.Length; i++)
+            {
+                var sr = Sprite(root.transform, $"Tree{i}", "Nature/tree_cedar", spots[i]);
+                var col = sr.gameObject.AddComponent<BoxCollider2D>();
+                col.isTrigger = true;
+                col.size = new Vector2(1.2f, 2.2f);
+                col.offset = new Vector2(0f, 1.0f);
+                sr.gameObject.AddComponent<Inspectable>().EditorSetup("Clearing tree",
+                    "Part of the active clearing. The woodcutter claims one tree at a time; each yields 4 units (herbs are a bonus roll).", "");
+                Circle(sr.transform, Vector2.zero, 0.2f);
+                sr.gameObject.AddComponent<ObstructionFader>();
+                renderers.Add(sr);
+            }
+            var markers = new List<GameObject>();
+            foreach (var m in markerSpots) markers.Add(Sprite(root.transform, "TrailMarker", "Props/trail_marker", m).gameObject);
+            var view = root.AddComponent<TreePocketView>();
+            view.EditorSetup("site.forest", renderers, markers, ProjectSetup.LoadSprite("Nature/tree_cedar"), ProjectSetup.LoadSprite("Nature/tree_maple"),
+                ProjectSetup.LoadSprite("Nature/tree_stump"), new List<ResourceDefinition> { _catalogue.Get<ResourceDefinition>("resource.maple_log") });
+            return view;
+        }
+
+        private static void Worker(Transform parent, string title, string siteId, string workerId, int skin, string overlay,
+            Transform staging, Transform workPoint, TreePocketView pocket)
+        {
+            var root = new GameObject(title);
+            root.transform.SetParent(parent, false);
+            root.transform.position = staging.position + new Vector3(0.55f, -0.1f, 0f);
+            root.AddComponent<SortingGroup>();
+            var visual = new GameObject("Visual").transform;
+            visual.SetParent(root.transform, false);
+            Sprite(visual, "Base", $"Characters/char_base_{skin}", Vector2.zero, 0);
+            Sprite(visual, "Overlay", $"Characters/{overlay}", Vector2.zero, 1);
+            var bubble = Sprite(root.transform, "Bubble", "Props/ui_bubble", new Vector2(0f, 1.25f));
+            bubble.transform.localScale = Vector3.one * 0.8f;
+            bubble.sortingOrder = 20;
+            var icon = Sprite(bubble.transform, "Icon", "UI/Icons/ic_unknown", new Vector2(0f, 0.36f));
+            icon.transform.localScale = Vector3.one * 0.55f;
+            icon.sortingOrder = 21;
+            bubble.gameObject.SetActive(false);
+            var col = root.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+            col.size = new Vector2(0.7f, 1.1f);
+            col.offset = new Vector2(0f, 0.5f);
+            var view = root.AddComponent<WorkerView>();
+            view.EditorSetup(siteId, workerId, visual, staging, workPoint, pocket, bubble, icon,
+                ProjectSetup.LoadSprite("UI/Icons/ic_unknown"), ProjectSetup.LoadSprite("UI/Icons/ic_warning"));
+            var insp = root.AddComponent<WorkerInspectable>();
+            insp.EditorSetup(title, "Worker.", "");
+            insp.EditorSetupWorker(view);
+        }
+
+        private static void SiteMarker(Transform site, string siteId, float height)
+        {
+            var root = new GameObject("SiteMarker");
+            root.transform.SetParent(site, false);
+            var bubbleRoot = new GameObject("Bubble");
+            bubbleRoot.transform.SetParent(root.transform, false);
+            bubbleRoot.transform.localPosition = new Vector3(0f, height, 0f);
+            var panel = Sprite(bubbleRoot.transform, "Back", "UI/ui_chip", Vector2.zero);
+            panel.drawMode = SpriteDrawMode.Sliced;
+            panel.size = new Vector2(3.0f, 0.62f);
+            panel.sortingLayerName = "Overlay";
+            panel.sortingOrder = 3;
+            var icon = Sprite(bubbleRoot.transform, "Icon", "UI/Icons/ic_unknown", new Vector2(-1.15f, 0.02f));
+            icon.transform.localScale = Vector3.one * 0.85f;
+            icon.sortingLayerName = "Overlay";
+            icon.sortingOrder = 4;
+            var labelGo = new GameObject("Label");
+            labelGo.transform.SetParent(bubbleRoot.transform, false);
+            labelGo.transform.localPosition = new Vector3(0.25f, 0f, 0f);
+            var tmp = labelGo.AddComponent<TextMeshPro>();
+            tmp.fontSize = 2.6f;
+            tmp.fontStyle = FontStyles.Bold;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = new Color32(59, 42, 32, 255);
+            tmp.rectTransform.sizeDelta = new Vector2(2.6f, 0.5f);
+            tmp.sortingLayerID = SortingLayer.NameToID("Overlay");
+            tmp.sortingOrder = 5;
+            bubbleRoot.SetActive(false);
+            root.AddComponent<SiteMarkerView>().EditorSetup(siteId, bubbleRoot, icon, tmp,
+                ProjectSetup.LoadSprite("UI/Icons/ic_unknown"), ProjectSetup.LoadSprite("UI/Icons/ic_warning"));
         }
 
         private static List<WorldContainerView.ResourceAmount> Mats(params (string id, int qty)[] entries)

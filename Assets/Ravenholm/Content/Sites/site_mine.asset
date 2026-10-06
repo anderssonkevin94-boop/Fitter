@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f3223ca97ccd4b2681c24f0104bc461, type: 3}
+  m_Name: site_mine
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.SiteDefinition
+  id: site.mine
+  displayName: Mine
+  contentVersion: 1
+  siteType: 0
+  bands:
+  - {fileID: 11400000, guid: 5b2b23a55ab3f487aae8780f47c4d963, type: 2}
+  - {fileID: 11400000, guid: 66cab9cd932784b34a1bfbc41eb35119, type: 2}
+  - {fileID: 11400000, guid: f64cc6d94a7654a45b58423b824f771d, type: 2}
+  workers:
+  - {fileID: 11400000, guid: a4ff5ca602dc84d9ab303180fae31f6d, type: 2}
+  stagingContainerId: container.mine_staging
+  stagingCapacity: 96
+  unitsPerSectionOrTree: 24
+  treesPerClearing: 6
+  baseDurability: 240
+  growthPerBand: 1.22
+  roundTo: 10
+  continuationLinear: 0.18
+  continuationQuadratic: 0.04
+  terminalContinuationCap: 6
+  hopSeconds: 0.8
+  depositSeconds: 0.6

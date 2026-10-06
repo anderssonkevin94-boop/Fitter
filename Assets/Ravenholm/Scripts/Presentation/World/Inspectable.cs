@@ -19,6 +19,9 @@ namespace Ravenholm.Presentation
         /// <summary>Verb shown on the context button (GDD 4 microcopy: short action names).</summary>
         public virtual string ContextVerb => "Inspect";
 
+        /// <summary>True when <see cref="OnInspected"/> opens its own panel instead of the generic info card.</summary>
+        public virtual bool OpensOwnPanel => false;
+
         public virtual string BuildDetail()
         {
             return string.IsNullOrEmpty(plannedPhase) ? description : $"{description}\n\n<b>Planned:</b> {plannedPhase}";

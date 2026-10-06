@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Ravenholm.Domain.Sites;
 
 namespace Ravenholm.Domain.Logistics
 {
@@ -17,11 +18,12 @@ namespace Ravenholm.Domain.Logistics
     /// either fully commits or changes nothing. Events fire only after the state change.
     /// Presentation feeds the player position; it never edits containers directly.
     /// </summary>
-    public sealed class LogisticsSystem
+    public sealed class LogisticsSystem : ISiteLedger
     {
         private readonly LogisticsState _s;
         private readonly IAcceptanceRules _rules;
         private readonly LogisticsTuning _tuning;
+        private readonly List<Func<IEnumerable<string>>> _externalHolders = new List<Func<IEnumerable<string>>>();
         private float _accumulator;
         private bool _fullNotified;
 
@@ -219,6 +221,23 @@ namespace Ravenholm.Domain.Logistics
             Changed?.Invoke();
         }
 
+        // ------------------------------------------------------------------ gathering sites (ISiteLedger)
+
+        /// <summary>Material owners outside this state (worker packs, earned yield on a face), included in the audit.</summary>
+        public void RegisterExternalHolder(Func<IEnumerable<string>> holder) => _externalHolders.Add(holder);
+
+        /// <summary>Approved source: a unit extracted by a worker. Ownership starts in the site's pack or pending yield.</summary>
+        public void RecordCreated(string resourceId) => AddLong(_s.MaterialsCreated, resourceId, 1);
+
+        public int StagingFree(string containerId, int capacity) =>
+            _s.Containers.TryGetValue(containerId, out var c) ? Math.Max(0, capacity - c.UnitCount) : 0;
+
+        public void Deposit(string containerId, string resourceId)
+        {
+            Add(_s.Containers[containerId].Materials, resourceId, 1);
+            Changed?.Invoke();
+        }
+
         /// <summary>DEBUG: empties the carry into Store/shared inventory regardless of receivers ("Store return").</summary>
         public int DebugUnloadCarry()
         {
@@ -254,6 +273,8 @@ namespace Ravenholm.Domain.Logistics
                 if (kv.Value < 0) problems.Add($"negative shared {kv.Key}");
                 AddLong(held, kv.Key, kv.Value);
             }
+            foreach (var holder in _externalHolders)
+                foreach (var unit in holder()) AddLong(held, unit, 1);
             var keys = new SortedSet<string>(held.Keys, StringComparer.Ordinal);
             keys.UnionWith(_s.MaterialsCreated.Keys);
             foreach (var k in keys)

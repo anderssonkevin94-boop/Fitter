@@ -938,6 +938,28 @@ def joystick():
     finish("ui_joystick_knob", img, (64 * S, 64 * S), "UI", desc="Floating joystick knob", crop=False)
 
 
+def tree_stump():
+    img = canvas(1.0, 0.8)
+    d = ImageDraw.Draw(img)
+    cx, base = img.width / 2, img.height - 0.2 * U
+    shadow_ellipse(d, cx, base, 0.36 * U, 0.12 * U)
+    d.rectangle([cx - 0.14 * U, base - 0.26 * U, cx + 0.14 * U, base], fill=TIMBER_M, outline=INK, width=OL)
+    d.ellipse([cx - 0.14 * U, base - 0.33 * U, cx + 0.14 * U, base - 0.19 * U], fill=(232, 196, 140, 255), outline=INK, width=OL)
+    d.ellipse([cx - 0.05 * U, base - 0.28 * U, cx + 0.05 * U, base - 0.24 * U], fill=TIMBER_L)
+    for x in (-0.24, 0.2):   # wood chips
+        d.ellipse([cx + x * U, base - 0.04 * U, cx + (x + 0.07) * U, base], fill=(232, 196, 140, 255))
+    return finish("tree_stump", img, (cx, base), "Nature", desc="Felled tree stump")
+
+
+def trail_marker():
+    img = canvas(0.5, 0.9)
+    d = ImageDraw.Draw(img)
+    cx, base = img.width / 2, img.height - 0.1 * U
+    post(d, (cx, base), 0.55 * U, 0.07, TIMBER_M)
+    poly(d, [(cx - 0.02 * U, base - 0.55 * U), (cx + 0.2 * U, base - 0.5 * U), (cx - 0.02 * U, base - 0.42 * U)], (230, 200, 90, 255), width=2 * S)
+    return finish("trail_marker", img, (cx, base), "Props", desc="Forest trail marker post (one per area reached)")
+
+
 def write_meta_and_provenance():
     with open(os.path.join(OUT, "sprite_meta.json"), "w") as f:
         json.dump({"ppu": PPU, "sprites": meta}, f, indent=1, sort_keys=True)
@@ -993,6 +1015,8 @@ def main():
     blob_shadow()
     deco_flowers()
     output_pad()
+    tree_stump()
+    trail_marker()
     receiver_zone()
     icon_bubble()
     joystick()

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 3,
+  "gameBuild": "0.0.1",
+  "contentVersion": 1,
+  "profile": "sandbox",
+  "worldSeed": "4806365435330354309",
+  "saveGeneration": 30,
+  "lastAcceptedUtc": "2026-10-06T03:10:00Z",
+  "sandbox": { "bellRingCount": 4, "sessionCount": 3, "playerX": -6.3, "playerY": -0.1 },
+  "logistics": {
+    "carry": [ { "k": "m", "id": "resource.iron_ore" }, { "k": "i", "id": "inst.000001" } ],
+    "containers": [ { "id": "container.forge_pad", "kind": "OutputPad", "materials": {}, "items": [] } ],
+    "shared": { "resource.copper_ore": 2 },
+    "store": [],
+    "itemDefinitions": { "inst.000001": "item.iron_sword" },
+    "materialsCreated": { "resource.iron_ore": 1, "resource.copper_ore": 2 },
+    "nextInstance": 2
+  }
+}

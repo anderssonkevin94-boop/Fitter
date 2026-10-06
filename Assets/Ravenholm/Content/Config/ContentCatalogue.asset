@@ -35,3 +35,23 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6cd18b8b77d394d86b344c77c7acac62, type: 2}
   - {fileID: 11400000, guid: b9cbfc435a6fe4f42a7013f38eebb742, type: 2}
   - {fileID: 11400000, guid: d199c909f53d348ceb1d08961f0bf40b, type: 2}
+  sites:
+  - {fileID: 11400000, guid: f06cacf8a875440fcb999361f272ff41, type: 2}
+  - {fileID: 11400000, guid: cceae9de50e594da69132640a7cbedd3, type: 2}
+  bands:
+  - {fileID: 11400000, guid: 5b2b23a55ab3f487aae8780f47c4d963, type: 2}
+  - {fileID: 11400000, guid: 66cab9cd932784b34a1bfbc41eb35119, type: 2}
+  - {fileID: 11400000, guid: f64cc6d94a7654a45b58423b824f771d, type: 2}
+  - {fileID: 11400000, guid: 3025c49f11543491cab86b91afcd6b0c, type: 2}
+  - {fileID: 11400000, guid: f78ce0e4d6b384c08b663fb804144f96, type: 2}
+  - {fileID: 11400000, guid: c471dd138d2404c6c9fe11ecba44111a, type: 2}
+  workers:
+  - {fileID: 11400000, guid: a4ff5ca602dc84d9ab303180fae31f6d, type: 2}
+  - {fileID: 11400000, guid: 5cbc397550cf94e188d6e07f4859d069, type: 2}
+  equipment:
+  - {fileID: 11400000, guid: 4c69414ca501e4cdbab99e0743174aae, type: 2}
+  - {fileID: 11400000, guid: 453b56d8853e644b79c1e9c310d79a55, type: 2}
+  - {fileID: 11400000, guid: 5b1f39a16d98740ec92578175d0b933e, type: 2}
+  - {fileID: 11400000, guid: 554da4b5e62f142d08299cfb06602ed6, type: 2}
+  - {fileID: 11400000, guid: 8d10a1249d0c049079a40a831c97846b, type: 2}
+  - {fileID: 11400000, guid: eab2c21ed1dd04292a2ae02409e50577, type: 2}

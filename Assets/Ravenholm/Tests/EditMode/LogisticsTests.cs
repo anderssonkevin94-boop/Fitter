@@ -299,7 +299,7 @@ namespace Ravenholm.Tests
             var json = File.ReadAllText("Assets/Ravenholm/Tests/Fixtures/save_v2_fixture.json");
             Assert.IsTrue(SaveSerializer.TryFromJson(json, out var env, out var from, out var err), err);
             Assert.AreEqual(2, from);
-            Assert.AreEqual(3, env.SchemaVersion);
+            Assert.AreEqual(SaveEnvelope.CurrentSchemaVersion, env.SchemaVersion);
             Assert.IsNull(env.Logistics, "Phase 0 saves have no goods; fixtures seed on first load");
             Assert.AreEqual(4, env.Sandbox.BellRingCount);
             Assert.AreEqual(12, env.SaveGeneration);

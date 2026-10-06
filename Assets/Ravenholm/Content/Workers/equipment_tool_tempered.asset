@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a197d8f56b94f9cade39bab89ca526, type: 3}
+  m_Name: equipment_tool_tempered
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.WorkerEquipmentDefinition
+  id: equipment.tool_tempered
+  displayName: Tempered tool
+  contentVersion: 1
+  slot: 0
+  tier: 3
+  value: 24
+  goldCost: 80
+  materialCost:
+  - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
+    quantity: 8
+  gate: Site equipment level 3

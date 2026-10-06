@@ -34,6 +34,8 @@ namespace Ravenholm.Presentation
         [SerializeField] private List<ResourceAmount> fixtureMaterials = new List<ResourceAmount>();
         [SerializeField] private List<ItemDefinition> fixtureItems = new List<ItemDefinition>();
 
+        [Tooltip("Shown in the badge as count/capacity (e.g. site staging, GDD 3: 96). 0 = no capacity shown.")]
+        [SerializeField] private int displayCapacity;
         [SerializeField] private int maxPieces = 9;
         [SerializeField] private float pieceSpacing = 0.22f;
 
@@ -51,6 +53,8 @@ namespace Ravenholm.Presentation
         public Vector3 TopPiecePosition => _pieces.Count > 0 && _pieces[0].gameObject.activeSelf
             ? LastActivePiece().position
             : transform.position + Vector3.up * 0.2f;
+
+        public void EditorSetCapacity(int capacity) => displayCapacity = capacity;
 
         public void EditorSetup(string id, ContainerKind k, float r, List<ResourceAmount> materials, List<ItemDefinition> items)
         {
@@ -141,7 +145,8 @@ namespace Ravenholm.Presentation
                 if (show) _pieces[i].sprite = UnitVisuals.StackSprite(_units[i]);
             }
             var total = c.UnitCount;
-            _badge.text = total > 0 ? total.ToString() : "";
+            _badge.text = displayCapacity > 0 ? $"{total}/{displayCapacity}" : total > 0 ? total.ToString() : "";
+            _badge.color = displayCapacity > 0 && total >= displayCapacity ? new Color32(255, 150, 120, 255) : new Color32(250, 242, 226, 255);
         }
 
         private Transform LastActivePiece()

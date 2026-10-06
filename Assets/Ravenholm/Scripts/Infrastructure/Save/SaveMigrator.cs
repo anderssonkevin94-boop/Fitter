@@ -14,6 +14,7 @@ namespace Ravenholm.Infrastructure.Save
         {
             { 1, MigrateV1ToV2 },
             { 2, MigrateV2ToV3 },
+            { 3, MigrateV3ToV4 },
         };
 
         /// <summary>Migrates <paramref name="root"/> in place up to the current schema.</summary>
@@ -44,6 +45,12 @@ namespace Ravenholm.Infrastructure.Save
             // Schema 1 used "version"; later schemas use "schemaVersion".
             var token = root["schemaVersion"] ?? root["version"];
             return token != null && token.Type == JTokenType.Integer ? token.Value<int>() : 0;
+        }
+
+        /// <summary>Schema 4 (Phase 2) adds "sites". Older saves start every site fresh at band 1.</summary>
+        private static void MigrateV3ToV4(JObject o)
+        {
+            if (o["sites"] == null) o["sites"] = JValue.CreateNull();
         }
 
         /// <summary>

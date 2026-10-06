@@ -19,3 +19,4 @@ MonoBehaviour:
   acceptedReceiver: 2
   icon: {fileID: 21300000, guid: 8ef329a28df534f47bc3cdaf9f114b10, type: 3}
   stackSprite: {fileID: 21300000, guid: fc2ba119bfec6448cb3bb4cb3eaf6c9c, type: 3}
+  mapTint: {r: 0.8392157, g: 0.627451, b: 0.42352942, a: 1}

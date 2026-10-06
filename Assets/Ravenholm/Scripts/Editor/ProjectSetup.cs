@@ -75,6 +75,7 @@ namespace Ravenholm.EditorTools
             ReimportArt();
 
             var catalogue = EnsureContent();
+            EnsureSiteContent(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
@@ -277,6 +278,117 @@ namespace Ravenholm.EditorTools
             return catalogue;
         }
 
+        public const string SiteDir = Root + "Content/Sites/";
+        public const string WorkerDir = Root + "Content/Workers/";
+
+        /// <summary>Phase 2 content (GDD 5–7 balance starting points). Creates missing assets only.</summary>
+        private static void EnsureSiteContent(ContentCatalogue catalogue)
+        {
+            ResourceDefinition R(string key) => catalogue.Get<ResourceDefinition>("resource." + key);
+
+            var tints = new Dictionary<string, Color32>
+            {
+                { "iron_ore", new Color32(150, 156, 168, 255) }, { "copper_ore", new Color32(212, 128, 72, 255) },
+                { "coal", new Color32(54, 54, 62, 255) }, { "gem", new Color32(96, 200, 220, 255) },
+                { "cedar_log", new Color32(176, 110, 70, 255) }, { "maple_log", new Color32(214, 160, 108, 255) },
+                { "herb", new Color32(110, 176, 84, 255) },
+            };
+            foreach (var kv in tints)
+            {
+                var r = R(kv.Key);
+                if (r.MapTint != new Color(0.6f, 0.6f, 0.6f, 1f)) continue;   // keep Inspector edits
+                r.EditorSetTint(kv.Value);
+                EditorUtility.SetDirty(r);
+            }
+
+            WorkerEquipmentDefinition Equip(string key, string name, EquipmentSlot slot, int tier, int value, int gold, string costRes, int costQty, string gate)
+            {
+                var path = WorkerDir + "equipment_" + key + ".asset";
+                var created = !File.Exists(path);
+                var e = EnsureAsset<WorkerEquipmentDefinition>(path);
+                if (!created) return e;
+                var cost = new List<ResourceCost>();
+                if (costRes != null) cost.Add(new ResourceCost { resource = R(costRes), quantity = costQty });
+                e.EditorInitialize("equipment." + key, name);
+                e.EditorSetupEquipment(slot, tier, value, gold, cost, gate);
+                EditorUtility.SetDirty(e);
+                return e;
+            }
+            var equipment = new List<WorkerEquipmentDefinition>
+            {
+                Equip("tool_basic", "Basic tool", EquipmentSlot.Tool, 1, 10, 0, null, 0, "Start (permanent)"),
+                Equip("tool_iron", "Iron tool", EquipmentSlot.Tool, 2, 16, 30, "iron_ingot", 6, "Site equipment level 2"),
+                Equip("tool_tempered", "Tempered tool", EquipmentSlot.Tool, 3, 24, 80, "steel_ingot", 8, "Site equipment level 3"),
+                Equip("pack_basic", "Basic pack", EquipmentSlot.Pack, 1, 6, 0, null, 0, "Start (permanent)"),
+                Equip("pack_framed", "Framed pack", EquipmentSlot.Pack, 2, 12, 25, "cedar_lumber", 6, "Site equipment level 2"),
+                Equip("pack_reinforced", "Reinforced pack", EquipmentSlot.Pack, 3, 18, 65, "maple_lumber", 6, "Site equipment level 3"),
+            };
+
+            WorkerDefinition Worker(string key, string name, int seed)
+            {
+                var path = WorkerDir + "worker_" + key + ".asset";
+                var created = !File.Exists(path);
+                var w = EnsureAsset<WorkerDefinition>(path);
+                if (!created) return w;
+                w.EditorInitialize("worker." + key, name);
+                w.EditorSetupWorker(seed, equipment[0], equipment[3]);
+                EditorUtility.SetDirty(w);
+                return w;
+            }
+            var miner = Worker("dagna", "Dagna Holt", 101);
+            var woodcutter = Worker("tobin", "Tobin Ash", 202);
+
+            T Band<T>(string key, string name, int index, string discovery, (string res, float w)[] weights, string rare, float chance, float leg, string baseline)
+                where T : SiteBandDefinition
+            {
+                var path = SiteDir + key.Split('.')[0] + "_" + key.Split('.')[1] + ".asset";
+                var created = !File.Exists(path);
+                var b = EnsureAsset<T>(path);
+                if (!created) return b;
+                var list = new List<WeightedResource>();
+                foreach (var (res, w) in weights) list.Add(new WeightedResource { resource = R(res), weight = w });
+                b.EditorInitialize(key, name);
+                b.EditorSetupBand(index, discovery, list, R(rare), chance, 1f, leg, R(baseline), 0.35f);
+                EditorUtility.SetDirty(b);
+                return b;
+            }
+            var layers = new List<SiteBandDefinition>
+            {
+                Band<LayerDefinition>("layer.mine_1", "Upper strata", 1, "Reliable foundation", new[] { ("iron_ore", 80f), ("copper_ore", 20f) }, "gem", 0.01f, 2.5f, "iron_ore"),
+                Band<LayerDefinition>("layer.mine_2", "Copper seam", 2, "Better copper access", new[] { ("iron_ore", 65f), ("copper_ore", 35f) }, "gem", 0.015f, 3.0f, "iron_ore"),
+                Band<LayerDefinition>("layer.mine_3", "Coal measures", 3, "Steel processing route", new[] { ("iron_ore", 55f), ("copper_ore", 20f), ("coal", 25f) }, "gem", 0.02f, 3.5f, "iron_ore"),
+            };
+            var zones = new List<SiteBandDefinition>
+            {
+                Band<ForestZoneDefinition>("zone.forest_1", "Meadow edge", 1, "Easy cedar", new[] { ("cedar_log", 90f), ("maple_log", 10f) }, "herb", 0.04f, 2f, "cedar_log"),
+                Band<ForestZoneDefinition>("zone.forest_2", "Old trail", 2, "More maple", new[] { ("cedar_log", 70f), ("maple_log", 30f) }, "herb", 0.06f, 3f, "cedar_log"),
+                Band<ForestZoneDefinition>("zone.forest_3", "Shaded hollow", 3, "Rich maple and herbs", new[] { ("cedar_log", 55f), ("maple_log", 45f) }, "herb", 0.08f, 4f, "cedar_log"),
+            };
+
+            SiteDefinition Site(string key, string name, SiteType type, List<SiteBandDefinition> bands, WorkerDefinition worker, string staging,
+                int units, float baseD, float growth, float round, float kl, float kq)
+            {
+                var path = SiteDir + "site_" + key + ".asset";
+                var created = !File.Exists(path);
+                var site = EnsureAsset<SiteDefinition>(path);
+                if (!created) return site;
+                site.EditorInitialize("site." + key, name);
+                site.EditorSetupSite(type, bands, new List<WorkerDefinition> { worker }, staging, units, 6, baseD, growth, round, kl, kq, 0.8f);
+                EditorUtility.SetDirty(site);
+                return site;
+            }
+            var mine = Site("mine", "Mine", SiteType.Mine, layers, miner, "container.mine_staging", 24, 240f, 1.22f, 10f, 0.18f, 0.04f);
+            var forest = Site("forest", "Forest", SiteType.Forest, zones, woodcutter, "container.forest_staging", 4, 40f, 1.18f, 5f, 0.15f, 0.03f);
+
+            if (catalogue.Sites.Count == 0)
+            {
+                var bands = new List<SiteBandDefinition>(layers);
+                bands.AddRange(zones);
+                catalogue.EditorSetSites(new List<SiteDefinition> { mine, forest }, bands, new List<WorkerDefinition> { miner, woodcutter }, equipment);
+                EditorUtility.SetDirty(catalogue);
+            }
+        }
+
         private static UiTheme EnsureUiTheme()
         {
             var path = ConfigDir + "UiTheme.asset";
@@ -285,6 +397,7 @@ namespace Ravenholm.EditorTools
             // Fields added in later phases are filled in without touching edited ones.
             if (t.joystickRing == null) { t.joystickRing = LoadSprite("UI/ui_joystick_ring"); EditorUtility.SetDirty(t); }
             if (t.joystickKnob == null) { t.joystickKnob = LoadSprite("UI/ui_joystick_knob"); EditorUtility.SetDirty(t); }
+            if (t.treeIcon == null) { t.treeIcon = LoadSprite("Nature/tree_cedar"); EditorUtility.SetDirty(t); }
             if (!created && t.panel != null) return t;
             t.panel = LoadSprite("UI/ui_panel");
             t.panelDark = LoadSprite("UI/ui_panel_dark");

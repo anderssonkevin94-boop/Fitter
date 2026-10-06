@@ -12,7 +12,7 @@ namespace Ravenholm.Infrastructure.Save
     public sealed class SaveEnvelope
     {
         /// <summary>Current schema written by this build. Bump it and add a migration when the shape changes.</summary>
-        public const int CurrentSchemaVersion = 3;
+        public const int CurrentSchemaVersion = 4;
 
         [JsonProperty("schemaVersion", Required = Required.Always)] public int SchemaVersion = CurrentSchemaVersion;
         [JsonProperty("gameBuild")] public string GameBuild = "";
@@ -30,6 +30,9 @@ namespace Ravenholm.Infrastructure.Save
 
         /// <summary>Physical goods ownership (schema 3+). Null means "never saved": fixtures are seeded fresh.</summary>
         [JsonProperty("logistics")] public LogisticsSaveData Logistics;
+
+        /// <summary>Gathering sites and their workers (schema 4+). Null means "never saved": sites start fresh.</summary>
+        [JsonProperty("sites")] public List<SiteSaveData> Sites;
 
         public ulong GetWorldSeed() => ulong.Parse(WorldSeed, System.Globalization.CultureInfo.InvariantCulture);
 
@@ -72,5 +75,73 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("kind")] public string Kind;
         [JsonProperty("materials")] public SortedDictionary<string, int> Materials = new SortedDictionary<string, int>();
         [JsonProperty("items")] public List<string> Items = new List<string>();
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class SiteSaveData
+    {
+        [JsonProperty("siteId")] public string SiteId;
+        [JsonProperty("depth")] public int Depth;
+        [JsonProperty("k")] public int K;
+        [JsonProperty("sectionsCompleted")] public int SectionsCompleted;
+        [JsonProperty("status")] public string Status;
+        [JsonProperty("simMs")] public long SimMs;
+        [JsonProperty("rngState")] public string RngState;
+        [JsonProperty("rngInc")] public string RngIncrement;
+        [JsonProperty("composition")] public CompositionData Composition;
+        [JsonProperty("revealed")] public SortedDictionary<int, CompositionData> Revealed = new SortedDictionary<int, CompositionData>();
+        [JsonProperty("sectionDurabilityMicro")] public long SectionDurabilityMicro;
+        [JsonProperty("sectionDoneMicro")] public long SectionDoneMicro;
+        [JsonProperty("sectionEmitted")] public int SectionEmitted;
+        [JsonProperty("facePending")] public List<string> FacePending = new List<string>();
+        [JsonProperty("nextRecipient")] public int NextRecipient;
+        [JsonProperty("trees")] public List<TreeSaveData> Trees = new List<TreeSaveData>();
+        [JsonProperty("workers")] public List<WorkerSaveData> Workers = new List<WorkerSaveData>();
+        [JsonProperty("depositedTotal")] public long DepositedTotal;
+        [JsonProperty("measureStartMs")] public long MeasureStartMs;
+        [JsonProperty("depositedSinceMeasure")] public long DepositedSinceMeasure;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class CompositionData
+    {
+        [JsonProperty("weights")] public List<WeightData> Weights = new List<WeightData>();
+        [JsonProperty("rare")] public string RareResourceId;
+        [JsonProperty("rareChance")] public double RareChance;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class WeightData
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("w")] public double Weight;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class TreeSaveData
+    {
+        [JsonProperty("index")] public int Index;
+        [JsonProperty("species")] public string Species;
+        [JsonProperty("primary")] public List<string> Primary = new List<string>();
+        [JsonProperty("bonus")] public List<string> Bonus = new List<string>();
+        [JsonProperty("durabilityMicro")] public long DurabilityMicro;
+        [JsonProperty("doneMicro")] public long DoneMicro;
+        [JsonProperty("emitted")] public int Emitted;
+        [JsonProperty("claimedBy")] public string ClaimedBy;
+        [JsonProperty("pending")] public List<string> Pending = new List<string>();
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class WorkerSaveData
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("tool")] public string ToolId;
+        [JsonProperty("pack")] public string PackId;
+        [JsonProperty("state")] public string State;
+        [JsonProperty("phaseStartMs")] public long PhaseStartMs;
+        [JsonProperty("phaseEndMs")] public long PhaseEndMs;
+        [JsonProperty("targetTree")] public int TargetTree = -1;
+        [JsonProperty("carried")] public List<string> Carried = new List<string>();
     }
 }

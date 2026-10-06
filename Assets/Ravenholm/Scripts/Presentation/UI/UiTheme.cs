@@ -14,6 +14,8 @@ namespace Ravenholm.Presentation
         public Sprite roundButton;
         public Sprite joystickRing;
         public Sprite joystickKnob;
+        [Tooltip("Small tree silhouette used in the Forest trail diagram.")]
+        public Sprite treeIcon;
 
         [Header("Status icons")]
         public Sprite coin;

@@ -19,6 +19,7 @@ MonoBehaviour:
   roundButton: {fileID: 21300000, guid: ee916cf5d6afd47dc979259d7f95d3c0, type: 3}
   joystickRing: {fileID: 21300000, guid: c66d0a3841c2b4977966c4f1d9eae11d, type: 3}
   joystickKnob: {fileID: 21300000, guid: 775da990001214528ac7fbe4a2832ce3, type: 3}
+  treeIcon: {fileID: 21300000, guid: e558d6c51a7a2425c9186f44f60844df, type: 3}
   coin: {fileID: 21300000, guid: 01745a2610662426980037e3b978ce63, type: 3}
   reputation: {fileID: 21300000, guid: 8c4d0fcd0c3724956a92cb7245bb6cbf, type: 3}
   carry: {fileID: 21300000, guid: 8c27ce5d87c994585938c0eadce00b72, type: 3}

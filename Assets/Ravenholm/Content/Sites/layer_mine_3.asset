@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b5cc70571d3c4ff5800f9fdd52e9b32, type: 3}
+  m_Name: layer_mine_3
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.LayerDefinition
+  id: layer.mine_3
+  displayName: Coal measures
+  contentVersion: 1
+  index: 3
+  discovery: Steel processing route
+  primaryWeights:
+  - resource: {fileID: 11400000, guid: 3bb23c5bf84b74d7db24e03a768c9745, type: 2}
+    weight: 55
+  - resource: {fileID: 11400000, guid: 6dbb57acdfb394dde853d4936affcec2, type: 2}
+    weight: 20
+  - resource: {fileID: 11400000, guid: 41e3522940f434cd48399f5a430266d3, type: 2}
+    weight: 25
+  rareResource: {fileID: 11400000, guid: c92566d6dffce434b835bb60a6198cba, type: 2}
+  rareChance: 0.02
+  durabilityFactor: 1
+  travelSecondsPerLeg: 3.5
+  compositionVariation: 0.08
+  baselineResource: {fileID: 11400000, guid: 3bb23c5bf84b74d7db24e03a768c9745, type: 2}
+  baselineMinShare: 0.35

@@ -1,0 +1,360 @@
+using System.Collections.Generic;
+using System.Text;
+using Ravenholm.Content;
+using Ravenholm.Domain.Sites;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Ravenholm.Presentation
+{
+    /// <summary>
+    /// Mine / Forest site panel (GDD 6/7/19). Mine draws a strata column (past layers compressed,
+    /// current face, unknown depth below); Forest draws a trail of areas. Both share the decision
+    /// block: current composition, effort increase, and the uncertainty of going deeper.
+    /// Decisions are commands to the sites service; the panel never edits state.
+    /// </summary>
+    public sealed class SitePanel : MonoBehaviour
+    {
+        private UiFactory _ui;
+        private UiTheme _theme;
+        private GameRoot _root;
+        private string _siteId;
+        private TextMeshProUGUI _title;
+        private RectTransform _diagram;
+        private TextMeshProUGUI _status;
+        private TextMeshProUGUI _decisionText;
+        private Button _continue;
+        private TextMeshProUGUI _continueLabel;
+        private Button _deeper;
+        private TextMeshProUGUI _deeperLabel;
+        private GameObject _decisionBlock;
+        private TextMeshProUGUI _toolLabel;
+        private TextMeshProUGUI _packLabel;
+        private float _deeperArmedUntil = -1f;
+        private float _nextRefresh;
+        private string _diagramKey = "";
+
+        public bool IsOpen => gameObject.activeSelf;
+        public string SiteId => _siteId;
+        public string StatusText => _status != null ? _status.text : "";
+
+        public static SitePanel Create(Transform parent, UiFactory ui, GameRoot root)
+        {
+            var layer = UiFactory.Rect("SiteLayer", parent);
+            UiFactory.Stretch(layer);
+            layer.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.07f, 0.05f, 0.4f);
+            var panel = layer.gameObject.AddComponent<SitePanel>();
+            panel.Build(ui, root);
+            layer.gameObject.SetActive(false);
+            return panel;
+        }
+
+        private void Build(UiFactory ui, GameRoot root)
+        {
+            _ui = ui;
+            _theme = ui.Theme;
+            _root = root;
+
+            var card = _ui.Panel("Card", transform, _theme.panel);
+            UiFactory.Stretch(card.rectTransform, 28f);
+
+            var viewport = UiFactory.Rect("Viewport", card.transform);
+            UiFactory.Stretch(viewport);
+            viewport.offsetMin = new Vector2(36f, 36f);
+            viewport.offsetMax = new Vector2(-36f, -36f);
+            viewport.gameObject.AddComponent<RectMask2D>();
+            viewport.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, 0);
+            var content = UiFactory.Rect("Content", viewport);
+            content.anchorMin = new Vector2(0, 1);
+            content.anchorMax = new Vector2(1, 1);
+            content.pivot = new Vector2(0.5f, 1);
+            content.sizeDelta = Vector2.zero;
+            UiFactory.Column(content.gameObject, 18f, new RectOffset(12, 12, 8, 24));
+            content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var scroll = viewport.gameObject.AddComponent<ScrollRect>();
+            scroll.content = content;
+            scroll.viewport = viewport;
+            scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+
+            _title = _ui.Text("Title", content, "", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            _title.gameObject.AddComponent<LayoutElement>().preferredHeight = 76f;
+
+            _diagram = UiFactory.Rect("Diagram", content);
+            var dle = _diagram.gameObject.AddComponent<LayoutElement>();
+            dle.preferredHeight = 560f;
+
+            _status = _ui.Text("Status", content, "", _theme.smallSize, _theme.ink, TextAlignmentOptions.TopLeft);
+
+            _decisionBlock = UiFactory.Rect("Decision", content).gameObject;
+            UiFactory.Column(_decisionBlock, 14f, new RectOffset(0, 0, 8, 8));
+            _decisionText = _ui.Text("Text", _decisionBlock.transform, "", _theme.bodySize - 4f, _theme.ink, TextAlignmentOptions.TopLeft);
+            _continue = _ui.Button("Continue", _decisionBlock.transform, "", OnContinue, out _continueLabel, 170f);
+            _deeper = _ui.Button("Deeper", _decisionBlock.transform, "", OnDeeper, out _deeperLabel, 170f);
+            _continueLabel.fontSize = _deeperLabel.fontSize = _theme.smallSize;
+            _continueLabel.enableAutoSizing = _deeperLabel.enableAutoSizing = true;
+            _continueLabel.fontSizeMin = _deeperLabel.fontSizeMin = 20f;
+            _continueLabel.fontSizeMax = _deeperLabel.fontSizeMax = _theme.smallSize;
+
+            _ui.Button("Tool", content, "", () => Cycle(EquipmentSlot.Tool), out _toolLabel);
+            _ui.Button("Pack", content, "", () => Cycle(EquipmentSlot.Pack), out _packLabel);
+            _toolLabel.fontSize = _packLabel.fontSize = _theme.smallSize;
+            _ui.Button("Close", content, "Close", Close, out _);
+        }
+
+        public void Show(string siteId)
+        {
+            _siteId = siteId;
+            _deeperArmedUntil = -1f;
+            _diagramKey = "";
+            if (!IsOpen)
+            {
+                gameObject.SetActive(true);
+                TouchInputRouter.PushModal();
+            }
+            Refresh();
+        }
+
+        public void Close()
+        {
+            if (!IsOpen) return;
+            gameObject.SetActive(false);
+            TouchInputRouter.PopModal();
+        }
+
+        private void OnDestroy()
+        {
+            if (IsOpen) TouchInputRouter.PopModal();
+        }
+
+        private void Update()
+        {
+            if (Time.unscaledTime < _nextRefresh) return;
+            _nextRefresh = Time.unscaledTime + 0.25f;
+            Refresh();
+        }
+
+        private SiteSimulator Sim => _root.Services.Sites.Get(_siteId);
+
+        // ------------------------------------------------------------------ commands
+
+        private void OnContinue()
+        {
+            _root.Services.Sites.ChooseContinue(_siteId);
+            _deeperArmedUntil = -1f;
+            Refresh();
+        }
+
+        private void OnDeeper()
+        {
+            var sim = Sim;
+            if (sim == null || !sim.CanGoDeeper) return;
+            // Leaving a band is permanent (GDD 6), so it takes a second tap to confirm.
+            if (Time.unscaledTime > _deeperArmedUntil)
+            {
+                _deeperArmedUntil = Time.unscaledTime + 3f;
+                Refresh();
+                return;
+            }
+            _deeperArmedUntil = -1f;
+            _root.Services.Sites.ChooseDeeper(_siteId);
+            Refresh();
+        }
+
+        private void Cycle(EquipmentSlot slot)
+        {
+            var sim = Sim;
+            if (sim == null || sim.Record.Workers.Count == 0) return;
+            _root.Services.Sites.DebugCycleEquipment(_siteId, sim.Record.Workers[0].Id, slot);
+            Refresh();
+        }
+
+        // ------------------------------------------------------------------ view
+
+        private void Refresh()
+        {
+            var sim = Sim;
+            if (sim == null) return;
+            var s = sim.Record;
+            var mine = sim.Config.Kind == SiteKind.Mine;
+            var band = sim.Config.Bands[s.Depth - 1];
+
+            _title.text = mine ? $"Mine · Depth {s.Depth}" : $"Forest · {band.Name}";
+            RebuildDiagram(sim);
+
+            var sb = new StringBuilder();
+            sb.Append("<b>Current yield:</b> ").Append(CompositionText(s.Composition)).Append('\n');
+            if (mine)
+            {
+                var pct = s.SectionDurabilityMicro > 0 ? 100.0 * s.SectionDoneMicro / s.SectionDurabilityMicro : 0;
+                sb.Append($"<b>Face:</b> {s.SectionEmitted}/{sim.Config.UnitsPerSection} units released · {pct:0}% worked · durability {sim.CurrentDurability}");
+                if (s.FacePending.Count > 0) sb.Append($" · {s.FacePending.Count} waiting at the face");
+            }
+            else
+            {
+                var standing = s.Trees.FindAll(t => !t.Felled).Count;
+                sb.Append($"<b>Clearing:</b> {standing}/{s.Trees.Count} trees standing · {sim.CurrentDurability} durability each");
+                var pending = 0;
+                foreach (var t in s.Trees) pending += t.Pending.Count;
+                if (pending > 0) sb.Append($" · {pending} waiting at the trees");
+            }
+            sb.Append($"\n<b>Effort:</b> ×{SiteMath.ContinuationMultiplier(sim.Config, SiteMath.EffectiveK(sim.Config, s.Depth, s.K)):0.00} (continuation {s.K}) · sections done {s.SectionsCompleted}\n");
+            var staging = _root.Services.Logistics.System.State.Containers.TryGetValue(sim.Config.StagingContainerId, out var c) ? c.UnitCount : 0;
+            sb.Append($"<b>Staging:</b> {staging}/{sim.Config.StagingCapacity}\n");
+            foreach (var w in s.Workers) sb.Append($"<b>{w.Name}:</b> {WorkerView.Describe(sim, w)}\n");
+            sb.Append($"<size=80%>Measured: {sim.MeasuredUnitsPerMinute:0.0} units/min to staging (sim time). Sim speed ×{_root.Services.Sites.SpeedMultiplier:0}.</size>");
+            _status.text = sb.ToString();
+
+            var awaiting = s.Status == SiteStatus.AwaitDecision;
+            _decisionText.text = awaiting
+                ? (mine ? "<b>This section is worked out.</b> Workers wait until you choose. Nothing is decided for you." : "<b>This clearing is cut.</b> Workers wait until you choose.")
+                : "<size=85%>Your next choice comes when this " + (mine ? "section is worked out." : "clearing is cut.") + "</size>";
+            _continue.gameObject.SetActive(awaiting);
+            _deeper.gameObject.SetActive(awaiting);
+            if (awaiting)
+            {
+                var now = sim.CurrentDurability;
+                var next = sim.ContinueDurability;
+                _continueLabel.text = $"Continue Here · same mix, effort {now} → {next} (+{(next - now) * 100.0 / now:0}%) · same yield";
+                if (sim.CanGoDeeper)
+                {
+                    var nb = sim.Config.Bands[s.Depth];
+                    var verb = mine ? "Dig Deeper" : "Push Deeper";
+                    var where = mine ? $"depth {s.Depth + 1}" : $"area {s.Depth + 1}";
+                    _deeperLabel.text = Time.unscaledTime < _deeperArmedUntil
+                        ? $"Tap again: leave this {(mine ? "layer" : "area")} for good and reveal {where}"
+                        : $"{verb} · reveal {where} ({nb.Discovery}) · composition unknown";
+                    _deeper.interactable = true;
+                }
+                else
+                {
+                    _deeperLabel.text = mine ? "More depths not yet charted" : "No further areas charted yet";
+                    _deeper.interactable = false;
+                }
+            }
+
+            var w0 = s.Workers.Count > 0 ? s.Workers[0] : null;
+            _toolLabel.text = w0 != null ? $"DEBUG tool: {UnitVisuals.DisplayName(w0.ToolId)} ({Value(w0.ToolId)}/s) · tap to change" : "";
+            _packLabel.text = w0 != null ? $"DEBUG pack: {UnitVisuals.DisplayName(w0.PackId)} ({Value(w0.PackId)} units) · tap to change" : "";
+        }
+
+        private int Value(string equipmentId) =>
+            _root.Services.Catalogue.TryGet<WorkerEquipmentDefinition>(equipmentId, out var e) ? e.Value : 0;
+
+        private static string CompositionText(Composition c)
+        {
+            var sb = new StringBuilder();
+            for (var i = 0; i < c.Weights.Count; i++)
+                sb.Append(i > 0 ? ", " : "").Append(UnitVisuals.DisplayName(c.Weights[i].Key)).Append(' ').Append((c.Weights[i].Value * 100).ToString("0")).Append('%');
+            if (!string.IsNullOrEmpty(c.RareResourceId) && c.RareChance > 0)
+                sb.Append(" · bonus ").Append(UnitVisuals.DisplayName(c.RareResourceId)).Append(' ').Append((c.RareChance * 100).ToString("0.#")).Append("% per unit");
+            return sb.ToString();
+        }
+
+        private Color MixColor(Composition c)
+        {
+            var col = Color.black;
+            foreach (var w in c.Weights)
+                col += (_root.Services.Catalogue.TryGet<ResourceDefinition>(w.Key, out var r) ? r.MapTint : Color.gray) * (float)w.Value;
+            col.a = 1f;
+            return col;
+        }
+
+        private void RebuildDiagram(SiteSimulator sim)
+        {
+            var s = sim.Record;
+            var key = $"{s.Depth}:{s.K}:{s.SectionEmitted}:{s.Status}:{s.Trees.FindAll(t => t.Felled).Count}";
+            if (key == _diagramKey) return;
+            _diagramKey = key;
+            for (var i = _diagram.childCount - 1; i >= 0; i--) Destroy(_diagram.GetChild(i).gameObject);
+            if (sim.Config.Kind == SiteKind.Mine) BuildStrata(sim);
+            else BuildTrail(sim);
+        }
+
+        /// <summary>Vertical cutaway: closed layers compressed above, the current face, the unknown below.</summary>
+        private void BuildStrata(SiteSimulator sim)
+        {
+            var s = sim.Record;
+            var rows = new List<(string text, Color color, float height, float progress)>();
+            rows.Add(("Surface · Mine mouth", new Color32(140, 190, 96, 255), 50f, -1));
+            foreach (var kv in s.Revealed)
+            {
+                if (kv.Key >= s.Depth) continue;
+                rows.Add(($"Depth {kv.Key} · closed · {CompositionText(kv.Value)}", MixColor(kv.Value) * 0.75f, 64f, -1));
+            }
+            var progress = s.SectionDurabilityMicro > 0 ? (float)s.SectionDoneMicro / s.SectionDurabilityMicro : 0f;
+            rows.Add(($"Depth {s.Depth} · ACTIVE FACE · section {s.SectionsCompleted + 1}", MixColor(s.Composition), 170f, progress));
+            if (sim.CanGoDeeper)
+                rows.Add(($"Depth {s.Depth + 1} · composition unknown · expected: {sim.Config.Bands[s.Depth].Discovery}", new Color32(70, 62, 60, 255), 110f, -1));
+            else
+                rows.Add(("More depths not yet charted", new Color32(52, 46, 44, 255), 90f, -1));
+
+            var y = 0f;
+            foreach (var r in rows)
+            {
+                var band = _ui.Panel("Band", _diagram, _theme.panelDark, r.color);
+                band.type = Image.Type.Sliced;
+                band.raycastTarget = false;
+                band.rectTransform.anchorMin = new Vector2(0, 1);
+                band.rectTransform.anchorMax = new Vector2(1, 1);
+                band.rectTransform.pivot = new Vector2(0.5f, 1);
+                band.rectTransform.anchoredPosition = new Vector2(0, -y);
+                band.rectTransform.sizeDelta = new Vector2(0, r.height - 6f);
+                var t = _ui.Text("Label", band.transform, r.text, _theme.smallSize - 6f, _theme.inkOnDark, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+                UiFactory.Stretch(t.rectTransform, 16f);
+                if (r.progress >= 0f)
+                {
+                    var bar = _ui.Panel("Progress", band.transform, _theme.chip, new Color(1f, 0.95f, 0.85f, 0.85f));
+                    bar.raycastTarget = false;
+                    bar.rectTransform.anchorMin = new Vector2(0, 0);
+                    bar.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(r.progress), 0);
+                    bar.rectTransform.pivot = new Vector2(0, 0);
+                    bar.rectTransform.sizeDelta = new Vector2(0, 26f);
+                    bar.rectTransform.anchoredPosition = new Vector2(0, 10f);
+                    t.rectTransform.offsetMin = new Vector2(16f, 40f);
+                }
+                y += r.height;
+            }
+            _diagram.GetComponent<LayoutElement>().preferredHeight = y + 8f;
+        }
+
+        /// <summary>Horizontal trail: cleared areas behind, the active clearing, the unknown ahead.</summary>
+        private void BuildTrail(SiteSimulator sim)
+        {
+            var s = sim.Record;
+            var slots = new List<(string text, Color color, bool current)>();
+            foreach (var kv in s.Revealed)
+                if (kv.Key < s.Depth) slots.Add(($"Area {kv.Key}\ncleared", MixColor(kv.Value) * 0.7f, false));
+            var standing = s.Trees.FindAll(t => !t.Felled).Count;
+            slots.Add(($"Area {s.Depth}\n{sim.Config.Bands[s.Depth - 1].Name}\n{standing}/{s.Trees.Count} trees", MixColor(s.Composition), true));
+            slots.Add(sim.CanGoDeeper
+                ? ($"Area {s.Depth + 1}\nunknown\n{sim.Config.Bands[s.Depth].Discovery}", new Color32(60, 74, 62, 255), false)
+                : ("No further\nareas charted", new Color32(52, 56, 50, 255), false));
+
+            const float gap = 14f;
+            var n = slots.Count;
+            for (var i = 0; i < n; i++)
+            {
+                var chip = _ui.Panel("Area", _diagram, _theme.panelDark, slots[i].color);
+                chip.raycastTarget = false;
+                chip.rectTransform.anchorMin = new Vector2((float)i / n, 0);
+                chip.rectTransform.anchorMax = new Vector2((float)(i + 1) / n, 1);
+                chip.rectTransform.offsetMin = new Vector2(gap * 0.5f, slots[i].current ? 0f : 60f);
+                chip.rectTransform.offsetMax = new Vector2(-gap * 0.5f, slots[i].current ? 0f : -60f);
+                var t = _ui.Text("Label", chip.transform, slots[i].text, _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+                UiFactory.Stretch(t.rectTransform, 12f);
+                if (!slots[i].current) continue;
+                // Tree silhouettes: one per tree, dimmed when felled.
+                for (var k = 0; k < s.Trees.Count; k++)
+                {
+                    var tree = _ui.Icon("Tree", chip.transform, _theme.treeIcon, 56f);
+                    tree.color = s.Trees[k].Felled ? new Color(1, 1, 1, 0.25f) : Color.white;
+                    tree.rectTransform.anchorMin = tree.rectTransform.anchorMax = new Vector2((k + 0.5f) / s.Trees.Count, 0f);
+                    tree.rectTransform.anchoredPosition = new Vector2(0, 44f);
+                }
+            }
+            _diagram.GetComponent<LayoutElement>().preferredHeight = 420f;
+        }
+    }
+}

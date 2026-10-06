@@ -42,8 +42,10 @@ namespace Ravenholm.Tests
         private static IEnumerator Boot()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);
+            yield return null;   // the previous test's sandbox is still active during the load call's frame
             var deadline = Time.realtimeSinceStartup + 10f;
-            while ((SandboxSceneController.Current == null || SceneManager.GetActiveScene().name != "DebugSandbox") && Time.realtimeSinceStartup < deadline)
+            while ((GameRoot.Instance == null || SandboxSceneController.Current == null || SceneManager.GetActiveScene().name != "DebugSandbox")
+                   && Time.realtimeSinceStartup < deadline)
                 yield return null;
             Assert.NotNull(SandboxSceneController.Current, "DebugSandbox did not finish loading");
             yield return null;

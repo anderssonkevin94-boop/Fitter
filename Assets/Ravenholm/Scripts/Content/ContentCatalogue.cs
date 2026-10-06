@@ -22,16 +22,29 @@ namespace Ravenholm.Content
     {
         [SerializeField] private List<ResourceDefinition> resources = new List<ResourceDefinition>();
         [SerializeField] private List<ItemDefinition> items = new List<ItemDefinition>();
+        [SerializeField] private List<SiteDefinition> sites = new List<SiteDefinition>();
+        [Tooltip("Mine layers and Forest zones.")]
+        [SerializeField] private List<SiteBandDefinition> bands = new List<SiteBandDefinition>();
+        [SerializeField] private List<WorkerDefinition> workers = new List<WorkerDefinition>();
+        [SerializeField] private List<WorkerEquipmentDefinition> equipment = new List<WorkerEquipmentDefinition>();
 
         private Dictionary<string, ContentDefinition> _byId;
 
         public IReadOnlyList<ResourceDefinition> Resources => resources;
         public IReadOnlyList<ItemDefinition> Items => items;
+        public IReadOnlyList<SiteDefinition> Sites => sites;
+        public IReadOnlyList<SiteBandDefinition> Bands => bands;
+        public IReadOnlyList<WorkerDefinition> Workers => workers;
+        public IReadOnlyList<WorkerEquipmentDefinition> Equipment => equipment;
 
         public IEnumerable<ContentDefinition> All()
         {
             foreach (var r in resources) yield return r;
             foreach (var i in items) yield return i;
+            foreach (var x in sites) yield return x;
+            foreach (var x in bands) yield return x;
+            foreach (var x in workers) yield return x;
+            foreach (var x in equipment) yield return x;
         }
 
         public bool TryGet<T>(string id, out T definition) where T : ContentDefinition
@@ -71,6 +84,22 @@ namespace Ravenholm.Content
                 }
                 else seen.Add(def.Id, def);
             }
+
+            // Every site band and worker must be listed in the catalogue and belong to exactly one site.
+            var workerSites = new Dictionary<WorkerDefinition, SiteDefinition>();
+            foreach (var site in sites)
+            {
+                if (site == null) continue;
+                foreach (var b in site.Bands)
+                    if (b != null && !bands.Contains(b)) report.Errors.Add($"{site.Describe()}: band '{b.Id}' is not in the catalogue");
+                foreach (var w in site.Workers)
+                {
+                    if (w == null) continue;
+                    if (!workers.Contains(w)) report.Errors.Add($"{site.Describe()}: worker '{w.Id}' is not in the catalogue");
+                    if (workerSites.TryGetValue(w, out var other)) report.Errors.Add($"Worker '{w.Id}' is assigned to both '{other.Id}' and '{site.Id}'");
+                    else workerSites[w] = site;
+                }
+            }
             return report;
         }
 
@@ -90,6 +119,16 @@ namespace Ravenholm.Content
         {
             resources = newResources;
             items = newItems;
+            _byId = null;
+        }
+
+        public void EditorSetSites(List<SiteDefinition> newSites, List<SiteBandDefinition> newBands, List<WorkerDefinition> newWorkers,
+            List<WorkerEquipmentDefinition> newEquipment)
+        {
+            sites = newSites;
+            bands = newBands;
+            workers = newWorkers;
+            equipment = newEquipment;
             _byId = null;
         }
 #endif

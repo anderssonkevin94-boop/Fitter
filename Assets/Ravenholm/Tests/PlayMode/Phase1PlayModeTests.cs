@@ -43,11 +43,27 @@ namespace Ravenholm.Tests
         private static IEnumerator Boot()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);
+            yield return null;   // the previous test's sandbox is still active during the load call's frame
             var deadline = Time.realtimeSinceStartup + 10f;
-            while ((SandboxSceneController.Current == null || SceneManager.GetActiveScene().name != "DebugSandbox") && Time.realtimeSinceStartup < deadline)
+            while ((GameRoot.Instance == null || SandboxSceneController.Current == null || SceneManager.GetActiveScene().name != "DebugSandbox")
+                   && Time.realtimeSinceStartup < deadline)
                 yield return null;
             Assert.NotNull(SandboxSceneController.Current, "DebugSandbox did not finish loading");
+            // Phase 1 tests exercise hauling only: freeze the Phase 2 workers so they cannot change pile counts.
+            GameRoot.Instance.Services.Sites.SpeedMultiplier = 0f;
             for (var i = 0; i < 3; i++) yield return null;
+        }
+
+        /// <summary>Test fixture: the Phase 1 starting contents of both staging piles (25 and 26 units).</summary>
+        private static void SeedStaging()
+        {
+            if (Sys.State.Containers["container.mine_staging"].UnitCount > 0) return;
+            Sys.CreateMaterialsInContainer("container.mine_staging", "resource.iron_ore", 18);
+            Sys.CreateMaterialsInContainer("container.mine_staging", "resource.copper_ore", 6);
+            Sys.CreateMaterialsInContainer("container.mine_staging", "resource.gem", 1);
+            Sys.CreateMaterialsInContainer("container.forest_staging", "resource.cedar_log", 16);
+            Sys.CreateMaterialsInContainer("container.forest_staging", "resource.maple_log", 4);
+            Sys.CreateMaterialsInContainer("container.forest_staging", "resource.herb", 6);
         }
 
         private static IEnumerator KillRoot()
@@ -113,6 +129,7 @@ namespace Ravenholm.Tests
         public IEnumerator HaulLoopFillsCarryUsesCorrectReceiversAndConserves()
         {
             yield return Boot();
+            SeedStaging();
             Assert.AreEqual(25, Sys.State.Containers["container.mine_staging"].UnitCount, "fixture seeded");
 
             yield return StandAt(new Vector2(-8.4f, 3.0f), 2.0f);   // mine staging
@@ -157,6 +174,7 @@ namespace Ravenholm.Tests
         public IEnumerator RestartPreservesCarryAndPilesWithoutDuplicates()
         {
             yield return Boot();
+            SeedStaging();
             yield return StandAt(new Vector2(-8.4f, 3.0f), 0.08f * 7 + 0.05f);
             var carried = Sys.CarryCount;
             Assert.That(carried, Is.InRange(5, 9));
