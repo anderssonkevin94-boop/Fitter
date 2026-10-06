@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "profile": "sandbox",
+  "seed": 9876543210123,
+  "generation": 41,
+  "savedAt": "2026-09-30T18:45:12Z",
+  "bells": 7,
+  "sessions": 3,
+  "px": -2.5,
+  "py": 1.25
+}

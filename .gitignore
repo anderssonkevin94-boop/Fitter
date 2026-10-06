@@ -1,0 +1,29 @@
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+*.csproj
+*.sln
+*.slnx
+*.userprefs
+*.pidb
+*.booproj
+*.suo
+*.user
+.vs/
+.idea/
+.DS_Store
+/TestResults*.xml
+/Assets/StreamingAssets/aa*
+# provisioning / credentials never committed
+*.mobileprovision
+*.p12
+*.cer
+
+# Visual captures from PlayMode tests
+/Captures/

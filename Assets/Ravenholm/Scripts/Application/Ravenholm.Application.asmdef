@@ -1,0 +1,14 @@
+{
+    "name": "Ravenholm.Application",
+    "rootNamespace": "Ravenholm.Services",
+    "references": ["Ravenholm.Domain", "Ravenholm.Infrastructure", "Ravenholm.Content"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

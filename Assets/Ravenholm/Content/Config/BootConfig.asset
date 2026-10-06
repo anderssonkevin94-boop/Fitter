@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f905d45e615e48c79fa8c5b07743007, type: 3}
+  m_Name: BootConfig
+  m_EditorClassIdentifier: Ravenholm.Presentation::Ravenholm.Presentation.BootConfig
+  catalogue: {fileID: 11400000, guid: 44dcb9a1e15f9459c9949e3027bab9b5, type: 2}
+  sandboxSettings: {fileID: 11400000, guid: c889aa8d1bfbc461cab31d6b0929aa18, type: 2}
+  uiTheme: {fileID: 11400000, guid: 2123dd1a556544330a0c9d7b97afe735, type: 2}
+  saveProfile: sandbox
+  firstScene: DebugSandbox

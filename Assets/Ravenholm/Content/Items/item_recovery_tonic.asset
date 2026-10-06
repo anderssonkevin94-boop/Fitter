@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 400e726d179bd4e66a516cca0736f6ed, type: 3}
+  m_Name: item_recovery_tonic
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ItemDefinition
+  id: item.recovery_tonic
+  displayName: Recovery Tonic
+  contentVersion: 1
+  category: 2
+  power: 0
+  protection: 0
+  weaponTag: 0
+  potionEffect: 1
+  potionStrength: 4
+  traderBuyValue: 1
+  icon: {fileID: 21300000, guid: 97e3ebff264fe45a2a89a80ab6da5731, type: 3}
+  stackSprite: {fileID: 21300000, guid: c936420efef194dac84bc397ff4577b5, type: 3}

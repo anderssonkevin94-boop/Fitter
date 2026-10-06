@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f53f2c87c4fe247138b018b25a848fc3, type: 3}
+  m_Name: resource_herb
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ResourceDefinition
+  id: resource.herb
+  displayName: Meadow Herb
+  contentVersion: 1
+  category: 2
+  acceptedReceiver: 3
+  icon: {fileID: 21300000, guid: f6b78417d9fba436cbe3e439b8fc1b59, type: 3}
+  stackSprite: {fileID: 21300000, guid: 451be58606d4b4b93824f078a422a21c, type: 3}

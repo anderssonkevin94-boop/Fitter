@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f53f2c87c4fe247138b018b25a848fc3, type: 3}
+  m_Name: resource_coal
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ResourceDefinition
+  id: resource.coal
+  displayName: Coal
+  contentVersion: 1
+  category: 0
+  acceptedReceiver: 1
+  icon: {fileID: 21300000, guid: dfe7949a2b6cb46aca5c6e400ece8e35, type: 3}
+  stackSprite: {fileID: 21300000, guid: 4ebd2139015504d23853244bbbfe81f4, type: 3}

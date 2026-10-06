@@ -1,0 +1,25 @@
+{
+    "name": "Ravenholm.Tests.PlayMode",
+    "rootNamespace": "Ravenholm.Tests",
+    "references": [
+        "Ravenholm.Domain",
+        "Ravenholm.Infrastructure",
+        "Ravenholm.Content",
+        "Ravenholm.Application",
+        "Ravenholm.Presentation",
+        "Unity.InputSystem",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": ["nunit.framework.dll", "Newtonsoft.Json.dll"],
+    "autoReferenced": false,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

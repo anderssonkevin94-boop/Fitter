@@ -1,0 +1,22 @@
+{
+    "name": "Ravenholm.Presentation",
+    "rootNamespace": "Ravenholm.Presentation",
+    "references": [
+        "Ravenholm.Domain",
+        "Ravenholm.Infrastructure",
+        "Ravenholm.Content",
+        "Ravenholm.Application",
+        "Unity.InputSystem",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

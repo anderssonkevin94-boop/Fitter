@@ -1,0 +1,23 @@
+{
+    "name": "Ravenholm.Tests.EditMode",
+    "rootNamespace": "Ravenholm.Tests",
+    "references": [
+        "Ravenholm.Domain",
+        "Ravenholm.Infrastructure",
+        "Ravenholm.Content",
+        "Ravenholm.Application",
+        "Ravenholm.Presentation",
+        "Ravenholm.EditorTools",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": ["nunit.framework.dll", "Newtonsoft.Json.dll"],
+    "autoReferenced": false,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

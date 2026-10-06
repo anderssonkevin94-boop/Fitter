@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f53f2c87c4fe247138b018b25a848fc3, type: 3}
+  m_Name: resource_fur
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ResourceDefinition
+  id: resource.fur
+  displayName: Fur
+  contentVersion: 1
+  category: 5
+  acceptedReceiver: 0
+  icon: {fileID: 21300000, guid: 456a5ccdf9470483ba6c743333ce7df8, type: 3}
+  stackSprite: {fileID: 21300000, guid: 584609fe7bc2e467abb9e9eb0f0d15b4, type: 3}

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 400e726d179bd4e66a516cca0736f6ed, type: 3}
+  m_Name: item_iron_dagger
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ItemDefinition
+  id: item.iron_dagger
+  displayName: Iron Dagger
+  contentVersion: 1
+  category: 0
+  power: 7
+  protection: 0
+  weaponTag: 4
+  potionEffect: 0
+  potionStrength: 0
+  traderBuyValue: 1
+  icon: {fileID: 21300000, guid: cecf4e1cf4c42449797af6b6ad009c34, type: 3}
+  stackSprite: {fileID: 21300000, guid: f6aa7a38146b4449c955ce6d3ea3c3fd, type: 3}
