@@ -124,9 +124,12 @@ namespace Ravenholm.Services
             foreach (var b in t.SideBlueprints) if (b != null) _traderConfig.SideBlueprints.Add(b.Id);
         }
 
+        public event Action TraderUsed;
+
         public bool Buy(string entryKey, out string failure)
         {
             var ok = Trader.Buy(entryKey, Now, out failure);
+            if (ok) TraderUsed?.Invoke();
             if (ok) _scheduler.SaveNow("bought from the Trader");
             return ok;
         }
@@ -134,6 +137,7 @@ namespace Ravenholm.Services
         public bool Sell(string instanceId, out string failure)
         {
             var ok = Trader.Sell(instanceId, Now, out failure);
+            if (ok) TraderUsed?.Invoke();
             if (ok) _scheduler.SaveNow("sold to the Trader");
             return ok;
         }

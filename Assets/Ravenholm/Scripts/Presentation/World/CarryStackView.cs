@@ -127,13 +127,13 @@ namespace Ravenholm.Presentation
             {
                 var t = _pieces[i].transform;
                 var match = near != null && i < _shown.Count && sys.Accepts(near.Kind, _shown[i]);
-                var bob = match ? Mathf.Abs(Mathf.Sin(Time.time * 7f + i * 0.6f)) * 0.05f : 0f;
+                var bob = match && !Feel.ReducedMotion ? Mathf.Abs(Mathf.Sin(Time.time * 7f + i * 0.6f)) * 0.05f : 0f;
                 t.localPosition = new Vector3(i % 2 == 0 ? -0.02f : 0.02f, i * pieceStep + bob, 0f);
                 t.localScale = Vector3.one * (match ? 1.1f : 1f);
             }
 
             _pulse = Mathf.MoveTowards(_pulse, 0f, Time.deltaTime * 3f);
-            _badge.transform.localScale = Vector3.one * (1f + _pulse * 0.5f);
+            _badge.transform.localScale = Vector3.one * (Feel.ReducedMotion ? 1f : 1f + _pulse * 0.5f);   // colour still flags "full"
             _badge.color = Color.Lerp(new Color32(250, 242, 226, 255), new Color32(255, 140, 110, 255), _pulse);
         }
 
@@ -167,7 +167,8 @@ namespace Ravenholm.Presentation
             var sr = _flyerPool.Count > 0 ? _flyerPool.Pop() : CreateFlyer();
             sr.gameObject.SetActive(true);
             sr.sprite = UnitVisuals.StackSprite(unit);
-            for (var t = 0f; t < arcSeconds; t += Time.deltaTime)
+            // Reduced motion: no flying arc; the stack and receiver update in place.
+            for (var t = Feel.ReducedMotion ? arcSeconds : 0f; t < arcSeconds; t += Time.deltaTime)
             {
                 var k = t / arcSeconds;
                 var to = toTarget != null ? toTarget.position + Vector3.up * 0.3f : StackTop();

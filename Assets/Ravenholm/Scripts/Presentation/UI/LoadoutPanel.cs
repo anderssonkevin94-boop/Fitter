@@ -329,6 +329,7 @@ namespace Ravenholm.Presentation
             var name = Contractor?.Name;
             if (_root.Services.Jobs.Dispatch(_contractorId, _loadout, out var failure, out var e))
             {
+                FeedbackAudio.Play(FeedbackAudio.Cue.Dispatch);
                 Board.ReleaseLoadout();
                 gameObject.SetActive(false);
                 TouchInputRouter.PopModal();

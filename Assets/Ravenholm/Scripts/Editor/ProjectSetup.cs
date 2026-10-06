@@ -80,6 +80,7 @@ namespace Ravenholm.EditorTools
             EnsureJobContent(catalogue);
             EnsureEconomyContent(catalogue);
             EnsureCampaignContent(catalogue);
+            EnsureTutorialContent(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");

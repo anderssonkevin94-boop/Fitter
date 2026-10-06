@@ -41,6 +41,7 @@ namespace Ravenholm.Content
         [SerializeField] private TraderStockDefinition traderStock;
         [SerializeField] private List<UpgradeDefinition> upgrades = new List<UpgradeDefinition>();
         [SerializeField] private List<RegionDefinition> regions = new List<RegionDefinition>();
+        [SerializeField] private List<TutorialStepDefinition> tutorial = new List<TutorialStepDefinition>();
 
         private Dictionary<string, ContentDefinition> _byId;
 
@@ -64,6 +65,7 @@ namespace Ravenholm.Content
         public TraderStockDefinition TraderStock => traderStock;
         public IReadOnlyList<UpgradeDefinition> Upgrades => upgrades;
         public IReadOnlyList<RegionDefinition> Regions => regions;
+        public IReadOnlyList<TutorialStepDefinition> Tutorial => tutorial;
 
         public IEnumerable<ContentDefinition> All()
         {
@@ -85,6 +87,7 @@ namespace Ravenholm.Content
             if (traderStock != null) yield return traderStock;
             foreach (var x in upgrades) yield return x;
             foreach (var x in regions) yield return x;
+            foreach (var x in tutorial) yield return x;
         }
 
         public bool TryGet<T>(string id, out T definition) where T : ContentDefinition
@@ -226,6 +229,12 @@ namespace Ravenholm.Content
             recipes = newRecipes;
             blueprints = newBlueprints;
             startingState = start;
+            _byId = null;
+        }
+
+        public void EditorSetTutorial(List<TutorialStepDefinition> steps)
+        {
+            tutorial = steps;
             _byId = null;
         }
 

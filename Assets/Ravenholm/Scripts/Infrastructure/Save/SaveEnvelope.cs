@@ -12,7 +12,7 @@ namespace Ravenholm.Infrastructure.Save
     public sealed class SaveEnvelope
     {
         /// <summary>Current schema written by this build. Bump it and add a migration when the shape changes.</summary>
-        public const int CurrentSchemaVersion = 8;
+        public const int CurrentSchemaVersion = 9;
 
         [JsonProperty("schemaVersion", Required = Required.Always)] public int SchemaVersion = CurrentSchemaVersion;
         [JsonProperty("gameBuild")] public string GameBuild = "";
@@ -42,6 +42,9 @@ namespace Ravenholm.Infrastructure.Save
 
         /// <summary>Trader schedule and stock, purchased upgrades (schema 8+). Null = nothing bought yet.</summary>
         [JsonProperty("economy")] public EconomySaveData Economy;
+
+        /// <summary>First-hour prompts finished or hidden (schema 9+). Null = new player (or derived on migration).</summary>
+        [JsonProperty("onboarding")] public OnboardingSaveData Onboarding;
 
         public ulong GetWorldSeed() => ulong.Parse(WorldSeed, System.Globalization.CultureInfo.InvariantCulture);
 
@@ -334,5 +337,12 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("traderRemaining")] public SortedDictionary<string, int> TraderRemaining = new SortedDictionary<string, int>();
         [JsonProperty("upgrades")] public List<string> Upgrades = new List<string>();
         [JsonProperty("lastCatchUpId")] public string LastCatchUpId = "";
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class OnboardingSaveData
+    {
+        [JsonProperty("done")] public List<string> Done = new List<string>();
+        [JsonProperty("hidden")] public bool Hidden;
     }
 }

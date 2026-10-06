@@ -1099,6 +1099,16 @@ def beacon_trophy():
     return finish("prop_beacon_trophy", img, (cx, base), "Props", desc="Beacon trophy: settlement monument after the final expedition")
 
 
+def pennant():
+    """Phase 8: building level pennant (one per level above 1)."""
+    img = canvas(0.4, 0.7)
+    d = ImageDraw.Draw(img)
+    cx, base = img.width / 2 - 0.08 * U, img.height - 0.04 * U
+    post(d, (cx, base), 0.6 * U, 0.05, TIMBER_D)
+    poly(d, [(cx + 0.025 * U, base - 0.58 * U), (cx + 0.3 * U, base - 0.5 * U), (cx + 0.025 * U, base - 0.4 * U)], (196, 64, 52, 255), width=2 * S)
+    return finish("prop_pennant", img, (cx, base), "Props", desc="Building level pennant (one per upgrade level)")
+
+
 def main():
     tile("tile_grass_a", GRASS_A, GRASS_D, "tufts", 1)
     tile("tile_grass_b", GRASS_B, GRASS_D, "tufts", 2)
@@ -1132,6 +1142,7 @@ def main():
     rack("rack_potions_empty", "potion", "Store potion shelf (empty; items drawn in-engine)", True)
     bell()
     beacon_trophy()
+    pennant()
     staging_pile("pile_ore", "iron_ore", "Mine staging pile (ore)")
     staging_pile("pile_logs", "cedar_log", "Forest staging pile (logs)")
     staging_pile("pile_ingots", "iron_ingot", "Processed output pile (ingots)")

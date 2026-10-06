@@ -32,6 +32,7 @@ namespace Ravenholm.Presentation
         public GameServices Services { get; private set; }
         public TouchInputRouter InputRouter { get; private set; }
         public SandboxHud Hud { get; private set; }
+        public PlayerSettingsService Settings { get; private set; }
 
         public static string SaveRootDirectory => Path.Combine(UnityEngine.Application.persistentDataPath, "Saves");
 
@@ -53,6 +54,9 @@ namespace Ravenholm.Presentation
                 return;
             }
 
+            // Device preferences live beside the saves, never inside a profile (a reset keeps them).
+            Settings = new PlayerSettingsService(SaveDirectoryOverride != null ? Path.Combine(SaveDirectoryOverride, "settings")
+                                                                               : Path.Combine(UnityEngine.Application.persistentDataPath, "Settings"));
             var settings = config.SandboxSettings;
             var saveDir = SaveDirectoryOverride ?? Path.Combine(SaveRootDirectory, config.SaveProfile);
             Services = new GameServices(ClockOverride ?? new SystemClock(), config.Catalogue, config.Balance, saveDir, config.SaveProfile,
@@ -73,6 +77,8 @@ namespace Ravenholm.Presentation
 
             if (!SkipFirstSceneLoad && SceneManager.GetActiveScene().name != config.FirstScene)
                 SceneManager.LoadScene(config.FirstScene);
+            PerfProbe.BootSeconds = Time.realtimeSinceStartup;
+            PerfProbe.CheckAutorun();
         }
 
         private void Update()

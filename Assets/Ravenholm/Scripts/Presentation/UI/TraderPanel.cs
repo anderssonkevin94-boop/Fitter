@@ -79,7 +79,7 @@ namespace Ravenholm.Presentation
         {
             var ok = Eco.Buy(entryKey, out var failure);
             LastMessage = ok ? "Bought." : failure;
-            if (ok) FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
+            if (ok) FeedbackAudio.Play(FeedbackAudio.Cue.Coin);
             _structureKey = "";
             Refresh();
             return ok;

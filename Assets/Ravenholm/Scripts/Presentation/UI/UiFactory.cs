@@ -62,6 +62,7 @@ namespace Ravenholm.Presentation
             t.fontStyle = style;
             t.textWrappingMode = TextWrappingModes.Normal;
             t.raycastTarget = false;
+            rt.gameObject.AddComponent<ScaledText>();   // applies the player's text size from the next frame on
             return t;
         }
 

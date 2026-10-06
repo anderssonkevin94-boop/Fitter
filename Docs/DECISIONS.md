@@ -263,12 +263,54 @@ the GDD excludes monetization and analytics.
   - Mage: arcane, including the finale.
 - **Tests updated:** two old tests asserted the Phase 2 and 3 content counts (15 resources, 3 bands per site). They now check 19 and 6.
 
+## Phase 8 decisions (2026-10-06)
+
+- **Final art is NOT done (open decision for the user).**
+  - The GDD's first Phase 8 deliverable is final original art. I can't produce final illustrated art, and the source is the user's call: commission an artist, buy a licensed pack, or something else. It affects cost, licensing and provenance.
+  - Every view still reads its sprite through definitions and prefabs, so art can be swapped without touching the simulation.
+  - Phase 8 only extended the coherent placeholder kit: Phase 7 materials and items, a Beacon trophy and level pennants, all recorded in `PROVENANCE.md`.
+- **Settings (GDD 19):**
+  - Music and effects volume, haptics, reduced motion, text size (100/115/130 %), joystick side (anywhere, left half, right half), and first-hour tips.
+  - Stored in `persistentDataPath/Settings/settings.json`, separate from game saves, so a profile reset never touches them.
+  - A damaged settings file falls back to defaults.
+  - The gear button now opens Settings; Developer tools sit inside.
+- **Text scaling:** every UI text carries `ScaledText`, which rescales from its authored size when the setting changes. Fixed-size labels (HUD chips, banner, Mine strata labels) auto-fit instead. A PlayMode test opens every panel at 130 % and fails if any non-auto-sized text needs more height than its box.
+- **Reduced motion:** removes carried-item arcs, the stack and carry-chip pulses, and the worker work swing. State feedback stays: colours, counts, bubbles, toasts.
+- **Haptics:** a native iOS plugin (`Assets/Plugins/iOS/RavenholmHaptics.mm`) using UIImpactFeedbackGenerator and UINotificationFeedbackGenerator. Haptics play only for:
+  - completed deliveries (rate-limited),
+  - crafts,
+  - dispatches,
+  - discoveries,
+  - returns,
+  - a full carry stack.
+  - They are off when the setting is off.
+- **Audio:** still synthesized placeholders (no audio assets).
+  - Grouped timber-knock and tone transfers.
+  - Bell chimes for craft, dispatch, return (good or bad), discovery, coin and Trader arrival.
+  - A calm 16-second town loop on the music channel.
+- **First-hour prompts:** 12 data-driven `TutorialStepDefinition`s following the GDD 19 first-hour table. Each finishes from game state or events, or from "Got it" for information tips.
+  - Finishing a later step finishes every earlier one.
+  - Prompts never change odds, rewards or timing.
+  - The danger tip comes after the first result and before the second normal dispatch.
+  - The tip card sits under every panel and hides while one is open.
+  - Saved as the schema 9 `onboarding` section. Migrated saves that already have quest results start with tips hidden ("optional for returning testers"). "Show tips again" lives in Settings.
+- **Building upgrades in the town:** stations show a pennant per level above 1 (`StationLevelView`).
+- **Usability checks (PlayMode):**
+  - **Touch targets:** every HUD and panel button is at least about 26 pt in both dimensions. The rows are 132 canvas units (about 44 pt) tall; the small round buttons are the limit.
+  - **Occlusion:** every enabled tap target is the frontmost hit somewhere inside its collider. This test found a bug I'd introduced in this phase: a stray plain `Inspectable` on the Store, Mine and Forest. Fixed.
+- **Performance:**
+  - `PerfProbe` (Developer tools, or a `perf_autorun` file in the app's Documents folder) records boot and scene-ready time, frame-time percentiles, GC count, memory, and an 8-hour catch-up. The catch-up is timed on a throwaway busy company in a temporary folder, never on the player's save.
+  - Editor 8-hour busy catch-up: about 60–75 ms.
+  - **Device results are still pending.** The Phase 8 build is installed on the iPhone 16 Pro, and the probe started (its autorun flag was consumed). The phone was locked, though, so iOS suspended the app straight after boot and no report has been written yet. It finishes after the app has been open in front for about a minute. Then pull it with `xcrun devicectl device copy from ... --source Documents/Perf`, or use Developer tools → Record performance.
+  - Thermal behaviour over 20 minutes still needs a manual device session; there's no API for it without more native code.
+
 ## Open blockers
 
 - **iOS build:** the Unity → Xcode device export succeeded headlessly on 2026-10-06 (0 errors, 1 warning, IL2CPP, 114 s). The Xcode compile/sign/install step has not run yet: the startup disk had only ~2.5 GB free, too little for Xcode intermediates. To do: free disk space, export again (Ravenholm > Build > iOS Xcode Project (Device)), open `Builds/iOS-Device/Unity-iPhone.xcodeproj`, pick a signing team, then Run on the iPhone.
 
 ## Playtest feedback
 
+- 2026-10-06: user: "keep going" after Phase 7 (no playtest notes yet). Phase 8 built except final art (needs the user's decision). STOP for presentation and usability approval.
 - 2026-10-06: user: "keep going with next phase" (Phase 6 not yet playtested). Phase 7 built (world content and campaign). STOP for progression approval before Phase 8.
 - 2026-10-06: user: "start next phase". Phase 6 built (Trader, economy, offline catch-up, recovery). This is the functional MVP boundary: STOP for playtest before Phase 7.
 - 2026-10-06: Phase 1 approved by the user ("proceed"). No playtest notes given yet; the Phase 1 tuning questions (joystick comfort, camera, pickup cadence, capacity, walk speed, trip length, interior) carry over.

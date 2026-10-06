@@ -49,6 +49,7 @@ namespace Ravenholm.Presentation
         {
             _root = GameRoot.Instance;
             if (_root == null) { enabled = false; return; }
+            if (PerfProbe.SceneReadySeconds < 0) PerfProbe.SceneReadySeconds = Time.realtimeSinceStartup;
             _inspectables = FindObjectsByType<Inspectable>(FindObjectsInactive.Exclude);
             _root.InputRouter.Tapped += OnTapped;
             _root.Hud.AttachWorldCamera(worldCamera);
@@ -114,6 +115,13 @@ namespace Ravenholm.Presentation
         {
             if (worldCamera == null) return;
             var world = worldCamera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, -worldCamera.transform.position.z));
+            var front = FrontmostAt(world);
+            if (front != null) Inspect(front);
+        }
+
+        /// <summary>The tap target at a world point: frontmost enabled inspectable (lowest pivot y, sprites sort by feet).</summary>
+        public Inspectable FrontmostAt(Vector2 world)
+        {
             var filter = new ContactFilter2D { useTriggers = true };
             Physics2D.OverlapPoint(world, filter, Hits);
 
@@ -123,10 +131,10 @@ namespace Ravenholm.Presentation
             {
                 if (!Hits[k].isTrigger) continue;   // footprints are not tap targets
                 var insp = Hits[k].GetComponent<Inspectable>();
-                if (insp == null) continue;
+                if (insp == null || !insp.isActiveAndEnabled) continue;
                 if (front == null || insp.transform.position.y < front.transform.position.y) front = insp;
             }
-            if (front != null) Inspect(front);
+            return front;
         }
     }
 }

@@ -19,6 +19,7 @@ namespace Ravenholm.Infrastructure.Save
             { 5, MigrateV5ToV6 },
             { 6, MigrateV6ToV7 },
             { 7, MigrateV7ToV8 },
+            { 8, MigrateV8ToV9 },
         };
 
         /// <summary>Migrates <paramref name="root"/> in place up to the current schema.</summary>
@@ -49,6 +50,17 @@ namespace Ravenholm.Infrastructure.Save
             // Schema 1 used "version"; later schemas use "schemaVersion".
             var token = root["schemaVersion"] ?? root["version"];
             return token != null && token.Type == JTokenType.Integer ? token.Value<int>() : 0;
+        }
+
+        /// <summary>
+        /// Schema 9 (Phase 8) adds "onboarding". Returning testers (any quest result already) start with the
+        /// first-hour prompts hidden, as the GDD asks; brand-new companies get them.
+        /// </summary>
+        private static void MigrateV8ToV9(JObject o)
+        {
+            if (o["onboarding"] != null) return;
+            var played = o["jobs"] is JObject j && j["results"] is JArray r && r.Count > 0;
+            o["onboarding"] = played ? new JObject { ["done"] = new JArray(), ["hidden"] = true } : (JToken)JValue.CreateNull();
         }
 
         /// <summary>

@@ -50,6 +50,8 @@ namespace Ravenholm.Presentation
         private StationPanel _stationPanel;
         private StorePanel _storePanel;
         private TraderPanel _traderPanel;
+        private SettingsPanel _settingsPanel;
+        private TipCard _tips;
         private AwayReportPanel _awayPanel;
         private bool _traderWasPresent;
         private bool _awayChecked;
@@ -69,6 +71,16 @@ namespace Ravenholm.Presentation
         public StorePanel StorePanel => _storePanel;
         public TraderPanel TraderPanel => _traderPanel;
         public AwayReportPanel AwayPanel => _awayPanel;
+
+        public SettingsPanel SettingsPanel => _settingsPanel;
+        public TipCard Tips => _tips;
+
+        /// <summary>Player settings (GDD 19): audio, haptics, motion, text size, joystick side, tips; developer tools inside.</summary>
+        public void ShowSettings()
+        {
+            HideInfo();
+            _settingsPanel.Show();
+        }
 
         public void ShowTrader()
         {
@@ -179,6 +191,7 @@ namespace Ravenholm.Presentation
             BuildPersistenceCard(safe);
             BuildContextButton(safe);
             BuildToast(safe);
+            _tips = TipCard.Create(safe, _ui, root);   // below every modal layer: tips never cover a panel
             BuildJoystick();
             BuildInfoLayer(safe);
             _sitePanel = SitePanel.Create(safe, _ui, root);
@@ -188,10 +201,15 @@ namespace Ravenholm.Presentation
             _loadout = LoadoutPanel.Create(safe, _ui, root);
             _result = ResultPanel.Create(safe, _ui, root);
             _traderPanel = TraderPanel.Create(safe, _ui, root);
+            _settingsPanel = SettingsPanel.Create(safe, _ui, root);
             _awayPanel = AwayReportPanel.Create(safe, _ui, root);
             root.ReturnedFromAway += ShowAwayReport;
             _root.Services.Jobs.Completed += r =>
+            {
                 ShowToast(r.Died ? $"{r.ContractorName} did not return" : $"{r.ContractorName} is back: {ResultPanel.OutcomeWord(r.Outcome)}");
+                var good = r.Outcome == Domain.Jobs.Outcome.Success || r.Outcome == Domain.Jobs.Outcome.GreatSuccess;
+                FeedbackAudio.Play(r.BlueprintGranted != null ? FeedbackAudio.Cue.Discovery : good ? FeedbackAudio.Cue.ReturnGood : FeedbackAudio.Cue.ReturnBad);
+            };
             BuildDebugLayer(safe);
 
             _root.Services.Saves.StatusChanged += _ => Refresh();
@@ -248,15 +266,24 @@ namespace Ravenholm.Presentation
             var gear = _ui.Panel("DebugButton", bar, _theme.roundButton);
             gear.type = Image.Type.Simple;
             UiFactory.Place(gear.rectTransform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), Vector2.zero, new Vector2(132f, 132f));
-            gear.gameObject.AddComponent<Button>().onClick.AddListener(OpenDebug);
+            gear.gameObject.AddComponent<Button>().onClick.AddListener(ShowSettings);
             var gi = _ui.Icon("Icon", gear.transform, _theme.settings, 76f);
             UiFactory.Place(gi.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 4f), new Vector2(76f, 76f));
 
             var banner = _ui.Panel("PhaseBanner", safe, _theme.panelDark);
             UiFactory.Place(banner.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180f), new Vector2(560f, 76f));
             banner.raycastTarget = false;
-            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 7", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 8", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(bt.rectTransform, 8f);
+            AutoFit(bt, 18f);
+        }
+
+        /// <summary>Fixed-size labels shrink to fit large text settings instead of overflowing.</summary>
+        public static void AutoFit(TextMeshProUGUI t, float min)
+        {
+            t.enableAutoSizing = true;
+            t.fontSizeMax = t.fontSize;
+            t.fontSizeMin = Mathf.Min(min, t.fontSize);
         }
 
         private TextMeshProUGUI Chip(Transform parent, Sprite icon, string value, float width)
@@ -275,6 +302,9 @@ namespace Ravenholm.Presentation
             _ui.Icon("Icon", chip.transform, icon, 72f);
             var t = _ui.Text("Value", chip.transform, value, _theme.titleSize - 6f, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             t.textWrappingMode = TextWrappingModes.NoWrap;
+            t.enableAutoSizing = true;   // large text settings shrink to fit the chip rather than overflow
+            t.fontSizeMin = 24f;
+            t.fontSizeMax = _theme.titleSize - 6f;
             t.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
             return t;
         }
@@ -395,7 +425,7 @@ namespace Ravenholm.Presentation
             var panel = _ui.Panel("Panel", layer, _theme.panel);
             UiFactory.Stretch(panel.rectTransform, 28f);
 
-            var title = _ui.Text("Title", panel.transform, "Debug · Phase 7", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            var title = _ui.Text("Title", panel.transform, "Debug · Phase 8", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             UiFactory.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(800f, 80f));
 
             // Scrollable body so the panel fits short (16:9) and tall phones alike.
@@ -518,6 +548,12 @@ namespace Ravenholm.Presentation
                     ShowAwayReport(report);
                 }, out _);
             }
+            _ui.Button("Perf", content, "Record performance (60 s, writes a report)", () =>
+            {
+                CloseDebug();
+                PerfProbe.Begin(60f);
+                ShowToast("Recording performance for 60 s");
+            }, out _);
             _ui.Button("Trader", content, "Summon the Trader now (debug)", () =>
             {
                 _root.Services.Economy.DebugSummonTrader();
@@ -540,7 +576,7 @@ namespace Ravenholm.Presentation
             UpdateJoystick();
             _toastGroup.alpha = Mathf.MoveTowards(_toastGroup.alpha, Time.unscaledTime < _toastUntil ? 1f : 0f, Time.unscaledDeltaTime * 6f);
             _carryPulse = Mathf.MoveTowards(_carryPulse, 0f, Time.unscaledDeltaTime * 3f);
-            _carryChip.localScale = Vector3.one * (1f + _carryPulse * 0.12f);
+            _carryChip.localScale = Vector3.one * (Feel.ReducedMotion ? 1f : 1f + _carryPulse * 0.12f);
             var jobs = _root.Services.Jobs.State;
             _goldText.text = jobs.Gold.ToString();
             _repText.text = jobs.Reputation.ToString();
@@ -559,7 +595,7 @@ namespace Ravenholm.Presentation
             }
             var trader = _root.Services.Economy.Trader;
             var present = trader != null && trader.IsPresent(_root.Services.Economy.Now);
-            if (present && !_traderWasPresent) ShowToast("The Trader has arrived at the Trader Pad");
+            if (present && !_traderWasPresent) { ShowToast("The Trader has arrived at the Trader Pad"); FeedbackAudio.Play(FeedbackAudio.Cue.Arrival); }
             _traderWasPresent = present;
             if (_resetArmedUntil > 0 && Time.unscaledTime > _resetArmedUntil)
             {
@@ -631,6 +667,7 @@ namespace Ravenholm.Presentation
             _storePanel.Close();
             _traderPanel.Close();
             _awayPanel.Close();
+            _settingsPanel.Close();
             _jobBoard.Close();
             _loadout.Close();
             if (_result.IsOpen) _result.Continue();

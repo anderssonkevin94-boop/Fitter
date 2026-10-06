@@ -326,6 +326,19 @@ namespace Ravenholm.EditorTools
                 s.EditorSetupStation(stationId ?? "", station.HasValue, station ?? ReceiverKind.Store);
             }
             else sr.gameObject.AddComponent<Inspectable>().EditorSetup(title, description, phase);
+            if (!string.IsNullOrEmpty(stationId))
+            {
+                // Phase 8: upgrade pennants along the roofline (hidden at level 1).
+                var flags = new List<SpriteRenderer>();
+                var top = sr.sprite.bounds.max.y;
+                for (var i = 0; i < 2; i++)
+                {
+                    var f = Sprite(sr.transform, $"Pennant{i + 2}", "Props/prop_pennant", new Vector2(-0.35f + i * 0.35f, top - 0.35f), 5);
+                    f.enabled = false;
+                    flags.Add(f);
+                }
+                sr.gameObject.AddComponent<StationLevelView>().EditorSetup(stationId, flags);
+            }
             if (footprint.HasValue) Diamond(sr.transform, footprint.Value.x, footprint.Value.y, 0.92f);
             sr.gameObject.AddComponent<ObstructionFader>();
             AddLabel(sr.transform, title, sr.sprite.bounds.max.y + 0.15f);

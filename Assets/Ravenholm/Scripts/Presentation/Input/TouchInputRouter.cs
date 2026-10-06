@@ -179,8 +179,16 @@ namespace Ravenholm.Presentation
             _current = pixels;
             _startTime = startTime;
             _movedBeyondTap = false;
-            _joystickAllowed = pixels.y <= Screen.height * _settings.movementAreaHeight;
+            _joystickAllowed = pixels.y <= Screen.height * _settings.movementAreaHeight && SideAllows(pixels.x);
             if (_joystickAllowed) _joystick.Begin(pixels / PixelsPerPoint());
+        }
+
+        /// <summary>Joystick side preference (GDD 19): the movement area can be limited to one half of the screen.</summary>
+        private static bool SideAllows(float x)
+        {
+            var root = GameRoot.Instance;
+            var side = root != null && root.Settings != null ? root.Settings.Current.JoystickSide : Services.JoystickSide.Either;
+            return side == Services.JoystickSide.Either || (side == Services.JoystickSide.Left ? x <= Screen.width * 0.5f : x >= Screen.width * 0.5f);
         }
 
         private Vector2 Drag(Vector2 pixels)

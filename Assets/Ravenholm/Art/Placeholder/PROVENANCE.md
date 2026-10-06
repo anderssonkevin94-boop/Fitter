@@ -85,6 +85,7 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Props/prop_beacon_trophy.png` | Beacon trophy: settlement monument after the final expedition |
 | `Props/prop_bell.png` | Store counter bell (sandbox persistence sample) |
 | `Props/prop_output_pad.png` | Station output pad (pallet) for finished goods |
+| `Props/prop_pennant.png` | Building level pennant (one per upgrade level) |
 | `Props/rack_armor.png` | Store armor stand |
 | `Props/rack_armor_empty.png` | Store armor stand (empty; items drawn in-engine) |
 | `Props/rack_potions.png` | Store potion shelf |

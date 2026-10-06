@@ -134,7 +134,7 @@ namespace Ravenholm.Presentation
             foreach (var r in _renderers) { var c = r.color; c.a = _alpha; r.color = c; }
 
             // Work swing (Forest is visible; Mine work happens inside the cutaway).
-            var swinging = w.State == WorkerState.Working && !hidden;
+            var swinging = w.State == WorkerState.Working && !hidden && !Feel.ReducedMotion;   // the bubble and pack still show state
             visual.localRotation = Quaternion.Euler(0f, 0f, swinging ? Mathf.Sin(Time.time * 9f) * 9f : 0f);
 
             for (var i = 0; i < _packPieces.Count; i++)

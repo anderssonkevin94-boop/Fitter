@@ -419,6 +419,7 @@ namespace Ravenholm.Presentation
                 band.rectTransform.anchoredPosition = new Vector2(0, -y);
                 band.rectTransform.sizeDelta = new Vector2(0, r.height - 6f);
                 var t = _ui.Text("Label", band.transform, r.text, _theme.smallSize - 6f, _theme.inkOnDark, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+                SandboxHud.AutoFit(t, 16f);
                 UiFactory.Stretch(t.rectTransform, 16f);
                 if (r.progress >= 0f)
                 {
@@ -460,6 +461,7 @@ namespace Ravenholm.Presentation
                 chip.rectTransform.offsetMin = new Vector2(gap * 0.5f, slots[i].current ? 0f : 60f);
                 chip.rectTransform.offsetMax = new Vector2(-gap * 0.5f, slots[i].current ? 0f : -60f);
                 var t = _ui.Text("Label", chip.transform, slots[i].text, _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+                SandboxHud.AutoFit(t, 16f);
                 UiFactory.Stretch(t.rectTransform, 12f);
                 if (!slots[i].current) continue;
                 // Tree silhouettes: one per tree, dimmed when felled.

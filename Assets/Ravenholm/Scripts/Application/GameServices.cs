@@ -29,6 +29,8 @@ namespace Ravenholm.Services
             Jobs = new JobsService(Scheduler, Logistics, Sites, Production, catalogue, balance);
             Economy = new EconomyService(Scheduler, catalogue, Jobs, Logistics, Production, Sites);
             Simulation = new SimulationService(Scheduler, Sites, Production, Jobs) { DescribeTrader = Economy.DescribeTrader };
+            Tutorial = new TutorialService(Scheduler, catalogue, Logistics, Sites, Production, Jobs, Economy);
+            Economy.TraderUsed += Tutorial.NoteTraderUsed;
         }
 
         public IClock Clock { get; }
@@ -45,6 +47,7 @@ namespace Ravenholm.Services
         public JobsService Jobs { get; }
         public EconomyService Economy { get; }
         public SimulationService Simulation { get; }
+        public TutorialService Tutorial { get; }
 
         /// <summary>
         /// Boot: load every section, catch up the time away (GDD 15), count the session, then commit

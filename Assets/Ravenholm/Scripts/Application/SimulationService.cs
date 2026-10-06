@@ -110,6 +110,19 @@ namespace Ravenholm.Services
             return report;
         }
 
+        /// <summary>
+        /// Profiling helper (tests and the device probe): a busy company for catch-up timing. Facilities hold
+        /// enough delivered raw stock to run the whole 8-hour cap, and every crew recruit is hired.
+        /// </summary>
+        public static void MakeBusyForProfiling(GameServices g)
+        {
+            foreach (var id in new[] { "resource.iron_ore", "resource.copper_ore", "resource.coal", "resource.cedar_log", "resource.maple_log" })
+                g.Logistics.System.ProduceShared(id, 20000, "profiling stock");
+            foreach (var site in g.Catalogue.Sites)
+                foreach (var w in site.Recruits) g.Sites.AddWorker(site.Id, w);
+            foreach (var st in g.Catalogue.Stations) g.Production.System.SetLevel(st.Id, st.MaxLevel);
+        }
+
         /// <summary>Simulates an absence of <paramref name="elapsedMs"/> (also the debug "time away" button).</summary>
         public AwayReport Simulate(long elapsedMs, string catchUpId)
         {
