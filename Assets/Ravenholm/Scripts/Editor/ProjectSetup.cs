@@ -76,6 +76,7 @@ namespace Ravenholm.EditorTools
 
             var catalogue = EnsureContent();
             EnsureSiteContent(catalogue);
+            EnsureProductionContent(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
@@ -231,6 +232,8 @@ namespace Ravenholm.EditorTools
             new ItemSpec { Key = "cedar_staff", Name = "Cedar Staff", Category = ItemCategory.Weapon, Power = 7, Tag = WeaponTag.Staff, BuyValue = 2 },
             new ItemSpec { Key = "riveted_coat", Name = "Riveted Coat", Category = ItemCategory.Armor, Protection = 6, BuyValue = 3 },
             new ItemSpec { Key = "recovery_tonic", Name = "Recovery Tonic", Category = ItemCategory.Potion, Effect = PotionEffect.SurvivalMargin, Strength = 4, BuyValue = 1 },
+            // Phase 3 test unlock (advanced, GDD 9): Power 10, arcane counter +4.
+            new ItemSpec { Key = "copper_ward_staff", Name = "Copper Ward Staff", Category = ItemCategory.Weapon, Power = 10, Tag = WeaponTag.Staff, BuyValue = 3 },
         };
 
         private static ContentCatalogue EnsureContent()
@@ -275,6 +278,18 @@ namespace Ravenholm.EditorTools
                 catalogue.EditorSet(resources, items);
                 EditorUtility.SetDirty(catalogue);
             }
+            else
+            {
+                // Later phases add definitions; append them without disturbing existing entries.
+                var r = new List<ResourceDefinition>(catalogue.Resources);
+                var i = new List<ItemDefinition>(catalogue.Items);
+                var changed = false;
+                foreach (var d in resources) if (!r.Contains(d)) { r.Add(d); changed = true; }
+                foreach (var d in items) if (!i.Contains(d)) { i.Add(d); changed = true; }
+                if (changed) { catalogue.EditorSet(r, i); EditorUtility.SetDirty(catalogue); }
+            }
+            var ward = AssetDatabase.LoadAssetAtPath<ItemDefinition>(ItemDir + "item_copper_ward_staff.asset");
+            if (ward != null && ward.CounterTag == CounterTag.None) { ward.EditorSetCounter(CounterTag.Arcane, 4); EditorUtility.SetDirty(ward); }
             return catalogue;
         }
 
@@ -385,6 +400,92 @@ namespace Ravenholm.EditorTools
                 var bands = new List<SiteBandDefinition>(layers);
                 bands.AddRange(zones);
                 catalogue.EditorSetSites(new List<SiteDefinition> { mine, forest }, bands, new List<WorkerDefinition> { miner, woodcutter }, equipment);
+                EditorUtility.SetDirty(catalogue);
+            }
+        }
+
+        public const string ProductionDir = Root + "Content/Production/";
+
+        /// <summary>Phase 3 content (GDD 8/9/15 balance starting points). Creates missing assets only.</summary>
+        private static void EnsureProductionContent(ContentCatalogue catalogue)
+        {
+            ResourceDefinition R(string key) => catalogue.Get<ResourceDefinition>("resource." + key);
+            ItemDefinition I(string key) => catalogue.Get<ItemDefinition>("item." + key);
+            List<ResourceCost> Cost(params (string res, int q)[] c)
+            {
+                var l = new List<ResourceCost>();
+                foreach (var (res, q) in c) l.Add(new ResourceCost { resource = R(res), quantity = q });
+                return l;
+            }
+            T Make<T>(string file, string id, string name, out bool created) where T : ContentDefinition
+            {
+                var path = ProductionDir + file + ".asset";
+                created = !File.Exists(path);
+                var a = EnsureAsset<T>(path);
+                if (created) a.EditorInitialize(id, name);
+                return a;
+            }
+
+            StationDefinition Station(string key, string name, string pad)
+            {
+                var st = Make<StationDefinition>("station_" + key, "station." + key, name, out var created);
+                if (created) { st.EditorSetupStation(pad, 6, 1, 2); EditorUtility.SetDirty(st); }
+                return st;
+            }
+            var smelter = Station("smelter", "Smelter", "");
+            var mill = Station("lumbermill", "Lumbermill", "");
+            var apothecary = Station("apothecary", "Apothecary", "container.apothecary_pad");
+            var forge = Station("forge", "Forge", "container.forge_pad");
+            var bench = Station("workbench", "Workbench", "container.workbench_pad");
+
+            ProcessDefinition Process(string key, string name, StationDefinition f, int level, List<ResourceCost> ins, string output, float seconds)
+            {
+                var p = Make<ProcessDefinition>("process_" + key, "process." + key, name, out var created);
+                if (created) { p.EditorSetupProcess(f, level, ins, R(output), 1, seconds); EditorUtility.SetDirty(p); }
+                return p;
+            }
+            var processes = new List<ProcessDefinition>
+            {
+                Process("smelt_iron", "Smelt iron", smelter, 1, Cost(("iron_ore", 2)), "iron_ingot", 4f),
+                Process("smelt_copper", "Smelt copper", smelter, 1, Cost(("copper_ore", 2)), "copper_ingot", 4f),
+                Process("make_steel", "Make steel", smelter, 2, Cost(("iron_ore", 2), ("coal", 1)), "steel_ingot", 6f),
+                Process("saw_cedar", "Saw cedar", mill, 1, Cost(("cedar_log", 2)), "cedar_lumber", 4f),
+                Process("saw_maple", "Saw maple", mill, 2, Cost(("maple_log", 2)), "maple_lumber", 5f),
+            };
+
+            var blueprints = new List<BlueprintDefinition>();
+            var recipes = new List<RecipeDefinition>();
+            void Recipe(string item, StationDefinition st, List<ResourceCost> cost, bool starter, string reveal)
+            {
+                var bp = Make<BlueprintDefinition>("blueprint_" + item, "blueprint." + item, I(item).DisplayName + " blueprint", out var bpCreated);
+                if (bpCreated) { bp.EditorSetupBlueprint(starter, reveal); EditorUtility.SetDirty(bp); }
+                var r = Make<RecipeDefinition>("recipe_" + item, "recipe." + item, I(item).DisplayName, out var rCreated);
+                if (rCreated) { r.EditorSetupRecipe(I(item), cost, st, 1, bp); EditorUtility.SetDirty(r); }
+                blueprints.Add(bp);
+                recipes.Add(r);
+            }
+            // GDD 9 starter catalogue (all owned at start, GDD 15).
+            Recipe("iron_sword", forge, Cost(("iron_ingot", 3), ("cedar_lumber", 1)), true, "A dependable blade for warriors.");
+            Recipe("cedar_bow", bench, Cost(("cedar_lumber", 3), ("iron_ingot", 1)), true, "A light bow for rangers.");
+            Recipe("iron_dagger", forge, Cost(("iron_ingot", 2), ("cedar_lumber", 1)), true, "A quick blade for rogues.");
+            Recipe("cedar_staff", bench, Cost(("cedar_lumber", 3), ("copper_ingot", 1)), true, "A plain staff for mages.");
+            Recipe("riveted_coat", forge, Cost(("iron_ingot", 3), ("cedar_lumber", 2)), true, "Basic armor for any class.");
+            Recipe("recovery_tonic", apothecary, Cost(("herb", 2)), true, "Adds survival margin once if things go badly.");
+            // The one advanced recipe for Phase 3 testing (normally from the Old Shrine's first success).
+            Recipe("copper_ward_staff", bench, Cost(("cedar_lumber", 3), ("copper_ingot", 3)), false, "A staff that wards against arcane threats.");
+
+            var startPath = ConfigDir + "StartingState.asset";
+            var startCreated = !File.Exists(startPath);
+            var start = EnsureAsset<StartingState>(startPath);
+            if (startCreated)
+            {
+                start.EditorSetup(Cost(("iron_ingot", 6), ("cedar_lumber", 6), ("copper_ingot", 1), ("herb", 2)));
+                EditorUtility.SetDirty(start);
+            }
+
+            if (catalogue.Stations.Count == 0)
+            {
+                catalogue.EditorSetProduction(new List<StationDefinition> { smelter, mill, apothecary, forge, bench }, processes, recipes, blueprints, start);
                 EditorUtility.SetDirty(catalogue);
             }
         }

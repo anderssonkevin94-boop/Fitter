@@ -24,6 +24,7 @@ namespace Ravenholm.Services
             Sandbox = new SandboxSession(Scheduler);
             Logistics = new LogisticsService(Scheduler, new CatalogueAcceptanceRules(catalogue), TuningFrom(balance));
             Sites = new SitesService(Scheduler, Logistics, catalogue);
+            Production = new ProductionService(Scheduler, Logistics, Sites, catalogue);
         }
 
         public IClock Clock { get; }
@@ -36,6 +37,7 @@ namespace Ravenholm.Services
         public SandboxSession Sandbox { get; }
         public LogisticsService Logistics { get; }
         public SitesService Sites { get; }
+        public ProductionService Production { get; }
 
         /// <summary>Loads every save section and records the session. Call once after construction.</summary>
         public void Start() => Sandbox.Start();

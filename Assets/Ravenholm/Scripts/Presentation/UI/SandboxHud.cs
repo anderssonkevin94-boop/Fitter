@@ -40,6 +40,8 @@ namespace Ravenholm.Presentation
         private TextMeshProUGUI _infoBody;
         private GameObject _debugLayer;
         private SitePanel _sitePanel;
+        private StationPanel _stationPanel;
+        private StorePanel _storePanel;
         private TextMeshProUGUI _speedButtonText;
         private TextMeshProUGUI _debugStatus;
         private TextMeshProUGUI _labelsButtonText;
@@ -52,6 +54,20 @@ namespace Ravenholm.Presentation
         public bool IsInfoOpen => _infoLayer != null && _infoLayer.activeSelf;
         public bool IsDebugOpen => _debugLayer != null && _debugLayer.activeSelf;
         public SitePanel SitePanel => _sitePanel;
+        public StationPanel StationPanel => _stationPanel;
+        public StorePanel StorePanel => _storePanel;
+
+        public void ShowStation(StationInspectable station)
+        {
+            HideInfo();
+            _stationPanel.Show(station);
+        }
+
+        public void ShowStore()
+        {
+            HideInfo();
+            _storePanel.Show();
+        }
 
         /// <summary>Opens the Mine or Forest panel (strata or trail, decisions).</summary>
         public void ShowSite(string siteId)
@@ -113,6 +129,8 @@ namespace Ravenholm.Presentation
             BuildJoystick();
             BuildInfoLayer(safe);
             _sitePanel = SitePanel.Create(safe, _ui, root);
+            _stationPanel = StationPanel.Create(safe, _ui, root);
+            _storePanel = StorePanel.Create(safe, _ui, root);
             BuildDebugLayer(safe);
 
             _root.Services.Saves.StatusChanged += _ => Refresh();
@@ -162,7 +180,7 @@ namespace Ravenholm.Presentation
             var banner = _ui.Panel("PhaseBanner", safe, _theme.panelDark);
             UiFactory.Place(banner.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180f), new Vector2(560f, 76f));
             banner.raycastTarget = false;
-            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 2", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 3", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(bt.rectTransform, 8f);
         }
 
@@ -302,7 +320,7 @@ namespace Ravenholm.Presentation
             var panel = _ui.Panel("Panel", layer, _theme.panel);
             UiFactory.Stretch(panel.rectTransform, 28f);
 
-            var title = _ui.Text("Title", panel.transform, "Debug · Phase 2", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            var title = _ui.Text("Title", panel.transform, "Debug · Phase 3", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             UiFactory.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(800f, 80f));
 
             // Scrollable body so the panel fits short (16:9) and tall phones alike.
@@ -369,6 +387,20 @@ namespace Ravenholm.Presentation
             {
                 _root.Services.Sites.ResetMeasurements();
                 Report("Throughput measurement restarted for both sites.");
+            }, out _);
+            _ui.Button("Blueprint", content, "Grant test blueprint: Copper ward staff", () =>
+            {
+                _root.Services.Production.DebugGrantBlueprint("blueprint.copper_ward_staff");
+                Report("Test unlock granted: Copper ward staff (Workbench). Advanced recipes otherwise come from quests (Phase 5).");
+            }, out _);
+            _ui.Button("Materials", content, "Add test materials (ingots, lumber, herbs)", () =>
+            {
+                var c = _root.Services.Catalogue;
+                var grant = new System.Collections.Generic.List<Content.ResourceCost>();
+                foreach (var (id, q) in new[] { ("resource.iron_ingot", 10), ("resource.copper_ingot", 6), ("resource.cedar_lumber", 10), ("resource.herb", 6) })
+                    grant.Add(new Content.ResourceCost { resource = c.Get<Content.ResourceDefinition>(id), quantity = q });
+                _root.Services.Production.DebugGrantMaterials(grant);
+                Report("Added 10 iron ingots, 6 copper ingots, 10 cedar lumber, 6 herbs to shared inventory (debug source).");
             }, out _);
             _ui.Button("Validate", content, "Validate content", ValidateContent, out _);
 
@@ -454,6 +486,8 @@ namespace Ravenholm.Presentation
             if (IsDebugOpen) return;
             HideInfo();
             _sitePanel.Close();
+            _stationPanel.Close();
+            _storePanel.Close();
             _debugLayer.SetActive(true);
             TouchInputRouter.PushModal();
             _debugMessage = "";
@@ -576,7 +610,15 @@ namespace Ravenholm.Presentation
             sb.Append('\n');
             sb.Append("Shared: ");
             foreach (var kv in st.SharedMaterials) sb.Append($"{UnitVisuals.DisplayName(kv.Key)} {kv.Value}  ");
-            sb.Append($"\nStore items: {st.StoreItems.Count}  ·  item instances: {st.ItemDefinitions.Count}\n\n");
+            sb.Append($"\nStore items: {st.StoreItems.Count}  ·  item instances: {st.ItemDefinitions.Count}\n");
+            sb.Append("Recent transactions:\n");
+            var shown = 0;
+            foreach (var t in _root.Services.Logistics.System.History)
+            {
+                if (shown++ >= 8) break;
+                sb.Append("  ").Append(UnitVisuals.PrettyIds(t.ToString())).Append('\n');
+            }
+            sb.Append('\n');
 
             var r = _root.Services.ContentReport;
             sb.Append("<b>Content</b>\n").Append(r.IsValid ? $"OK: {r.DefinitionCount} definitions" : $"<color=#B44034>{r.Errors.Count} errors</color>").Append("\n\n");

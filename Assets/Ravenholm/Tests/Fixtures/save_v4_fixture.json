@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 4,
+  "gameBuild": "0.0.1",
+  "contentVersion": 1,
+  "profile": "sandbox",
+  "worldSeed": "4806365435330354309",
+  "saveGeneration": 55,
+  "lastAcceptedUtc": "2026-10-06T04:00:00Z",
+  "sandbox": { "bellRingCount": 4, "sessionCount": 4, "playerX": 0, "playerY": 0 },
+  "logistics": {
+    "carry": [],
+    "containers": [ { "id": "container.mine_staging", "kind": "RawPile", "materials": { "resource.iron_ore": 6 }, "items": [] } ],
+    "shared": {},
+    "store": [],
+    "itemDefinitions": {},
+    "materialsCreated": { "resource.iron_ore": 6 },
+    "nextInstance": 1
+  },
+  "sites": [
+    {
+      "siteId": "site.mine", "depth": 1, "k": 0, "sectionsCompleted": 0, "status": "Working", "simMs": 12000,
+      "rngState": "123", "rngInc": "457",
+      "composition": { "weights": [ { "id": "resource.iron_ore", "w": 0.8 }, { "id": "resource.copper_ore", "w": 0.2 } ], "rare": "resource.gem", "rareChance": 0.01 },
+      "revealed": {},
+      "sectionDurabilityMicro": 240000, "sectionDoneMicro": 60000, "sectionEmitted": 6,
+      "facePending": [], "nextRecipient": 0, "trees": [],
+      "workers": [ { "id": "worker.dagna", "name": "Dagna Holt", "tool": "equipment.tool_basic", "pack": "equipment.pack_basic", "state": "WalkToWork", "phaseStartMs": 11000, "phaseEndMs": 13500, "targetTree": -1, "carried": [] } ],
+      "depositedTotal": 6, "measureStartMs": 0, "depositedSinceMeasure": 6
+    }
+  ]
+}

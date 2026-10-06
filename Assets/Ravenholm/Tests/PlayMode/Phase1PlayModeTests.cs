@@ -54,7 +54,7 @@ namespace Ravenholm.Tests
             for (var i = 0; i < 3; i++) yield return null;
         }
 
-        /// <summary>Test fixture: the Phase 1 starting contents of both staging piles (25 and 26 units).</summary>
+        /// <summary>Test fixture: the Phase 1 contents of both staging piles (25 and 26 units) and the Forge pad (5 items).</summary>
         private static void SeedStaging()
         {
             if (Sys.State.Containers["container.mine_staging"].UnitCount > 0) return;
@@ -64,6 +64,8 @@ namespace Ravenholm.Tests
             Sys.CreateMaterialsInContainer("container.forest_staging", "resource.cedar_log", 16);
             Sys.CreateMaterialsInContainer("container.forest_staging", "resource.maple_log", 4);
             Sys.CreateMaterialsInContainer("container.forest_staging", "resource.herb", 6);
+            foreach (var item in new[] { "item.iron_sword", "item.iron_sword", "item.iron_dagger", "item.riveted_coat", "item.riveted_coat" })
+                Sys.CreateItemInContainer("container.forge_pad", item);
         }
 
         private static IEnumerator KillRoot()

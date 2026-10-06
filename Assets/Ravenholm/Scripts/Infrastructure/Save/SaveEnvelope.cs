@@ -12,7 +12,7 @@ namespace Ravenholm.Infrastructure.Save
     public sealed class SaveEnvelope
     {
         /// <summary>Current schema written by this build. Bump it and add a migration when the shape changes.</summary>
-        public const int CurrentSchemaVersion = 4;
+        public const int CurrentSchemaVersion = 5;
 
         [JsonProperty("schemaVersion", Required = Required.Always)] public int SchemaVersion = CurrentSchemaVersion;
         [JsonProperty("gameBuild")] public string GameBuild = "";
@@ -33,6 +33,9 @@ namespace Ravenholm.Infrastructure.Save
 
         /// <summary>Gathering sites and their workers (schema 4+). Null means "never saved": sites start fresh.</summary>
         [JsonProperty("sites")] public List<SiteSaveData> Sites;
+
+        /// <summary>Processing lines, facility levels and owned blueprints (schema 5+). Null = fresh start (starting stock granted).</summary>
+        [JsonProperty("production")] public ProductionSaveData Production;
 
         public ulong GetWorldSeed() => ulong.Parse(WorldSeed, System.Globalization.CultureInfo.InvariantCulture);
 
@@ -57,6 +60,7 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("store")] public List<string> StoreItems = new List<string>();
         [JsonProperty("itemDefinitions")] public SortedDictionary<string, string> ItemDefinitions = new SortedDictionary<string, string>();
         [JsonProperty("materialsCreated")] public SortedDictionary<string, long> MaterialsCreated = new SortedDictionary<string, long>();
+        [JsonProperty("materialsConsumed")] public SortedDictionary<string, long> MaterialsConsumed = new SortedDictionary<string, long>();
         [JsonProperty("nextInstance")] public long NextInstanceNumber = 1;
     }
 
@@ -143,5 +147,26 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("phaseEndMs")] public long PhaseEndMs;
         [JsonProperty("targetTree")] public int TargetTree = -1;
         [JsonProperty("carried")] public List<string> Carried = new List<string>();
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class ProductionSaveData
+    {
+        [JsonProperty("simMs")] public long SimMs;
+        [JsonProperty("processors")] public List<ProcessorSaveData> Processors = new List<ProcessorSaveData>();
+        [JsonProperty("levels")] public SortedDictionary<string, int> FacilityLevels = new SortedDictionary<string, int>();
+        [JsonProperty("blueprints")] public List<string> Blueprints = new List<string>();
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class ProcessorSaveData
+    {
+        [JsonProperty("facility")] public string Facility;
+        [JsonProperty("selected")] public string Selected;
+        [JsonProperty("queued")] public string Queued;
+        [JsonProperty("inFlight")] public string InFlight;
+        [JsonProperty("startMs")] public long StartMs;
+        [JsonProperty("endMs")] public long EndMs;
+        [JsonProperty("reserves")] public SortedDictionary<string, int> Reserves = new SortedDictionary<string, int>();
     }
 }

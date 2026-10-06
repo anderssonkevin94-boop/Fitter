@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Ravenholm.Content;
 using Ravenholm.Domain.Logistics;
 using UnityEngine;
@@ -17,6 +18,12 @@ namespace Ravenholm.Presentation
             var def = root.Services.Logistics.System.DefinitionOf(unit);
             return def != null && cat.TryGet<ItemDefinition>(def, out var i) ? i.StackSprite : null;
         }
+
+        private static readonly Regex IdPattern = new Regex(@"\b[a-z]+\.[a-z0-9_]+\b");
+
+        /// <summary>Replaces content IDs inside a message (e.g. a blocked reason) with display names.</summary>
+        public static string PrettyIds(string text) =>
+            string.IsNullOrEmpty(text) ? text : IdPattern.Replace(text, m => DisplayName(m.Value));
 
         public static string DisplayName(string definitionId)
         {

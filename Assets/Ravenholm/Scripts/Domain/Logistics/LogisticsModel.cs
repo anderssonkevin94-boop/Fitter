@@ -147,6 +147,24 @@ namespace Ravenholm.Domain.Logistics
         /// <summary>Total material units ever created per resource (approved sources), used by the conservation audit.</summary>
         public readonly SortedDictionary<string, long> MaterialsCreated = new SortedDictionary<string, long>(StringComparer.Ordinal);
 
+        /// <summary>Total material units ever consumed per resource (processing inputs, crafting costs).</summary>
+        public readonly SortedDictionary<string, long> MaterialsConsumed = new SortedDictionary<string, long>(StringComparer.Ordinal);
+
         public long NextInstanceNumber = 1;
+    }
+
+    /// <summary>One entry of the bounded, unsaved transaction history shown in the debug panel (GDD 8).</summary>
+    public readonly struct TransactionRecord
+    {
+        public readonly string Reason;
+        public readonly string Detail;
+
+        public TransactionRecord(string reason, string detail)
+        {
+            Reason = reason;
+            Detail = detail;
+        }
+
+        public override string ToString() => $"{Reason}: {Detail}";
     }
 }

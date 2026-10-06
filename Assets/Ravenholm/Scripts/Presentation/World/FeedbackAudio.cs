@@ -8,7 +8,7 @@ namespace Ravenholm.Presentation
     /// </summary>
     public sealed class FeedbackAudio : MonoBehaviour
     {
-        public enum Cue { Pickup, Deliver, Full }
+        public enum Cue { Pickup, Deliver, Full, Craft }
 
         private static FeedbackAudio _instance;
 
@@ -16,7 +16,7 @@ namespace Ravenholm.Presentation
         [SerializeField] private float minInterval = 0.06f;
 
         private AudioSource _source;
-        private AudioClip _pickup, _deliver, _full;
+        private AudioClip _pickup, _deliver, _full, _craft;
         private float _lastPlay;
         private int _streak;
 
@@ -33,6 +33,7 @@ namespace Ravenholm.Presentation
             _pickup = Blip("pickup", 1250f, 0.045f, 0.5f);
             _deliver = Blip("deliver", 520f, 0.07f, 0.6f);
             _full = Blip("full", 220f, 0.12f, 0.5f);
+            _craft = Blip("craft", 880f, 0.16f, 0.8f);
         }
 
         private void OnDestroy()
@@ -43,6 +44,7 @@ namespace Ravenholm.Presentation
         private void PlayInternal(Cue cue)
         {
             var now = Time.unscaledTime;
+            if (cue == Cue.Craft) { _source.pitch = 1f; _source.PlayOneShot(_craft, volume); return; }
             if (cue != Cue.Full && now - _lastPlay < minInterval) return;
             _streak = now - _lastPlay < 0.4f ? Mathf.Min(_streak + 1, 8) : 0;
             _lastPlay = now;

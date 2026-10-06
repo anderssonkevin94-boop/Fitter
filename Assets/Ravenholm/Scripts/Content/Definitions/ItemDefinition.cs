@@ -22,6 +22,17 @@ namespace Ravenholm.Content
         Staff,
     }
 
+    /// <summary>Threat a property helps counter (GDD 12/17). Used by the Phase 5 resolver; displayed from Phase 3.</summary>
+    public enum CounterTag
+    {
+        None,
+        Arcane,
+        Poison,
+        Exploration,
+        Traps,
+        HeavyBlows,
+    }
+
     public enum PotionEffect
     {
         None,
@@ -54,6 +65,10 @@ namespace Ravenholm.Content
         [Tooltip("Potions only. Effect strength (e.g. +4 survival margin).")]
         [Min(0)] [SerializeField] private int potionStrength;
 
+        [Tooltip("Contextual property: which threat this item helps counter, if any.")]
+        [SerializeField] private CounterTag counterTag;
+        [Min(0)] [SerializeField] private int counterStrength;
+
         [Tooltip("Gold the periodic Trader pays for one unit. Deliberately poor (GDD 15).")]
         [Min(0)] [SerializeField] private int traderBuyValue;
 
@@ -68,6 +83,34 @@ namespace Ravenholm.Content
         public PotionEffect PotionEffect => potionEffect;
         public int PotionStrength => potionStrength;
         public int TraderBuyValue => traderBuyValue;
+        public CounterTag CounterTag => counterTag;
+        public int CounterStrength => counterStrength;
+
+        /// <summary>Short stat line for cards, e.g. "Power 10 · arcane counter +4".</summary>
+        public string StatLine()
+        {
+            string main;
+            switch (category)
+            {
+                case ItemCategory.Weapon: main = $"Power {power} · {Readable(weaponTag.ToString())} weapon"; break;
+                case ItemCategory.Armor: main = $"Protection {protection}"; break;
+                default: main = $"{Readable(potionEffect.ToString())} +{potionStrength}"; break;
+            }
+            return counterTag == CounterTag.None ? main : $"{main} · {Readable(counterTag.ToString()).ToLowerInvariant()} counter +{counterStrength}";
+        }
+
+        /// <summary>"LightBlade" → "Light blade".</summary>
+        private static string Readable(string pascal)
+        {
+            var sb = new System.Text.StringBuilder();
+            for (var i = 0; i < pascal.Length; i++)
+            {
+                var c = pascal[i];
+                if (i > 0 && char.IsUpper(c)) sb.Append(' ').Append(char.ToLowerInvariant(c));
+                else sb.Append(c);
+            }
+            return sb.ToString();
+        }
         public Sprite Icon => icon;
         public Sprite StackSprite => stackSprite;
 
@@ -95,6 +138,12 @@ namespace Ravenholm.Content
         }
 
 #if UNITY_EDITOR
+        public void EditorSetCounter(CounterTag tag, int strength)
+        {
+            counterTag = tag;
+            counterStrength = strength;
+        }
+
         public void EditorSetup(ItemCategory newCategory, int newPower, int newProtection, WeaponTag tag,
             PotionEffect effect, int strength, int buyValue, Sprite newIcon, Sprite newStack)
         {

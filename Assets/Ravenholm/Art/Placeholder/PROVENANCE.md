@@ -28,6 +28,7 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Characters/ov_woodcutter.png` | Overlay: woodcutter cap, tunic, axe |
 | `Icons/Items/icon_cedar_bow.png` | Icon: cedar bow |
 | `Icons/Items/icon_cedar_staff.png` | Icon: cedar staff |
+| `Icons/Items/icon_copper_ward_staff.png` | Icon: copper ward staff |
 | `Icons/Items/icon_iron_dagger.png` | Icon: iron dagger |
 | `Icons/Items/icon_iron_sword.png` | Icon: iron sword |
 | `Icons/Items/icon_recovery_tonic.png` | Icon: recovery tonic |
@@ -65,8 +66,11 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Props/prop_bell.png` | Store counter bell (sandbox persistence sample) |
 | `Props/prop_output_pad.png` | Station output pad (pallet) for finished goods |
 | `Props/rack_armor.png` | Store armor stand |
+| `Props/rack_armor_empty.png` | Store armor stand (empty; items drawn in-engine) |
 | `Props/rack_potions.png` | Store potion shelf |
+| `Props/rack_potions_empty.png` | Store potion shelf (empty; items drawn in-engine) |
 | `Props/rack_weapons.png` | Store weapon rack |
+| `Props/rack_weapons_empty.png` | Store weapon rack (empty; items drawn in-engine) |
 | `Props/receiver_zone.png` | Receiver zone ground marker (dashed diamond) |
 | `Props/trail_marker.png` | Forest trail marker post (one per area reached) |
 | `Props/ui_bubble.png` | World icon bubble above receivers |
@@ -78,6 +82,7 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Stacks/stack_coal.png` | Carry/stack piece: coal |
 | `Stacks/stack_copper_ingot.png` | Carry/stack piece: copper ingot |
 | `Stacks/stack_copper_ore.png` | Carry/stack piece: copper ore |
+| `Stacks/stack_copper_ward_staff.png` | Carry/stack piece: copper ward staff |
 | `Stacks/stack_fur.png` | Carry/stack piece: fur |
 | `Stacks/stack_gem.png` | Carry/stack piece: gem |
 | `Stacks/stack_herb.png` | Carry/stack piece: herb |

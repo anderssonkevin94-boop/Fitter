@@ -15,6 +15,7 @@ namespace Ravenholm.Infrastructure.Save
             { 1, MigrateV1ToV2 },
             { 2, MigrateV2ToV3 },
             { 3, MigrateV3ToV4 },
+            { 4, MigrateV4ToV5 },
         };
 
         /// <summary>Migrates <paramref name="root"/> in place up to the current schema.</summary>
@@ -45,6 +46,16 @@ namespace Ravenholm.Infrastructure.Save
             // Schema 1 used "version"; later schemas use "schemaVersion".
             var token = root["schemaVersion"] ?? root["version"];
             return token != null && token.Type == JTokenType.Integer ? token.Value<int>() : 0;
+        }
+
+        /// <summary>
+        /// Schema 5 (Phase 3) adds "production" and the consumption ledger. Older saves receive the
+        /// starting stock and starter blueprints on first load, as a new company would.
+        /// </summary>
+        private static void MigrateV4ToV5(JObject o)
+        {
+            if (o["production"] == null) o["production"] = JValue.CreateNull();
+            if (o["logistics"] is JObject l && l["materialsConsumed"] == null) l["materialsConsumed"] = new JObject();
         }
 
         /// <summary>Schema 4 (Phase 2) adds "sites". Older saves start every site fresh at band 1.</summary>

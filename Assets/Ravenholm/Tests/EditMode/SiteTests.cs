@@ -374,7 +374,7 @@ namespace Ravenholm.Tests
             var json = File.ReadAllText("Assets/Ravenholm/Tests/Fixtures/save_v3_fixture.json");
             Assert.IsTrue(Infrastructure.Save.SaveSerializer.TryFromJson(json, out var env, out var from, out var err), err);
             Assert.AreEqual(3, from);
-            Assert.AreEqual(4, env.SchemaVersion);
+            Assert.AreEqual(Infrastructure.Save.SaveEnvelope.CurrentSchemaVersion, env.SchemaVersion);
             Assert.IsNull(env.Sites);
             Assert.AreEqual(2, env.Logistics.Carry.Count);
         }

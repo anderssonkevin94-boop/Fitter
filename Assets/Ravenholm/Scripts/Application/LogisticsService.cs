@@ -132,6 +132,7 @@ namespace Ravenholm.Services
             d.StoreItems.AddRange(_state.StoreItems);
             foreach (var kv in _state.ItemDefinitions) d.ItemDefinitions[kv.Key] = kv.Value;
             foreach (var kv in _state.MaterialsCreated) d.MaterialsCreated[kv.Key] = kv.Value;
+            foreach (var kv in _state.MaterialsConsumed) d.MaterialsConsumed[kv.Key] = kv.Value;
             env.Logistics = d;
         }
 
@@ -143,6 +144,7 @@ namespace Ravenholm.Services
             _state.StoreItems.Clear();
             _state.ItemDefinitions.Clear();
             _state.MaterialsCreated.Clear();
+            _state.MaterialsConsumed.Clear();
             _state.NextInstanceNumber = 1;
             // Receivers are scene geometry, not saved state; they stay registered.
 
@@ -152,6 +154,7 @@ namespace Ravenholm.Services
                 _state.NextInstanceNumber = Math.Max(1, d.NextInstanceNumber);
                 foreach (var kv in d.ItemDefinitions) _state.ItemDefinitions[kv.Key] = kv.Value;
                 foreach (var kv in d.MaterialsCreated) _state.MaterialsCreated[kv.Key] = kv.Value;
+                if (d.MaterialsConsumed != null) foreach (var kv in d.MaterialsConsumed) _state.MaterialsConsumed[kv.Key] = kv.Value;
                 foreach (var kv in d.SharedMaterials) _state.SharedMaterials[kv.Key] = kv.Value;
                 _state.StoreItems.AddRange(d.StoreItems);
                 _state.StoreItems.Sort(StringComparer.Ordinal);

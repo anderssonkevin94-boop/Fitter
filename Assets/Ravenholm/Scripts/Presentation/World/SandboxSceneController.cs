@@ -62,6 +62,7 @@ namespace Ravenholm.Presentation
 
             // Simulation keeps running during menus (GDD 2); only direct movement stops under a modal.
             _root.Services.Sites.Tick(Time.deltaTime);
+            _root.Services.Production.Tick(Time.deltaTime);
             // Pickup and delivery are automatic and never depend on the context button (GDD 3).
             _root.Services.Logistics.System.Tick(Time.deltaTime, player.position.x, player.position.y);
 

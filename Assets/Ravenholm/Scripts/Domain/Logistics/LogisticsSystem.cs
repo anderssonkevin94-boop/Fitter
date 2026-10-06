@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Ravenholm.Domain.Production;
 using Ravenholm.Domain.Sites;
 
 namespace Ravenholm.Domain.Logistics
@@ -18,12 +19,14 @@ namespace Ravenholm.Domain.Logistics
     /// either fully commits or changes nothing. Events fire only after the state change.
     /// Presentation feeds the player position; it never edits containers directly.
     /// </summary>
-    public sealed class LogisticsSystem : ISiteLedger
+    public sealed class LogisticsSystem : ISiteLedger, IProductionLedger
     {
         private readonly LogisticsState _s;
         private readonly IAcceptanceRules _rules;
         private readonly LogisticsTuning _tuning;
         private readonly List<Func<IEnumerable<string>>> _externalHolders = new List<Func<IEnumerable<string>>>();
+        private readonly LinkedList<TransactionRecord> _history = new LinkedList<TransactionRecord>();
+        public const int HistoryLimit = 40;
         private float _accumulator;
         private bool _fullNotified;
 
@@ -134,6 +137,7 @@ namespace Ravenholm.Domain.Logistics
                 _s.Carry.RemoveAt(i);
                 if (unit.Kind == UnitKind.Material) Add(_s.SharedMaterials, unit.Id, 1);
                 else InsertSorted(_s.StoreItems, unit.Id);
+                Log("delivered", $"{unit.Id} → {zone.Id}");
 
                 _fullNotified = false;
                 Delivered?.Invoke(zone.Id, unit);
@@ -238,6 +242,73 @@ namespace Ravenholm.Domain.Logistics
             Changed?.Invoke();
         }
 
+        // ------------------------------------------------------------------ shared ledger (IProductionLedger)
+
+        /// <summary>Most recent first; bounded and not saved (diagnosis only).</summary>
+        public IEnumerable<TransactionRecord> History => _history;
+
+        private void Log(string reason, string detail)
+        {
+            _history.AddFirst(new TransactionRecord(reason, detail));
+            while (_history.Count > HistoryLimit) _history.RemoveLast();
+        }
+
+        public int SharedAvailable(string resourceId) => _s.SharedMaterials.TryGetValue(resourceId, out var q) ? q : 0;
+
+        public bool TryConsumeShared(IReadOnlyList<KeyValuePair<string, int>> costs, string reason)
+        {
+            foreach (var c in costs) if (SharedAvailable(c.Key) < c.Value) return false;
+            foreach (var c in costs)
+            {
+                Add(_s.SharedMaterials, c.Key, -c.Value);
+                AddLong(_s.MaterialsConsumed, c.Key, c.Value);
+            }
+            Log(reason, Describe(costs, "-"));
+            Changed?.Invoke();
+            return true;
+        }
+
+        public void ProduceShared(string resourceId, int quantity, string reason)
+        {
+            if (quantity <= 0) return;
+            Add(_s.SharedMaterials, resourceId, quantity);
+            AddLong(_s.MaterialsCreated, resourceId, quantity);
+            Log(reason, $"+{quantity} {resourceId}");
+            Changed?.Invoke();
+        }
+
+        public int ContainerUnitCount(string containerId) => _s.Containers.TryGetValue(containerId, out var c) ? c.UnitCount : 0;
+
+        public bool TryCraftToPad(IReadOnlyList<KeyValuePair<string, int>> costs, string itemDefinitionId, string padId, int padCapacity, string reason,
+            out string instanceId, out string failure)
+        {
+            instanceId = null;
+            if (!_s.Containers.TryGetValue(padId, out var pad)) { failure = "Output pad is not in this scene"; return false; }
+            if (pad.UnitCount >= padCapacity) { failure = "Output pad full"; return false; }
+            foreach (var c in costs)
+                if (SharedAvailable(c.Key) < c.Value) { failure = $"Missing {c.Value - SharedAvailable(c.Key)}× {c.Key}"; return false; }
+
+            foreach (var c in costs)
+            {
+                Add(_s.SharedMaterials, c.Key, -c.Value);
+                AddLong(_s.MaterialsConsumed, c.Key, c.Value);
+            }
+            instanceId = $"inst.{_s.NextInstanceNumber++:D6}";
+            _s.ItemDefinitions.Add(instanceId, itemDefinitionId);
+            InsertSorted(pad.Items, instanceId);
+            Log(reason, $"{itemDefinitionId} ({instanceId}) {Describe(costs, "-")}");
+            failure = null;
+            Changed?.Invoke();
+            return true;
+        }
+
+        private static string Describe(IReadOnlyList<KeyValuePair<string, int>> costs, string sign)
+        {
+            var parts = new List<string>();
+            foreach (var c in costs) parts.Add($"{sign}{c.Value} {c.Key}");
+            return string.Join(", ", parts);
+        }
+
         /// <summary>DEBUG: empties the carry into Store/shared inventory regardless of receivers ("Store return").</summary>
         public int DebugUnloadCarry()
         {
@@ -275,13 +346,14 @@ namespace Ravenholm.Domain.Logistics
             }
             foreach (var holder in _externalHolders)
                 foreach (var unit in holder()) AddLong(held, unit, 1);
+            foreach (var kv in _s.MaterialsConsumed) AddLong(held, kv.Key, kv.Value);   // consumed units are accounted for, not missing
             var keys = new SortedSet<string>(held.Keys, StringComparer.Ordinal);
             keys.UnionWith(_s.MaterialsCreated.Keys);
             foreach (var k in keys)
             {
                 held.TryGetValue(k, out var h);
                 _s.MaterialsCreated.TryGetValue(k, out var made);
-                if (h != made) problems.Add($"{k}: {h} held but {made} created");
+                if (h != made) problems.Add($"{k}: {h} held or consumed but {made} created");
             }
 
             // Items: every instance has exactly one owner.

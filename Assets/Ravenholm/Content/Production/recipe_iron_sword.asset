@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b68138b169594ccd9f5483367190cb3, type: 3}
+  m_Name: recipe_iron_sword
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.RecipeDefinition
+  id: recipe.iron_sword
+  displayName: Iron Sword
+  contentVersion: 1
+  outputItem: {fileID: 11400000, guid: 17bb90e7d821742cd9a441655d73fdba, type: 2}
+  quantity: 1
+  cost:
+  - resource: {fileID: 11400000, guid: 7c9623d2f89ef4f0bb58c106302da3e3, type: 2}
+    quantity: 3
+  - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
+    quantity: 1
+  station: {fileID: 11400000, guid: 8279030b2932a401294be343f1e4c40a, type: 2}
+  minFacilityLevel: 1
+  requiredBlueprint: {fileID: 11400000, guid: 9e61f2bac14e240a19556a5152b4b072, type: 2}

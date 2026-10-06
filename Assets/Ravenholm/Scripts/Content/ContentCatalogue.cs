@@ -27,6 +27,11 @@ namespace Ravenholm.Content
         [SerializeField] private List<SiteBandDefinition> bands = new List<SiteBandDefinition>();
         [SerializeField] private List<WorkerDefinition> workers = new List<WorkerDefinition>();
         [SerializeField] private List<WorkerEquipmentDefinition> equipment = new List<WorkerEquipmentDefinition>();
+        [SerializeField] private List<StationDefinition> stations = new List<StationDefinition>();
+        [SerializeField] private List<ProcessDefinition> processes = new List<ProcessDefinition>();
+        [SerializeField] private List<RecipeDefinition> recipes = new List<RecipeDefinition>();
+        [SerializeField] private List<BlueprintDefinition> blueprints = new List<BlueprintDefinition>();
+        [SerializeField] private StartingState startingState;
 
         private Dictionary<string, ContentDefinition> _byId;
 
@@ -36,6 +41,11 @@ namespace Ravenholm.Content
         public IReadOnlyList<SiteBandDefinition> Bands => bands;
         public IReadOnlyList<WorkerDefinition> Workers => workers;
         public IReadOnlyList<WorkerEquipmentDefinition> Equipment => equipment;
+        public IReadOnlyList<StationDefinition> Stations => stations;
+        public IReadOnlyList<ProcessDefinition> Processes => processes;
+        public IReadOnlyList<RecipeDefinition> Recipes => recipes;
+        public IReadOnlyList<BlueprintDefinition> Blueprints => blueprints;
+        public StartingState StartingState => startingState;
 
         public IEnumerable<ContentDefinition> All()
         {
@@ -45,6 +55,10 @@ namespace Ravenholm.Content
             foreach (var x in bands) yield return x;
             foreach (var x in workers) yield return x;
             foreach (var x in equipment) yield return x;
+            foreach (var x in stations) yield return x;
+            foreach (var x in processes) yield return x;
+            foreach (var x in recipes) yield return x;
+            foreach (var x in blueprints) yield return x;
         }
 
         public bool TryGet<T>(string id, out T definition) where T : ContentDefinition
@@ -100,6 +114,18 @@ namespace Ravenholm.Content
                     else workerSites[w] = site;
                 }
             }
+
+            // Every item with a recipe must reach a blueprint; blueprints should unlock something.
+            foreach (var bp in blueprints)
+                if (bp != null && !recipes.Exists(r => r != null && r.RequiredBlueprint == bp))
+                    report.Errors.Add($"{bp.Describe()}: unlocks no recipe");
+            foreach (var r in recipes)
+            {
+                if (r == null) continue;
+                if (r.RequiredBlueprint != null && !blueprints.Contains(r.RequiredBlueprint)) report.Errors.Add($"{r.Describe()}: blueprint not in the catalogue");
+                if (r.Station != null && !stations.Contains(r.Station)) report.Errors.Add($"{r.Describe()}: station not in the catalogue");
+            }
+            if (recipes.Count > 0 && startingState == null) report.Errors.Add("Content catalogue has recipes but no StartingState");
             return report;
         }
 
@@ -119,6 +145,17 @@ namespace Ravenholm.Content
         {
             resources = newResources;
             items = newItems;
+            _byId = null;
+        }
+
+        public void EditorSetProduction(List<StationDefinition> newStations, List<ProcessDefinition> newProcesses, List<RecipeDefinition> newRecipes,
+            List<BlueprintDefinition> newBlueprints, StartingState start)
+        {
+            stations = newStations;
+            processes = newProcesses;
+            recipes = newRecipes;
+            blueprints = newBlueprints;
+            startingState = start;
             _byId = null;
         }
 

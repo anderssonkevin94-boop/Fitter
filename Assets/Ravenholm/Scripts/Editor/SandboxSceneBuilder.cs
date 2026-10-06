@@ -74,19 +74,19 @@ namespace Ravenholm.EditorTools
             // --- buildings (positions are footprint centres in world units) ---
             var store = Building(buildings, "Store", "bld_store", new Vector2(0f, 3.2f), new Vector2(3.1f, 2.6f),
                 "Home base: inventory and display racks, Job Board, applicant meeting point and loadout hub. Open front: walk in and stand on the receiving strip to stock finished goods.",
-                "Phase 3 racks and inventory · Phase 4 Job Board and applicants", footprint: null, station: ReceiverKind.Store);
+                "Phase 4 Job Board and applicants", footprint: null, station: ReceiverKind.Store);
             StoreWalls(store.transform);
             var smelter = Building(buildings, "Smelter", "bld_smelter", new Vector2(-7.2f, 0.6f), new Vector2(2.2f, 2.4f),
-                "Receives raw ore, coal and gems into shared inventory.", "Phase 3 timed processing", new Vector2(2f, 2f), ReceiverKind.Smelter);
+                "Receives raw ore, coal and gems, then smelts them into ingots automatically.", "", new Vector2(2f, 2f), ReceiverKind.Smelter, stationId: "station.smelter");
             Building(buildings, "Forge", "bld_forge", new Vector2(-5.4f, -3.8f), new Vector2(2.2f, 2.0f),
                 "Covered work area. Crafts metal weapons and armor instantly from permanent blueprints. Finished goods appear on its output pad.",
-                "Phase 3 crafting", new Vector2(2f, 2f));
+                "", new Vector2(2f, 2f), stationId: "station.forge");
             var mill = Building(buildings, "Lumbermill", "bld_lumbermill", new Vector2(7.2f, 0.6f), new Vector2(2.4f, 2.0f),
-                "Receives logs into shared inventory.", "Phase 3 timed processing", new Vector2(2.5f, 2f), ReceiverKind.Lumbermill);
+                "Receives logs, then saws them into lumber automatically.", "", new Vector2(2.5f, 2f), ReceiverKind.Lumbermill, stationId: "station.lumbermill");
             Building(buildings, "Workbench", "bld_workbench", new Vector2(5.6f, -3.8f), new Vector2(1.7f, 1.8f),
-                "Crafts bows and staves instantly. Finished goods appear on its output pad.", "Phase 3 crafting", new Vector2(1.5f, 1.5f));
+                "Crafts bows and staves instantly. Finished goods appear on its output pad.", "", new Vector2(1.5f, 1.5f), stationId: "station.workbench");
             var apothecary = Building(buildings, "Apothecary", "bld_apothecary", new Vector2(-2.9f, -1.7f), new Vector2(2.2f, 2.2f),
-                "Receives herbs into shared inventory. Potions are crafted here.", "Phase 3 crafting", new Vector2(2f, 2f), ReceiverKind.Apothecary);
+                "Receives herbs (no processing needed). Potions are crafted here.", "", new Vector2(2f, 2f), ReceiverKind.Apothecary, stationId: "station.apothecary");
             Building(buildings, "Trader Pad", "bld_trader_pad", new Vector2(3.0f, -2.1f), new Vector2(2.2f, 2.0f),
                 "A periodic visitor sets up here to sell external materials and buy equipment at poor prices.", "Phase 6 Trader", new Vector2(2f, 2f));
             var mine = Building(buildings, "Mine", "bld_mine_mouth", new Vector2(-9.0f, 6.0f), new Vector2(4.2f, 2.8f),
@@ -126,9 +126,12 @@ namespace Ravenholm.EditorTools
             }
 
             // --- store furniture ---
-            Prop(props, "Weapon Rack", "Props/rack_weapons", new Vector2(-0.75f, 3.75f), "Shows a representative subset of stored weapons.", "Phase 3", 0.7f);
-            Prop(props, "Armor Stand", "Props/rack_armor", new Vector2(0.0f, 4.15f), "Shows stored armor.", "Phase 3", 0.7f);
-            Prop(props, "Potion Shelf", "Props/rack_potions", new Vector2(0.75f, 3.75f), "Shows stored potions.", "Phase 3", 0.7f);
+            Rack(props, "Weapon Rack", "Props/rack_weapons_empty", new Vector2(-0.75f, 3.75f), ItemCategory.Weapon,
+                new List<Vector2> { new Vector2(-0.3f, 0.45f), new Vector2(0f, 0.45f), new Vector2(0.3f, 0.45f) });
+            Rack(props, "Armor Stand", "Props/rack_armor_empty", new Vector2(0.0f, 4.15f), ItemCategory.Armor,
+                new List<Vector2> { new Vector2(0f, 0.6f) });
+            Rack(props, "Potion Shelf", "Props/rack_potions_empty", new Vector2(0.75f, 3.75f), ItemCategory.Potion,
+                new List<Vector2> { new Vector2(-0.3f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0.3f, 0.5f), new Vector2(-0.3f, 0.9f), new Vector2(0f, 0.9f), new Vector2(0.3f, 0.9f) });
             Bell(props, new Vector2(0.55f, 2.95f), 0.42f);
             Flowers(props);
 
@@ -143,12 +146,13 @@ namespace Ravenholm.EditorTools
             var forestStaging = Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(8.6f, 4.4f),
                 "The woodcutter drops logs and herbs here (capacity 96). Logs go to the Lumbermill, herbs to the Apothecary.", null, null, 96);
             Container(logistics, "container.forge_pad", "Forge Output", ContainerKind.OutputPad, new Vector2(-4.3f, -4.55f),
-                "Test fixture: finished goods waiting on the Forge output pad. Carry them to the Store.",
-                null, new[] { "item.iron_sword", "item.iron_sword", "item.iron_dagger", "item.riveted_coat", "item.riveted_coat" });
+                "Crafted goods appear here (holds 6). Walk close to pick them up, then stock them at the Store.", null, null, 6);
             Container(logistics, "container.workbench_pad", "Workbench Output", ContainerKind.OutputPad, new Vector2(4.6f, -4.45f),
-                "Test fixture: finished bows and staves.", null, new[] { "item.cedar_bow", "item.cedar_bow", "item.cedar_staff" });
+                "Crafted bows and staves appear here (holds 6).", null, null, 6);
             Container(logistics, "container.apothecary_pad", "Apothecary Output", ContainerKind.OutputPad, new Vector2(-3.85f, -2.45f),
-                "Test fixture: finished potions.", null, new[] { "item.recovery_tonic", "item.recovery_tonic", "item.recovery_tonic" });
+                "Crafted potions appear here (holds 6).", null, null, 6);
+            ProcessorBar(smelter.transform, "station.smelter", 2.75f);
+            ProcessorBar(mill.transform, "station.lumbermill", 2.2f);
 
             // --- people ---
             var player = Character(people, "Supplier (you)", new Vector2(0f, 0f), 0, "ov_supplier",
@@ -298,7 +302,7 @@ namespace Ravenholm.EditorTools
         /// diamond collision footprint (a × b tiles) independent of the roof art (GDD 3).
         /// </summary>
         private static SpriteRenderer Building(Transform parent, string title, string sprite, Vector2 pos, Vector2 tapSize,
-            string description, string phase, Vector2? footprint, ReceiverKind? station = null, string siteId = null)
+            string description, string phase, Vector2? footprint, ReceiverKind? station = null, string siteId = null, string stationId = null)
         {
             var sr = Sprite(parent, title, "Buildings/" + sprite, pos);
             var col = sr.gameObject.AddComponent<BoxCollider2D>();
@@ -311,11 +315,11 @@ namespace Ravenholm.EditorTools
                 site.EditorSetup(title, description, phase);
                 site.EditorSetupSite(siteId);
             }
-            else if (station.HasValue)
+            else if (station.HasValue || stationId != null)
             {
                 var s = sr.gameObject.AddComponent<StationInspectable>();
                 s.EditorSetup(title, description, phase);
-                s.EditorSetupStation(station.Value);
+                s.EditorSetupStation(stationId ?? "", station.HasValue, station ?? ReceiverKind.Store);
             }
             else sr.gameObject.AddComponent<Inspectable>().EditorSetup(title, description, phase);
             if (footprint.HasValue) Diamond(sr.transform, footprint.Value.x, footprint.Value.y, 0.92f);
@@ -432,8 +436,54 @@ namespace Ravenholm.EditorTools
             col.isTrigger = true;
             col.size = new Vector2(1.0f, 0.9f);
             col.offset = new Vector2(0f, 0.3f);
-            root.AddComponent<Inspectable>().EditorSetup(title, description, kind == ContainerKind.OutputPad ? "Phase 1 test fixture (crafting fills pads in Phase 3)" : "");
+            root.AddComponent<Inspectable>().EditorSetup(title, description, "");
             return root.transform;
+        }
+
+        /// <summary>
+        /// Racks stand against the Store's back walls. Their sort point sits just in front of the Store's
+        /// own pivot so they draw over the back walls, while the visual is lifted back into place.
+        /// </summary>
+        private static void Rack(Transform parent, string title, string sprite, Vector2 pos, ItemCategory category, List<Vector2> slots)
+        {
+            const float sortY = 3.1f;
+            var root = new GameObject(title);
+            root.transform.SetParent(parent, false);
+            root.transform.localPosition = new Vector2(pos.x, sortY);
+            root.AddComponent<SortingGroup>();
+            var sr = Sprite(root.transform, "Visual", sprite, new Vector2(0f, pos.y - sortY));
+            sr.transform.localScale = Vector3.one * 0.7f;
+            var col = root.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+            col.size = new Vector2(0.8f, 0.9f);
+            col.offset = new Vector2(0f, pos.y - sortY + 0.45f);
+            root.AddComponent<Inspectable>().EditorSetup(title,
+                "Shows a representative subset of stocked items (strongest, then newest). Open the Store for the full inventory.", "");
+            sr.gameObject.AddComponent<RackView>().EditorSetup(category, slots);
+        }
+
+        private static void ProcessorBar(Transform building, string stationId, float height)
+        {
+            var root = new GameObject("ProcessorBar");
+            root.transform.SetParent(building, false);
+            root.transform.localPosition = new Vector3(0f, height, 0f);
+            var back = Sprite(root.transform, "Back", "UI/ui_chip", Vector2.zero);
+            back.drawMode = SpriteDrawMode.Sliced;
+            back.size = new Vector2(1.5f, 0.42f);
+            back.sortingLayerName = "Overlay";
+            back.sortingOrder = 1;
+            var fill = Sprite(root.transform, "Fill", "UI/ui_chip", new Vector2(-0.38f, 0f));
+            fill.drawMode = SpriteDrawMode.Sliced;
+            fill.size = new Vector2(0.1f, 0.22f);
+            fill.color = new Color32(232, 160, 70, 255);
+            fill.sortingLayerName = "Overlay";
+            fill.sortingOrder = 2;
+            var icon = Sprite(root.transform, "Output", "Icons/Resources/icon_iron_ingot", new Vector2(-0.55f, 0f));
+            icon.transform.localScale = Vector3.one * 0.38f;
+            icon.sortingLayerName = "Overlay";
+            icon.sortingOrder = 3;
+            root.SetActive(false);
+            building.gameObject.AddComponent<ProcessorView>().EditorSetup(stationId, root, fill, icon);
         }
 
         private static TreePocketView TreePocket(Transform parent, Vector2[] spots, Vector2[] markerSpots)

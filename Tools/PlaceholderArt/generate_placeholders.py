@@ -704,6 +704,13 @@ def item_tonic(d, cx, cy, s):
     d.ellipse([cx - 0.15 * s, cy + 0.0 * s, cx - 0.04 * s, cy + 0.1 * s], fill=(255, 210, 210, 255))
 
 
+def item_ward_staff(d, cx, cy, s):
+    d.line([(cx - 0.3 * s, cy + 0.4 * s), (cx + 0.2 * s, cy - 0.25 * s)], fill=INK, width=int(0.12 * s))
+    d.line([(cx - 0.28 * s, cy + 0.37 * s), (cx + 0.2 * s, cy - 0.25 * s)], fill=CEDAR, width=int(0.12 * s) - 2 * OL)
+    d.ellipse([cx + 0.04 * s, cy - 0.48 * s, cx + 0.42 * s, cy - 0.1 * s], fill=COPPER, outline=INK, width=OL)
+    d.ellipse([cx + 0.13 * s, cy - 0.39 * s, cx + 0.33 * s, cy - 0.19 * s], fill=(120, 220, 210, 255), outline=INK, width=2 * S)
+
+
 ITEMS = {
     "iron_sword": item_sword,
     "cedar_bow": item_bow,
@@ -711,6 +718,7 @@ ITEMS = {
     "cedar_staff": item_staff,
     "riveted_coat": item_coat,
     "recovery_tonic": item_tonic,
+    "copper_ward_staff": item_ward_staff,
 }
 
 
@@ -729,7 +737,7 @@ def icons():
 
 
 # ---------------------------------------------------------------- racks and props
-def rack(name, kind, desc):
+def rack(name, kind, desc, empty=False):
     img = canvas(1.5, 1.6)
     d = ImageDraw.Draw(img)
     cx, base = img.width / 2, img.height - 0.3 * U
@@ -739,16 +747,22 @@ def rack(name, kind, desc):
             post(d, (cx + x * U, base), 0.95 * U, 0.08)
         d.line([(cx - 0.5 * U, base - 0.75 * U), (cx + 0.5 * U, base - 0.75 * U)], fill=INK, width=int(0.08 * U))
         d.line([(cx - 0.5 * U, base - 0.75 * U), (cx + 0.5 * U, base - 0.75 * U)], fill=TIMBER_L, width=int(0.08 * U) - 2 * S)
-        for i, fn in enumerate((item_sword, item_bow, item_staff)):
-            fn(d, cx + (i - 1) * 0.3 * U, base - 0.45 * U, 0.5 * U)
+        if not empty:
+            for i, fn in enumerate((item_sword, item_bow, item_staff)):
+                fn(d, cx + (i - 1) * 0.3 * U, base - 0.45 * U, 0.5 * U)
     elif kind == "armor":
         post(d, (cx, base), 0.9 * U, 0.08)
-        item_coat(d, cx, base - 0.62 * U, 0.75 * U)
+        if empty:
+            d.line([(cx - 0.3 * U, base - 0.88 * U), (cx + 0.3 * U, base - 0.88 * U)], fill=INK, width=int(0.07 * U))
+            d.line([(cx - 0.3 * U, base - 0.88 * U), (cx + 0.3 * U, base - 0.88 * U)], fill=TIMBER_L, width=int(0.07 * U) - 2 * S)
+        else:
+            item_coat(d, cx, base - 0.62 * U, 0.75 * U)
     else:
         for y in (0.3, 0.7):
             poly(d, [(cx - 0.5 * U, base - y * U), (cx + 0.5 * U, base - y * U), (cx + 0.5 * U, base - (y + 0.07) * U), (cx - 0.5 * U, base - (y + 0.07) * U)], TIMBER_L)
-            for i in range(3):
-                item_tonic(d, cx + (i - 1) * 0.3 * U, base - (y + 0.2) * U, 0.32 * U)
+            if not empty:
+                for i in range(3):
+                    item_tonic(d, cx + (i - 1) * 0.3 * U, base - (y + 0.2) * U, 0.32 * U)
         for x in (-0.5, 0.5):
             post(d, (cx + x * U, base), 1.0 * U, 0.07)
     return finish(name, img, (cx, base), "Props", desc=desc)
@@ -1007,6 +1021,9 @@ def main():
     rack("rack_weapons", "weapon", "Store weapon rack")
     rack("rack_armor", "armor", "Store armor stand")
     rack("rack_potions", "potion", "Store potion shelf")
+    rack("rack_weapons_empty", "weapon", "Store weapon rack (empty; items drawn in-engine)", True)
+    rack("rack_armor_empty", "armor", "Store armor stand (empty; items drawn in-engine)", True)
+    rack("rack_potions_empty", "potion", "Store potion shelf (empty; items drawn in-engine)", True)
     bell()
     staging_pile("pile_ore", "iron_ore", "Mine staging pile (ore)")
     staging_pile("pile_logs", "cedar_log", "Forest staging pile (logs)")

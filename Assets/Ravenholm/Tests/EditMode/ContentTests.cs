@@ -113,7 +113,9 @@ namespace Ravenholm.Tests
             Assert.IsTrue(report.IsValid, report.ToString());
             var c = AssetDatabase.LoadAssetAtPath<ContentCatalogue>(ContentValidationMenu.CataloguePath);
             Assert.AreEqual(15, c.Resources.Count);
-            Assert.AreEqual(6, c.Items.Count);
+            Assert.GreaterOrEqual(c.Items.Count, 6, "the six GDD starter items, plus later additions");
+            foreach (var key in new[] { "iron_sword", "cedar_bow", "iron_dagger", "cedar_staff", "riveted_coat", "recovery_tonic" })
+                Assert.IsTrue(c.TryGet<ItemDefinition>("item." + key, out _), key);
             // One accessible starter weapon per weapon family the four classes use (GDD 9).
             foreach (var tag in new[] { WeaponTag.Blade, WeaponTag.Bow, WeaponTag.LightBlade, WeaponTag.Staff })
                 Assert.IsTrue(c.Items.Any(i => i.Category == ItemCategory.Weapon && i.WeaponTag == tag), $"no starter weapon for {tag}");

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fa62072b04c440608759e1b74b67932, type: 3}
+  m_Name: process_smelt_iron
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ProcessDefinition
+  id: process.smelt_iron
+  displayName: Smelt iron
+  contentVersion: 1
+  facility: {fileID: 11400000, guid: 5a4e8d84e3915496496251ae6c3d53ba, type: 2}
+  minFacilityLevel: 1
+  inputs:
+  - resource: {fileID: 11400000, guid: 3bb23c5bf84b74d7db24e03a768c9745, type: 2}
+    quantity: 2
+  output: {fileID: 11400000, guid: 7c9623d2f89ef4f0bb58c106302da3e3, type: 2}
+  outputQuantity: 1
+  batchSeconds: 4
