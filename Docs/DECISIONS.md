@@ -384,6 +384,26 @@ The user asked to "keep building without me playtesting". A read-only audit comp
 
   Every debug command is recorded as assistance.
 
+## Post-roadmap polish, batch 3 (2026-10-06)
+
+- **Forest depths (GDD 7):**
+  - Ironwood gets its own tree (tall trunk, layered flat canopy), mapped by data (`TreePocketView.speciesSprites`).
+  - Six area tints, darker and cooler with depth.
+  - Trail markers for areas 4–6.
+  - Pushing deeper fades the next pocket in; reduced motion switches at once.
+- **Character animation (GDD 20), visual only:**
+  - The player has an idle breath, a heavier carry walk (lower bob, slight lean back) and a short reach when using something.
+  - Applicants breathe while waiting and hop to greet when they arrive.
+  - Returning contractors walk back up the road to the Store; the dead do not return.
+  - Reduced motion turns the extras off.
+- **Drawn quest map (GDD 14):**
+  - Nodes by region (rows) and tier (columns), with lines for prerequisites.
+  - Every node has a marker so state never relies on colour: `[>]` next campaign job, `[+]` won, `[o]` open, `[x]` locked.
+  - Reached regions show their jobs; the next region is a silhouette of "?" nodes; later regions stay hidden.
+  - Tapping a node explains it. Hit areas meet the touch-target size.
+  - The text map stays underneath as the accessible version.
+  - The first version bunched every node at the left edge because the map was laid out before the panel had a width. The screenshot caught it; it's fixed, and the test now checks the spread.
+
 ## Open blockers
 
 - **iOS build:** the Unity → Xcode device export succeeded headlessly on 2026-10-06 (0 errors, 1 warning, IL2CPP, 114 s). The Xcode compile/sign/install step has not run yet: the startup disk had only ~2.5 GB free, too little for Xcode intermediates. To do: free disk space, export again (Ravenholm > Build > iOS Xcode Project (Device)), open `Builds/iOS-Device/Unity-iPhone.xcodeproj`, pick a signing team, then Run on the iPhone.

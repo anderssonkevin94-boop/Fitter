@@ -77,6 +77,17 @@ namespace Ravenholm.Presentation
         private JobBoardSystem Board => _root.Services.Jobs.Board;
         private ContentCatalogue Cat => _root.Services.Catalogue;
 
+        /// <summary>Nodes on the drawn map (tests).</summary>
+        public List<QuestMapView.Node> MapNodes { get; private set; } = new List<QuestMapView.Node>();
+
+        /// <summary>Tapping a map node explains it at the top of the board.</summary>
+        public void ExplainNode(QuestDefinition q)
+        {
+            var reason = Board.IsUnlocked(q.Id) ? (Board.PostBlockedReason(q.Id) ?? "Open: post it below") : Board.LockReason(q.Id);
+            _message = $"{q.DisplayName} · difficulty {q.Difficulty} · {reason}";
+            FeedbackAudio.Play(FeedbackAudio.Cue.Tap);
+        }
+
         /// <summary>Posts a job through the service (buttons and tests).</summary>
         public bool Post(string questId)
         {
@@ -120,7 +131,10 @@ namespace Ravenholm.Presentation
 
             Text(CampaignText);
             Header("Map");
-            Text(MapText);
+            var mapArea = UiFactory.Rect("QuestMap", _content);
+            MapNodes = QuestMapView.Build(mapArea, _ui, Cat, Board, ExplainNode);
+            mapArea.gameObject.AddComponent<LayoutElement>().preferredHeight = mapArea.sizeDelta.y;
+            Text(MapText);   // the same map in words (accessible, and lists what unlocks each job)
 
             var unread = s.Results.FindAll(r => !r.Acknowledged);
             if (unread.Count > 0)

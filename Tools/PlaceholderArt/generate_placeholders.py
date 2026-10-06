@@ -457,6 +457,19 @@ def tree_maple():
     return finish("tree_maple", img, (cx, base), "Nature", desc="Maple tree: round warm canopy silhouette")
 
 
+def tree_ironwood():
+    """Phase 7/10: ironwood: tall dark trunk, layered deep-green and russet canopy (distinct from cedar and maple)."""
+    img = canvas(1.7, 2.9)
+    d = ImageDraw.Draw(img)
+    cx, base = img.width / 2, img.height - 0.25 * U
+    shadow_ellipse(d, cx, base, 0.55 * U, 0.18 * U)
+    post(d, (cx, base), 1.15 * U, 0.2, (78, 56, 46, 255))
+    layers = [((46, 92, 70, 255), 0.62, 1.05, 1.45), ((62, 108, 76, 255), 0.5, 1.45, 1.9), ((150, 86, 52, 255), 0.34, 1.85, 2.4)]
+    for col, w, y0, y1 in layers:
+        poly(d, [(cx - w * U, base - y0 * U), (cx - w * 0.5 * U, base - y1 * U), (cx + w * 0.5 * U, base - y1 * U), (cx + w * U, base - y0 * U)], col)
+    return finish("tree_ironwood", img, (cx, base), "Nature", desc="Ironwood tree: tall trunk, flat-topped layered canopy")
+
+
 def rock(name, vein, seed, desc):
     rnd = random.Random(seed)
     img = canvas(1.6, 1.4)
@@ -1117,7 +1130,7 @@ def main():
     tile("tile_dirt", DIRT_C, DIRT_D, "pebbles", 5)
     tile("tile_forest_floor", FOREST_C, FOREST_D, "tufts", 6)
     store(); smelter(); forge(); mill(); bench(); apothecary(); trader(); mine_mouth(); forest_gate()
-    tree_cedar(); tree_maple(); bush_herb()
+    tree_cedar(); tree_maple(); tree_ironwood(); bush_herb()
     rock("rock_stone", None, 11, "Rock face: plain stone")
     rock("rock_iron", (184, 110, 80, 255), 12, "Rock face: iron-veined (rust flecks)")
     rock("rock_copper", (96, 186, 160, 255), 13, "Rock face: copper-veined (verdigris flecks)")

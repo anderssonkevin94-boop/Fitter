@@ -35,6 +35,7 @@ namespace Ravenholm.Presentation
             if (_root == null) { enabled = false; return; }
             _root.Services.Jobs.Board.Dispatched += OnDispatched;
             _root.Services.Jobs.Reloaded += () => _root.Services.Jobs.Board.Dispatched += OnDispatched;
+            _root.Services.Jobs.Completed += OnReturned;
         }
 
         private void Update()
@@ -54,7 +55,11 @@ namespace Ravenholm.Presentation
                 var slot = p.Applicants.IndexOf(a);
                 if (slot < 0 || slot >= spots.Count) continue;
                 keep.Add(a.ContractorId);
-                if (!_shown.ContainsKey(a.ContractorId)) _shown[a.ContractorId] = Spawn(board.Contractor(a.ContractorId), spots[slot], true);
+                if (!_shown.ContainsKey(a.ContractorId))
+                {
+                    _shown[a.ContractorId] = Spawn(board.Contractor(a.ContractorId), spots[slot], true);
+                    _shown[a.ContractorId].GetComponentInChildren<CharacterIdle>().Greet();   // they arrive and say hello
+                }
             }
             foreach (var id in new List<string>(_shown.Keys))
             {
@@ -82,6 +87,7 @@ namespace Ravenholm.Presentation
             overlay.sortingOrder = 1;
             if (c != null && _root.Services.Catalogue.TryGet<AdventurerClassDefinition>(c.ClassId, out var cls)) overlay.sprite = cls.Overlay;
             if (!interactive) return go;
+            visual.gameObject.AddComponent<CharacterIdle>();
             var col = go.AddComponent<BoxCollider2D>();
             col.isTrigger = true;
             col.size = new Vector2(0.7f, 1.1f);
@@ -95,6 +101,42 @@ namespace Ravenholm.Presentation
             var c = _root.Services.Jobs.Board.Contractor(e.ContractorId);
             var from = _shown.TryGetValue(e.ContractorId, out var go) ? (Vector2)go.transform.position : spots.Count > 0 ? spots[0] : Vector2.zero;
             StartCoroutine(Depart(Spawn(c, from, false), from));
+        }
+
+        private void OnDestroy()
+        {
+            if (_root != null) _root.Services.Jobs.Completed -= OnReturned;
+        }
+
+        /// <summary>Returning contractors walk back up the road to the Store (GDD 20). The dead do not return.</summary>
+        private void OnReturned(Domain.Jobs.ResultRecord r)
+        {
+            if (r.Died || r.Sponsored || !isActiveAndEnabled) return;
+            var c = _root.Services.Jobs.Board.Contractor(r.ContractorId);
+            var to = spots.Count > 0 ? spots[spots.Count - 1] : Vector2.zero;
+            Returning++;
+            StartCoroutine(Walk(Spawn(c, departurePoint, false), departurePoint, to, fadeIn: true));
+        }
+
+        /// <summary>Returns walked back so far (tests).</summary>
+        public int Returning { get; private set; }
+
+        private IEnumerator Walk(GameObject walker, Vector2 from, Vector2 to, bool fadeIn)
+        {
+            const float seconds = 3f;
+            for (var t = 0f; t < seconds && walker != null; t += Time.deltaTime)
+            {
+                var k = t / seconds;
+                walker.transform.position = Vector2.Lerp(from, to, k) + new Vector2(0f, Feel.ReducedMotion ? 0f : Mathf.Abs(Mathf.Sin(t * 12f)) * 0.05f);
+                foreach (var sr in walker.GetComponentsInChildren<SpriteRenderer>())
+                {
+                    var col = sr.color;
+                    col.a = fadeIn ? (k < 0.2f ? k * 5f : k > 0.85f ? (1f - k) / 0.15f : 1f) : 1f;
+                    sr.color = col;
+                }
+                yield return null;
+            }
+            if (walker != null) Destroy(walker);
         }
 
         private IEnumerator Depart(GameObject walker, Vector2 from)

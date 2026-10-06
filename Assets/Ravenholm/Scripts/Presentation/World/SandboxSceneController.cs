@@ -108,6 +108,7 @@ namespace Ravenholm.Presentation
         public void Inspect(Inspectable target)
         {
             if (target == null) return;
+            if (player != null) player.GetComponent<PlayerMotor>()?.PlayInteract();
             target.OnInspected();
             if (!target.OpensOwnPanel) _root.Hud.ShowInfo(target);
         }

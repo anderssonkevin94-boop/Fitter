@@ -59,9 +59,35 @@ namespace Ravenholm.Presentation
                 _bobPhase = Mathf.MoveTowards(_bobPhase, Mathf.Round(_bobPhase / Mathf.PI) * Mathf.PI, Time.deltaTime * 10f);
             }
 
-            if (visual != null)
-                visual.localPosition = _visualBase + new Vector3(0f, Mathf.Abs(Mathf.Sin(_bobPhase)) * 0.06f, 0f);
+            if (visual == null) return;
+            // GDD 20 player poses: idle breath, a heavier carry walk (lower, slower bob and a slight lean back),
+            // and a short reach when interacting. Visual only; reduced motion keeps the walk bob only.
+            var carrying = _root.Services.Logistics.System.CarryCount > 0;
+            var moving = move.sqrMagnitude > 0.0001f;
+            var bob = Mathf.Abs(Mathf.Sin(_bobPhase)) * (carrying ? 0.035f : 0.06f);
+            var facing = Mathf.Sign(visual.localScale.x);
+            float lean = 0f, breath = 1f;
+            if (!Feel.ReducedMotion)
+            {
+                if (moving && carrying) lean = 3f * facing;
+                if (!moving) { _idlePhase += Time.deltaTime * 2.2f; breath = 1f + Mathf.Sin(_idlePhase) * 0.015f; }
+                if (_reach > 0f)
+                {
+                    _reach = Mathf.MoveTowards(_reach, 0f, Time.deltaTime * 4f);
+                    lean = -10f * facing * Mathf.Sin(_reach * Mathf.PI);
+                }
+            }
+            visual.localPosition = _visualBase + new Vector3(0f, bob, 0f);
+            visual.localRotation = Quaternion.Euler(0f, 0f, lean);
+            visual.localScale = new Vector3(facing * (2f - breath), breath, 1f);   // unit scale; the sign is the facing
         }
+
+        private float _idlePhase;
+        private float _reach;
+
+        /// <summary>A short reach toward what the player just used (context button or tap).</summary>
+        public void PlayInteract() => _reach = 1f;
+        public bool Reaching => _reach > 0f;
 
         /// <summary>Safe "unstuck": moves the player without touching what they carry.</summary>
         public void Teleport(Vector2 position)

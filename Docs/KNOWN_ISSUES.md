@@ -11,6 +11,6 @@
 | 7 | Content | The Mine "Surface" strata band is very short in the site panel | Cosmetic | Layout tweak |
 | 8 | Thermal | 20-minute thermal behaviour not measured | Unknown | Manual device session |
 | 9 | Title | "Ravenholm Supply Co" is a working title | Release blocker | User decision |
-| 10 | Presentation | Not yet done from the GDD audit: separate carry-walk and interact poses, adventurer idle and greet animations, Forest areas 4–6 visuals and pocket transition, a drawn quest map | Presentation only | Next polish batch |
+| 10 | Presentation | Animation is procedural (bob, lean, hop) on static sprites, not frame animation | Presentation only | Comes with the final art |
 | 11 | Accessibility | State markers are text (`[+]`, `[!]`), not icons | Fine for the GDD rule; icons would read faster | Replace with icons alongside the final art |
 | 13 | Dev tools | Seed selection for a new company is not offered (the scratch profile gets a random seed) | Developer only | Add if reproducing a specific world is needed |

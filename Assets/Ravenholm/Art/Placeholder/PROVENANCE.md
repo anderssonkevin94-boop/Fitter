@@ -72,6 +72,7 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Nature/rock_iron.png` | Rock face: iron-veined (rust flecks) |
 | `Nature/rock_stone.png` | Rock face: plain stone |
 | `Nature/tree_cedar.png` | Cedar tree: tiered conifer silhouette |
+| `Nature/tree_ironwood.png` | Ironwood tree: tall trunk, flat-topped layered canopy |
 | `Nature/tree_maple.png` | Maple tree: round warm canopy silhouette |
 | `Nature/tree_stump.png` | Felled tree stump |
 | `Props/blob_shadow.png` | Soft blob shadow |

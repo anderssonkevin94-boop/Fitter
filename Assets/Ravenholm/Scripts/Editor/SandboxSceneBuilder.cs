@@ -112,7 +112,15 @@ namespace Ravenholm.EditorTools
             {
                 new Vector2(8.1f, 6.7f), new Vector2(9.5f, 6.4f), new Vector2(10.9f, 6.8f),
                 new Vector2(8.7f, 7.9f), new Vector2(10.1f, 8.1f), new Vector2(11.3f, 8.3f),
-            }, new[] { new Vector2(6.9f, 5.2f), new Vector2(7.3f, 5.0f), new Vector2(7.7f, 4.8f) });
+            }, new[]
+            {
+                new Vector2(6.9f, 5.2f), new Vector2(7.3f, 5.0f), new Vector2(7.7f, 4.8f),
+                new Vector2(7.9f, 5.5f), new Vector2(8.4f, 5.75f), new Vector2(8.9f, 5.95f),   // areas 4-6 (Phase 7 bands), towards the pocket
+            });
+            pocket.EditorSetSpecies(new List<SpeciesSprite>
+            {
+                new SpeciesSprite { resource = _catalogue.Get<ResourceDefinition>("resource.ironwood_log"), sprite = ProjectSetup.LoadSprite("Nature/tree_ironwood") },
+            });
             Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(8.6f, 3.3f), "Herbs come as a bonus while chopping.", "Phase 2");
             Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(10.2f, 2.5f), "Herbs come as a bonus while chopping.", "Phase 2");
             foreach (var (name, sprite, pos, desc) in new[]
