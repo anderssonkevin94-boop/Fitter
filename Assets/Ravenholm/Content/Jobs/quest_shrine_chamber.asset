@@ -27,3 +27,22 @@ MonoBehaviour:
   recoveryContract: 0
   prestigeTarget: 45
   brief: The sealed chamber beneath the Old Shrine.
+  prerequisites:
+  - {fileID: 11400000, guid: bb04e40da975c4bfe82854be0ad8de12, type: 2}
+  reputationGate: 30
+  mapTier: 3
+  successMaterials:
+  - resource: {fileID: 11400000, guid: 5885b88db36ff46568810cd380656407, type: 2}
+    quantity: 2
+  - resource: {fileID: 11400000, guid: c144f82c08b12462abad968826505e73, type: 2}
+    quantity: 2
+  greatBonusMaterials:
+  - resource: {fileID: 11400000, guid: 5885b88db36ff46568810cd380656407, type: 2}
+    quantity: 1
+  partialMaterials: []
+  firstSuccessBlueprint: {fileID: 11400000, guid: 458458556935c4c2181c3f96de39c15f, type: 2}
+  substituteMaterials:
+  - resource: {fileID: 11400000, guid: c144f82c08b12462abad968826505e73, type: 2}
+    quantity: 2
+  rareResource: {fileID: 11400000, guid: c92566d6dffce434b835bb60a6198cba, type: 2}
+  rareChance: 0.5

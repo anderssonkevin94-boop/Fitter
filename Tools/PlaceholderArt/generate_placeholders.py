@@ -711,6 +711,35 @@ def item_ward_staff(d, cx, cy, s):
     d.ellipse([cx + 0.13 * s, cy - 0.39 * s, cx + 0.33 * s, cy - 0.19 * s], fill=(120, 220, 210, 255), outline=INK, width=2 * S)
 
 
+def item_longbow(d, cx, cy, s):
+    bb = [cx - 0.42 * s, cy - 0.5 * s, cx + 0.5 * s, cy + 0.5 * s]
+    sx = cx + 0.04 * s + 0.46 * s * math.cos(math.radians(115))
+    d.line([(sx, cy - 0.46 * s), (sx, cy + 0.46 * s)], fill=(240, 236, 220, 255), width=3 * S)
+    d.arc(bb, 115, 245, fill=INK, width=int(0.15 * s))
+    d.arc([bb[0] + OL / 2, bb[1] + OL / 2, bb[2] - OL / 2, bb[3] - OL / 2], 117, 243, fill=MAPLE, width=int(0.15 * s) - 2 * OL)
+
+
+def item_steel_sword(d, cx, cy, s):
+    item_sword(d, cx, cy, s * 1.1, STEEL)
+
+
+def item_steel_coat(d, cx, cy, s):
+    pts = [(-0.24, -0.36), (0.24, -0.36), (0.42, -0.1), (0.3, 0.0), (0.26, 0.4), (-0.26, 0.4), (-0.3, 0.0), (-0.42, -0.1)]
+    poly(d, [(cx + x * s, cy + y * s) for x, y in pts], STEEL)
+    d.line([(cx, cy - 0.3 * s), (cx, cy + 0.35 * s)], fill=shade(STEEL, 0.7), width=2 * S)
+    for y in (-0.15, 0.05, 0.25):
+        d.line([(cx - 0.22 * s, cy + y * s), (cx + 0.22 * s, cy + y * s)], fill=shade(STEEL, 0.75), width=2 * S)
+
+
+def potion(colour):
+    def draw(d, cx, cy, s):
+        d.ellipse([cx - 0.28 * s, cy - 0.12 * s, cx + 0.28 * s, cy + 0.4 * s], fill=colour, outline=INK, width=OL)
+        d.rectangle([cx - 0.09 * s, cy - 0.36 * s, cx + 0.09 * s, cy - 0.1 * s], fill=(220, 230, 236, 255), outline=INK, width=OL)
+        d.rectangle([cx - 0.11 * s, cy - 0.44 * s, cx + 0.11 * s, cy - 0.34 * s], fill=TIMBER_M, outline=INK, width=2 * S)
+        d.ellipse([cx - 0.15 * s, cy + 0.0 * s, cx - 0.04 * s, cy + 0.1 * s], fill=(255, 255, 255, 200))
+    return draw
+
+
 ITEMS = {
     "iron_sword": item_sword,
     "cedar_bow": item_bow,
@@ -719,6 +748,11 @@ ITEMS = {
     "riveted_coat": item_coat,
     "recovery_tonic": item_tonic,
     "copper_ward_staff": item_ward_staff,
+    "maple_longbow": item_longbow,
+    "steel_sword": item_steel_sword,
+    "steel_coat": item_steel_coat,
+    "antidote": potion((96, 176, 92, 255)),
+    "warding_draught": potion((120, 96, 190, 255)),
 }
 
 

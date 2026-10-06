@@ -26,13 +26,18 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Characters/ov_supplier.png` | Overlay: supplier (player) outfit and cap |
 | `Characters/ov_warrior.png` | Overlay: warrior helm, shield, sword |
 | `Characters/ov_woodcutter.png` | Overlay: woodcutter cap, tunic, axe |
+| `Icons/Items/icon_antidote.png` | Icon: antidote |
 | `Icons/Items/icon_cedar_bow.png` | Icon: cedar bow |
 | `Icons/Items/icon_cedar_staff.png` | Icon: cedar staff |
 | `Icons/Items/icon_copper_ward_staff.png` | Icon: copper ward staff |
 | `Icons/Items/icon_iron_dagger.png` | Icon: iron dagger |
 | `Icons/Items/icon_iron_sword.png` | Icon: iron sword |
+| `Icons/Items/icon_maple_longbow.png` | Icon: maple longbow |
 | `Icons/Items/icon_recovery_tonic.png` | Icon: recovery tonic |
 | `Icons/Items/icon_riveted_coat.png` | Icon: riveted coat |
+| `Icons/Items/icon_steel_coat.png` | Icon: steel coat |
+| `Icons/Items/icon_steel_sword.png` | Icon: steel sword |
+| `Icons/Items/icon_warding_draught.png` | Icon: warding draught |
 | `Icons/Resources/icon_arcane_dust.png` | Icon: arcane dust |
 | `Icons/Resources/icon_cedar_log.png` | Icon: cedar log |
 | `Icons/Resources/icon_cedar_lumber.png` | Icon: cedar lumber |
@@ -74,6 +79,7 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Props/receiver_zone.png` | Receiver zone ground marker (dashed diamond) |
 | `Props/trail_marker.png` | Forest trail marker post (one per area reached) |
 | `Props/ui_bubble.png` | World icon bubble above receivers |
+| `Stacks/stack_antidote.png` | Carry/stack piece: antidote |
 | `Stacks/stack_arcane_dust.png` | Carry/stack piece: arcane dust |
 | `Stacks/stack_cedar_bow.png` | Carry/stack piece: cedar bow |
 | `Stacks/stack_cedar_log.png` | Carry/stack piece: cedar log |
@@ -91,11 +97,15 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Stacks/stack_iron_ore.png` | Carry/stack piece: iron ore |
 | `Stacks/stack_iron_sword.png` | Carry/stack piece: iron sword |
 | `Stacks/stack_maple_log.png` | Carry/stack piece: maple log |
+| `Stacks/stack_maple_longbow.png` | Carry/stack piece: maple longbow |
 | `Stacks/stack_maple_lumber.png` | Carry/stack piece: maple lumber |
 | `Stacks/stack_recovery_tonic.png` | Carry/stack piece: recovery tonic |
 | `Stacks/stack_riveted_coat.png` | Carry/stack piece: riveted coat |
 | `Stacks/stack_rope.png` | Carry/stack piece: rope |
+| `Stacks/stack_steel_coat.png` | Carry/stack piece: steel coat |
 | `Stacks/stack_steel_ingot.png` | Carry/stack piece: steel ingot |
+| `Stacks/stack_steel_sword.png` | Carry/stack piece: steel sword |
+| `Stacks/stack_warding_draught.png` | Carry/stack piece: warding draught |
 | `Tiles/tile_dirt.png` | Isometric ground tile (pebbles) |
 | `Tiles/tile_forest_floor.png` | Isometric ground tile (tufts) |
 | `Tiles/tile_grass_a.png` | Isometric ground tile (tufts) |

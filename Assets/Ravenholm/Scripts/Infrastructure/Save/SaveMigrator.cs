@@ -17,6 +17,7 @@ namespace Ravenholm.Infrastructure.Save
             { 3, MigrateV3ToV4 },
             { 4, MigrateV4ToV5 },
             { 5, MigrateV5ToV6 },
+            { 6, MigrateV6ToV7 },
         };
 
         /// <summary>Migrates <paramref name="root"/> in place up to the current schema.</summary>
@@ -47,6 +48,20 @@ namespace Ravenholm.Infrastructure.Save
             // Schema 1 used "version"; later schemas use "schemaVersion".
             var token = root["schemaVersion"] ?? root["version"];
             return token != null && token.Type == JTokenType.Integer ? token.Value<int>() : 0;
+        }
+
+        /// <summary>
+        /// Schema 7 (Phase 5): quest progress, results, and frozen resolution inputs on expeditions.
+        /// Older expeditions get resolverVersion 0 and are given inputs from content once on load.
+        /// </summary>
+        private static void MigrateV6ToV7(JObject o)
+        {
+            if (!(o["jobs"] is JObject j)) return;
+            if (j["progress"] == null) j["progress"] = new JObject();
+            if (j["results"] == null) j["results"] = new JArray();
+            if (j["expeditions"] is JArray ex)
+                foreach (var e in ex)
+                    if (e is JObject eo && eo["resolverVersion"] == null) eo["resolverVersion"] = 0;
         }
 
         /// <summary>Schema 6 (Phase 4) adds "jobs": the company starts with the GDD 15 gold and reputation.</summary>

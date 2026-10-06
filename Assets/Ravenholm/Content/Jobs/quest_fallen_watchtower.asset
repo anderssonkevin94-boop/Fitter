@@ -25,3 +25,20 @@ MonoBehaviour:
   recoveryContract: 0
   prestigeTarget: 40
   brief: A collapsed watchtower with something still inside.
+  prerequisites:
+  - {fileID: 11400000, guid: bb04e40da975c4bfe82854be0ad8de12, type: 2}
+  reputationGate: 0
+  mapTier: 2
+  successMaterials:
+  - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
+    quantity: 2
+  greatBonusMaterials:
+  - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
+    quantity: 1
+  partialMaterials: []
+  firstSuccessBlueprint: {fileID: 11400000, guid: 323825e54284f40e8836aa12d764a446, type: 2}
+  substituteMaterials:
+  - resource: {fileID: 11400000, guid: 7c9623d2f89ef4f0bb58c106302da3e3, type: 2}
+    quantity: 2
+  rareResource: {fileID: 11400000, guid: c92566d6dffce434b835bb60a6198cba, type: 2}
+  rareChance: 0.5

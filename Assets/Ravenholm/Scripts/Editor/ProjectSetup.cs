@@ -235,6 +235,12 @@ namespace Ravenholm.EditorTools
             new ItemSpec { Key = "recovery_tonic", Name = "Recovery Tonic", Category = ItemCategory.Potion, Effect = PotionEffect.SurvivalMargin, Strength = 4, BuyValue = 1 },
             // Phase 3 test unlock (advanced, GDD 9): Power 10, arcane counter +4.
             new ItemSpec { Key = "copper_ward_staff", Name = "Copper Ward Staff", Category = ItemCategory.Weapon, Power = 10, Tag = WeaponTag.Staff, BuyValue = 3 },
+            // Phase 5: quest-unlocked advanced items (GDD 9). Trader values ~10-15 % of replacement, conservative.
+            new ItemSpec { Key = "maple_longbow", Name = "Maple Longbow", Category = ItemCategory.Weapon, Power = 11, Tag = WeaponTag.Bow, BuyValue = 4 },
+            new ItemSpec { Key = "steel_sword", Name = "Steel Sword", Category = ItemCategory.Weapon, Power = 13, Tag = WeaponTag.Blade, BuyValue = 5 },
+            new ItemSpec { Key = "steel_coat", Name = "Steel Coat", Category = ItemCategory.Armor, Protection = 10, BuyValue = 5 },
+            new ItemSpec { Key = "antidote", Name = "Antidote", Category = ItemCategory.Potion, Effect = PotionEffect.PoisonCounter, Strength = 6, BuyValue = 2 },
+            new ItemSpec { Key = "warding_draught", Name = "Warding Draught", Category = ItemCategory.Potion, Effect = PotionEffect.ArcaneCounter, Strength = 6, BuyValue = 2 },
         };
 
         private static ContentCatalogue EnsureContent()
@@ -456,12 +462,12 @@ namespace Ravenholm.EditorTools
 
             var blueprints = new List<BlueprintDefinition>();
             var recipes = new List<RecipeDefinition>();
-            void Recipe(string item, StationDefinition st, List<ResourceCost> cost, bool starter, string reveal)
+            void Recipe(string item, StationDefinition st, List<ResourceCost> cost, bool starter, string reveal, int level = 1)
             {
                 var bp = Make<BlueprintDefinition>("blueprint_" + item, "blueprint." + item, I(item).DisplayName + " blueprint", out var bpCreated);
                 if (bpCreated) { bp.EditorSetupBlueprint(starter, reveal); EditorUtility.SetDirty(bp); }
                 var r = Make<RecipeDefinition>("recipe_" + item, "recipe." + item, I(item).DisplayName, out var rCreated);
-                if (rCreated) { r.EditorSetupRecipe(I(item), cost, st, 1, bp); EditorUtility.SetDirty(r); }
+                if (rCreated) { r.EditorSetupRecipe(I(item), cost, st, level, bp); EditorUtility.SetDirty(r); }
                 blueprints.Add(bp);
                 recipes.Add(r);
             }
@@ -474,6 +480,12 @@ namespace Ravenholm.EditorTools
             Recipe("recovery_tonic", apothecary, Cost(("herb", 2)), true, "Adds survival margin once if things go badly.");
             // The one advanced recipe for Phase 3 testing (normally from the Old Shrine's first success).
             Recipe("copper_ward_staff", bench, Cost(("cedar_lumber", 3), ("copper_ingot", 3)), false, "A staff that wards against arcane threats.");
+            // Phase 5 quest rewards (GDD 9 table; Forge 2 and Apothecary 2 gate advanced recipes, GDD 16).
+            Recipe("maple_longbow", bench, Cost(("maple_lumber", 4), ("iron_ingot", 2)), false, "A longbow that hits harder from further away.");
+            Recipe("steel_sword", forge, Cost(("steel_ingot", 4), ("cedar_lumber", 2)), false, "A heavier, keener blade.", 2);
+            Recipe("steel_coat", forge, Cost(("steel_ingot", 5), ("maple_lumber", 2)), false, "Armor that turns heavy blows.", 2);
+            Recipe("antidote", apothecary, Cost(("herb", 2), ("copper_ingot", 1)), false, "Counters poison when it is present.", 2);
+            Recipe("warding_draught", apothecary, Cost(("herb", 2), ("arcane_dust", 1)), false, "Counters arcane hazards when present.", 2);
 
             var startPath = ConfigDir + "StartingState.asset";
             var startCreated = !File.Exists(startPath);
@@ -488,6 +500,19 @@ namespace Ravenholm.EditorTools
             {
                 catalogue.EditorSetProduction(new List<StationDefinition> { smelter, mill, apothecary, forge, bench }, processes, recipes, blueprints, start);
                 EditorUtility.SetDirty(catalogue);
+            }
+            else
+            {
+                var r = new List<RecipeDefinition>(catalogue.Recipes);
+                var b = new List<BlueprintDefinition>(catalogue.Blueprints);
+                var changed = false;
+                foreach (var x in recipes) if (!r.Contains(x)) { r.Add(x); changed = true; }
+                foreach (var x in blueprints) if (!b.Contains(x)) { b.Add(x); changed = true; }
+                if (changed)
+                {
+                    catalogue.EditorSetProduction(new List<StationDefinition>(catalogue.Stations), new List<ProcessDefinition>(catalogue.Processes), r, b, catalogue.StartingState);
+                    EditorUtility.SetDirty(catalogue);
+                }
             }
         }
 
@@ -566,6 +591,34 @@ namespace Ravenholm.EditorTools
                 Quest("fallen_watchtower", "Fallen Watchtower", 24, 210f, 54, false, 40, "A collapsed watchtower with something still inside.", (traps, false)),
                 Quest("shrine_chamber", "Shrine Chamber", 27, 240f, 65, false, 45, "The sealed chamber beneath the Old Shrine.", (arcane, true), (exploration, false)),
             };
+
+            // Phase 5 progression: GDD 17 rewards and the map chain (balance starting points).
+            QuestDefinition Q(string key) => quests.Find(x => x.Id == "quest." + key);
+            ResourceDefinition Res(string key) => catalogue.Get<ResourceDefinition>("resource." + key);
+            List<ResourceCost> M(params (string r, int q)[] c)
+            {
+                var l = new List<ResourceCost>();
+                foreach (var (r, qty) in c) l.Add(new ResourceCost { resource = Res(r), quantity = qty });
+                return l;
+            }
+            BlueprintDefinition B(string key) => AssetDatabase.LoadAssetAtPath<BlueprintDefinition>(ProductionDir + "blueprint_" + key + ".asset");
+            void Progression(string key, string[] prereqs, int gate, int tier, List<ResourceCost> success, List<ResourceCost> great, string blueprint, List<ResourceCost> sub, string rare, float chance)
+            {
+                var q = Q(key);
+                var configured = q.SuccessMaterials.Count > 0 || q.FirstSuccessBlueprint != null || q.Prerequisites.Count > 0 || q.MapTier > 0;
+                if (configured || q.RecoveryContract) return;
+                var pre = new List<QuestDefinition>();
+                foreach (var p in prereqs) pre.Add(Q(p));
+                q.EditorSetupProgression(pre, gate, tier, success, great, new List<ResourceCost>(), blueprint != null ? B(blueprint) : null, sub, rare != null ? Res(rare) : null, chance);
+                EditorUtility.SetDirty(q);
+            }
+            Progression("roadside_patrol", new string[0], 0, 0, M(("iron_ingot", 2)), M(("iron_ingot", 1)), null, M(), "herb", 0.25f);
+            Progression("briar_track", new[] { "roadside_patrol" }, 0, 1, M(("maple_lumber", 2)), M(("maple_lumber", 1)), "maple_longbow", M(("maple_lumber", 2)), "gem", 0.5f);
+            Progression("old_shrine", new[] { "roadside_patrol" }, 0, 1, M(("arcane_dust", 1)), M(("arcane_dust", 1)), "copper_ward_staff", M(("copper_ingot", 2)), "gem", 0.5f);
+            Progression("quarry_road", new[] { "briar_track" }, 0, 2, M(("iron_ingot", 3)), M(("iron_ingot", 1)), "steel_coat", M(("iron_ingot", 2)), "gem", 0.5f);
+            Progression("fen_path", new[] { "briar_track" }, 0, 2, M(("herb", 2)), M(("herb", 1)), "antidote", M(("herb", 2)), "gem", 0.5f);
+            Progression("fallen_watchtower", new[] { "old_shrine" }, 0, 2, M(("steel_ingot", 2)), M(("steel_ingot", 1)), "steel_sword", M(("iron_ingot", 2)), "gem", 0.5f);
+            Progression("shrine_chamber", new[] { "old_shrine" }, 30, 3, M(("arcane_dust", 2), ("copper_ingot", 2)), M(("arcane_dust", 1)), "warding_draught", M(("copper_ingot", 2)), "gem", 0.5f);
 
             ContractorDefinition Contractor(string key, string name, AdventurerClassDefinition cls, TraitDefinition trait, bool sponsored, int skin)
             {

@@ -12,7 +12,7 @@ namespace Ravenholm.Infrastructure.Save
     public sealed class SaveEnvelope
     {
         /// <summary>Current schema written by this build. Bump it and add a migration when the shape changes.</summary>
-        public const int CurrentSchemaVersion = 6;
+        public const int CurrentSchemaVersion = 7;
 
         [JsonProperty("schemaVersion", Required = Required.Always)] public int SchemaVersion = CurrentSchemaVersion;
         [JsonProperty("gameBuild")] public string GameBuild = "";
@@ -186,6 +186,75 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("nextExpedition")] public long NextExpeditionNumber = 1;
         [JsonProperty("generated")] public int GeneratedContractors;
         [JsonProperty("firstDispatchDone")] public bool FirstDispatchDone;
+        [JsonProperty("progress")] public SortedDictionary<string, QuestProgressData> Progress = new SortedDictionary<string, QuestProgressData>();
+        [JsonProperty("results")] public List<ResultSaveData> Results = new List<ResultSaveData>();
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class QuestProgressData
+    {
+        [JsonProperty("attempts")] public int Attempts;
+        [JsonProperty("successes")] public int Successes;
+        [JsonProperty("unlocked")] public bool Unlocked;
+        [JsonProperty("revealed")] public List<string> RevealedThreats = new List<string>();
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class ThreatSpecData
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("tag")] public string CounterTag;
+        [JsonProperty("required")] public int Required;
+        [JsonProperty("unmetReadiness")] public int UnmetReadiness;
+        [JsonProperty("unmetSurvival")] public int UnmetSurvival;
+        [JsonProperty("armorThreshold")] public int ArmorThreshold;
+        [JsonProperty("armorReadiness")] public int ArmorReadiness;
+        [JsonProperty("armorSurvival")] public int ArmorSurvival;
+        [JsonProperty("known")] public bool Known;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class CarriedPotionData
+    {
+        [JsonProperty("instance")] public string InstanceId;
+        [JsonProperty("definition")] public string DefinitionId;
+        [JsonProperty("survivalBonus")] public int SurvivalBonus;
+        [JsonProperty("tag")] public string CounterTag;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class ResultSaveData
+    {
+        [JsonProperty("expedition")] public string ExpeditionId;
+        [JsonProperty("quest")] public string QuestId;
+        [JsonProperty("contractor")] public string ContractorId;
+        [JsonProperty("contractorName")] public string ContractorName;
+        [JsonProperty("outcome")] public string Outcome;
+        [JsonProperty("forced")] public bool Forced;
+        [JsonProperty("sponsored")] public bool Sponsored;
+        [JsonProperty("completedMs")] public long CompletedMs;
+        [JsonProperty("gold")] public int GoldEarned;
+        [JsonProperty("fee")] public int FeePaid;
+        [JsonProperty("materials")] public List<string> Materials = new List<string>();
+        [JsonProperty("returned")] public List<string> ReturnedItems = new List<string>();
+        [JsonProperty("consumed")] public List<string> ConsumedItems = new List<string>();
+        [JsonProperty("lost")] public List<string> LostItems = new List<string>();
+        [JsonProperty("blueprint")] public string BlueprintGranted;
+        [JsonProperty("substitute")] public bool SubstituteGranted;
+        [JsonProperty("repTenths")] public int ReputationDeltaTenths;
+        [JsonProperty("leveledUp")] public bool LeveledUp;
+        [JsonProperty("newLevel")] public int NewLevel;
+        [JsonProperty("injured")] public bool Injured;
+        [JsonProperty("died")] public bool Died;
+        [JsonProperty("revealed")] public List<string> RevealedThreats = new List<string>();
+        [JsonProperty("unlocked")] public List<string> QuestsUnlocked = new List<string>();
+        [JsonProperty("contributors")] public List<string> Contributors = new List<string>();
+        [JsonProperty("j")] public double J;
+        [JsonProperty("k")] public double K;
+        [JsonProperty("a")] public double A;
+        [JsonProperty("e")] public double E;
+        [JsonProperty("v")] public double V;
+        [JsonProperty("acknowledged")] public bool Acknowledged;
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -248,5 +317,9 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("threats")] public List<string> ThreatIds = new List<string>();
         [JsonProperty("forecast")] public string ForecastBand;
         [JsonProperty("testDeparture")] public bool TestDeparture;
+        [JsonProperty("difficulty")] public int Difficulty;
+        [JsonProperty("resolverVersion")] public int ResolverVersion;
+        [JsonProperty("threatSpecs")] public List<ThreatSpecData> ThreatSpecs = new List<ThreatSpecData>();
+        [JsonProperty("potions")] public List<CarriedPotionData> Potions = new List<CarriedPotionData>();
     }
 }

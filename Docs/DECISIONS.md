@@ -144,6 +144,45 @@ the GDD excludes monetization and analytics.
 - **Fix found by tests:** loadout-reserved items could be taken out of the Store by another caller. Only the reservation holder may take reserved items now.
 - **Saves:** schema 6 adds `jobs` (gold, reputation, contractors, posting with quotes and seed, expeditions with snapshots). The v5→v6 migration is tested with `save_v5_fixture.json`.
 
+## Phase 5 decisions (2026-10-06)
+
+- **Resolver v1 (GDD 12, exact):** E = A − D + J, with J triangular on ±10; V = Survival + 0.8·Protection + tonic + survival context − 0.55·D + K, with K triangular on ±6. Outcome table: GS E ≥ 10, Success E ≥ 0, Partial + injury E ≥ −6; below that, Failure if V ≥ 0, else Death.
+  - Hidden threats count in resolution even though the forecast left them out.
+  - Counter potions fire whenever their threat is present. A Recovery Tonic is spent only when E < −6.
+  - J and K come from each expedition's saved seed, so every outcome is reproducible.
+  - Expeditions freeze difficulty, threat specs, potions, stats and the resolver version at dispatch.
+- **Completion (GDD 13/23):** applied once, in completion-time then ID order, as one unit of work, and saved at once. The expedition ID is the idempotency key. It covers:
+  - gold = floor(base × 1.25 / 1 / 0.4 / 0 / 0);
+  - gear returned, consumed potions destroyed, or everything destroyed on death;
+  - explicit material packages per outcome and a duplicate-safe first-success blueprint (substitute materials if already owned);
+  - rare rolls (Great Success, plus the Rogue's bonus roll after a success);
+  - 1 XP per success with a level-up at 3, a 10-minute injury, or death;
+  - reputation +4/+3/0/−2/−7 with GDD 14 diminishing gains (tenths, clamped after each result);
+  - knowledge, then unlocks.
+- **Results:** acknowledging a result is presentation only. The last 30 are kept; a toast and badge announce returns.
+- **Survey:** authored safe result (Success, 8 gold, +1 base reputation, no XP or loot). Forcing never applies to it.
+- **Knowledge (my simplification of GDD 13):** a success reveals all of that quest's not-yet-identified threats; a partial reveals one; failure and death reveal nothing. Revealed threats feed forecasts and screening from then on.
+- **Map and chain (GDD 17 fixtures):**
+  - Start: Survey and Roadside Patrol.
+  - Patrol unlocks Briar Track and Old Shrine.
+  - Briar Track unlocks Quarry Road and Fen Path.
+  - Old Shrine unlocks Fallen Watchtower, and Shrine Chamber (which also needs reputation 30, first-reached).
+  - Unlocks never relock. The Job Board shows the map as tiers with lock reasons; locked jobs cannot be posted. Prerequisite cycles fail validation.
+- **Rewards (GDD 17, balance starting points):**
+  - Patrol: 2 iron ingots.
+  - Briar Track: 2 maple lumber + Maple Longbow.
+  - Old Shrine: 1 arcane dust + Copper Ward Staff.
+  - Quarry Road: 3 iron ingots + Steel Coat.
+  - Fen Path: 2 herbs + Antidote.
+  - Fallen Watchtower: 2 steel ingots + Steel Sword.
+  - Shrine Chamber: 2 arcane dust + 2 copper ingots + Warding Draught.
+  - Great Success adds one more unit of the main material. The rare roll is a gem at 50 % (Patrol: herb at 25 %).
+  - Simplification: the Patrol's "small chance of an extra herb" is modelled as its rare roll, which only happens on Great Success or with a Rogue.
+- **New content:** six advanced items and recipes per GDD 9 (Steel Sword and Steel Coat need Forge 2; Antidote and Warding Draught need Apothecary 2; Maple Longbow needs maple lumber, which needs Lumbermill 2). Use the station panels' DEBUG level toggle until Phase 6 upgrades.
+- **Result explanation:** two or three plain reasons ranked by size (threat countered or not, unidentified threat, a bad or good road, gear, tonic or armor on the retreat). There is no invented combat narrative.
+- **Debug:** force the next outcome (marked on the result), finish expeditions now, and exact odds over 2000 seeds in the loadout panel (designer-only line, never player-facing percentages). Phase 4 test departures remain for old saves only.
+- **Saves:** schema 7 adds quest progress, results and frozen expedition inputs. Older expeditions are rebuilt from content once (resolverVersion 0 → 1). The v6→v7 migration is tested with `save_v6_fixture.json`.
+
 ## Open blockers
 
 - **iOS build:** the Unity → Xcode device export succeeded headlessly on 2026-10-06 (0 errors, 1 warning, IL2CPP, 114 s). The Xcode compile/sign/install step has not run yet: the startup disk had only ~2.5 GB free, too little for Xcode intermediates. To do: free disk space, export again (Ravenholm > Build > iOS Xcode Project (Device)), open `Builds/iOS-Device/Unity-iPhone.xcodeproj`, pick a signing team, then Run on the iPhone.
@@ -152,7 +191,7 @@ the GDD excludes monetization and analytics.
 
 - 2026-10-06: Phase 1 approved by the user ("proceed"). No playtest notes given yet; the Phase 1 tuning questions (joystick comfort, camera, pickup cadence, capacity, walk speed, trip length, interior) carry over.
 - Phases 2 and 3: built under the overnight authorization; installed on the user's iPhone 16 Pro on 2026-10-06 for playtesting.
-- Phase 4: built 2026-10-06 under "keep going with the phases"; awaiting playtest.
+- Phases 4 and 5: built 2026-10-06 under "keep going with the phases". STOP here: the GDD asks for an extended full-loop playtest (at least three 20–30 minute sessions) before Phase 6.
 - 2026-10-06: user: "ok keep going with the phases" (no playtest notes yet). Plan: Phase 4, then Phase 5 (full core loop); stop after Phase 5 for the GDD's extended multi-session playtest.
 - 2026-10-06 (night): the user explicitly authorized continuing through "one or two more phases" unattended ("feel free to do one or two more phases tonight while I sleep"). Plan: finish Phase 2, then Phase 3, each with its own checkpoint notes and commits; stop after Phase 3 at the latest. Playtest feedback for Phases 1 to 3 is still owed, and later tuning may redirect any of them.
 

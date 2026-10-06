@@ -25,7 +25,7 @@ namespace Ravenholm.Services
             Logistics = new LogisticsService(Scheduler, new CatalogueAcceptanceRules(catalogue), TuningFrom(balance));
             Sites = new SitesService(Scheduler, Logistics, catalogue);
             Production = new ProductionService(Scheduler, Logistics, Sites, catalogue);
-            Jobs = new JobsService(Scheduler, Logistics, Sites, catalogue, balance);
+            Jobs = new JobsService(Scheduler, Logistics, Sites, Production, catalogue, balance);
         }
 
         public IClock Clock { get; }

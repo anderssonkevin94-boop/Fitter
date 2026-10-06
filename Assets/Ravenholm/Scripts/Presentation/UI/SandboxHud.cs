@@ -29,6 +29,8 @@ namespace Ravenholm.Presentation
         private TextMeshProUGUI _boardBadge;
         private JobBoardPanel _jobBoard;
         private LoadoutPanel _loadout;
+        private ResultPanel _result;
+        private TextMeshProUGUI _forceButtonText;
         private RectTransform _carryChip;
         private float _carryPulse;
         private Image _joyRing;
@@ -70,6 +72,15 @@ namespace Ravenholm.Presentation
 
         public JobBoardPanel JobBoard => _jobBoard;
         public LoadoutPanel Loadout => _loadout;
+        public ResultPanel Result => _result;
+
+        /// <summary>Opens a result card on demand (results never block movement on their own, GDD 2).</summary>
+        public void ShowResult(string expeditionId)
+        {
+            HideInfo();
+            _jobBoard.Close();
+            _result.Show(expeditionId);
+        }
 
         public void ShowJobBoard()
         {
@@ -157,6 +168,9 @@ namespace Ravenholm.Presentation
             _storePanel = StorePanel.Create(safe, _ui, root);
             _jobBoard = JobBoardPanel.Create(safe, _ui, root);
             _loadout = LoadoutPanel.Create(safe, _ui, root);
+            _result = ResultPanel.Create(safe, _ui, root);
+            _root.Services.Jobs.Completed += r =>
+                ShowToast(r.Died ? $"{r.ContractorName} did not return" : $"{r.ContractorName} is back: {ResultPanel.OutcomeWord(r.Outcome)}");
             BuildDebugLayer(safe);
 
             _root.Services.Saves.StatusChanged += _ => Refresh();
@@ -219,7 +233,7 @@ namespace Ravenholm.Presentation
             var banner = _ui.Panel("PhaseBanner", safe, _theme.panelDark);
             UiFactory.Place(banner.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180f), new Vector2(560f, 76f));
             banner.raycastTarget = false;
-            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 4", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 5", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(bt.rectTransform, 8f);
         }
 
@@ -359,7 +373,7 @@ namespace Ravenholm.Presentation
             var panel = _ui.Panel("Panel", layer, _theme.panel);
             UiFactory.Stretch(panel.rectTransform, 28f);
 
-            var title = _ui.Text("Title", panel.transform, "Debug · Phase 4", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            var title = _ui.Text("Title", panel.transform, "Debug · Phase 5", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             UiFactory.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(800f, 80f));
 
             // Scrollable body so the panel fits short (16:9) and tall phones alike.
@@ -441,6 +455,20 @@ namespace Ravenholm.Presentation
                 _root.Services.Production.DebugGrantMaterials(grant);
                 Report("Added 10 iron ingots, 6 copper ingots, 10 cedar lumber, 6 herbs to shared inventory (debug source).");
             }, out _);
+            _ui.Button("Force", content, "", () =>
+            {
+                var jobs = _root.Services.Jobs;
+                var cur = jobs.State.ForcedNext;
+                Domain.Jobs.Outcome? next = cur == null ? Domain.Jobs.Outcome.GreatSuccess
+                    : cur == Domain.Jobs.Outcome.Death ? (Domain.Jobs.Outcome?)null : (Domain.Jobs.Outcome)((int)cur.Value - 1);
+                jobs.DebugForceNext(next);
+                Refresh();
+            }, out _forceButtonText);
+            _ui.Button("FinishNow", content, "Finish expeditions now (debug)", () =>
+            {
+                _root.Services.Jobs.DebugFinishExpeditionsNow();
+                Report("Running expeditions will resolve on the next frame.");
+            }, out _);
             _ui.Button("Departures", content, "Return test departures (debug)", () =>
             {
                 var n = _root.Services.Jobs.DebugReturnTestDepartures();
@@ -481,6 +509,7 @@ namespace Ravenholm.Presentation
             _repText.text = jobs.Reputation.ToString();
             var arrived = 0;
             if (jobs.Posting != null) foreach (var a in jobs.Posting.Applicants) if (_root.Services.Jobs.Board.HasArrived(a)) arrived++;
+            arrived += _root.Services.Jobs.Board.UnacknowledgedResults;
             _boardBadge.text = arrived > 0 ? arrived.ToString() : "";
             _boardBadge.transform.parent.gameObject.SetActive(arrived > 0);
             if (_resetArmedUntil > 0 && Time.unscaledTime > _resetArmedUntil)
@@ -553,6 +582,7 @@ namespace Ravenholm.Presentation
             _storePanel.Close();
             _jobBoard.Close();
             _loadout.Close();
+            if (_result.IsOpen) _result.Continue();
             _debugLayer.SetActive(true);
             TouchInputRouter.PushModal();
             _debugMessage = "";
@@ -645,6 +675,11 @@ namespace Ravenholm.Presentation
                 (status.LastError != null ? "\n<color=#FFB3A0>Save error</color>" : "");
 
             if (_labelsButtonText != null) _labelsButtonText.text = $"Building labels: {(WorldLabel.Visible ? "ON" : "OFF")}";
+            if (_forceButtonText != null)
+            {
+                var f = _root.Services.Jobs.State.ForcedNext;
+                _forceButtonText.text = f == null ? "Force next outcome: off (debug)" : $"Force next outcome: {f} (debug)";
+            }
             if (_speedButtonText != null) _speedButtonText.text = $"Site sim speed: ×{_root.Services.Sites.SpeedMultiplier:0} (debug accelerated time)";
             if (_viewButtonText != null) _viewButtonText.text = $"View width: {FollowCamera.CurrentViewWidth(_root.Config.SandboxSettings):0.#} units";
             if (_debugStatus != null && IsDebugOpen) _debugStatus.text = BuildStatusText(status, state);

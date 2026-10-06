@@ -3,7 +3,7 @@
 iOS-first, portrait fantasy supply-company management game in Unity.
 Design authority: *Ravenholm Supply Co Unity GDD* (design baseline 1.0, 6 Oct 2026).
 
-**Current state: Phase 4 checkpoint (Job Board and applicant selection). Phases 0–1 approved; Phases 2–4 built under the user's authorization to keep going, awaiting playtest.**
+**Current state: Phase 5 checkpoint (quest resolution and the full core loop). Phases 0–1 approved; Phases 2–5 built under the user's authorization to keep going. Awaiting the extended full-loop playtest before Phase 6.**
 
 ## Open and run
 
@@ -30,6 +30,11 @@ Debug panel adds: grant the test blueprint (Copper ward staff), add test materia
 Phase 4: open the Job Board (board button top right, or Store → Job Board), post a job, and wait ~10–30 s for applicants to gather at the Store.
 Tap an applicant (or use their card on the board) to meet them, set their loadout, read the forecast, and Send. Expeditions stop at a TEST DEPARTURE until Phase 5.
 Debug panel adds: return test departures (refund), set gold, set reputation.
+
+Phase 5: expeditions now resolve when their timer ends (Roadside Patrol 90 s; use Site sim speed ×20 to wait less).
+A toast announces the return; open the Job Board to read the result card (gold, materials, gear back or lost, injuries, reputation, new knowledge, why).
+Successes unlock new jobs on the map and first-success blueprints. Deaths are permanent and lose the carried gear.
+Debug panel adds: force next outcome, finish expeditions now. The loadout shows a small DEBUG line with exact odds.
 
 ## Reset the test save
 

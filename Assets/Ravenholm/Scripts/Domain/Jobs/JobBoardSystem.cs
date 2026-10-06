@@ -75,8 +75,52 @@ namespace Ravenholm.Domain.Jobs
         public LoadoutStats Snapshot = new LoadoutStats();
         public readonly List<string> ThreatIds = new List<string>();
         public string ForecastBand = "";
-        /// <summary>Phase 4: dispatch reaches a test departure; no results are resolved yet.</summary>
+        /// <summary>Phase 4 fixture: a departure that never resolves (debug-resettable).</summary>
         public bool TestDeparture;
+        // Frozen resolution inputs (GDD 23: in-flight quests use their dispatch snapshot and resolver version).
+        public int Difficulty;
+        public readonly List<ThreatSpec> Threats = new List<ThreatSpec>();
+        public readonly List<CarriedPotion> Potions = new List<CarriedPotion>();
+        public int ResolverVersion = Resolver.Version;
+    }
+
+    public sealed class QuestProgress
+    {
+        public int Attempts;
+        public int Successes;
+        public bool Unlocked;
+        public readonly SortedSet<string> RevealedThreats = new SortedSet<string>(StringComparer.Ordinal);
+    }
+
+    /// <summary>Applied, immutable result (GDD 13). Acknowledging it is presentation only.</summary>
+    public sealed class ResultRecord
+    {
+        public string ExpeditionId = "";
+        public string QuestId = "";
+        public string ContractorId = "";
+        public string ContractorName = "";
+        public Outcome Outcome;
+        public bool Forced;
+        public bool Sponsored;
+        public long CompletedMs;
+        public int GoldEarned;
+        public int FeePaid;
+        public readonly List<string> Materials = new List<string>();      // "resource.x:2"
+        public readonly List<string> ReturnedItems = new List<string>();  // item definition IDs
+        public readonly List<string> ConsumedItems = new List<string>();
+        public readonly List<string> LostItems = new List<string>();
+        public string BlueprintGranted;
+        public bool SubstituteGranted;
+        public int ReputationDeltaTenths;
+        public bool LeveledUp;
+        public int NewLevel;
+        public bool Injured;
+        public bool Died;
+        public readonly List<string> RevealedThreats = new List<string>();
+        public readonly List<string> QuestsUnlocked = new List<string>();
+        public readonly List<string> Contributors = new List<string>();
+        public double J, K, A, E, V;
+        public bool Acknowledged;
     }
 
     public sealed class JobsState
@@ -92,6 +136,11 @@ namespace Ravenholm.Domain.Jobs
         public long NextExpeditionNumber = 1;
         public int GeneratedContractors;
         public bool FirstDispatchDone;
+        public readonly SortedDictionary<string, QuestProgress> Progress = new SortedDictionary<string, QuestProgress>(StringComparer.Ordinal);
+        /// <summary>Most recent last; bounded.</summary>
+        public readonly List<ResultRecord> Results = new List<ResultRecord>();
+        /// <summary>DEBUG: forces the next resolved expedition's outcome (clearly marked on the result).</summary>
+        public Outcome? ForcedNext;
 
         public int Reputation => (int)Math.Round(ReputationTenths / 10.0, MidpointRounding.AwayFromZero);
     }
@@ -105,6 +154,7 @@ namespace Ravenholm.Domain.Jobs
         public int Might, Survival, Insight, GainPerLevel = 1, BaseFee = 8;
         public readonly List<string> WeaponTags = new List<string>();
         public readonly List<KeyValuePair<string, int>> Counters = new List<KeyValuePair<string, int>>();
+        public bool BonusRareRoll;
     }
 
     public sealed class TraitInfo
@@ -123,7 +173,25 @@ namespace Ravenholm.Domain.Jobs
         public int DurationMs;
         public bool Repeatable = true;
         public bool Recovery;
-        public readonly List<ThreatSpec> Threats = new List<ThreatSpec>();
+        public List<ThreatSpec> Threats = new List<ThreatSpec>();
+        public int BaseGold;
+        public int PrestigeTarget = 20;
+        public int ReputationGate;
+        public int MapTier;
+        public readonly List<string> Prerequisites = new List<string>();
+        public readonly List<KeyValuePair<string, int>> SuccessMaterials = new List<KeyValuePair<string, int>>();
+        public readonly List<KeyValuePair<string, int>> GreatBonusMaterials = new List<KeyValuePair<string, int>>();
+        public readonly List<KeyValuePair<string, int>> PartialMaterials = new List<KeyValuePair<string, int>>();
+        public readonly List<KeyValuePair<string, int>> SubstituteMaterials = new List<KeyValuePair<string, int>>();
+        public string FirstSuccessBlueprint;
+        public string RareResource;
+        public double RareChance;
+
+        public QuestInfo CloneShallow()
+        {
+            var q = (QuestInfo)MemberwiseClone();
+            return q;
+        }
     }
 
     public enum ItemKind { Weapon, Armor, Potion }
@@ -140,8 +208,17 @@ namespace Ravenholm.Domain.Jobs
         public int SurvivalBonus;
     }
 
+    /// <summary>Blueprints and shared materials that quest rewards grant.</summary>
+    public interface IRewardLedger
+    {
+        bool OwnsBlueprint(string blueprintId);
+        void GrantBlueprint(string blueprintId);
+        void ProduceShared(string resourceId, int quantity, string reason);
+    }
+
     public interface IJobContent
     {
+        IReadOnlyList<string> QuestIds { get; }
         ClassInfo Class(string id);
         TraitInfo Trait(string id);
         QuestInfo Quest(string id);
@@ -167,6 +244,8 @@ namespace Ravenholm.Domain.Jobs
         /// </summary>
         bool TakeFromStore(IReadOnlyList<string> instanceIds, string owner, string reason);
         void ReturnToStore(IReadOnlyList<string> instanceIds, string reason);
+        /// <summary>Permanently destroys items held outside the Store (expedition loss, consumed potions).</summary>
+        void DestroyItems(IReadOnlyList<string> instanceIds, string reason);
     }
 
     public sealed class Loadout
@@ -193,6 +272,9 @@ namespace Ravenholm.Domain.Jobs
         public int ArrivalMinMs = 10000, ArrivalMaxMs = 30000;
         public int PoolTarget = 12;
         public int LevelCap = 10;
+        public int XpPerLevel = 3;
+        public long InjuryMs = 10 * 60 * 1000;
+        public int ResultHistory = 30;
     }
 
     /// <summary>
@@ -208,14 +290,78 @@ namespace Ravenholm.Domain.Jobs
         private readonly IGearLedger _gear;
         private readonly JobBoardConfig _cfg;
         private readonly ulong _worldSeed;
+        private readonly IRewardLedger _rewards;
 
-        public JobBoardSystem(JobsState state, IJobContent content, IGearLedger gear, JobBoardConfig config, ulong worldSeed)
+        public JobBoardSystem(JobsState state, IJobContent content, IGearLedger gear, JobBoardConfig config, ulong worldSeed, IRewardLedger rewards = null)
         {
             _s = state;
             _content = content;
             _gear = gear;
             _cfg = config;
             _worldSeed = worldSeed;
+            _rewards = rewards;
+            RefreshUnlocks();
+        }
+
+        /// <summary>(result) after an expedition's consequences were applied, exactly once.</summary>
+        public event Action<ResultRecord> Completed;
+
+        // ------------------------------------------------------------------ knowledge and the map (GDD 13/14)
+
+        public QuestProgress ProgressOf(string questId)
+        {
+            if (!_s.Progress.TryGetValue(questId, out var p)) _s.Progress[questId] = p = new QuestProgress();
+            return p;
+        }
+
+        /// <summary>The quest as the company currently knows it: revealed threats become known.</summary>
+        public QuestInfo Quest(string id)
+        {
+            var q = _content.Quest(id);
+            if (q == null) return null;
+            var view = q.CloneShallow();
+            var threats = new List<ThreatSpec>();
+            _s.Progress.TryGetValue(id, out var prog);
+            foreach (var t in q.Threats)
+            {
+                var known = t.Known || (prog != null && prog.RevealedThreats.Contains(t.Id));
+                threats.Add(new ThreatSpec
+                {
+                    Id = t.Id, CounterTag = t.CounterTag, Required = t.Required, UnmetReadiness = t.UnmetReadiness, UnmetSurvival = t.UnmetSurvival,
+                    ArmorThreshold = t.ArmorThreshold, ArmorReadiness = t.ArmorReadiness, ArmorSurvival = t.ArmorSurvival, Known = known,
+                });
+            }
+            view.Threats = threats;
+            return view;
+        }
+
+        /// <summary>Quests unlock once their prerequisites have succeeded and the reputation gate was first reached; they stay unlocked.</summary>
+        public void RefreshUnlocks()
+        {
+            foreach (var id in _content.QuestIds)
+            {
+                var q = _content.Quest(id);
+                var p = ProgressOf(id);
+                if (p.Unlocked) continue;
+                var ok = _s.Reputation >= q.ReputationGate;
+                foreach (var pre in q.Prerequisites)
+                    if (!_s.Progress.TryGetValue(pre, out var pp) || pp.Successes == 0) ok = false;
+                if (ok) p.Unlocked = true;
+            }
+        }
+
+        public bool IsUnlocked(string questId) => _s.Progress.TryGetValue(questId, out var p) && p.Unlocked;
+
+        public string LockReason(string questId)
+        {
+            var q = _content.Quest(questId);
+            if (q == null || IsUnlocked(questId)) return null;
+            var needs = new List<string>();
+            foreach (var pre in q.Prerequisites)
+                if (!_s.Progress.TryGetValue(pre, out var pp) || pp.Successes == 0) needs.Add(_content.Quest(pre)?.Name ?? pre);
+            var text = needs.Count > 0 ? "Succeed at " + string.Join(" and ", needs) : "";
+            if (_s.Reputation < q.ReputationGate) text += (text.Length > 0 ? ", and reach " : "Reach ") + $"reputation {q.ReputationGate}";
+            return "Locked: " + text;
         }
 
         public JobsState State => _s;
@@ -340,8 +486,9 @@ namespace Ravenholm.Domain.Jobs
         /// <summary>Why a quest cannot be posted now (null = it can).</summary>
         public string PostBlockedReason(string questId)
         {
-            var q = _content.Quest(questId);
+            var q = Quest(questId);
             if (q == null) return "Unknown job";
+            if (!IsUnlocked(questId)) return LockReason(questId);
             if (_s.Posting != null) return "One open posting at a time: cancel or fill the current one";
             foreach (var e in _s.Expeditions)
                 if (e.QuestId == questId) return q.Repeatable ? "Already running (one at a time for now)" : "Already underway";
@@ -353,7 +500,7 @@ namespace Ravenholm.Domain.Jobs
         {
             failure = PostBlockedReason(questId);
             if (failure != null) return false;
-            var q = _content.Quest(questId);
+            var q = Quest(questId);
             _s.WindowIndex.TryGetValue(questId, out var window);
             // The candidate window seed only advances when a posting is filled, so cancel/repost cannot reroll.
             var seed = RandomStreams.SplitMix64(_worldSeed ^ SiteMath.StableHash(questId) ^ ((ulong)(window + 1) * 0x9E3779B97F4A7C15UL));
@@ -473,9 +620,208 @@ namespace Ravenholm.Domain.Jobs
         {
             if (ms <= 0) return;
             _s.SimMs += ms;
+            // Completion-time order, then stable expedition ID (GDD 13).
+            var due = _s.Expeditions.FindAll(e => !e.TestDeparture && e.EndMs <= _s.SimMs);
+            due.Sort((a, b) => a.EndMs != b.EndMs ? a.EndMs.CompareTo(b.EndMs) : string.CompareOrdinal(a.Id, b.Id));
+            foreach (var e in due) Complete(e);
             foreach (var c in _s.Contractors.Values)
                 if (c.Status == ContractorStatus.Injured && _s.SimMs >= c.InjuredUntilMs) c.Status = ContractorStatus.Available;
+            if (due.Count > 0) Changed?.Invoke();
         }
+
+        /// <summary>DEBUG: brings every running expedition's end time to now (they resolve on the next tick).</summary>
+        public void DebugFinishExpeditionsNow()
+        {
+            foreach (var e in _s.Expeditions) if (!e.TestDeparture && e.EndMs > _s.SimMs) e.EndMs = _s.SimMs;
+        }
+
+        /// <summary>
+        /// Applies one expedition's consequences in a single unit of work (GDD 13/23): gold, gear return
+        /// or loss, consumed potions, materials, blueprint (duplicate-safe), XP, injury or death, reputation,
+        /// knowledge and unlocks, then the result record. The expedition ID is the idempotency key.
+        /// </summary>
+        public ResultRecord Complete(ExpeditionRecord e)
+        {
+            if (_s.Results.Exists(r => r.ExpeditionId == e.Id) || !_s.Expeditions.Contains(e)) return null;
+            var q = Quest(e.QuestId);
+            var c = Contractor(e.ContractorId);
+            var rng = new Pcg32(e.Seed, 7);   // reward rolls: separate from the resolver's own draws
+
+            var res = new ResultRecord
+            {
+                ExpeditionId = e.Id, QuestId = e.QuestId, ContractorId = e.ContractorId, ContractorName = c?.Name ?? e.ContractorId,
+                CompletedMs = e.EndMs, FeePaid = e.FeePaid, Sponsored = e.Sponsored,
+            };
+
+            Outcome outcome;
+            Resolution resolution = null;
+            if (q != null && q.Recovery)
+            {
+                outcome = Outcome.Success;   // authored safe result, never the random formula (GDD 15)
+                res.Contributors.Add("A safe survey: nothing on the road could go badly.");
+            }
+            else
+            {
+                var forced = _s.ForcedNext;
+                _s.ForcedNext = null;
+                resolution = Resolver.Resolve(_cfg.Resolver, e.Snapshot, e.Difficulty, e.Threats, e.Potions, e.Seed, forced);
+                outcome = resolution.Outcome;
+                res.Forced = resolution.Forced;
+                res.J = resolution.J; res.K = resolution.K; res.A = resolution.A; res.E = resolution.E; res.V = resolution.V;
+                res.Contributors.AddRange(resolution.Contributors);
+            }
+            res.Outcome = outcome;
+
+            // Gold: floor(base × multiplier).
+            res.GoldEarned = q == null ? 0 : (int)Math.Floor(q.BaseGold * Resolver.GoldMultiplier(outcome));
+            _s.Gold += res.GoldEarned;
+
+            // Gear.
+            if (outcome == Outcome.Death)
+            {
+                foreach (var i in e.Items) res.LostItems.Add(_gear.DefinitionOfItem(i));
+                _gear.DestroyItems(e.Items, $"lost with {res.ContractorName}");
+            }
+            else
+            {
+                var consumed = resolution != null ? resolution.ConsumedPotions : new List<string>();
+                var back = new List<string>();
+                foreach (var i in e.Items)
+                {
+                    if (consumed.Contains(i)) res.ConsumedItems.Add(_gear.DefinitionOfItem(i));
+                    else { back.Add(i); res.ReturnedItems.Add(_gear.DefinitionOfItem(i)); }
+                }
+                var used = new List<string>(consumed);
+                used.RemoveAll(x => !e.Items.Contains(x));
+                _gear.DestroyItems(used, "potion consumed");
+                _gear.ReturnToStore(back, "expedition return");
+            }
+
+            // Materials, blueprint and rare rolls.
+            if (q != null && !q.Recovery && _rewards != null)
+            {
+                var success = outcome == Outcome.Success || outcome == Outcome.GreatSuccess;
+                if (success) Grant(res, q.SuccessMaterials);
+                if (outcome == Outcome.GreatSuccess) Grant(res, q.GreatBonusMaterials);
+                if (outcome == Outcome.PartialInjury) Grant(res, q.PartialMaterials);
+                var prog = ProgressOf(q.Id);
+                if (success && prog.Successes == 0 && !string.IsNullOrEmpty(q.FirstSuccessBlueprint))
+                {
+                    // Resolved against current ownership at grant time; duplicates become the substitute (GDD 9).
+                    if (_rewards.OwnsBlueprint(q.FirstSuccessBlueprint))
+                    {
+                        Grant(res, q.SubstituteMaterials);
+                        res.SubstituteGranted = true;
+                    }
+                    else
+                    {
+                        _rewards.GrantBlueprint(q.FirstSuccessBlueprint);
+                        res.BlueprintGranted = q.FirstSuccessBlueprint;
+                    }
+                }
+                var rolls = (outcome == Outcome.GreatSuccess ? 1 : 0) + (success && HasBonusRareRoll(c) ? 1 : 0);
+                for (var i = 0; i < rolls; i++)
+                    if (!string.IsNullOrEmpty(q.RareResource) && rng.NextDouble() < q.RareChance)
+                        Grant(res, new List<KeyValuePair<string, int>> { new KeyValuePair<string, int>(q.RareResource, 1) });
+            }
+
+            // Contractor.
+            if (c != null)
+            {
+                c.Jobs++;
+                switch (outcome)
+                {
+                    case Outcome.GreatSuccess:
+                    case Outcome.Success:
+                        c.Successes++;
+                        if (q == null || !q.Recovery)
+                        {
+                            c.Xp++;
+                            if (c.Xp >= _cfg.XpPerLevel && c.Level < _cfg.LevelCap)
+                            {
+                                c.Xp -= _cfg.XpPerLevel;
+                                c.Level++;
+                                res.LeveledUp = true;
+                            }
+                        }
+                        c.Status = ContractorStatus.Available;
+                        c.LastNote = $"{outcome} at {q?.Name}";
+                        break;
+                    case Outcome.PartialInjury:
+                        c.Status = ContractorStatus.Injured;
+                        c.InjuredUntilMs = _s.SimMs + _cfg.InjuryMs;
+                        res.Injured = true;
+                        c.LastNote = $"injured at {q?.Name}";
+                        break;
+                    case Outcome.Failure:
+                        c.Status = ContractorStatus.Available;
+                        c.LastNote = $"turned back at {q?.Name}";
+                        break;
+                    default:
+                        c.Status = ContractorStatus.Dead;
+                        res.Died = true;
+                        c.LastNote = $"died at {q?.Name}";
+                        break;
+                }
+                res.NewLevel = c.Level;
+            }
+
+            // Reputation (tenths, clamped after each result, in completion order).
+            var before = _s.ReputationTenths;
+            var baseTenths = q != null && q.Recovery ? 10 : Resolver.ReputationBaseTenths(outcome);
+            _s.ReputationTenths = Resolver.ApplyReputation(before, baseTenths, q?.PrestigeTarget ?? 20);
+            res.ReputationDeltaTenths = _s.ReputationTenths - before;
+
+            // Knowledge and the map.
+            if (q != null)
+            {
+                var prog = ProgressOf(q.Id);
+                if (outcome == Outcome.Success || outcome == Outcome.GreatSuccess)
+                {
+                    foreach (var t in q.Threats) if (!t.Known && prog.RevealedThreats.Add(t.Id)) res.RevealedThreats.Add(t.Id);
+                    prog.Successes++;
+                }
+                else if (outcome == Outcome.PartialInjury)
+                {
+                    foreach (var t in q.Threats)
+                        if (!t.Known && prog.RevealedThreats.Add(t.Id)) { res.RevealedThreats.Add(t.Id); break; }   // one threat fact
+                }
+                var lockedBefore = new HashSet<string>();
+                foreach (var id in _content.QuestIds) if (!IsUnlocked(id)) lockedBefore.Add(id);
+                RefreshUnlocks();
+                foreach (var id in lockedBefore) if (IsUnlocked(id)) res.QuestsUnlocked.Add(id);
+            }
+
+            _s.Expeditions.Remove(e);
+            _s.Results.Add(res);
+            while (_s.Results.Count > _cfg.ResultHistory)
+            {
+                var oldest = _s.Results.FindIndex(r => r.Acknowledged);
+                _s.Results.RemoveAt(oldest >= 0 ? oldest : 0);
+            }
+            Completed?.Invoke(res);
+            return res;
+        }
+
+        private bool HasBonusRareRoll(ContractorRecord c) => c != null && _content.Class(c.ClassId) is ClassInfo ci && ci.BonusRareRoll;
+
+        private void Grant(ResultRecord res, IReadOnlyList<KeyValuePair<string, int>> materials)
+        {
+            foreach (var m in materials)
+            {
+                if (m.Value <= 0) continue;
+                _rewards.ProduceShared(m.Key, m.Value, "quest reward");
+                res.Materials.Add($"{m.Key}:{m.Value}");
+            }
+        }
+
+        public void Acknowledge(string expeditionId)
+        {
+            var r = _s.Results.Find(x => x.ExpeditionId == expeditionId);
+            if (r != null) r.Acknowledged = true;
+        }
+
+        public int UnacknowledgedResults => _s.Results.FindAll(r => !r.Acknowledged).Count;
 
         public bool HasArrived(ApplicantRecord a) => _s.SimMs >= a.ArriveMs;
 
@@ -497,7 +843,7 @@ namespace Ravenholm.Domain.Jobs
             var c = Contractor(contractorId);
             if (c == null || c.Status != ContractorStatus.Available) return $"{c?.Name ?? "Contractor"} is not available";
             if (_s.Expeditions.Count >= _cfg.ActiveSlots) return $"Both expedition slots are in use ({_cfg.ActiveSlots})";
-            var q = _content.Quest(p.QuestId);
+            var q = Quest(p.QuestId);
 
             var ids = l.All();
             if (new HashSet<string>(ids).Count != ids.Count) return "The same item is in two slots";
@@ -533,7 +879,7 @@ namespace Ravenholm.Domain.Jobs
             if (failure != null) return false;
 
             var p = _s.Posting;
-            var q = _content.Quest(p.QuestId);
+            var q = Quest(p.QuestId);
             var a = p.Applicants.Find(x => x.ContractorId == contractorId);
             var c = Contractor(contractorId);
             var snapshot = StatsWith(c, l);
@@ -563,8 +909,18 @@ namespace Ravenholm.Domain.Jobs
             };
             e.Items.AddRange(l.All());
             foreach (var t in q.Threats) e.ThreatIds.Add(t.Id);
+            e.Difficulty = q.Difficulty;
+            e.Threats.AddRange(q.Threats);
+            var seenEffects = new HashSet<string>();
+            foreach (var pid in new[] { l.Potion1, l.Potion2 })
+            {
+                var pi = Info(pid);
+                if (pi == null || pi.Kind != ItemKind.Potion || !seenEffects.Add(pi.Id)) continue;
+                e.Potions.Add(new CarriedPotion { InstanceId = pid, DefinitionId = pi.Id, SurvivalBonus = pi.SurvivalBonus, CounterTag = pi.CounterTag });
+            }
 
             _s.NextExpeditionNumber++;
+            ProgressOf(q.Id).Attempts++;
             _s.Gold -= e.FeePaid;
             c.Status = ContractorStatus.OnExpedition;
             _s.Expeditions.Add(e);

@@ -277,7 +277,32 @@ namespace Ravenholm.Presentation
                     : $"• {UnitVisuals.DisplayName(info.Id)}: used if {info.CounterTag.ToLowerInvariant()} is present\n");
             }
             sb.Append("<b>Gear is permanently lost if the contractor dies.</b> Unused potions come back on any other return.");
+            sb.Append($"\n<size=75%><color=#7A6A5A>DEBUG exact odds (2000 seeds, incl. hidden threats): {Distribution(c, q)}</color></size>");
             return sb.ToString();
+        }
+
+        private string _distKey = "";
+        private string _distText = "";
+
+        /// <summary>Designer-only exact distribution (GDD 12: never shown as player-facing percentages).</summary>
+        private string Distribution(ContractorRecord c, QuestInfo q)
+        {
+            var key = $"{c.Id}|{q.Id}|{_loadout.Weapon}|{_loadout.Armor}|{_loadout.Potion1}|{_loadout.Potion2}";
+            if (key == _distKey) return _distText;
+            _distKey = key;
+            var stats = Board.StatsWith(c, _loadout);
+            var all = _root.Services.Jobs.Content.Quest(q.Id);
+            var potions = new List<CarriedPotion>();
+            foreach (var p in new[] { _loadout.Potion1, _loadout.Potion2 })
+            {
+                var info = p != null ? _root.Services.Jobs.Content.Item(_root.Services.Logistics.System.DefinitionOfItem(p)) : null;
+                if (info != null) potions.Add(new CarriedPotion { InstanceId = p, DefinitionId = info.Id, SurvivalBonus = info.SurvivalBonus, CounterTag = info.CounterTag });
+            }
+            var counts = new int[5];
+            for (var i = 0; i < 2000; i++)
+                counts[(int)Resolver.Resolve(Board.Config.Resolver, stats, q.Difficulty, all.Threats, potions, (ulong)(i * 2654435761L + 17)).Outcome]++;
+            _distText = $"Great {counts[4] / 20f:0}% · Success {counts[3] / 20f:0}% · Partial {counts[2] / 20f:0}% · Fail {counts[1] / 20f:0}% · Death {counts[0] / 20f:0}%";
+            return _distText;
         }
 
         private string SendText()

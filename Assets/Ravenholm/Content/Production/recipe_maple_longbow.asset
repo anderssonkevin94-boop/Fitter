@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b68138b169594ccd9f5483367190cb3, type: 3}
+  m_Name: recipe_maple_longbow
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.RecipeDefinition
+  id: recipe.maple_longbow
+  displayName: Maple Longbow
+  contentVersion: 1
+  outputItem: {fileID: 11400000, guid: 99f7440e3092a4546b0ee44c57356bd7, type: 2}
+  quantity: 1
+  cost:
+  - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+    quantity: 4
+  - resource: {fileID: 11400000, guid: 7c9623d2f89ef4f0bb58c106302da3e3, type: 2}
+    quantity: 2
+  station: {fileID: 11400000, guid: d5a48a45e9ce34bb8be58ac42550e9ca, type: 2}
+  minFacilityLevel: 1
+  requiredBlueprint: {fileID: 11400000, guid: 67b67d47879ae4a32b9d063ed78284ef, type: 2}

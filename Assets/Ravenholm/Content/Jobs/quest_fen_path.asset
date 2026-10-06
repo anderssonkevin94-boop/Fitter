@@ -25,3 +25,20 @@ MonoBehaviour:
   recoveryContract: 0
   prestigeTarget: 35
   brief: A path through the fens; travellers come back sick.
+  prerequisites:
+  - {fileID: 11400000, guid: fcbade42719714b5d8b755ea04fc400e, type: 2}
+  reputationGate: 0
+  mapTier: 2
+  successMaterials:
+  - resource: {fileID: 11400000, guid: d9423a863cc414f9ea62df0297b743c1, type: 2}
+    quantity: 2
+  greatBonusMaterials:
+  - resource: {fileID: 11400000, guid: d9423a863cc414f9ea62df0297b743c1, type: 2}
+    quantity: 1
+  partialMaterials: []
+  firstSuccessBlueprint: {fileID: 11400000, guid: b835254fe8ff748bd87efa40a1f1b221, type: 2}
+  substituteMaterials:
+  - resource: {fileID: 11400000, guid: d9423a863cc414f9ea62df0297b743c1, type: 2}
+    quantity: 2
+  rareResource: {fileID: 11400000, guid: c92566d6dffce434b835bb60a6198cba, type: 2}
+  rareChance: 0.5

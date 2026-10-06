@@ -19,6 +19,14 @@ namespace Ravenholm.Services
         private readonly List<string> _genTraits = new List<string>();
         private readonly List<string> _given = new List<string>();
         private readonly List<string> _family = new List<string>();
+        private readonly List<string> _questIds = new List<string>();
+
+        private static List<KeyValuePair<string, int>> Pairs(IReadOnlyList<ResourceCost> list)
+        {
+            var r = new List<KeyValuePair<string, int>>();
+            foreach (var c in list) if (c.resource != null) r.Add(new KeyValuePair<string, int>(c.resource.Id, c.quantity));
+            return r;
+        }
 
         public CatalogueJobContent(ContentCatalogue c)
         {
@@ -27,7 +35,7 @@ namespace Ravenholm.Services
             foreach (var d in c.Classes)
             {
                 if (d == null) continue;
-                var ci = new ClassInfo { Id = d.Id, Name = d.DisplayName, Might = d.Might, Survival = d.Survival, Insight = d.Insight, GainPerLevel = d.GainPerLevel, BaseFee = d.BaseFee };
+                var ci = new ClassInfo { Id = d.Id, Name = d.DisplayName, Might = d.Might, Survival = d.Survival, Insight = d.Insight, GainPerLevel = d.GainPerLevel, BaseFee = d.BaseFee, BonusRareRoll = d.BonusRareRoll };
                 foreach (var t in d.WeaponTags) ci.WeaponTags.Add(t.ToString());
                 foreach (var cv in d.Counters) ci.Counters.Add(new KeyValuePair<string, int>(cv.tag.ToString(), cv.strength));
                 _classes[d.Id] = ci;
@@ -44,7 +52,19 @@ namespace Ravenholm.Services
             foreach (var d in c.Quests)
             {
                 if (d == null) continue;
-                var qi = new QuestInfo { Id = d.Id, Name = d.DisplayName, Difficulty = d.Difficulty, DurationMs = (int)Math.Round(d.DurationSeconds * 1000), Repeatable = d.Repeatable, Recovery = d.RecoveryContract };
+                var qi = new QuestInfo
+                {
+                    Id = d.Id, Name = d.DisplayName, Difficulty = d.Difficulty, DurationMs = (int)Math.Round(d.DurationSeconds * 1000), Repeatable = d.Repeatable,
+                    Recovery = d.RecoveryContract, BaseGold = d.BaseGold, PrestigeTarget = d.PrestigeTarget, ReputationGate = d.ReputationGate, MapTier = d.MapTier,
+                    FirstSuccessBlueprint = d.FirstSuccessBlueprint != null ? d.FirstSuccessBlueprint.Id : null,
+                    RareResource = d.RareResource != null ? d.RareResource.Id : null, RareChance = d.RareChance,
+                };
+                foreach (var pre in d.Prerequisites) if (pre != null) qi.Prerequisites.Add(pre.Id);
+                qi.SuccessMaterials.AddRange(Pairs(d.SuccessMaterials));
+                qi.GreatBonusMaterials.AddRange(Pairs(d.GreatBonusMaterials));
+                qi.PartialMaterials.AddRange(Pairs(d.PartialMaterials));
+                qi.SubstituteMaterials.AddRange(Pairs(d.SubstituteMaterials));
+                _questIds.Add(d.Id);
                 foreach (var t in d.Threats)
                 {
                     if (t.threat == null) continue;
@@ -81,6 +101,7 @@ namespace Ravenholm.Services
             }
         }
 
+        public IReadOnlyList<string> QuestIds => _questIds;
         public ClassInfo Class(string id) => id != null && _classes.TryGetValue(id, out var v) ? v : null;
         public TraitInfo Trait(string id) => id != null && _traits.TryGetValue(id, out var v) ? v : null;
         public QuestInfo Quest(string id) => id != null && _quests.TryGetValue(id, out var v) ? v : null;
@@ -89,6 +110,23 @@ namespace Ravenholm.Services
         public IReadOnlyList<string> GeneratableTraits => _genTraits;
         public IReadOnlyList<string> GivenNames => _given;
         public IReadOnlyList<string> FamilyNames => _family;
+    }
+
+    /// <summary>Quest rewards: blueprints through production, materials through the shared ledger.</summary>
+    public sealed class RewardLedger : IRewardLedger
+    {
+        private readonly ProductionService _production;
+        private readonly LogisticsService _logistics;
+
+        public RewardLedger(ProductionService production, LogisticsService logistics)
+        {
+            _production = production;
+            _logistics = logistics;
+        }
+
+        public bool OwnsBlueprint(string id) => _production.System.State.Blueprints.Contains(id);
+        public void GrantBlueprint(string id) => _production.System.GrantBlueprint(id);
+        public void ProduceShared(string id, int quantity, string reason) => _logistics.System.ProduceShared(id, quantity, reason);
     }
 
     /// <summary>
@@ -105,10 +143,13 @@ namespace Ravenholm.Services
         private readonly JobsState _state = new JobsState();
         private readonly CatalogueJobContent _content;
         private readonly JobBoardConfig _config;
+        private readonly RewardLedger _rewards;
         private double _msRemainder;
+        private bool _completedThisTick;
 
-        public JobsService(SaveScheduler scheduler, LogisticsService logistics, SitesService sites, ContentCatalogue catalogue, BalanceProfile balance)
+        public JobsService(SaveScheduler scheduler, LogisticsService logistics, SitesService sites, ProductionService production, ContentCatalogue catalogue, BalanceProfile balance)
         {
+            _rewards = new RewardLedger(production, logistics);
             _scheduler = scheduler;
             _logistics = logistics;
             _sites = sites;
@@ -126,6 +167,8 @@ namespace Ravenholm.Services
         public JobsState State => _state;
 
         public event Action Reloaded;
+        /// <summary>(result) after an expedition resolved and was saved.</summary>
+        public event Action<ResultRecord> Completed;
 
         public static JobBoardConfig ConfigFrom(BalanceProfile b)
         {
@@ -160,11 +203,22 @@ namespace Ravenholm.Services
             var whole = (long)Math.Floor(exact);
             _msRemainder = exact - whole;
             if (whole <= 0) return;
+            _completedThisTick = false;
             Board.Advance(whole);
-            _scheduler.MarkDirty();
+            // A completion is a critical transaction: save at once so it can never be applied twice.
+            if (_completedThisTick) _scheduler.SaveNow("expedition completed");
+            else _scheduler.MarkDirty();
         }
 
         // ------------------------------------------------------------------ commands (critical: save at once)
+
+        /// <summary>Advances the board by simulated milliseconds, saving at once if anything completed (tests, debug).</summary>
+        public void AdvanceMs(long ms)
+        {
+            _completedThisTick = false;
+            Board.Advance(ms);
+            if (_completedThisTick) _scheduler.SaveNow("expedition completed");
+        }
 
         public bool Post(string questId, out string failure)
         {
@@ -181,8 +235,7 @@ namespace Ravenholm.Services
 
         public bool Dispatch(string contractorId, Loadout loadout, out string failure, out ExpeditionRecord expedition)
         {
-            // Phase 4: expeditions stop at a labelled test departure (no resolution yet).
-            var ok = Board.Dispatch(contractorId, loadout, testDeparture: true, out failure, out expedition);
+            var ok = Board.Dispatch(contractorId, loadout, testDeparture: false, out failure, out expedition);
             if (ok) _scheduler.SaveNow("dispatched");
             return ok;
         }
@@ -193,6 +246,17 @@ namespace Ravenholm.Services
             _scheduler.SaveNow("debug: return test departures");
             return n;
         }
+
+        public void Acknowledge(string expeditionId)
+        {
+            Board.Acknowledge(expeditionId);
+            _scheduler.MarkDirty();
+        }
+
+        /// <summary>DEBUG: the next resolved expedition gets this outcome (marked as forced on the result).</summary>
+        public void DebugForceNext(Outcome? outcome) => _state.ForcedNext = outcome;
+
+        public void DebugFinishExpeditionsNow() => Board.DebugFinishExpeditionsNow();
 
         public void DebugSetGold(int gold)
         {
@@ -215,10 +279,18 @@ namespace Ravenholm.Services
             _state.WindowIndex.Clear();
             _state.Posting = null;
             _msRemainder = 0;
-            Board = new JobBoardSystem(_state, _content, _logistics.System, _config, _scheduler.Coordinator.WorldSeed);
+            _state.Progress.Clear();
+            _state.Results.Clear();
+            _state.ForcedNext = null;
+            _state.Gold = 0;
+            _state.ReputationTenths = 0;   // never evaluate unlocks against a previous profile's reputation
             var d = env?.Jobs;
+            if (d != null) LoadProgress(d);   // before the board refreshes unlocks
+            Board = new JobBoardSystem(_state, _content, _logistics.System, _config, _scheduler.Coordinator.WorldSeed, _rewards);
+            Board.Completed += r => { _completedThisTick = true; Completed?.Invoke(r); };
             if (d == null) StartFresh();
             else Load(d);
+            Board.RefreshUnlocks();
             Reloaded?.Invoke();
         }
 
@@ -246,6 +318,38 @@ namespace Ravenholm.Services
             var nonSponsored = 0;
             foreach (var c in _state.Contractors.Values) if (!c.Sponsored) nonSponsored++;
             for (var i = nonSponsored; i < _config.PoolTarget - 1; i++) Board.Generate();
+        }
+
+        private void LoadProgress(JobsSaveData d)
+        {
+            if (d.Progress != null)
+                foreach (var kv in d.Progress)
+                {
+                    var p = new QuestProgress { Attempts = kv.Value.Attempts, Successes = kv.Value.Successes, Unlocked = kv.Value.Unlocked };
+                    foreach (var t in kv.Value.RevealedThreats) p.RevealedThreats.Add(t);
+                    _state.Progress[kv.Key] = p;
+                }
+            if (d.Results != null)
+                foreach (var rd in d.Results)
+                {
+                    var r = new ResultRecord
+                    {
+                        ExpeditionId = rd.ExpeditionId, QuestId = rd.QuestId, ContractorId = rd.ContractorId, ContractorName = rd.ContractorName,
+                        Outcome = Enum.TryParse(rd.Outcome, out Outcome o) ? o : Outcome.Failure, Forced = rd.Forced, Sponsored = rd.Sponsored,
+                        CompletedMs = rd.CompletedMs, GoldEarned = rd.GoldEarned, FeePaid = rd.FeePaid, BlueprintGranted = rd.BlueprintGranted,
+                        SubstituteGranted = rd.SubstituteGranted, ReputationDeltaTenths = rd.ReputationDeltaTenths, LeveledUp = rd.LeveledUp,
+                        NewLevel = rd.NewLevel, Injured = rd.Injured, Died = rd.Died, J = rd.J, K = rd.K, A = rd.A, E = rd.E, V = rd.V,
+                        Acknowledged = rd.Acknowledged,
+                    };
+                    r.Materials.AddRange(rd.Materials);
+                    r.ReturnedItems.AddRange(rd.ReturnedItems);
+                    r.ConsumedItems.AddRange(rd.ConsumedItems);
+                    r.LostItems.AddRange(rd.LostItems);
+                    r.RevealedThreats.AddRange(rd.RevealedThreats);
+                    r.QuestsUnlocked.AddRange(rd.QuestsUnlocked);
+                    r.Contributors.AddRange(rd.Contributors);
+                    _state.Results.Add(r);
+                }
         }
 
         private void Load(JobsSaveData d)
@@ -297,6 +401,23 @@ namespace Ravenholm.Services
                 e.Snapshot.ArmorProtection = ed.ArmorProtection;
                 e.Snapshot.SurvivalPotionBonus = ed.SurvivalPotionBonus;
                 foreach (var kv in ed.Counters) e.Snapshot.Counters[kv.Key] = kv.Value;
+                e.Difficulty = ed.Difficulty;
+                e.ResolverVersion = ed.ResolverVersion;
+                foreach (var t in ed.ThreatSpecs)
+                    e.Threats.Add(new ThreatSpec
+                    {
+                        Id = t.Id, CounterTag = t.CounterTag, Required = t.Required, UnmetReadiness = t.UnmetReadiness, UnmetSurvival = t.UnmetSurvival,
+                        ArmorThreshold = t.ArmorThreshold, ArmorReadiness = t.ArmorReadiness, ArmorSurvival = t.ArmorSurvival, Known = t.Known,
+                    });
+                foreach (var p in ed.Potions)
+                    e.Potions.Add(new CarriedPotion { InstanceId = p.InstanceId, DefinitionId = p.DefinitionId, SurvivalBonus = p.SurvivalBonus, CounterTag = p.CounterTag });
+                // Pre-Phase 5 expeditions saved no frozen inputs: rebuild them from current content once.
+                if (e.ResolverVersion == 0 && !e.TestDeparture)
+                {
+                    var q = _content.Quest(e.QuestId);
+                    if (q != null) { e.Difficulty = q.Difficulty; e.Threats.AddRange(q.Threats); }
+                    e.ResolverVersion = Resolver.Version;
+                }
                 _state.Expeditions.Add(e);
             }
         }
@@ -344,7 +465,42 @@ namespace Ravenholm.Services
                 ed.Items.AddRange(e.Items);
                 ed.ThreatIds.AddRange(e.ThreatIds);
                 foreach (var kv in e.Snapshot.Counters) ed.Counters[kv.Key] = kv.Value;
+                ed.Difficulty = e.Difficulty;
+                ed.ResolverVersion = e.ResolverVersion;
+                foreach (var t in e.Threats)
+                    ed.ThreatSpecs.Add(new ThreatSpecData
+                    {
+                        Id = t.Id, CounterTag = t.CounterTag, Required = t.Required, UnmetReadiness = t.UnmetReadiness, UnmetSurvival = t.UnmetSurvival,
+                        ArmorThreshold = t.ArmorThreshold, ArmorReadiness = t.ArmorReadiness, ArmorSurvival = t.ArmorSurvival, Known = t.Known,
+                    });
+                foreach (var p in e.Potions)
+                    ed.Potions.Add(new CarriedPotionData { InstanceId = p.InstanceId, DefinitionId = p.DefinitionId, SurvivalBonus = p.SurvivalBonus, CounterTag = p.CounterTag });
                 d.Expeditions.Add(ed);
+            }
+            foreach (var kv in _state.Progress)
+            {
+                var pd = new QuestProgressData { Attempts = kv.Value.Attempts, Successes = kv.Value.Successes, Unlocked = kv.Value.Unlocked };
+                pd.RevealedThreats.AddRange(kv.Value.RevealedThreats);
+                d.Progress[kv.Key] = pd;
+            }
+            foreach (var r in _state.Results)
+            {
+                var rd = new ResultSaveData
+                {
+                    ExpeditionId = r.ExpeditionId, QuestId = r.QuestId, ContractorId = r.ContractorId, ContractorName = r.ContractorName,
+                    Outcome = r.Outcome.ToString(), Forced = r.Forced, Sponsored = r.Sponsored, CompletedMs = r.CompletedMs, GoldEarned = r.GoldEarned,
+                    FeePaid = r.FeePaid, BlueprintGranted = r.BlueprintGranted, SubstituteGranted = r.SubstituteGranted,
+                    ReputationDeltaTenths = r.ReputationDeltaTenths, LeveledUp = r.LeveledUp, NewLevel = r.NewLevel, Injured = r.Injured, Died = r.Died,
+                    J = r.J, K = r.K, A = r.A, E = r.E, V = r.V, Acknowledged = r.Acknowledged,
+                };
+                rd.Materials.AddRange(r.Materials);
+                rd.ReturnedItems.AddRange(r.ReturnedItems);
+                rd.ConsumedItems.AddRange(r.ConsumedItems);
+                rd.LostItems.AddRange(r.LostItems);
+                rd.RevealedThreats.AddRange(r.RevealedThreats);
+                rd.QuestsUnlocked.AddRange(r.QuestsUnlocked);
+                rd.Contributors.AddRange(r.Contributors);
+                d.Results.Add(rd);
             }
             env.Jobs = d;
         }

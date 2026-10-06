@@ -159,6 +159,22 @@ namespace Ravenholm.Content
                 }
                 if (!contractors.Exists(x => x != null && x.Sponsored)) report.Errors.Add("No sponsored contractor for the recovery contract");
                 if (namePool == null) report.Errors.Add("No contractor name pool");
+
+                // Quest prerequisites must be acyclic (GDD 14/22).
+                var state = new Dictionary<QuestDefinition, int>();
+                bool Cyclic(QuestDefinition q)
+                {
+                    if (q == null) return false;
+                    if (state.TryGetValue(q, out var st)) return st == 1;
+                    state[q] = 1;
+                    foreach (var p in q.Prerequisites) if (Cyclic(p)) return true;
+                    state[q] = 2;
+                    return false;
+                }
+                foreach (var q in quests) if (Cyclic(q)) { report.Errors.Add($"{q.Describe()}: prerequisite cycle"); break; }
+                foreach (var q in quests)
+                    if (q != null && q.FirstSuccessBlueprint != null && !blueprints.Contains(q.FirstSuccessBlueprint))
+                        report.Errors.Add($"{q.Describe()}: reward blueprint not in the catalogue");
             }
             return report;
         }

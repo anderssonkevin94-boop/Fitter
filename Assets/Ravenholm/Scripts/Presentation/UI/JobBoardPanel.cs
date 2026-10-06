@@ -91,7 +91,9 @@ namespace Ravenholm.Presentation
         {
             var s = Board.State;
             var key = new StringBuilder();
-            key.Append(s.Posting?.QuestId).Append('|').Append(s.Expeditions.Count).Append('|');
+            key.Append(s.Posting?.QuestId).Append('|').Append(s.Expeditions.Count).Append('|').Append(s.Results.Count).Append('|')
+               .Append(Board.UnacknowledgedResults).Append('|');
+            foreach (var q in Cat.Quests) if (q != null) key.Append(Board.IsUnlocked(q.Id) ? 'U' : 'L');
             if (s.Posting != null) foreach (var a in s.Posting.Applicants) key.Append(Board.HasArrived(a) ? 'A' : 'w');
             if (key.ToString() != _key)
             {
@@ -115,6 +117,21 @@ namespace Ravenholm.Presentation
 
             Text(() => $"Gold <b>{s.Gold}</b> · Reputation <b>{s.Reputation}</b> · Applicants per job: {Board.ApplicantTarget}");
             Text(() => string.IsNullOrEmpty(_message) ? "" : $"<b>{_message}</b>");
+
+            Header("Map");
+            Text(MapText);
+
+            var unread = s.Results.FindAll(r => !r.Acknowledged);
+            if (unread.Count > 0)
+            {
+                Header($"Returned ({unread.Count} new)");
+                foreach (var r in unread)
+                {
+                    var res = r;
+                    Button(() => $"<b>{res.ContractorName}</b> · {Name(res.QuestId)} · {ResultPanel.OutcomeWord(res.Outcome)} · tap to read",
+                        () => _root.Hud.ShowResult(res.ExpeditionId), null);
+                }
+            }
 
             Header($"Away ({s.Expeditions.Count}/{Board.Config.ActiveSlots})");
             if (s.Expeditions.Count == 0) Text(() => "No expeditions out.");
@@ -143,12 +160,48 @@ namespace Ravenholm.Presentation
             Header("Jobs");
             foreach (var q in Cat.Quests)
             {
-                if (q == null) continue;
+                if (q == null || !Board.IsUnlocked(q.Id)) continue;   // locked jobs appear on the map only
                 var quest = q;
                 Text(() => QuestCard(quest));
                 Button(() => Board.PostBlockedReason(quest.Id) ?? "Post Job", () => Post(quest.Id), () => Board.PostBlockedReason(quest.Id) == null);
             }
+            var history = s.Results.FindAll(r => r.Acknowledged);
+            if (history.Count > 0)
+            {
+                Header("History");
+                for (var i = history.Count - 1; i >= 0 && i >= history.Count - 8; i--)
+                {
+                    var res = history[i];
+                    Button(() => $"{res.ContractorName} · {Name(res.QuestId)} · {ResultPanel.OutcomeWord(res.Outcome)}", () => _root.Hud.ShowResult(res.ExpeditionId), null);
+                }
+            }
             Button(() => "Close", Close, null);
+        }
+
+        /// <summary>Basic quest map (GDD 14): tiers from the starting jobs outward; locked jobs show what opens them.</summary>
+        private string MapText()
+        {
+            var sb = new StringBuilder();
+            var maxTier = 0;
+            foreach (var q in Cat.Quests) if (q != null && q.MapTier > maxTier) maxTier = q.MapTier;
+            for (var tier = 0; tier <= maxTier; tier++)
+            {
+                var first = true;
+                foreach (var q in Cat.Quests)
+                {
+                    if (q == null || q.MapTier != tier) continue;
+                    sb.Append(first ? (tier == 0 ? "Start: " : $"Then: ") : "  ·  ");
+                    var p = Board.ProgressOf(q.Id);
+                    if (!Board.IsUnlocked(q.Id)) sb.Append($"<color=#8A7F70>{q.DisplayName} (locked)</color>");
+                    else if (p.Successes > 0) sb.Append($"<b>{q.DisplayName}</b> (won {p.Successes})");
+                    else sb.Append($"<b>{q.DisplayName}</b>");
+                    first = false;
+                }
+                sb.Append('\n');
+            }
+            foreach (var q in Cat.Quests)
+                if (q != null && !Board.IsUnlocked(q.Id)) sb.Append($"<size=85%>{q.DisplayName}: {Board.LockReason(q.Id).Replace("Locked: ", "")}</size>\n");
+            return sb.ToString();
         }
 
         // ------------------------------------------------------------------ rows
@@ -177,17 +230,21 @@ namespace Ravenholm.Presentation
             sb.Append($"<b>{q.DisplayName}</b> · difficulty {q.Difficulty} · {q.DurationSeconds:0} s · pays {q.BaseGold} g base");
             if (q.RecoveryContract) sb.Append(" · <b>sponsored: patron pays the fee</b>");
             sb.Append('\n').Append(q.Brief);
-            if (q.Threats.Count == 0) sb.Append("\nThreats: none expected");
+            var view = Board.Quest(q.Id);
+            if (view.Threats.Count == 0) sb.Append("\nThreats: none expected");
             else
             {
                 sb.Append("\nThreats: ");
                 var first = true;
-                foreach (var t in q.Threats)
+                foreach (var t in view.Threats)
                 {
-                    sb.Append(first ? "" : ", ").Append(t.knownAtStart ? t.threat.DisplayName : "Threat not yet identified");
+                    sb.Append(first ? "" : ", ").Append(t.Known ? UnitVisuals.DisplayName(t.Id) : "Threat not yet identified");
                     first = false;
                 }
             }
+            var prog = Board.ProgressOf(q.Id);
+            if (prog.Attempts > 0) sb.Append($"\n<size=85%>Attempts {prog.Attempts} · successes {prog.Successes}</size>");
+            if (prog.Successes == 0 && q.FirstSuccessBlueprint != null) sb.Append($"\n<size=85%>First success: {q.FirstSuccessBlueprint.DisplayName}</size>");
             return sb.ToString();
         }
 
@@ -218,7 +275,7 @@ namespace Ravenholm.Presentation
         {
             var c = Board.Contractor(e.ContractorId);
             var left = Math.Max(0, (e.EndMs - Board.State.SimMs) / 1000f);
-            var tail = e.TestDeparture ? "TEST DEPARTURE: results arrive in Phase 5" : $"{left:0} s left";
+            var tail = e.TestDeparture ? "TEST DEPARTURE (debug; does not resolve)" : $"back in {left:0} s";
             return $"<b>{c?.Name}</b> · {Name(e.QuestId)} · forecast {e.ForecastBand} · {tail}";
         }
     }

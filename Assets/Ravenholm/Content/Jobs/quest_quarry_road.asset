@@ -25,3 +25,20 @@ MonoBehaviour:
   recoveryContract: 0
   prestigeTarget: 35
   brief: The abandoned quarry road.
+  prerequisites:
+  - {fileID: 11400000, guid: fcbade42719714b5d8b755ea04fc400e, type: 2}
+  reputationGate: 0
+  mapTier: 2
+  successMaterials:
+  - resource: {fileID: 11400000, guid: 7c9623d2f89ef4f0bb58c106302da3e3, type: 2}
+    quantity: 3
+  greatBonusMaterials:
+  - resource: {fileID: 11400000, guid: 7c9623d2f89ef4f0bb58c106302da3e3, type: 2}
+    quantity: 1
+  partialMaterials: []
+  firstSuccessBlueprint: {fileID: 11400000, guid: 7076dc1d8dc6a445a81583c276a104f6, type: 2}
+  substituteMaterials:
+  - resource: {fileID: 11400000, guid: 7c9623d2f89ef4f0bb58c106302da3e3, type: 2}
+    quantity: 2
+  rareResource: {fileID: 11400000, guid: c92566d6dffce434b835bb60a6198cba, type: 2}
+  rareChance: 0.5
