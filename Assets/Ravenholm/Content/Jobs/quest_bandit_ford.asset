@@ -33,6 +33,14 @@ MonoBehaviour:
   campaignStep: 8
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: The bandits hoard steel taken from caravans.
+    readinessBonus: 0
+  - successes: 3
+    fact: Upstream shallows let you cross out of sight.
+    readinessBonus: 2
+  failureObservation: The bandits wear heavy armor and hit harder still.
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

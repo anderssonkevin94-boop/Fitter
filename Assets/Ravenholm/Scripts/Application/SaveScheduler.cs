@@ -51,6 +51,17 @@ namespace Ravenholm.Services
 
         public void MarkDirty() => _dirty = true;
 
+        /// <summary>
+        /// Debug commands used on this profile (GDD 23: debug use must never pass silently into an ordinary save).
+        /// Persisted by the sandbox section and shown in diagnostics.
+        /// </summary>
+        public readonly SortedSet<string> Assisted = new SortedSet<string>(StringComparer.Ordinal);
+
+        public void NoteAssisted(string what)
+        {
+            if (Assisted.Add(what)) _dirty = true;
+        }
+
         public bool SaveNow(string reason)
         {
             var ok = _saves.Save(env => { foreach (var s in _sections) s.Write(env); }, reason);

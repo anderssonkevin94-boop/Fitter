@@ -60,17 +60,23 @@ namespace Ravenholm.Services
         public bool SaveNow(string reason) => _scheduler.SaveNow(reason);
         public void ResetProfile() => _scheduler.ResetProfile();
 
-        void ISaveSection.Write(SaveEnvelope env) => env.Sandbox = new SandboxSaveData
+        void ISaveSection.Write(SaveEnvelope env)
         {
-            BellRingCount = _state.BellRingCount,
-            SessionCount = _state.SessionCount,
-            PlayerX = _state.PlayerX,
-            PlayerY = _state.PlayerY,
-        };
+            env.Sandbox = new SandboxSaveData
+            {
+                BellRingCount = _state.BellRingCount,
+                SessionCount = _state.SessionCount,
+                PlayerX = _state.PlayerX,
+                PlayerY = _state.PlayerY,
+            };
+            env.Sandbox.Assisted.AddRange(_scheduler.Assisted);
+        }
 
         void ISaveSection.Read(SaveEnvelope env)
         {
             var d = env?.Sandbox;
+            _scheduler.Assisted.Clear();
+            if (d?.Assisted != null) foreach (var a in d.Assisted) _scheduler.Assisted.Add(a);
             _state = new SandboxState
             {
                 BellRingCount = d?.BellRingCount ?? 0,

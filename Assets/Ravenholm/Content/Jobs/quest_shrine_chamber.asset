@@ -35,6 +35,11 @@ MonoBehaviour:
   campaignStep: 7
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: Copper offerings lie scattered in the chamber.
+    readinessBonus: 0
+  failureObservation: The deeper wards are stronger than the shrine above.
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

@@ -351,6 +351,8 @@ namespace Ravenholm.Presentation
 
             RefreshFacilities(sim);
 
+            _toolLabel.transform.parent.gameObject.SetActive(Feel.DeveloperMode);   // free gear is a developer tool only
+            _packLabel.transform.parent.gameObject.SetActive(Feel.DeveloperMode);
             var w0 = s.Workers.Count > 0 ? s.Workers[0] : null;
             _toolLabel.text = w0 != null ? $"DEBUG tool: {UnitVisuals.DisplayName(w0.ToolId)} ({Value(w0.ToolId)}/s) · tap to change" : "";
             _packLabel.text = w0 != null ? $"DEBUG pack: {UnitVisuals.DisplayName(w0.PackId)} ({Value(w0.PackId)} units) · tap to change" : "";

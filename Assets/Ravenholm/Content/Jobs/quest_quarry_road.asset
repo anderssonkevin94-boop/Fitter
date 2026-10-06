@@ -33,6 +33,14 @@ MonoBehaviour:
   campaignStep: 4
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: Abandoned carts still hold usable iron.
+    readinessBonus: 0
+  - successes: 3
+    fact: A collapsed cutting gives cover past the quarry crew.
+    readinessBonus: 2
+  failureObservation: The quarry crew hit hard; light armor buckles.
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

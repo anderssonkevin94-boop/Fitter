@@ -30,6 +30,14 @@ MonoBehaviour:
   campaignStep: 1
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: 'Travellers tip well: a great success here often turns up a bundle of herbs.'
+    readinessBonus: 0
+  - successes: 3
+    fact: The carters' short cut avoids the worst stretch of road.
+    readinessBonus: 1
+  failureObservation: 
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

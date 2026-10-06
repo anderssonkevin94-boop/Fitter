@@ -330,6 +330,42 @@ the GDD excludes monetization and analytics.
 - **Device interruption test** (iPhone 16 Pro, release build): 16 forced relaunches at random 0.3–4 s intervals, killing the app during boot and saves. The main save and backup both kept valid checksums afterwards, schema 9, saves 651 and 652. The test ran without warning the user first; future device tests will be announced.
 - **Device performance (PerfProbe)** is still pending: it needs the app open in front for about a minute. See KNOWN_ISSUES.
 
+## Post-roadmap polish, batch 1 (2026-10-06)
+
+The user asked to "keep building without me playtesting". A read-only audit compared the GDD against the code, and this batch closes the most valuable gaps it found. It adds no new systems and leaves art sourcing open.
+
+- **Developer gating leaks fixed (GDD 12/24).** These were visible to every player:
+  - exact odds (which also exposed hidden threats) on the loadout card,
+  - free station levels,
+  - free worker tools and packs,
+  - the debug banner,
+  - the Phase 0 save readout.
+
+  They now show only in developer mode (`Feel.DeveloperMode`). The five-tap unlock refreshes Settings immediately.
+- **Debug use is recorded (GDD 23):** every debug command notes itself in the save (`sandbox.assisted`), and the diagnostic report lists them. Accelerated time counts.
+- **Developer scratch save (GDD 24 profile switch):**
+  - Developer tools can switch the next launch to a separate `debug` profile; the company save stays untouched.
+  - The banner always shows when the scratch save is in use.
+  - The setting only accepts the company or `debug` (no arbitrary folders).
+- **While You Were Away (GDD 18):**
+  - "Read the result" or "View all N results" button.
+  - Long result lists grouped by outcome.
+  - The latest summary can be reopened from the Job Board.
+- **Contractor history (GDD 10):** latest three jobs, injuries, toughest success, discoveries and death record, all saved. Applicant and loadout cards show it, and the Job Board has a roster of everyone you've hired, including the fallen.
+- **Quest cards show rewards (GDD 11):** success, great-success bonus and partial packages.
+- **Blueprint reveal card (GDD 13/20):** item picture, stats and the station to craft it at.
+- **Town signals:**
+  - a craft flash on the output pad (still in reduced motion),
+  - the Trader's countdown on the pad,
+  - a "Report" marker at the Store while results are unread (the GDD's "report delivered" Store-marker option).
+- **Knowledge stages (GDD 13):**
+  - Second success: a reward clue.
+  - Third success: a discovered route with a small readiness bonus (+1 or +2), applied to that location only. It counts in forecasts and is frozen into each expedition at dispatch.
+  - First failure-and-return: one basic observation, if authored.
+  - Authored as data (`QuestDefinition.knowledge`, `failureObservation`) for 16 locations; not every location uses every stage.
+  - Partial successes still reveal one threat fact. The recovery contract teaches nothing.
+  - Saves add optional fields only (`observed`, `routeBonus`, `facts`), so no schema change.
+
 ## Open blockers
 
 - **iOS build:** the Unity → Xcode device export succeeded headlessly on 2026-10-06 (0 errors, 1 warning, IL2CPP, 114 s). The Xcode compile/sign/install step has not run yet: the startup disk had only ~2.5 GB free, too little for Xcode intermediates. To do: free disk space, export again (Ravenholm > Build > iOS Xcode Project (Device)), open `Builds/iOS-Device/Unity-iPhone.xcodeproj`, pick a signing team, then Run on the iPhone.

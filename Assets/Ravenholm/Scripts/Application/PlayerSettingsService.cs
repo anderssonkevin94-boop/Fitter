@@ -18,6 +18,8 @@ namespace Ravenholm.Services
         [JsonProperty("joystickSide")] public JoystickSide JoystickSide = JoystickSide.Either;
         /// <summary>Developer tools visible (null = default: on in development builds, off in release builds).</summary>
         [JsonProperty("developerMode")] public bool? DeveloperMode;
+        /// <summary>Save profile used at the next launch: null = the company (BootConfig), or "debug" (developer scratch save).</summary>
+        [JsonProperty("profile")] public string Profile;
 
         public PlayerSettings Clone() => (PlayerSettings)MemberwiseClone();
     }
@@ -26,6 +28,7 @@ namespace Ravenholm.Services
     public sealed class PlayerSettingsService
     {
         public static readonly float[] TextScales = { 1f, 1.15f, 1.3f };
+        public const string DebugProfile = "debug";
         private readonly string _path;
 
         public PlayerSettingsService(string directory)
@@ -59,6 +62,7 @@ namespace Ravenholm.Services
             s.MusicVolume = Clamp01(s.MusicVolume);
             s.EffectsVolume = Clamp01(s.EffectsVolume);
             if (Array.IndexOf(TextScales, s.TextScale) < 0) s.TextScale = 1f;
+            if (s.Profile != null && s.Profile != DebugProfile) s.Profile = null;   // only the company or the developer scratch save
             return s;
         }
 

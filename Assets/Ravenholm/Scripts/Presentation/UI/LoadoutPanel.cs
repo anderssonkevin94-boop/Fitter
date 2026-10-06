@@ -233,7 +233,7 @@ namespace Ravenholm.Presentation
             foreach (var t in c.Traits)
                 if (_root.Services.Catalogue.TryGet<TraitDefinition>(t, out var td)) sb.Append($"\n<b>{td.DisplayName}</b>: {td.Description}");
             if (cls != null && !string.IsNullOrEmpty(cls.Role)) sb.Append($"\n<size=85%>{cls.Role}</size>");
-            sb.Append($"\nHistory: {JobBoardPanel.History(c)}");
+            sb.Append($"\nHistory: {JobBoardPanel.FullHistory(c)}");
             var q = Quest;
             if (q != null && a != null)
                 sb.Append(q.Recovery
@@ -277,7 +277,9 @@ namespace Ravenholm.Presentation
                     : $"• {UnitVisuals.DisplayName(info.Id)}: used if {info.CounterTag.ToLowerInvariant()} is present\n");
             }
             sb.Append("<b>Gear is permanently lost if the contractor dies.</b> Unused potions come back on any other return.");
-            sb.Append($"\n<size=75%><color=#7A6A5A>DEBUG exact odds (2000 seeds, incl. hidden threats): {Distribution(c, q)}</color></size>");
+            // Designer readout only (GDD 12: players never see exact odds, and this includes hidden threats).
+            if (Feel.DeveloperMode)
+                sb.Append($"\n<size=75%><color=#7A6A5A>DEBUG exact odds (2000 seeds, incl. hidden threats): {Distribution(c, q)}</color></size>");
             return sb.ToString();
         }
 
@@ -300,7 +302,7 @@ namespace Ravenholm.Presentation
             }
             var counts = new int[5];
             for (var i = 0; i < 2000; i++)
-                counts[(int)Resolver.Resolve(Board.Config.Resolver, stats, q.Difficulty, all.Threats, potions, (ulong)(i * 2654435761L + 17)).Outcome]++;
+                counts[(int)Resolver.Resolve(Board.Config.Resolver, stats, q.Difficulty, all.Threats.FindAll(t => !q.PreparedThreats.Contains(t.Id)), potions, (ulong)(i * 2654435761L + 17), null, q.RouteBonus).Outcome]++;
             _distText = $"Great {counts[4] / 20f:0}% · Success {counts[3] / 20f:0}% · Partial {counts[2] / 20f:0}% · Fail {counts[1] / 20f:0}% · Death {counts[0] / 20f:0}%";
             return _distText;
         }

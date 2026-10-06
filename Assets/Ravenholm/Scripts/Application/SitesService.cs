@@ -49,7 +49,17 @@ namespace Ravenholm.Services
         public IReadOnlyList<SiteSimulator> Sites => _sims;
 
         /// <summary>DEBUG accelerated time (GDD 24 "time advance"). 1 = real time.</summary>
-        public float SpeedMultiplier { get; set; } = 1f;
+        public float SpeedMultiplier
+        {
+            get => _speed;
+            set
+            {
+                _speed = value;
+                if (value > 1f) _scheduler.NoteAssisted("accelerated time");
+            }
+        }
+
+        private float _speed = 1f;
 
         /// <summary>Simulators were rebuilt (load or reset); views must rebind.</summary>
         public event Action Reloaded;
@@ -109,6 +119,7 @@ namespace Ravenholm.Services
         /// <summary>DEBUG purchase: cycles a worker's tool or pack to the next tier (wrapping to tier 1).</summary>
         public WorkerEquipmentDefinition DebugCycleEquipment(string siteId, string workerId, EquipmentSlot slot)
         {
+            _scheduler.NoteAssisted("free worker gear");
             var sim = Get(siteId);
             var w = sim?.Record.Workers.Find(x => x.Id == workerId);
             if (w == null || _catalogue == null) return null;
@@ -127,6 +138,7 @@ namespace Ravenholm.Services
 
         public void DebugCompleteSection(string siteId)
         {
+            _scheduler.NoteAssisted("instant site completion");
             Get(siteId)?.DebugCompleteSection();
             _scheduler.SaveNow("debug: complete section");
         }

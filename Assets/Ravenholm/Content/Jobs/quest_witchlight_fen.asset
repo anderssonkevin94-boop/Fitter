@@ -36,6 +36,11 @@ MonoBehaviour:
   campaignStep: 11
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: Where the lights gather, arcane dust settles on the reeds.
+    readinessBonus: 0
+  failureObservation: The lights are arcane; the water is poisoned. Both need answers.
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

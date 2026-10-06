@@ -37,6 +37,19 @@ namespace Ravenholm.Domain.Jobs
         public int Jobs;
         public int Successes;
         public string LastNote = "";
+        // GDD 10 history: injuries, notable first discoveries, highest completed difficulty, death record, latest three.
+        public int Injuries;
+        public int HighestDifficulty;
+        public readonly List<string> Discoveries = new List<string>();
+        public string DeathNote = "";
+        /// <summary>Latest three jobs, newest first ("Success at Briar Track").</summary>
+        public readonly List<string> Recent = new List<string>();
+
+        public void NoteRecent(string line)
+        {
+            Recent.Insert(0, line);
+            while (Recent.Count > 3) Recent.RemoveAt(Recent.Count - 1);
+        }
     }
 
     public sealed class ApplicantRecord
@@ -72,6 +85,8 @@ namespace Ravenholm.Domain.Jobs
         public long StartMs;
         public long EndMs;
         public ulong Seed;
+        /// <summary>Discovered-route bonus frozen at dispatch (GDD 13).</summary>
+        public int RouteBonus;
         public LoadoutStats Snapshot = new LoadoutStats();
         public readonly List<string> ThreatIds = new List<string>();
         public string ForecastBand = "";
@@ -89,6 +104,7 @@ namespace Ravenholm.Domain.Jobs
         public int Attempts;
         public int Successes;
         public bool Unlocked;
+        public bool Observed;   // the failure observation has been learned
         public readonly SortedSet<string> RevealedThreats = new SortedSet<string>(StringComparer.Ordinal);
     }
 
@@ -109,6 +125,8 @@ namespace Ravenholm.Domain.Jobs
         public readonly List<string> ReturnedItems = new List<string>();  // item definition IDs
         public readonly List<string> ConsumedItems = new List<string>();
         public readonly List<string> LostItems = new List<string>();
+        /// <summary>Knowledge learned on this run (later stages or a failure observation).</summary>
+        public readonly List<string> Facts = new List<string>();
         public string BlueprintGranted;
         public bool SubstituteGranted;
         public int ReputationDeltaTenths;
@@ -198,6 +216,13 @@ namespace Ravenholm.Domain.Jobs
         public int MinWeaponPower;
         public int MinArmorProtection;
         public bool RequireCounterPotion;
+        /// <summary>Knowledge steps beyond the first-success threat reveal (GDD 13): (successes needed, fact, readiness bonus).</summary>
+        public readonly List<KnowledgeStepInfo> Knowledge = new List<KnowledgeStepInfo>();
+        public string FailureObservation;
+        /// <summary>View only: readiness bonus from discovered routes at this location.</summary>
+        public int RouteBonus;
+        /// <summary>View only: facts the company has learned here.</summary>
+        public List<string> KnownFacts = new List<string>();
         /// <summary>View only: threats this company's earlier legs have already dealt with.</summary>
         public List<string> PreparedThreats = new List<string>();
 
@@ -206,6 +231,13 @@ namespace Ravenholm.Domain.Jobs
             var q = (QuestInfo)MemberwiseClone();
             return q;
         }
+    }
+
+    public sealed class KnowledgeStepInfo
+    {
+        public int Successes;
+        public string Fact = "";
+        public int ReadinessBonus;
     }
 
     public enum ItemKind { Weapon, Armor, Potion }
@@ -349,6 +381,14 @@ namespace Ravenholm.Domain.Jobs
                 });
             }
             view.Threats = threats;
+            var facts = new List<string>();
+            var bonus = 0;
+            var successes = prog?.Successes ?? 0;
+            foreach (var k in q.Knowledge)
+                if (successes >= k.Successes) { facts.Add(k.Fact); bonus += k.ReadinessBonus; }
+            if (prog != null && prog.Observed && !string.IsNullOrEmpty(q.FailureObservation)) facts.Insert(0, q.FailureObservation);
+            view.KnownFacts = facts;
+            view.RouteBonus = bonus;
             return view;
         }
 
@@ -507,7 +547,7 @@ namespace Ravenholm.Domain.Jobs
         }
 
         public ForecastResult Forecast(ContractorRecord c, Loadout l, QuestInfo q) =>
-            ForecastCalculator.Evaluate(_cfg.Resolver, StatsWith(c, l), q.Difficulty, q.Threats);
+            ForecastCalculator.Evaluate(_cfg.Resolver, StatsWith(c, l), q.Difficulty, q.Threats, routeBonus: q.RouteBonus);
 
         /// <summary>
         /// Screening estimate (GDD 10): innate capability plus the company's best compatible gear that is
@@ -774,7 +814,7 @@ namespace Ravenholm.Domain.Jobs
             {
                 var forced = _s.ForcedNext;
                 _s.ForcedNext = null;
-                resolution = Resolver.Resolve(_cfg.Resolver, e.Snapshot, e.Difficulty, e.Threats, e.Potions, e.Seed, forced);
+                resolution = Resolver.Resolve(_cfg.Resolver, e.Snapshot, e.Difficulty, e.Threats, e.Potions, e.Seed, forced, e.RouteBonus);
                 outcome = resolution.Outcome;
                 res.Forced = resolution.Forced;
                 res.J = resolution.J; res.K = resolution.K; res.A = resolution.A; res.E = resolution.E; res.V = resolution.V;
@@ -874,6 +914,12 @@ namespace Ravenholm.Domain.Jobs
                         break;
                 }
                 res.NewLevel = c.Level;
+                var good = outcome == Outcome.Success || outcome == Outcome.GreatSuccess;
+                if (good && q != null && !q.Recovery) c.HighestDifficulty = Math.Max(c.HighestDifficulty, q.Difficulty);
+                if (outcome == Outcome.PartialInjury) c.Injuries++;
+                if (res.BlueprintGranted != null && !c.Discoveries.Contains(res.BlueprintGranted)) c.Discoveries.Add(res.BlueprintGranted);
+                if (outcome == Outcome.Death) c.DeathNote = $"died at {q?.Name} (difficulty {q?.Difficulty})";
+                c.NoteRecent($"{(outcome == Outcome.GreatSuccess ? "Great success" : outcome == Outcome.Success ? "Success" : outcome == Outcome.PartialInjury ? "Injured" : outcome == Outcome.Failure ? "Turned back" : "Died")} at {q?.Name}");
             }
 
             // Reputation (tenths, clamped after each result, in completion order).
@@ -890,6 +936,14 @@ namespace Ravenholm.Domain.Jobs
                 {
                     foreach (var t in q.Threats) if (!t.Known && prog.RevealedThreats.Add(t.Id)) res.RevealedThreats.Add(t.Id);
                     prog.Successes++;
+                    // Later knowledge stages (GDD 13): a reward clue, a secret route, a named follow-up.
+                    foreach (var k in _content.Quest(q.Id).Knowledge)
+                        if (k.Successes == prog.Successes) res.Facts.Add(k.ReadinessBonus > 0 ? $"{k.Fact} (+{k.ReadinessBonus} readiness here from now on)" : k.Fact);
+                }
+                else if (outcome == Outcome.Failure && !prog.Observed && !string.IsNullOrEmpty(_content.Quest(q.Id).FailureObservation))
+                {
+                    prog.Observed = true;   // one basic observation if authored (GDD 13)
+                    res.Facts.Add(_content.Quest(q.Id).FailureObservation);
                 }
                 else if (outcome == Outcome.PartialInjury)
                 {
@@ -1046,6 +1100,7 @@ namespace Ravenholm.Domain.Jobs
             e.Items.AddRange(l.All());
             foreach (var t in q.Threats) e.ThreatIds.Add(t.Id);
             e.Difficulty = q.Difficulty;
+            e.RouteBonus = q.RouteBonus;
             e.Threats.AddRange(q.Threats);
             var seenEffects = new HashSet<string>();
             foreach (var pid in new[] { l.Potion1, l.Potion2 })

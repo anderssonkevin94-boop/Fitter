@@ -12,6 +12,17 @@ namespace Ravenholm.Content
         public bool knownAtStart;
     }
 
+    /// <summary>A later knowledge stage at a location (GDD 13): a clue, a secret route or a named follow-up.</summary>
+    [Serializable]
+    public struct KnowledgeStep
+    {
+        [Tooltip("Successes needed here (2 or 3; the first success reveals the primary threat).")]
+        [Range(2, 3)] public int successes;
+        [TextArea(1, 3)] public string fact;
+        [Tooltip("Small quest-specific readiness bonus from a discovered route (0-3). Never global luck.")]
+        [Range(0, 3)] public int readinessBonus;
+    }
+
     /// <summary>A preparation leg's permanent effect: a threat it removes from a later quest (GDD 14 final chain).</summary>
     [Serializable]
     public struct QuestPreparation
@@ -59,6 +70,11 @@ namespace Ravenholm.Content
         [Tooltip("On first success, removes these threats from later quests (permanent expedition preparations).")]
         [SerializeField] private List<QuestPreparation> preparations = new List<QuestPreparation>();
 
+        [Header("Knowledge (GDD 13)")]
+        [SerializeField] private List<KnowledgeStep> knowledge = new List<KnowledgeStep>();
+        [Tooltip("One basic observation learned on the first Failure-and-return here (optional).")]
+        [TextArea(1, 2)] [SerializeField] private string failureObservation = "";
+
         [Header("Dispatch requirements (checked when sending, GDD 14 prestigious exception)")]
         [Min(0)] [SerializeField] private int minContractorLevel;
         [Tooltip("Current reputation needed at dispatch (unlike the one-time reputation gate).")]
@@ -97,6 +113,8 @@ namespace Ravenholm.Content
         public int CampaignStep => campaignStep;
         public bool CampaignFinale => campaignFinale;
         public IReadOnlyList<QuestPreparation> Preparations => preparations;
+        public IReadOnlyList<KnowledgeStep> Knowledge => knowledge;
+        public string FailureObservation => failureObservation;
         public int MinContractorLevel => minContractorLevel;
         public int DispatchReputation => dispatchReputation;
         public int MinWeaponPower => minWeaponPower;
@@ -121,6 +139,13 @@ namespace Ravenholm.Content
             if (firstSuccessBlueprint != null && substituteMaterials.Count == 0) errors.Add($"{Describe()}: blueprint reward needs substitute materials");
             if (rareChance > 0 && rareResource == null && !recoveryContract) errors.Add($"{Describe()}: rare chance without a rare resource");
             if (region == null) errors.Add($"{Describe()}: needs a map region");
+            foreach (var k in knowledge)
+            {
+                if (k.successes < 2 || k.successes > 3) errors.Add($"{Describe()}: knowledge step needs 2 or 3 successes");
+                if (string.IsNullOrWhiteSpace(k.fact)) errors.Add($"{Describe()}: empty knowledge step");
+                if (k.readinessBonus < 0 || k.readinessBonus > 3) errors.Add($"{Describe()}: route bonus must stay small (0-3)");
+            }
+            if (recoveryContract && (knowledge.Count > 0 || !string.IsNullOrEmpty(failureObservation))) errors.Add($"{Describe()}: the recovery contract teaches nothing (GDD 15)");
             if (campaignFinale && repeatable) errors.Add($"{Describe()}: the campaign finale is a one-time expedition");
             foreach (var p in preparations)
             {
@@ -142,6 +167,12 @@ namespace Ravenholm.Content
 
         public void EditorSetRegion(RegionDefinition r) => region = r;
         public void EditorSetDifficulty(int d) => difficulty = d;
+
+        public void EditorSetKnowledge(List<KnowledgeStep> steps, string observation)
+        {
+            knowledge = steps;
+            failureObservation = observation;
+        }
 
         public void EditorSetupCampaign(int step, bool finale, List<QuestPreparation> preps, int minLevel, int dispatchRep, int minPower, int minProtection,
             bool counterPotion, bool repeat)

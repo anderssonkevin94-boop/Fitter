@@ -92,7 +92,7 @@ namespace Ravenholm.Presentation
             var s = Board.State;
             var key = new StringBuilder();
             key.Append(s.Posting?.QuestId).Append('|').Append(s.Expeditions.Count).Append('|').Append(s.Results.Count).Append('|')
-               .Append(Board.UnacknowledgedResults).Append('|');
+               .Append(Board.UnacknowledgedResults).Append('|').Append(_root.Services.Simulation.LastReport != null).Append('|');
             foreach (var q in Cat.Quests) if (q != null) key.Append(Board.IsUnlocked(q.Id) ? 'U' : 'L');
             if (s.Posting != null) foreach (var a in s.Posting.Applicants) key.Append(Board.HasArrived(a) ? 'A' : 'w');
             if (key.ToString() != _key)
@@ -171,6 +171,23 @@ namespace Ravenholm.Presentation
                     Button(() => Board.PostBlockedReason(quest.Id) ?? "Post Job", () => Post(quest.Id), () => Board.PostBlockedReason(quest.Id) == null);
                 }
             }
+            var away = _root.Services.Simulation.LastReport;
+            if (away != null) Button(() => $"While you were away ({AwayReportPanel.Duration(away.ElapsedMs)}): show the summary again", () => _root.Hud.ShowAwayReport(away), null);
+
+            // Company roster (GDD 10): everyone who has worked for you, including the fallen.
+            var worked = new List<ContractorRecord>();
+            foreach (var c in s.Contractors.Values) if (c.Jobs > 0 && !c.Sponsored) worked.Add(c);
+            if (worked.Count > 0)
+            {
+                worked.Sort((a, b) => b.Successes != a.Successes ? b.Successes.CompareTo(a.Successes) : string.CompareOrdinal(a.Name, b.Name));
+                Header("Contractors you have hired");
+                foreach (var c in worked)
+                {
+                    var rec = c;
+                    Text(() => $"<b>{rec.Name}</b> · {ClassName(rec)} L{rec.Level} · {StatusWord(rec)}\n<size=85%>{FullHistory(rec)}</size>");
+                }
+            }
+
             var history = s.Results.FindAll(r => r.Acknowledged);
             if (history.Count > 0)
             {
@@ -279,6 +296,8 @@ namespace Ravenholm.Presentation
                     first = false;
                 }
             }
+            foreach (var fact in view.KnownFacts) sb.Append($"\n<size=85%>Known: {fact}</size>");
+            if (view.RouteBonus > 0) sb.Append($"\n<color=#3B6E2E>Known route: +{view.RouteBonus} readiness here</color>");
             foreach (var prep in view.PreparedThreats) sb.Append($"\n<color=#3B6E2E>Prepared: {UnitVisuals.DisplayName(prep)} dealt with by an earlier expedition</color>");
             var needs = new List<string>();
             if (q.MinContractorLevel > 0) needs.Add($"contractor level {q.MinContractorLevel}+");
@@ -291,6 +310,10 @@ namespace Ravenholm.Presentation
             var prog = Board.ProgressOf(q.Id);
             if (prog.Attempts > 0) sb.Append($"\n<size=85%>Attempts {prog.Attempts} · successes {prog.Successes}</size>");
             if (prog.Successes == 0 && q.FirstSuccessBlueprint != null) sb.Append($"\n<size=85%>First success: {q.FirstSuccessBlueprint.DisplayName}</size>");
+            // GDD 11: inspect known threats and rewards before posting.
+            if (q.SuccessMaterials.Count > 0) sb.Append($"\n<size=85%>Success also brings: {Rewards(q.SuccessMaterials)}" +
+                                                      (q.GreatBonusMaterials.Count > 0 ? $" (+{Rewards(q.GreatBonusMaterials)} on a great success)" : "") + "</size>");
+            if (q.PartialMaterials.Count > 0) sb.Append($"\n<size=85%>Partial success: {Rewards(q.PartialMaterials)}</size>");
             return sb.ToString();
         }
 
@@ -316,6 +339,30 @@ namespace Ravenholm.Presentation
 
         public static string History(ContractorRecord c) =>
             c.Jobs == 0 ? "no jobs for you yet" : $"{c.Successes}/{c.Jobs} jobs succeeded{(string.IsNullOrEmpty(c.LastNote) ? "" : " · " + c.LastNote)}";
+
+        /// <summary>GDD 10: latest three jobs plus lifetime totals, injuries, toughest job and discoveries.</summary>
+        public static string FullHistory(ContractorRecord c)
+        {
+            if (c.Jobs == 0) return "No jobs for you yet.";
+            var sb = new StringBuilder();
+            sb.Append($"{c.Successes} of {c.Jobs} jobs succeeded");
+            if (c.Injuries > 0) sb.Append($" · injured {c.Injuries}×");
+            if (c.HighestDifficulty > 0) sb.Append($" · toughest success: difficulty {c.HighestDifficulty}");
+            if (c.Discoveries.Count > 0) sb.Append(" · discovered: ").Append(string.Join(", ", c.Discoveries.ConvertAll(UnitVisuals.DisplayName)));
+            if (c.Recent.Count > 0) sb.Append("\nLatest: ").Append(string.Join("; ", c.Recent));
+            if (!string.IsNullOrEmpty(c.DeathNote)) sb.Append($"\n<b>Remembered:</b> {c.DeathNote}");
+            return sb.ToString();
+        }
+
+        private static string StatusWord(ContractorRecord c) =>
+            c.Status == ContractorStatus.Dead ? "fallen" : c.Status == ContractorStatus.Injured ? "recovering" : c.Status == ContractorStatus.OnExpedition ? "away on a job" : "available";
+
+        private static string Rewards(IReadOnlyList<ResourceCost> list)
+        {
+            var parts = new List<string>();
+            foreach (var m in list) if (m.resource != null) parts.Add($"{m.quantity} {m.resource.DisplayName}");
+            return string.Join(", ", parts);
+        }
 
         private string ExpeditionLine(ExpeditionRecord e)
         {

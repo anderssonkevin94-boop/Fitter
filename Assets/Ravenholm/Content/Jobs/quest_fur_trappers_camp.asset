@@ -33,6 +33,14 @@ MonoBehaviour:
   campaignStep: 0
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: The trappers trade spare rope with anyone who helps them.
+    readinessBonus: 0
+  - successes: 3
+    fact: The trappers' own trail is quicker than the map's.
+    readinessBonus: 2
+  failureObservation: 
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

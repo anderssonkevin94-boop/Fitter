@@ -33,6 +33,14 @@ MonoBehaviour:
   campaignStep: 3
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: Arcane dust gathers in the shrine's cracked basin.
+    readinessBonus: 0
+  - successes: 3
+    fact: The quiet side entrance avoids the brightest lights.
+    readinessBonus: 2
+  failureObservation: Whatever is in there reacts to wards and mages.
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

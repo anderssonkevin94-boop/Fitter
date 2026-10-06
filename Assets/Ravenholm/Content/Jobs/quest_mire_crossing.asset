@@ -35,6 +35,14 @@ MonoBehaviour:
   campaignStep: 10
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: Smugglers' caches along the causeway hold herbs and rope.
+    readinessBonus: 0
+  - successes: 3
+    fact: A pole-marked line avoids the deepest mud.
+    readinessBonus: 2
+  failureObservation: The causeway is rigged as well as poisonous.
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

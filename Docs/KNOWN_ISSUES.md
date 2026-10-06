@@ -11,3 +11,7 @@
 | 7 | Content | The Mine "Surface" strata band is very short in the site panel | Cosmetic | Layout tweak |
 | 8 | Thermal | 20-minute thermal behaviour not measured | Unknown | Manual device session |
 | 9 | Title | "Ravenholm Supply Co" is a working title | Release blocker | User decision |
+| 10 | Presentation | Not yet done from the GDD audit: separate carry-walk and interact poses, adventurer idle and greet animations, Forest areas 4–6 visuals and pocket transition, a drawn quest map | Presentation only | Next polish batch |
+| 11 | Accessibility | Some states rely on colour plus a word, with no icon (risk words, threat states, site blockers) | GDD 19 asks for colour, label and icon | Next polish batch |
+| 12 | Store | Racks cannot pin favourite items (GDD 4) | Convenience | Next polish batch |
+| 13 | Dev tools | Missing from GDD 24: reveal knowledge, grant chosen materials, a read-only view of readiness and survival terms and seeds, worker bottleneck tracking, transaction IDs | Developer only | Next polish batch |

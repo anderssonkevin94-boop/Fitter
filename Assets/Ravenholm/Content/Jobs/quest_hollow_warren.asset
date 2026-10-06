@@ -35,6 +35,15 @@ MonoBehaviour:
   campaignStep: 9
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: Old miners' steel is buried in the side passages.
+    readinessBonus: 0
+  - successes: 3
+    fact: Chalk marks from the last survivors show the safe tunnels.
+    readinessBonus: 2
+  failureObservation: 'Snares everywhere, and the tunnels twist: traps and the way
+    both matter.'
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

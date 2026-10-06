@@ -81,6 +81,7 @@ namespace Ravenholm.Services
         /// <summary>DEBUG: top every registered container back up to its fixture contents.</summary>
         public void RefillFixtures()
         {
+            _scheduler.NoteAssisted("refill fixtures");
             foreach (var kv in _containerViews)
             {
                 var fixture = kv.Value.fixture;
@@ -103,6 +104,7 @@ namespace Ravenholm.Services
 
         public int DebugUnloadCarry()
         {
+            _scheduler.NoteAssisted("unload carry");
             var n = System.DebugUnloadCarry();
             _scheduler.SaveNow("debug: unload carry");
             return n;

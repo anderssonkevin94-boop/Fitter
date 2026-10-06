@@ -50,6 +50,8 @@ namespace Ravenholm.Presentation
         private StationPanel _stationPanel;
         private StorePanel _storePanel;
         private TraderPanel _traderPanel;
+        private GameObject _banner;
+        private readonly System.Collections.Generic.List<GameObject> _devOnly = new System.Collections.Generic.List<GameObject>();
         private SettingsPanel _settingsPanel;
         private TipCard _tips;
         private AwayReportPanel _awayPanel;
@@ -271,9 +273,11 @@ namespace Ravenholm.Presentation
             UiFactory.Place(gi.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 4f), new Vector2(76f, 76f));
 
             var banner = _ui.Panel("PhaseBanner", safe, _theme.panelDark);
+            _banner = banner.gameObject;
             UiFactory.Place(banner.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180f), new Vector2(560f, 76f));
             banner.raycastTarget = false;
-            var bt = _ui.Text("Text", banner.transform, "DEBUG SANDBOX · PHASE 9", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
+            var onDebugProfile = _root.ActiveProfile == Services.PlayerSettingsService.DebugProfile;
+            var bt = _ui.Text("Text", banner.transform, onDebugProfile ? "DEVELOPER SAVE · not your company" : "DEBUG SANDBOX · PHASE 9", _theme.smallSize - 4f, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(bt.rectTransform, 8f);
             AutoFit(bt, 18f);
         }
@@ -358,6 +362,7 @@ namespace Ravenholm.Presentation
         private void BuildPersistenceCard(RectTransform safe)
         {
             var card = _ui.Panel("PersistenceCard", safe, _theme.panelDark);
+            _devOnly.Add(card.gameObject);   // Phase 0 save readout: developer mode only
             card.raycastTarget = false;
             UiFactory.Place(card.rectTransform, Vector2.zero, Vector2.zero, new Vector2(32f, 40f), new Vector2(700f, 190f));
             _persistIcon = _ui.Icon("Icon", card.transform, _theme.check, 64f);
@@ -548,6 +553,13 @@ namespace Ravenholm.Presentation
                     ShowAwayReport(report);
                 }, out _);
             }
+            _ui.Button("Profile", content, "Switch save: company / developer scratch (on next launch)", () =>
+            {
+                var toDebug = _root.Settings.Current.Profile == null;
+                _root.Settings.Update(s => s.Profile = toDebug ? Services.PlayerSettingsService.DebugProfile : null);
+                Report(toDebug ? "Next launch uses the developer scratch save. Your company save is untouched. Close and reopen the app."
+                               : "Next launch returns to the company save. Close and reopen the app.");
+            }, out _);
             _ui.Button("Diag", content, "Export diagnostic report", () =>
             {
                 var dir = System.IO.Path.Combine(UnityEngine.Application.persistentDataPath, "Diagnostics");
@@ -580,6 +592,10 @@ namespace Ravenholm.Presentation
 
         private void Update()
         {
+            var dev = Feel.DeveloperMode;
+            foreach (var go in _devOnly) if (go.activeSelf != dev) go.SetActive(dev);
+            var showBanner = dev || _root.ActiveProfile == Services.PlayerSettingsService.DebugProfile;   // never hide which save is in use
+            if (_banner != null && _banner.activeSelf != showBanner) _banner.SetActive(showBanner);
             UpdateContextButton();
             UpdateJoystick();
             _toastGroup.alpha = Mathf.MoveTowards(_toastGroup.alpha, Time.unscaledTime < _toastUntil ? 1f : 0f, Time.unscaledDeltaTime * 6f);

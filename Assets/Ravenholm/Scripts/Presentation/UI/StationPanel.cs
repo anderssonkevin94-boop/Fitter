@@ -149,7 +149,7 @@ namespace Ravenholm.Presentation
         {
             var sb = new StringBuilder(_station.StationId);
             sb.Append('|').Append(Prod.Level(_station.StationId));
-            sb.Append('|').Append(_root.Services.Economy.Purchased.Count);
+            sb.Append('|').Append(_root.Services.Economy.Purchased.Count).Append('|').Append(Feel.DeveloperMode);
             foreach (var bp in Prod.State.Blueprints) sb.Append('|').Append(bp);
             return sb.ToString();
         }
@@ -204,7 +204,7 @@ namespace Ravenholm.Presentation
 
             if (stationDef != null) UpgradeSection(stationDef);
 
-            if (stationDef != null)
+            if (stationDef != null && Feel.DeveloperMode)
                 Button(() => $"DEBUG station level: {Prod.Level(stationId)} of {stationDef.MaxLevel} · tap to change",
                     () => _root.Services.Production.DebugCycleLevel(stationDef), null);
             Button(() => "Close", Close, null);

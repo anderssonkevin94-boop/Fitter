@@ -91,12 +91,14 @@ namespace Ravenholm.Services
 
         public void DebugGrantBlueprint(string blueprintId)
         {
+            _scheduler.NoteAssisted("grant blueprint");
             System.GrantBlueprint(blueprintId);
             _scheduler.SaveNow("debug: blueprint");
         }
 
         public int DebugCycleLevel(StationDefinition station)
         {
+            _scheduler.NoteAssisted("free station level");
             var next = System.Level(station.Id) + 1;
             if (next > station.MaxLevel) next = station.StartingLevel;
             System.SetLevel(station.Id, next);
@@ -107,6 +109,7 @@ namespace Ravenholm.Services
         /// <summary>DEBUG: adds processed materials to shared inventory (approved test source).</summary>
         public void DebugGrantMaterials(IReadOnlyList<ResourceCost> materials)
         {
+            _scheduler.NoteAssisted("grant materials");
             foreach (var m in materials) _logistics.System.ProduceShared(m.resource.Id, m.quantity, "debug grant");
             _scheduler.SaveNow("debug: materials");
         }

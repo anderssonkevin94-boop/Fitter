@@ -50,6 +50,7 @@ namespace Ravenholm.Presentation
             _root = GameRoot.Instance;
             if (_root == null) { enabled = false; return; }
             if (PerfProbe.SceneReadySeconds < 0) PerfProbe.SceneReadySeconds = Time.realtimeSinceStartup;
+            if (GetComponent<TownSignals>() == null) gameObject.AddComponent<TownSignals>();
             _inspectables = FindObjectsByType<Inspectable>(FindObjectsInactive.Exclude);
             _root.InputRouter.Tapped += OnTapped;
             _root.Hud.AttachWorldCamera(worldCamera);

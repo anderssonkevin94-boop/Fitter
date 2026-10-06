@@ -14,6 +14,10 @@ namespace Ravenholm.Presentation
     {
         private static PlayerSettings Settings => GameRoot.Instance != null && GameRoot.Instance.Settings != null ? GameRoot.Instance.Settings.Current : null;
 
+        /// <summary>Developer tools and debug readouts (GDD 24: gated). Default on in the editor and development builds.</summary>
+        public static bool DeveloperMode => Settings != null ? Settings.DeveloperMode ?? DefaultDeveloperMode : DefaultDeveloperMode;
+        private static bool DefaultDeveloperMode => Debug.isDebugBuild || UnityEngine.Application.isEditor;
+
         public static bool ReducedMotion => Settings != null && Settings.ReducedMotion;
         public static float TextScale => Settings != null ? Settings.TextScale : 1f;
         public static float EffectsVolume => Settings != null ? Settings.EffectsVolume : 0.8f;

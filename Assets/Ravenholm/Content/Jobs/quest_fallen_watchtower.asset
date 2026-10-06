@@ -33,6 +33,15 @@ MonoBehaviour:
   campaignStep: 5
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: 'The tower''s armory was never fully looted: steel turns up.'
+    readinessBonus: 0
+  - successes: 3
+    fact: A drain under the tower bypasses the trapped stair.
+    readinessBonus: 2
+  failureObservation: 'Tripwires and loose stones: someone who spots traps would
+    help.'
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

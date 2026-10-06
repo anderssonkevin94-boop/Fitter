@@ -58,6 +58,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("sessionCount")] public int SessionCount;
         [JsonProperty("playerX")] public float PlayerX;
         [JsonProperty("playerY")] public float PlayerY;
+        /// <summary>Debug commands ever used on this profile (optional; absent in older saves = none).</summary>
+        [JsonProperty("assisted")] public List<string> Assisted = new List<string>();
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -203,6 +205,7 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("successes")] public int Successes;
         [JsonProperty("unlocked")] public bool Unlocked;
         [JsonProperty("revealed")] public List<string> RevealedThreats = new List<string>();
+        [JsonProperty("observed")] public bool Observed;
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -261,6 +264,7 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("e")] public double E;
         [JsonProperty("v")] public double V;
         [JsonProperty("acknowledged")] public bool Acknowledged;
+        [JsonProperty("facts")] public List<string> Facts = new List<string>();
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -280,6 +284,12 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("jobs")] public int Jobs;
         [JsonProperty("successes")] public int Successes;
         [JsonProperty("lastNote")] public string LastNote;
+        // Optional history fields (absent in older saves = empty history).
+        [JsonProperty("injuries")] public int Injuries;
+        [JsonProperty("highestDifficulty")] public int HighestDifficulty;
+        [JsonProperty("discoveries")] public List<string> Discoveries = new List<string>();
+        [JsonProperty("deathNote")] public string DeathNote;
+        [JsonProperty("recent")] public List<string> Recent = new List<string>();
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -327,6 +337,7 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("resolverVersion")] public int ResolverVersion;
         [JsonProperty("threatSpecs")] public List<ThreatSpecData> ThreatSpecs = new List<ThreatSpecData>();
         [JsonProperty("potions")] public List<CarriedPotionData> Potions = new List<CarriedPotionData>();
+        [JsonProperty("routeBonus")] public int RouteBonus;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

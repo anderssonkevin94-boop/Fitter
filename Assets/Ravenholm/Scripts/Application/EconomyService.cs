@@ -145,6 +145,7 @@ namespace Ravenholm.Services
         /// <summary>DEBUG: brings the Trader to town now (anchors the schedule so a visit starts this moment).</summary>
         public void DebugSummonTrader()
         {
+            _scheduler.NoteAssisted("summon trader");
             var gap = _traderConfig.GapMs;
             var k = Now / gap;
             _traderState.AnchorMs = Now - k * gap;

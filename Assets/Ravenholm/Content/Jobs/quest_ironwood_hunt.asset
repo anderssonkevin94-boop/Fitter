@@ -35,6 +35,11 @@ MonoBehaviour:
   campaignStep: 0
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: The beasts nest among the best ironwood.
+    readinessBonus: 0
+  failureObservation: Something big hunts in the ironwood; armor matters.
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

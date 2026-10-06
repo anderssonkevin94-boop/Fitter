@@ -46,10 +46,10 @@ namespace Ravenholm.Domain.Jobs
         public static double Triangular(IRandomStream rng, double half) => half * (rng.NextDouble() + rng.NextDouble() - 1.0);
 
         public static Resolution Resolve(ResolverCoefficients k, LoadoutStats snapshot, int difficulty, IReadOnlyList<ThreatSpec> threats,
-            IReadOnlyList<CarriedPotion> potions, ulong seed, Outcome? forced = null)
+            IReadOnlyList<CarriedPotion> potions, ulong seed, Outcome? forced = null, int routeBonus = 0)
         {
             var r = new Resolution();
-            var f = ForecastCalculator.Evaluate(k, snapshot, difficulty, threats, includeUnknown: true);
+            var f = ForecastCalculator.Evaluate(k, snapshot, difficulty, threats, includeUnknown: true, routeBonus: routeBonus);
             r.A = f.Readiness;
             r.C = f.Context;
             r.SurvivalContext = f.SurvivalContext;

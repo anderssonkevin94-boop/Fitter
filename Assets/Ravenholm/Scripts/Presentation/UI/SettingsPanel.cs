@@ -87,7 +87,7 @@ namespace Ravenholm.Presentation
         private float _lastVersionTap;
 
         /// <summary>Developer tools are hidden in release builds unless unlocked (five taps on the version line).</summary>
-        public bool DeveloperMode => S.DeveloperMode ?? (Debug.isDebugBuild || UnityEngine.Application.isEditor);
+        public bool DeveloperMode => Feel.DeveloperMode;
 
         public void TapVersion()
         {
@@ -98,6 +98,7 @@ namespace Ravenholm.Presentation
             var on = !DeveloperMode;
             Settings.Update(s => s.DeveloperMode = on);
             _root.Hud.ShowToast(on ? "Developer mode on" : "Developer mode off");
+            Refresh();   // show or hide the Developer tools row at once
         }
 
         private GameObject Row(Func<string> text, Action onClick)

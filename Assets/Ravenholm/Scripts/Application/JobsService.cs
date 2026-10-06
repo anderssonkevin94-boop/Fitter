@@ -68,6 +68,8 @@ namespace Ravenholm.Services
                 qi.MinWeaponPower = d.MinWeaponPower;
                 qi.MinArmorProtection = d.MinArmorProtection;
                 qi.RequireCounterPotion = d.RequireCounterPotion;
+                qi.FailureObservation = string.IsNullOrWhiteSpace(d.FailureObservation) ? null : d.FailureObservation;
+                foreach (var k in d.Knowledge) qi.Knowledge.Add(new KnowledgeStepInfo { Successes = k.successes, Fact = k.fact, ReadinessBonus = k.readinessBonus });
                 foreach (var prep in d.Preparations)
                     if (prep.quest != null && prep.threat != null) qi.Prepares.Add(new KeyValuePair<string, string>(prep.quest.Id, prep.threat.Id));
                 qi.SuccessMaterials.AddRange(Pairs(d.SuccessMaterials));
@@ -260,6 +262,7 @@ namespace Ravenholm.Services
 
         public int DebugReturnTestDepartures()
         {
+            _scheduler.NoteAssisted("return test departures");
             var n = Board.DebugReturnTestDepartures();
             _scheduler.SaveNow("debug: return test departures");
             return n;
@@ -272,9 +275,17 @@ namespace Ravenholm.Services
         }
 
         /// <summary>DEBUG: the next resolved expedition gets this outcome (marked as forced on the result).</summary>
-        public void DebugForceNext(Outcome? outcome) => _state.ForcedNext = outcome;
+        public void DebugForceNext(Outcome? outcome)
+        {
+            if (outcome != null) _scheduler.NoteAssisted("forced outcome");
+            _state.ForcedNext = outcome;
+        }
 
-        public void DebugFinishExpeditionsNow() => Board.DebugFinishExpeditionsNow();
+        public void DebugFinishExpeditionsNow()
+        {
+            _scheduler.NoteAssisted("finish expeditions now");
+            Board.DebugFinishExpeditionsNow();
+        }
 
         /// <summary>Company gold change (purchases, sales). Never goes below zero: callers check first (no debt, GDD 15).</summary>
         public void AddGold(int delta)
@@ -297,12 +308,14 @@ namespace Ravenholm.Services
 
         public void DebugSetGold(int gold)
         {
+            _scheduler.NoteAssisted("set gold");
             _state.Gold = Math.Max(0, gold);
             _scheduler.SaveNow("debug: gold");
         }
 
         public void DebugSetReputation(int reputation)
         {
+            _scheduler.NoteAssisted("set reputation");
             _state.ReputationTenths = Math.Max(0, Math.Min(100, reputation)) * 10;
             _scheduler.SaveNow("debug: reputation");
         }
@@ -362,7 +375,7 @@ namespace Ravenholm.Services
             if (d.Progress != null)
                 foreach (var kv in d.Progress)
                 {
-                    var p = new QuestProgress { Attempts = kv.Value.Attempts, Successes = kv.Value.Successes, Unlocked = kv.Value.Unlocked };
+                    var p = new QuestProgress { Attempts = kv.Value.Attempts, Successes = kv.Value.Successes, Unlocked = kv.Value.Unlocked, Observed = kv.Value.Observed };
                     foreach (var t in kv.Value.RevealedThreats) p.RevealedThreats.Add(t);
                     _state.Progress[kv.Key] = p;
                 }
@@ -383,6 +396,7 @@ namespace Ravenholm.Services
                     r.ConsumedItems.AddRange(rd.ConsumedItems);
                     r.LostItems.AddRange(rd.LostItems);
                     r.RevealedThreats.AddRange(rd.RevealedThreats);
+                    if (rd.Facts != null) r.Facts.AddRange(rd.Facts);
                     r.QuestsUnlocked.AddRange(rd.QuestsUnlocked);
                     r.Contributors.AddRange(rd.Contributors);
                     _state.Results.Add(r);
@@ -405,9 +419,11 @@ namespace Ravenholm.Services
                     Id = cd.Id, Name = cd.Name, ClassId = cd.ClassId, Level = cd.Level, Xp = cd.Xp, PersonalityPrice = cd.PersonalityPrice,
                     Status = Enum.TryParse(cd.Status, out ContractorStatus st) ? st : ContractorStatus.Available,
                     InjuredUntilMs = cd.InjuredUntilMs, Sponsored = cd.Sponsored, Skin = cd.Skin, Jobs = cd.Jobs, Successes = cd.Successes,
-                    LastNote = cd.LastNote ?? "",
+                    LastNote = cd.LastNote ?? "", Injuries = cd.Injuries, HighestDifficulty = cd.HighestDifficulty, DeathNote = cd.DeathNote ?? "",
                 };
                 c.Traits.AddRange(cd.Traits);
+                if (cd.Discoveries != null) c.Discoveries.AddRange(cd.Discoveries);
+                if (cd.Recent != null) c.Recent.AddRange(cd.Recent);
                 _state.Contractors[c.Id] = c;
             }
             if (d.Posting != null)
@@ -446,6 +462,7 @@ namespace Ravenholm.Services
                         Id = t.Id, CounterTag = t.CounterTag, Required = t.Required, UnmetReadiness = t.UnmetReadiness, UnmetSurvival = t.UnmetSurvival,
                         ArmorThreshold = t.ArmorThreshold, ArmorReadiness = t.ArmorReadiness, ArmorSurvival = t.ArmorSurvival, Known = t.Known,
                     });
+                e.RouteBonus = ed.RouteBonus;
                 foreach (var p in ed.Potions)
                     e.Potions.Add(new CarriedPotion { InstanceId = p.InstanceId, DefinitionId = p.DefinitionId, SurvivalBonus = p.SurvivalBonus, CounterTag = p.CounterTag });
                 // Pre-Phase 5 expeditions saved no frozen inputs: rebuild them from current content once.
@@ -473,9 +490,11 @@ namespace Ravenholm.Services
                 {
                     Id = c.Id, Name = c.Name, ClassId = c.ClassId, Level = c.Level, Xp = c.Xp, PersonalityPrice = c.PersonalityPrice,
                     Status = c.Status.ToString(), InjuredUntilMs = c.InjuredUntilMs, Sponsored = c.Sponsored, Skin = c.Skin, Jobs = c.Jobs,
-                    Successes = c.Successes, LastNote = c.LastNote,
+                    Successes = c.Successes, LastNote = c.LastNote, Injuries = c.Injuries, HighestDifficulty = c.HighestDifficulty, DeathNote = c.DeathNote,
                 };
                 cd.Traits.AddRange(c.Traits);
+                cd.Discoveries.AddRange(c.Discoveries);
+                cd.Recent.AddRange(c.Recent);
                 d.Contractors.Add(cd);
             }
             if (_state.Posting != null)
@@ -510,13 +529,14 @@ namespace Ravenholm.Services
                         Id = t.Id, CounterTag = t.CounterTag, Required = t.Required, UnmetReadiness = t.UnmetReadiness, UnmetSurvival = t.UnmetSurvival,
                         ArmorThreshold = t.ArmorThreshold, ArmorReadiness = t.ArmorReadiness, ArmorSurvival = t.ArmorSurvival, Known = t.Known,
                     });
+                ed.RouteBonus = e.RouteBonus;
                 foreach (var p in e.Potions)
                     ed.Potions.Add(new CarriedPotionData { InstanceId = p.InstanceId, DefinitionId = p.DefinitionId, SurvivalBonus = p.SurvivalBonus, CounterTag = p.CounterTag });
                 d.Expeditions.Add(ed);
             }
             foreach (var kv in _state.Progress)
             {
-                var pd = new QuestProgressData { Attempts = kv.Value.Attempts, Successes = kv.Value.Successes, Unlocked = kv.Value.Unlocked };
+                var pd = new QuestProgressData { Attempts = kv.Value.Attempts, Successes = kv.Value.Successes, Unlocked = kv.Value.Unlocked, Observed = kv.Value.Observed };
                 pd.RevealedThreats.AddRange(kv.Value.RevealedThreats);
                 d.Progress[kv.Key] = pd;
             }
@@ -535,6 +555,7 @@ namespace Ravenholm.Services
                 rd.ConsumedItems.AddRange(r.ConsumedItems);
                 rd.LostItems.AddRange(r.LostItems);
                 rd.RevealedThreats.AddRange(r.RevealedThreats);
+                rd.Facts.AddRange(r.Facts);
                 rd.QuestsUnlocked.AddRange(r.QuestsUnlocked);
                 rd.Contributors.AddRange(r.Contributors);
                 d.Results.Add(rd);

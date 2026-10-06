@@ -58,7 +58,16 @@ namespace Ravenholm.Services
         public Func<string> DescribeTrader;
 
         /// <summary>The summary of the latest catch-up worth showing (cleared once shown).</summary>
-        public AwayReport PendingReport { get; set; }
+        public AwayReport PendingReport
+        {
+            get => _pending;
+            set { _pending = value; if (value != null) LastReport = value; }
+        }
+
+        private AwayReport _pending;
+
+        /// <summary>The latest away summary this session, kept after dismissal so it can be reopened (GDD 18).</summary>
+        public AwayReport LastReport { get; private set; }
 
         /// <summary>Online frame tick. Shares the debug speed multiplier with everything.</summary>
         public void Tick(float deltaSeconds)

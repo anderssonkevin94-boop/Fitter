@@ -36,6 +36,14 @@ MonoBehaviour:
   campaignStep: 13
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: The gate's armory still holds moonsilver.
+    readinessBonus: 0
+  - successes: 3
+    fact: A breach in the north wall skips the gatehouse.
+    readinessBonus: 2
+  failureObservation: 
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

@@ -36,6 +36,14 @@ MonoBehaviour:
   campaignStep: 14
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: The barracks' quartermaster kept moonsilver back.
+    readinessBonus: 0
+  - successes: 3
+    fact: The burned chapel's crypt leads under the guard posts.
+    readinessBonus: 2
+  failureObservation: 
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

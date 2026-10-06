@@ -90,6 +90,7 @@ namespace Ravenholm.Services
             if (!string.IsNullOrEmpty(st.LoadDetail)) sb.AppendLine("load detail: " + st.LoadDetail);
             if (st.MigratedFromSchema > 0) sb.AppendLine($"migrated from schema {st.MigratedFromSchema}");
             if (st.ClockWentBackwards) sb.AppendLine("device clock went backwards at least once");
+            sb.AppendLine(Scheduler.Assisted.Count == 0 ? "debug assistance: none" : "debug assistance used: " + string.Join(", ", Scheduler.Assisted));
             sb.AppendLine($"world seed {Saves.WorldSeed} · last catch-up {Economy.LastCatchUpId}");
             var j = Jobs.State;
             sb.AppendLine($"gold {j.Gold} · reputation {j.Reputation} · expeditions {j.Expeditions.Count} · results {j.Results.Count} · campaign {(Jobs.Board.CampaignComplete ? "complete" : Jobs.Board.CampaignObjective())}");
@@ -103,6 +104,7 @@ namespace Ravenholm.Services
         /// <summary>DEBUG: simulate being away for <paramref name="ms"/> (same path as a real absence).</summary>
         public AwayReport DebugTimeAway(long ms)
         {
+            Scheduler.NoteAssisted("simulated time away");
             var id = $"debug-away.{Saves.Status.Generation + 1}";
             var report = Simulation.Simulate(ms, id);
             Economy.LastCatchUpId = id;

@@ -1,3 +1,5 @@
+using Ravenholm.Content;
+using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -45,6 +47,7 @@ namespace Ravenholm.Presentation
             for (var i = _content.childCount - 1; i >= 0; i--) Destroy(_content.GetChild(i).gameObject);
             _title.text = Headline(r);
             BodyText = Describe(r);
+            if (r.BlueprintGranted != null) BlueprintReveal(r.BlueprintGranted);
             var t = _ui.LiveText(_content, _theme.bodySize - 4f);
             t.text = BodyText;
             _ui.RowButton(_content, Continue, out var label);
@@ -54,6 +57,30 @@ namespace Ravenholm.Presentation
                 gameObject.SetActive(true);
                 TouchInputRouter.PushModal();
             }
+        }
+
+        /// <summary>
+        /// GDD 13/20 blueprint reveal: name, picture, primary benefit and where to craft it. The unlock is
+        /// already permanent; closing the card loses nothing.
+        /// </summary>
+        private void BlueprintReveal(string blueprintId)
+        {
+            var cat = _root.Services.Catalogue;
+            RecipeDefinition recipe = null;
+            foreach (var x in cat.Recipes) if (x != null && x.RequiredBlueprint != null && x.RequiredBlueprint.Id == blueprintId) recipe = x;
+            if (recipe == null || recipe.OutputItem == null) return;
+            var card = _ui.Panel("BlueprintReveal", _content, _theme.chip, new Color(1f, 0.93f, 0.72f, 1f));
+            card.gameObject.AddComponent<LayoutElement>().preferredHeight = 200f;
+            var icon = _ui.Icon("Icon", card.transform, recipe.OutputItem.Icon, 150f);
+            UiFactory.Place(icon.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(24f, 0), new Vector2(150f, 150f));
+            var text = _ui.Text("Text", card.transform,
+                $"<b>New blueprint: {recipe.OutputItem.DisplayName}</b>\n{recipe.OutputItem.StatLine()}\nCraft it at the <b>{recipe.Station.DisplayName}</b>" +
+                (recipe.MinFacilityLevel > 1 ? $" (level {recipe.MinFacilityLevel})" : ""), _theme.smallSize, _theme.ink, TextAlignmentOptions.MidlineLeft);
+            text.richText = true;
+            UiFactory.Stretch(text.rectTransform);
+            text.rectTransform.offsetMin = new Vector2(196f, 12f);
+            text.rectTransform.offsetMax = new Vector2(-20f, -12f);
+            SandboxHud.AutoFit(text, 20f);
         }
 
         public void Continue()
@@ -87,7 +114,7 @@ namespace Ravenholm.Presentation
             sb.Append($"Gold earned: <b>{r.GoldEarned}</b>");
             sb.Append(r.Sponsored ? " · fee paid by the patron\n" : $" · fee already paid: {r.FeePaid}\n");
             if (r.Materials.Count > 0) sb.Append("Materials: ").Append(Materials(r.Materials)).Append('\n');
-            if (r.BlueprintGranted != null) sb.Append($"<b>New blueprint: {UnitVisuals.DisplayName(r.BlueprintGranted)}</b>. Find it at its station.\n");
+            if (r.BlueprintGranted != null) sb.Append($"<b>New blueprint: {UnitVisuals.DisplayName(r.BlueprintGranted)}</b> (details above).\n");
             if (r.SubstituteGranted) sb.Append("Blueprint already known: materials given instead.\n");
             if (r.ConsumedItems.Count > 0) sb.Append("Used: ").Append(Names(r.ConsumedItems)).Append('\n');
             if (r.ReturnedItems.Count > 0) sb.Append("Back in the Store: ").Append(Names(r.ReturnedItems)).Append('\n');
@@ -105,6 +132,7 @@ namespace Ravenholm.Presentation
             if (q != null && success)
                 foreach (var prep in q.Prepares)
                     sb.Append($"<b>Preparation secured:</b> {UnitVisuals.DisplayName(prep.Value)} will no longer stand in the way of {UnitVisuals.DisplayName(prep.Key)}.\n");
+            foreach (var fact in r.Facts) sb.Append("<b>Learned:</b> ").Append(fact).Append('\n');
             if (r.QuestsUnlocked.Count > 0) sb.Append("<b>New jobs on the map:</b> ").Append(Names(r.QuestsUnlocked)).Append('\n');
             if (r.Contributors.Count > 0)
             {

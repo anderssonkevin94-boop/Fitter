@@ -33,6 +33,15 @@ MonoBehaviour:
   campaignStep: 2
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: 'The briars hide gem-bearing scree: a great success may bring a gem home.'
+    readinessBonus: 0
+  - successes: 3
+    fact: A ranger's blaze marks the dry path through the thicket.
+    readinessBonus: 2
+  failureObservation: The trail forks constantly; someone who knows the woods would
+    not get lost.
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

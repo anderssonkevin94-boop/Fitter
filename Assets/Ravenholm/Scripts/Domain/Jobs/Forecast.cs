@@ -88,7 +88,7 @@ namespace Ravenholm.Domain.Jobs
     public static class ForecastCalculator
     {
         /// <param name="threats">Present threats. Only <see cref="ThreatSpec.Known"/> ones count unless <paramref name="includeUnknown"/>.</param>
-        public static ForecastResult Evaluate(ResolverCoefficients k, LoadoutStats s, int difficulty, IReadOnlyList<ThreatSpec> threats, bool includeUnknown = false)
+        public static ForecastResult Evaluate(ResolverCoefficients k, LoadoutStats s, int difficulty, IReadOnlyList<ThreatSpec> threats, bool includeUnknown = false, int routeBonus = 0)
         {
             var r = new ForecastResult();
             double c = 0, survCtx = 0;
@@ -133,6 +133,7 @@ namespace Ravenholm.Domain.Jobs
                 r.Threats.Add(a);
             }
 
+            c += routeBonus;   // a discovered route or shortcut for this location (GDD 13: small, quest-specific, never global)
             r.Context = Clamp(c, -k.ContextCap, k.ContextCap);
             r.SurvivalContext = Clamp(survCtx, -k.SurvivalContextCap, k.SurvivalContextCap);
             r.Readiness = k.Might * s.Might + k.Survival * s.Survival + k.Insight * s.Insight

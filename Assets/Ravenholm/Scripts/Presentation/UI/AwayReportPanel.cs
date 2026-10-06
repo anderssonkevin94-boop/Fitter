@@ -41,6 +41,11 @@ namespace Ravenholm.Presentation
             _title.text = "While you were away";
             BodyText = Describe(report);
             _ui.LiveText(_content, _theme.bodySize - 4f).text = BodyText;
+            if (report.Results.Count > 0)
+            {
+                _ui.RowButton(_content, ViewResults, out var view);
+                view.text = report.Results.Count == 1 ? "Read the result" : $"View all {report.Results.Count} results";
+            }
             _ui.RowButton(_content, Close, out var label);
             label.text = "Back to work";
             if (!IsOpen)
@@ -56,6 +61,15 @@ namespace Ravenholm.Presentation
             gameObject.SetActive(false);
             TouchInputRouter.PopModal();
             if (_root.Services.Simulation.PendingReport != null) _root.Services.Simulation.PendingReport = null;
+        }
+
+        /// <summary>Dismisses the summary and opens the returned results (GDD 18 "View results").</summary>
+        public void ViewResults()
+        {
+            Close();
+            var unread = _root.Services.Jobs.State.Results.FindAll(r => !r.Acknowledged);
+            if (unread.Count == 1) _root.Hud.ShowResult(unread[0].ExpeditionId);
+            else _root.Hud.ShowJobBoard();
         }
 
         private void OnDestroy()
@@ -90,9 +104,27 @@ namespace Ravenholm.Presentation
 
             sb.Append("\n<b>Expeditions</b>\n");
             if (r.Results.Count == 0) sb.Append("No expeditions returned.\n");
+            // Long lists are grouped (GDD 18): counts by outcome, then the first few lines.
+            if (r.Results.Count > 4)
+            {
+                var counts = new System.Collections.Generic.SortedDictionary<string, int>();
+                foreach (var res in r.Results)
+                {
+                    var w = ResultPanel.OutcomeWord(res.Outcome);
+                    counts.TryGetValue(w, out var n);
+                    counts[w] = n + 1;
+                }
+                var parts = new System.Collections.Generic.List<string>();
+                foreach (var kv in counts) parts.Add($"{kv.Value} × {kv.Key}");
+                sb.Append(string.Join(" · ", parts)).Append('\n');
+            }
+            var shown = 0;
             foreach (var res in r.Results)
+            {
+                if (++shown > 4) { sb.Append($"…and {r.Results.Count - 4} more.\n"); break; }
                 sb.Append(res.Died ? $"{res.ContractorName} did not return from {UnitVisuals.DisplayName(res.QuestId)}\n"
                                    : $"{res.ContractorName}: {UnitVisuals.DisplayName(res.QuestId)} · {ResultPanel.OutcomeWord(res.Outcome)} · +{res.GoldEarned} gold\n");
+            }
             if (r.Results.Count > 0) sb.Append("Open each result from the Job Board.\n");
             if (r.Recovered.Count > 0) sb.Append("Recovered from injury: ").Append(string.Join(", ", r.Recovered)).Append('\n');
 

@@ -35,6 +35,14 @@ MonoBehaviour:
   campaignStep: 12
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: Moonsilver fittings survive on the drowned shelves.
+    readinessBonus: 0
+  - successes: 3
+    fact: A dry gallery above the flooded stacks avoids most wards.
+    readinessBonus: 2
+  failureObservation: 
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

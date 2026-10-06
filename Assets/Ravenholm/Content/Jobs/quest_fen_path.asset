@@ -33,6 +33,15 @@ MonoBehaviour:
   campaignStep: 6
   campaignFinale: 0
   preparations: []
+  knowledge:
+  - successes: 2
+    fact: Fen herbs grow thick where the path is worst.
+    readinessBonus: 0
+  - successes: 3
+    fact: Dry tussocks mark a safer line through the water.
+    readinessBonus: 2
+  failureObservation: The water itself makes people sick; bring something against
+    poison.
   minContractorLevel: 0
   dispatchReputation: 0
   minWeaponPower: 0

@@ -33,6 +33,7 @@ namespace Ravenholm.Presentation
         public TouchInputRouter InputRouter { get; private set; }
         public SandboxHud Hud { get; private set; }
         public PlayerSettingsService Settings { get; private set; }
+        public string ActiveProfile { get; private set; }
 
         public static string SaveRootDirectory => Path.Combine(UnityEngine.Application.persistentDataPath, "Saves");
 
@@ -58,8 +59,10 @@ namespace Ravenholm.Presentation
             Settings = new PlayerSettingsService(SaveDirectoryOverride != null ? Path.Combine(SaveDirectoryOverride, "settings")
                                                                                : Path.Combine(UnityEngine.Application.persistentDataPath, "Settings"));
             var settings = config.SandboxSettings;
-            var saveDir = SaveDirectoryOverride ?? Path.Combine(SaveRootDirectory, config.SaveProfile);
-            Services = new GameServices(ClockOverride ?? new SystemClock(), config.Catalogue, config.Balance, saveDir, config.SaveProfile,
+            // GDD 23/24: developer experiments can use their own profile so they never touch the company save.
+            ActiveProfile = SaveDirectoryOverride == null && Settings.Current.Profile != null ? Settings.Current.Profile : config.SaveProfile;
+            var saveDir = SaveDirectoryOverride ?? Path.Combine(SaveRootDirectory, ActiveProfile);
+            Services = new GameServices(ClockOverride ?? new SystemClock(), config.Catalogue, config.Balance, saveDir, ActiveProfile,
                 UnityEngine.Application.version, settings.autosaveDebounceSeconds);
 
             if (Services.ContentReport.IsValid) Debug.Log("[GameRoot] " + Services.ContentReport);
