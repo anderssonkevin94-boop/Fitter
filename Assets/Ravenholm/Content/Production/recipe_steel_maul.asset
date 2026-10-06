@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b68138b169594ccd9f5483367190cb3, type: 3}
+  m_Name: recipe_steel_maul
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.RecipeDefinition
+  id: recipe.steel_maul
+  displayName: Steel Maul
+  contentVersion: 1
+  outputItem: {fileID: 11400000, guid: 979e319d612814777a86615eb668c783, type: 2}
+  quantity: 1
+  cost:
+  - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
+    quantity: 4
+  - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+    quantity: 1
+  station: {fileID: 11400000, guid: 8279030b2932a401294be343f1e4c40a, type: 2}
+  minFacilityLevel: 2
+  requiredBlueprint: {fileID: 11400000, guid: def1f8f3235944b73a872bb091ab4b58, type: 2}

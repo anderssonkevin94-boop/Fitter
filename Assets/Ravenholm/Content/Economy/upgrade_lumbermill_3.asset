@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1dd781785472412e87ab6adecaf5cf9, type: 3}
+  m_Name: upgrade_lumbermill_3
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.UpgradeDefinition
+  id: upgrade.lumbermill_3
+  displayName: Lumbermill 3
+  contentVersion: 1
+  kind: 0
+  station: {fileID: 11400000, guid: aee9240eecccb4bebb35a4add1446a5e, type: 2}
+  site: {fileID: 0}
+  level: 3
+  goldCost: 80
+  materialCost:
+  - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
+    quantity: 8
+  - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+    quantity: 8
+  effect: "Unlocks ironwood sawing; basic batch time \xD70.85 again"
+  requiresUpgrade: {fileID: 11400000, guid: 742dc5e53931646aa847662e0fbf67b5, type: 2}
+  requiresSiteBand: {fileID: 11400000, guid: cceae9de50e594da69132640a7cbedd3, type: 2}
+  requiresBand: 4
+  requiresQuestSuccess: {fileID: 0}
+  requiresOrdinarySuccesses: 0

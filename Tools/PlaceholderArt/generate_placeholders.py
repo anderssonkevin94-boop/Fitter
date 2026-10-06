@@ -56,6 +56,8 @@ IRON, COPPER, COAL, GEM = (150, 156, 168, 255), (212, 128, 72, 255), (54, 54, 62
 CEDAR, MAPLE = (176, 110, 70, 255), (214, 160, 108, 255)
 HERB = (110, 176, 84, 255)
 STEEL = (196, 206, 220, 255)
+MOONSILVER = (206, 222, 246, 255)
+IRONWOOD = (96, 70, 58, 255)
 
 meta = {}
 provenance = []
@@ -662,6 +664,11 @@ RESOURCES = {
     "rope": rope,
     "fur": fur,
     "arcane_dust": dust,
+    # Phase 7: v1 higher-tier components (Mine depths 4-6, Forest areas 4-6)
+    "moonsilver_ore": lambda d, cx, cy, s: ore_shape(d, cx, cy, s, None, MOONSILVER),
+    "moonsilver_ingot": lambda d, cx, cy, s: ingot(d, cx, cy, s, MOONSILVER),
+    "ironwood_log": lambda d, cx, cy, s: log(d, cx, cy, s, IRONWOOD, (180, 128, 96, 255)),
+    "ironwood_lumber": lambda d, cx, cy, s: plank(d, cx, cy, s, (140, 96, 72, 255)),
 }
 
 
@@ -731,6 +738,39 @@ def item_steel_coat(d, cx, cy, s):
         d.line([(cx - 0.22 * s, cy + y * s), (cx + 0.22 * s, cy + y * s)], fill=shade(STEEL, 0.75), width=2 * S)
 
 
+def item_maul(d, cx, cy, s):
+    d.line([(cx - 0.32 * s, cy + 0.36 * s), (cx + 0.14 * s, cy - 0.14 * s)], fill=INK, width=int(0.12 * s))
+    d.line([(cx - 0.3 * s, cy + 0.34 * s), (cx + 0.14 * s, cy - 0.14 * s)], fill=TIMBER_M, width=int(0.12 * s) - 2 * OL)
+    poly(d, [(cx + 0.0 * s, cy - 0.3 * s), (cx + 0.22 * s, cy - 0.44 * s), (cx + 0.42 * s, cy - 0.12 * s), (cx + 0.2 * s, cy + 0.02 * s)], STEEL)
+
+
+def item_mail(d, cx, cy, s, col=MOONSILVER):
+    pts = [(-0.24, -0.36), (0.24, -0.36), (0.42, -0.1), (0.3, 0.0), (0.26, 0.4), (-0.26, 0.4), (-0.3, 0.0), (-0.42, -0.1)]
+    poly(d, [(cx + x * s, cy + y * s) for x, y in pts], col)
+    for x in (-0.15, 0.0, 0.15):
+        for y in (-0.15, 0.05, 0.25):
+            d.ellipse([cx + (x - 0.04) * s, cy + (y - 0.04) * s, cx + (x + 0.04) * s, cy + (y + 0.04) * s], outline=shade(col, 0.6), width=S)
+
+
+def item_brigandine(d, cx, cy, s):
+    item_coat(d, cx, cy, s)
+    d.line([(cx - 0.24 * s, cy - 0.34 * s), (cx + 0.24 * s, cy - 0.34 * s)], fill=(150, 110, 80, 255), width=int(0.1 * s))
+
+
+def item_focus(d, cx, cy, s):
+    d.line([(cx - 0.3 * s, cy + 0.4 * s), (cx + 0.2 * s, cy - 0.25 * s)], fill=INK, width=int(0.12 * s))
+    d.line([(cx - 0.28 * s, cy + 0.37 * s), (cx + 0.2 * s, cy - 0.25 * s)], fill=IRONWOOD, width=int(0.12 * s) - 2 * OL)
+    poly(d, [(cx + 0.24 * s, cy - 0.5 * s), (cx + 0.4 * s, cy - 0.28 * s), (cx + 0.24 * s, cy - 0.08 * s), (cx + 0.08 * s, cy - 0.28 * s)], MOONSILVER)
+
+
+def item_greatbow(d, cx, cy, s):
+    bb = [cx - 0.44 * s, cy - 0.52 * s, cx + 0.52 * s, cy + 0.52 * s]
+    sx = cx + 0.04 * s + 0.48 * s * math.cos(math.radians(115))
+    d.line([(sx, cy - 0.48 * s), (sx, cy + 0.48 * s)], fill=(240, 236, 220, 255), width=3 * S)
+    d.arc(bb, 115, 245, fill=INK, width=int(0.17 * s))
+    d.arc([bb[0] + OL / 2, bb[1] + OL / 2, bb[2] - OL / 2, bb[3] - OL / 2], 117, 243, fill=IRONWOOD, width=int(0.17 * s) - 2 * OL)
+
+
 def potion(colour):
     def draw(d, cx, cy, s):
         d.ellipse([cx - 0.28 * s, cy - 0.12 * s, cx + 0.28 * s, cy + 0.4 * s], fill=colour, outline=INK, width=OL)
@@ -753,6 +793,17 @@ ITEMS = {
     "steel_coat": item_steel_coat,
     "antidote": potion((96, 176, 92, 255)),
     "warding_draught": potion((120, 96, 190, 255)),
+    # Phase 7 advanced catalogue
+    "steel_maul": item_maul,
+    "steel_stiletto": lambda d, cx, cy, s: item_sword(d, cx + 0.1 * s, cy - 0.1 * s, s * 0.75, STEEL),
+    "moonsilver_blade": lambda d, cx, cy, s: item_sword(d, cx, cy, s * 1.15, MOONSILVER),
+    "moonsilver_mail": item_mail,
+    "fur_brigandine": item_brigandine,
+    "ironwood_greatbow": item_greatbow,
+    "moonsilver_focus": item_focus,
+    "strong_tonic": potion((176, 40, 60, 255)),
+    "pathfinder_draught": potion((200, 170, 70, 255)),
+    "trapsense_draught": potion((80, 150, 200, 255)),
 }
 
 
@@ -1035,6 +1086,19 @@ def write_meta_and_provenance():
         f.write("\n".join(lines) + "\n")
 
 
+def beacon_trophy():
+    """Phase 7: settlement trophy shown in town once the final expedition succeeds."""
+    img = canvas(1.2, 2.0)
+    d = ImageDraw.Draw(img)
+    cx, base = img.width / 2, img.height - 0.3 * U
+    shadow_ellipse(d, cx, base, 0.4 * U, 0.12 * U)
+    box(d, (cx, base), 0.5, 0.5, 0.25 * U, STONE_L, STONE_M, STONE_D)
+    post(d, (cx, base - 0.2 * U), 1.0 * U, 0.07, STONE_D)
+    d.ellipse([cx - 0.24 * U, base - 1.5 * U, cx + 0.24 * U, base - 1.02 * U], fill=GLOW, outline=INK, width=OL)
+    d.ellipse([cx - 0.12 * U, base - 1.38 * U, cx + 0.12 * U, base - 1.14 * U], fill=(255, 236, 170, 255))
+    return finish("prop_beacon_trophy", img, (cx, base), "Props", desc="Beacon trophy: settlement monument after the final expedition")
+
+
 def main():
     tile("tile_grass_a", GRASS_A, GRASS_D, "tufts", 1)
     tile("tile_grass_b", GRASS_B, GRASS_D, "tufts", 2)
@@ -1067,6 +1131,7 @@ def main():
     rack("rack_armor_empty", "armor", "Store armor stand (empty; items drawn in-engine)", True)
     rack("rack_potions_empty", "potion", "Store potion shelf (empty; items drawn in-engine)", True)
     bell()
+    beacon_trophy()
     staging_pile("pile_ore", "iron_ore", "Mine staging pile (ore)")
     staging_pile("pile_logs", "cedar_log", "Forest staging pile (logs)")
     staging_pile("pile_ingots", "iron_ingot", "Processed output pile (ingots)")

@@ -97,6 +97,14 @@ namespace Ravenholm.Presentation
             if (r.LeveledUp) sb.Append($"{r.ContractorName} reached level {r.NewLevel}.\n");
             if (r.Injured) sb.Append($"{r.ContractorName} is injured and needs about 10 minutes to recover.\n");
             if (r.RevealedThreats.Count > 0) sb.Append("Learned: ").Append(Names(r.RevealedThreats)).Append('\n');
+            var content = GameRoot.Instance != null ? GameRoot.Instance.Services.Jobs.Content : null;
+            var q = content?.Quest(r.QuestId);
+            var success = r.Outcome == Outcome.Success || r.Outcome == Outcome.GreatSuccess;
+            if (q != null && success && q.Finale)
+                sb.Append("<b>The Beacon burns again. Campaign complete!</b> A trophy now stands in town. Repeatable contracts, remaining blueprints and better gear are still there for you.\n");
+            if (q != null && success)
+                foreach (var prep in q.Prepares)
+                    sb.Append($"<b>Preparation secured:</b> {UnitVisuals.DisplayName(prep.Value)} will no longer stand in the way of {UnitVisuals.DisplayName(prep.Key)}.\n");
             if (r.QuestsUnlocked.Count > 0) sb.Append("<b>New jobs on the map:</b> ").Append(Names(r.QuestsUnlocked)).Append('\n');
             if (r.Contributors.Count > 0)
             {

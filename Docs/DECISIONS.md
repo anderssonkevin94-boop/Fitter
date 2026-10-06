@@ -205,12 +205,71 @@ the GDD excludes monetization and analytics.
 - **Debug:** simulate time away (+1 h, +8 h, +24 h; same code path as a real absence) and summon the Trader now.
 - **Test fix:** `FirstSuccessBlueprintIsGrantedOnceAndDuplicatesBecomeMaterials` was flaky. The applicant pool is random per world seed, and sometimes nobody would take Old Shrine. Its fixture now uses seasoned contractors, as the Quarry Road test already did.
 
+## Phase 7 decisions (2026-10-06)
+
+- **Scope against the v1 ceilings (GDD 1):**
+  - 3 regions (Frontier Paths, Hollow March, Crownward Ruins).
+  - 20 quests (the ceiling is 18–24).
+  - 22 recipes (the ceiling is 24–30; I kept fewer, better ones).
+  - 6 depth bands per site.
+  - All values are balance starting points.
+- **New materials:**
+  - Moonsilver ore from Mine depths 4–6, smelted at Smelter 3.
+  - Ironwood log from Forest areas 4–6, sawn at Lumbermill 3.
+  - Every deep band keeps at least 35 % iron or cedar (GDD 6/7).
+  - Forest travel time per leg is capped at 6 s.
+- **New facility levels:** Smelter 3, Lumbermill 3, Forge 3 and Workbench 2. Their costs and prerequisites are invented balance starting points; the GDD table stops at level 2.
+- **Ten new recipes:**
+  - Steel maul (Warrior, blunt).
+  - Steel stiletto (Rogue, Power 13 so a Rogue can meet the finale's weapon bar).
+  - Fur-lined brigandine (armor, exploration +3).
+  - Strong tonic (survival +7).
+  - Pathfinder's and Trapsense draughts. These are optional: they come only from the Trader's 20 % side-blueprint slot.
+  - Moonsilver focus (Mage, arcane +5).
+  - Moonsilver mail (Protection 14).
+  - Ironwood greatbow (Ranger).
+  - Moonsilver blade (Warrior).
+  - Every other new blueprint is a deterministic first-success reward.
+- **New potion effects:** `TrapsCounter` and `ExplorationCounter`, appended to the enum so saved values stay stable. Counter potions now map to threat tags generically.
+- **Regions** are definitions (`RegionDefinition`). The map lists reached regions with their jobs. The next region shows as a rumour silhouette; regions after that stay hidden.
+- **Campaign breadcrumb:** each quest has an authored `campaignStep`. "Next for the company" names the earliest main-chain quest not yet succeeded, with its lock reason or status. The validator checks that steps follow prerequisites and that every prerequisite of the finale is on the chain.
+- **The Beacon chain (GDD 14):**
+  - **Chart the Beacon Road** (minimum level 4) and **Hold the Beacon Pass** (minimum level 4) are one-time legs.
+  - On success, each leg removes one capstone threat for good through the data-driven `preparations` list. The uncharted approach and the pass wardens are deliberately harsh unprepared (−8 readiness, a survival penalty, and an armor threshold of 16 that nothing reaches).
+  - **The Beacon Expedition** has difficulty 32, minimum level 6, current reputation 70 at dispatch, weapon Power 13+, armor Protection 10+, and a counter potion.
+  - The Pale Flame needs 10 arcane counter: a mage or ward gear plus a Warding Draught.
+  - Failure follows the ordinary rules, with no special fail state.
+  - Success completes the campaign: a trophy appears in town, a result message is shown, and the breadcrumb switches to postgame text.
+  - Repeatable contracts continue afterwards.
+  - All of this is derived from saved quest progress, so no schema change was needed.
+- **Dispatch requirements** (level, current reputation, weapon Power, armor Protection, counter potion) are generic quest fields, checked in `DispatchBlockedReason`. Applicants below a quest's minimum level do not apply.
+- **Rule changes made in this phase, for review:**
+  - **Screening includes potions.** Applicant screening now adds the best available counter potions to the best weapon and armor; the GDD's "best compatible available gear" covers them. Without this, almost nobody would apply for Pale Flame jobs.
+  - **Newcomer levels scale with reputation.** Newcomers are level 1 at reputation 20, rising to at most level 6 at reputation 70. This formula is unchanged below reputation 40.
+  - **Seasoned newcomers for elite postings.** If nobody alive meets an elite posting's minimum level and reputation supports it, the pool may add up to two newcomers at that level, to at most 16 contractors. Before this, finishing the campaign depended on one contractor happening to collect 15 successes; one bot run stalled for 700 expeditions.
+- **Validation:** `ProgressionGraph` computes everything reachable from a fresh company and reports any recipe, quest, upgrade or process that ordinary play can't reach.
+  - It counts only recurring sources: site yields and their per-unit bonus rolls, processing, Trader stock (including the side-blueprint slot, which rolls again every visit), deterministic quest rewards and first-success blueprints.
+  - Quest rare rolls never count, so no required item can sit behind a rare drop.
+  - It runs as part of catalogue validation.
+- **Campaign bot (EditMode):**
+  - Plays from a fresh save with the real resolver, gold, fees, applicants, injuries and upgrades.
+  - Approximates production by topping up materials, and treats every band as revealed.
+  - Results so far: 9 runs finished in 69–132 expeditions (about 6–12 h of quest time sent one at a time), with no deaths.
+  - Gold piles up late (about 1,000–4,700). That's partly because the bot gets free materials and never buys worker gear. Tuning question for the playtest.
+- **Class niches** (tested): each class is the best choice for at least one job.
+  - Warrior: heavy blows.
+  - Ranger: exploration.
+  - Rogue: traps.
+  - Mage: arcane, including the finale.
+- **Tests updated:** two old tests asserted the Phase 2 and 3 content counts (15 resources, 3 bands per site). They now check 19 and 6.
+
 ## Open blockers
 
 - **iOS build:** the Unity → Xcode device export succeeded headlessly on 2026-10-06 (0 errors, 1 warning, IL2CPP, 114 s). The Xcode compile/sign/install step has not run yet: the startup disk had only ~2.5 GB free, too little for Xcode intermediates. To do: free disk space, export again (Ravenholm > Build > iOS Xcode Project (Device)), open `Builds/iOS-Device/Unity-iPhone.xcodeproj`, pick a signing team, then Run on the iPhone.
 
 ## Playtest feedback
 
+- 2026-10-06: user: "keep going with next phase" (Phase 6 not yet playtested). Phase 7 built (world content and campaign). STOP for progression approval before Phase 8.
 - 2026-10-06: user: "start next phase". Phase 6 built (Trader, economy, offline catch-up, recovery). This is the functional MVP boundary: STOP for playtest before Phase 7.
 - 2026-10-06: Phase 1 approved by the user ("proceed"). No playtest notes given yet; the Phase 1 tuning questions (joystick comfort, camera, pickup cadence, capacity, walk speed, trip length, interior) carry over.
 - Phases 2 and 3: built under the overnight authorization; installed on the user's iPhone 16 Pro on 2026-10-06 for playtesting.

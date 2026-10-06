@@ -39,6 +39,9 @@ namespace Ravenholm.Content
         SurvivalMargin,
         PoisonCounter,
         ArcaneCounter,
+        // Phase 7 (appended to keep saved enum values stable)
+        TrapsCounter,
+        ExplorationCounter,
     }
 
     /// <summary>
@@ -87,6 +90,15 @@ namespace Ravenholm.Content
         public int CounterStrength => counterStrength;
 
         /// <summary>Short stat line for cards, e.g. "Power 10 · arcane counter +4".</summary>
+        /// <summary>The threat tag a counter potion answers (None for other items).</summary>
+        public CounterTag PotionCounterTag =>
+            category != ItemCategory.Potion ? CounterTag.None
+            : potionEffect == PotionEffect.PoisonCounter ? CounterTag.Poison
+            : potionEffect == PotionEffect.ArcaneCounter ? CounterTag.Arcane
+            : potionEffect == PotionEffect.TrapsCounter ? CounterTag.Traps
+            : potionEffect == PotionEffect.ExplorationCounter ? CounterTag.Exploration
+            : CounterTag.None;
+
         public string StatLine()
         {
             string main;

@@ -20,6 +20,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5b2b23a55ab3f487aae8780f47c4d963, type: 2}
   - {fileID: 11400000, guid: 66cab9cd932784b34a1bfbc41eb35119, type: 2}
   - {fileID: 11400000, guid: f64cc6d94a7654a45b58423b824f771d, type: 2}
+  - {fileID: 11400000, guid: 7f2e59ed1c2e5489cb133933812c449a, type: 2}
+  - {fileID: 11400000, guid: 45ef1db1001674d5a9b3388f44ffc1ae, type: 2}
+  - {fileID: 11400000, guid: 9e068c654881643d38fcf8f51164d694, type: 2}
   workers:
   - {fileID: 11400000, guid: a4ff5ca602dc84d9ab303180fae31f6d, type: 2}
   recruits:

@@ -33,6 +33,8 @@ namespace Ravenholm.Content
         }
 
 #if UNITY_EDITOR
+        public void EditorSetMaxLevel(int max) => maxLevel = max;
+
         public void EditorSetupStation(string pad, int padCapacity, int start, int max)
         {
             outputPadContainerId = pad;

@@ -79,7 +79,9 @@ MonoBehaviour:
     availability: 1
     chance: 0.2
     afterQuest: {fileID: 0}
-  sideBlueprints: []
+  sideBlueprints:
+  - {fileID: 11400000, guid: 736883fa856c04ffdbd73e4b5df20e9b, type: 2}
+  - {fileID: 11400000, guid: b7ee3ebaf44ae4dfc9956eec4f57a9b7, type: 2}
   minutesBetweenVisits: 20
   minutesPerVisit: 5
   firstArrivalDelaySeconds: 60

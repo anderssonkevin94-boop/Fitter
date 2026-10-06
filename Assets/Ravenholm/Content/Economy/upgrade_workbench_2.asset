@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1dd781785472412e87ab6adecaf5cf9, type: 3}
+  m_Name: upgrade_workbench_2
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.UpgradeDefinition
+  id: upgrade.workbench_2
+  displayName: Workbench 2
+  contentVersion: 1
+  kind: 0
+  station: {fileID: 11400000, guid: d5a48a45e9ce34bb8be58ac42550e9ca, type: 2}
+  site: {fileID: 0}
+  level: 2
+  goldCost: 60
+  materialCost:
+  - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
+    quantity: 6
+  - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+    quantity: 6
+  effect: Enables ironwood and moonsilver bows and staves
+  requiresUpgrade: {fileID: 0}
+  requiresSiteBand: {fileID: 0}
+  requiresBand: 0
+  requiresQuestSuccess: {fileID: 11400000, guid: 32f70e32a57d04084ae8a8aebe6b33e9, type: 2}
+  requiresOrdinarySuccesses: 0

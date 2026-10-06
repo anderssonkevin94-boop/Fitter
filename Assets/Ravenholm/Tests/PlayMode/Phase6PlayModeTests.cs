@@ -77,7 +77,7 @@ namespace Ravenholm.Tests
             yield return Boot();
             var s = GameRoot.Instance.Services;
             var hud = GameRoot.Instance.Hud;
-            StringAssert.Contains("PHASE 6", hud.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true).First(t => t.text.Contains("PHASE")).text);
+            StringAssert.Contains("PHASE ", hud.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true).First(t => t.text.Contains("PHASE")).text);
             var pad = GameObject.Find("Trader Pad").GetComponent<TraderInspectable>();
             var stall = pad.transform.Find("Stall").gameObject;
             yield return null;

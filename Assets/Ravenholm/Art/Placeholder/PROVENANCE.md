@@ -30,13 +30,23 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Icons/Items/icon_cedar_bow.png` | Icon: cedar bow |
 | `Icons/Items/icon_cedar_staff.png` | Icon: cedar staff |
 | `Icons/Items/icon_copper_ward_staff.png` | Icon: copper ward staff |
+| `Icons/Items/icon_fur_brigandine.png` | Icon: fur brigandine |
 | `Icons/Items/icon_iron_dagger.png` | Icon: iron dagger |
 | `Icons/Items/icon_iron_sword.png` | Icon: iron sword |
+| `Icons/Items/icon_ironwood_greatbow.png` | Icon: ironwood greatbow |
 | `Icons/Items/icon_maple_longbow.png` | Icon: maple longbow |
+| `Icons/Items/icon_moonsilver_blade.png` | Icon: moonsilver blade |
+| `Icons/Items/icon_moonsilver_focus.png` | Icon: moonsilver focus |
+| `Icons/Items/icon_moonsilver_mail.png` | Icon: moonsilver mail |
+| `Icons/Items/icon_pathfinder_draught.png` | Icon: pathfinder draught |
 | `Icons/Items/icon_recovery_tonic.png` | Icon: recovery tonic |
 | `Icons/Items/icon_riveted_coat.png` | Icon: riveted coat |
 | `Icons/Items/icon_steel_coat.png` | Icon: steel coat |
+| `Icons/Items/icon_steel_maul.png` | Icon: steel maul |
+| `Icons/Items/icon_steel_stiletto.png` | Icon: steel stiletto |
 | `Icons/Items/icon_steel_sword.png` | Icon: steel sword |
+| `Icons/Items/icon_strong_tonic.png` | Icon: strong tonic |
+| `Icons/Items/icon_trapsense_draught.png` | Icon: trapsense draught |
 | `Icons/Items/icon_warding_draught.png` | Icon: warding draught |
 | `Icons/Resources/icon_arcane_dust.png` | Icon: arcane dust |
 | `Icons/Resources/icon_cedar_log.png` | Icon: cedar log |
@@ -49,8 +59,12 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Icons/Resources/icon_herb.png` | Icon: herb |
 | `Icons/Resources/icon_iron_ingot.png` | Icon: iron ingot |
 | `Icons/Resources/icon_iron_ore.png` | Icon: iron ore |
+| `Icons/Resources/icon_ironwood_log.png` | Icon: ironwood log |
+| `Icons/Resources/icon_ironwood_lumber.png` | Icon: ironwood lumber |
 | `Icons/Resources/icon_maple_log.png` | Icon: maple log |
 | `Icons/Resources/icon_maple_lumber.png` | Icon: maple lumber |
+| `Icons/Resources/icon_moonsilver_ingot.png` | Icon: moonsilver ingot |
+| `Icons/Resources/icon_moonsilver_ore.png` | Icon: moonsilver ore |
 | `Icons/Resources/icon_rope.png` | Icon: rope |
 | `Icons/Resources/icon_steel_ingot.png` | Icon: steel ingot |
 | `Nature/bush_herb.png` | Herb bush |
@@ -68,6 +82,7 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Props/pile_logs.png` | Forest staging pile (logs) |
 | `Props/pile_lumber.png` | Processed output pile (lumber) |
 | `Props/pile_ore.png` | Mine staging pile (ore) |
+| `Props/prop_beacon_trophy.png` | Beacon trophy: settlement monument after the final expedition |
 | `Props/prop_bell.png` | Store counter bell (sandbox persistence sample) |
 | `Props/prop_output_pad.png` | Station output pad (pallet) for finished goods |
 | `Props/rack_armor.png` | Store armor stand |
@@ -90,21 +105,35 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Stacks/stack_copper_ore.png` | Carry/stack piece: copper ore |
 | `Stacks/stack_copper_ward_staff.png` | Carry/stack piece: copper ward staff |
 | `Stacks/stack_fur.png` | Carry/stack piece: fur |
+| `Stacks/stack_fur_brigandine.png` | Carry/stack piece: fur brigandine |
 | `Stacks/stack_gem.png` | Carry/stack piece: gem |
 | `Stacks/stack_herb.png` | Carry/stack piece: herb |
 | `Stacks/stack_iron_dagger.png` | Carry/stack piece: iron dagger |
 | `Stacks/stack_iron_ingot.png` | Carry/stack piece: iron ingot |
 | `Stacks/stack_iron_ore.png` | Carry/stack piece: iron ore |
 | `Stacks/stack_iron_sword.png` | Carry/stack piece: iron sword |
+| `Stacks/stack_ironwood_greatbow.png` | Carry/stack piece: ironwood greatbow |
+| `Stacks/stack_ironwood_log.png` | Carry/stack piece: ironwood log |
+| `Stacks/stack_ironwood_lumber.png` | Carry/stack piece: ironwood lumber |
 | `Stacks/stack_maple_log.png` | Carry/stack piece: maple log |
 | `Stacks/stack_maple_longbow.png` | Carry/stack piece: maple longbow |
 | `Stacks/stack_maple_lumber.png` | Carry/stack piece: maple lumber |
+| `Stacks/stack_moonsilver_blade.png` | Carry/stack piece: moonsilver blade |
+| `Stacks/stack_moonsilver_focus.png` | Carry/stack piece: moonsilver focus |
+| `Stacks/stack_moonsilver_ingot.png` | Carry/stack piece: moonsilver ingot |
+| `Stacks/stack_moonsilver_mail.png` | Carry/stack piece: moonsilver mail |
+| `Stacks/stack_moonsilver_ore.png` | Carry/stack piece: moonsilver ore |
+| `Stacks/stack_pathfinder_draught.png` | Carry/stack piece: pathfinder draught |
 | `Stacks/stack_recovery_tonic.png` | Carry/stack piece: recovery tonic |
 | `Stacks/stack_riveted_coat.png` | Carry/stack piece: riveted coat |
 | `Stacks/stack_rope.png` | Carry/stack piece: rope |
 | `Stacks/stack_steel_coat.png` | Carry/stack piece: steel coat |
 | `Stacks/stack_steel_ingot.png` | Carry/stack piece: steel ingot |
+| `Stacks/stack_steel_maul.png` | Carry/stack piece: steel maul |
+| `Stacks/stack_steel_stiletto.png` | Carry/stack piece: steel stiletto |
 | `Stacks/stack_steel_sword.png` | Carry/stack piece: steel sword |
+| `Stacks/stack_strong_tonic.png` | Carry/stack piece: strong tonic |
+| `Stacks/stack_trapsense_draught.png` | Carry/stack piece: trapsense draught |
 | `Stacks/stack_warding_draught.png` | Carry/stack piece: warding draught |
 | `Tiles/tile_dirt.png` | Isometric ground tile (pebbles) |
 | `Tiles/tile_forest_floor.png` | Isometric ground tile (tufts) |

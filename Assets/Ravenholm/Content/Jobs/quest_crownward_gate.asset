@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c4b1ae7790f243f99270112d70e2d93, type: 3}
+  m_Name: quest_crownward_gate
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
+  id: quest.crownward_gate
+  displayName: Crownward Gate
+  contentVersion: 1
+  difficulty: 29
+  durationSeconds: 270
+  threats:
+  - threat: {fileID: 11400000, guid: 7db2a1f0ea6374e259fc46a80e456a1b, type: 2}
+    knownAtStart: 1
+  - threat: {fileID: 11400000, guid: 05274abe26a254da895ea72c3ffe399b, type: 2}
+    knownAtStart: 1
+  baseGold: 76
+  repeatable: 1
+  recoveryContract: 0
+  prestigeTarget: 60
+  brief: The ruined gate of the Crownward road.
+  prerequisites:
+  - {fileID: 11400000, guid: 9b8d524d053184d09b8f1071270b78ec, type: 2}
+  - {fileID: 11400000, guid: 32f70e32a57d04084ae8a8aebe6b33e9, type: 2}
+  reputationGate: 45
+  mapTier: 5
+  region: {fileID: 11400000, guid: 18359f64f813649d4828fff75e0c2bc6, type: 2}
+  campaignStep: 13
+  campaignFinale: 0
+  preparations: []
+  minContractorLevel: 0
+  dispatchReputation: 0
+  minWeaponPower: 0
+  minArmorProtection: 0
+  requireCounterPotion: 0
+  successMaterials:
+  - resource: {fileID: 11400000, guid: 0d02005e92bed413891ba93034540535, type: 2}
+    quantity: 2
+  greatBonusMaterials:
+  - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
+    quantity: 2
+  partialMaterials: []
+  firstSuccessBlueprint: {fileID: 11400000, guid: 22a07acb406044fa0b1dbc93e91c5d71, type: 2}
+  substituteMaterials:
+  - resource: {fileID: 11400000, guid: 0d02005e92bed413891ba93034540535, type: 2}
+    quantity: 2
+  rareResource: {fileID: 11400000, guid: c92566d6dffce434b835bb60a6198cba, type: 2}
+  rareChance: 0.5

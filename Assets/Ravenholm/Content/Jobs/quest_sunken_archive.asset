@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c4b1ae7790f243f99270112d70e2d93, type: 3}
+  m_Name: quest_sunken_archive
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
+  id: quest.sunken_archive
+  displayName: Sunken Archive
+  contentVersion: 1
+  difficulty: 28
+  durationSeconds: 270
+  threats:
+  - threat: {fileID: 11400000, guid: 8a652df0113ae41a793c249e7281096e, type: 2}
+    knownAtStart: 1
+  - threat: {fileID: 11400000, guid: 05274abe26a254da895ea72c3ffe399b, type: 2}
+    knownAtStart: 0
+  baseGold: 70
+  repeatable: 1
+  recoveryContract: 0
+  prestigeTarget: 55
+  brief: 'A drowned library: wards, and worse.'
+  prerequisites:
+  - {fileID: 11400000, guid: eef51a815a9334aa1ae2ca05fc5d4be1, type: 2}
+  reputationGate: 0
+  mapTier: 5
+  region: {fileID: 11400000, guid: 8bfd23782780e4a6abee3fb5b7b92075, type: 2}
+  campaignStep: 12
+  campaignFinale: 0
+  preparations: []
+  minContractorLevel: 0
+  dispatchReputation: 0
+  minWeaponPower: 0
+  minArmorProtection: 0
+  requireCounterPotion: 0
+  successMaterials:
+  - resource: {fileID: 11400000, guid: 5885b88db36ff46568810cd380656407, type: 2}
+    quantity: 2
+  - resource: {fileID: 11400000, guid: 0d02005e92bed413891ba93034540535, type: 2}
+    quantity: 1
+  greatBonusMaterials:
+  - resource: {fileID: 11400000, guid: 5885b88db36ff46568810cd380656407, type: 2}
+    quantity: 1
+  partialMaterials: []
+  firstSuccessBlueprint: {fileID: 11400000, guid: 1b387f930730345d7a17e7f83e5751b6, type: 2}
+  substituteMaterials:
+  - resource: {fileID: 11400000, guid: 0d02005e92bed413891ba93034540535, type: 2}
+    quantity: 2
+  rareResource: {fileID: 11400000, guid: c92566d6dffce434b835bb60a6198cba, type: 2}
+  rareChance: 0.5

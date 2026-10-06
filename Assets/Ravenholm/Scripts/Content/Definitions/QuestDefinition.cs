@@ -12,6 +12,16 @@ namespace Ravenholm.Content
         public bool knownAtStart;
     }
 
+    /// <summary>A preparation leg's permanent effect: a threat it removes from a later quest (GDD 14 final chain).</summary>
+    [Serializable]
+    public struct QuestPreparation
+    {
+        public QuestDefinition quest;
+        public ThreatDefinition threat;
+        [Tooltip("Shown on the later quest once prepared, e.g. 'Route charted by the scouts'.")]
+        public string note;
+    }
+
     /// <summary>
     /// A postable job (GDD 11/17). The player posts the quest; never a reward or payment amount.
     /// Phase 4 uses difficulty, threats and duration; outcome rewards and unlocks arrive in Phase 5.
@@ -38,6 +48,26 @@ namespace Ravenholm.Content
         [Tooltip("Row on the quest map (0 = starting jobs).")]
         [Min(0)] [SerializeField] private int mapTier;
 
+        [Tooltip("Map region (GDD 14). Regions show as silhouettes until one of their jobs unlocks.")]
+        [SerializeField] private RegionDefinition region;
+
+        [Header("Campaign (GDD 14)")]
+        [Tooltip("Order on the campaign breadcrumb (0 = not part of the main chain).")]
+        [Min(0)] [SerializeField] private int campaignStep;
+        [Tooltip("Succeeding at this completes the campaign (settlement trophy). Exactly one quest.")]
+        [SerializeField] private bool campaignFinale;
+        [Tooltip("On first success, removes these threats from later quests (permanent expedition preparations).")]
+        [SerializeField] private List<QuestPreparation> preparations = new List<QuestPreparation>();
+
+        [Header("Dispatch requirements (checked when sending, GDD 14 prestigious exception)")]
+        [Min(0)] [SerializeField] private int minContractorLevel;
+        [Tooltip("Current reputation needed at dispatch (unlike the one-time reputation gate).")]
+        [Min(0)] [SerializeField] private int dispatchReputation;
+        [Min(0)] [SerializeField] private int minWeaponPower;
+        [Min(0)] [SerializeField] private int minArmorProtection;
+        [Tooltip("Requires a potion that counters one of this job's threats.")]
+        [SerializeField] private bool requireCounterPotion;
+
         [Header("Rewards per outcome (GDD 13/17) - explicit packages, not multiplied")]
         [SerializeField] private List<ResourceCost> successMaterials = new List<ResourceCost>();
         [Tooltip("Great Success adds this small bundle on top of the success package.")]
@@ -63,6 +93,15 @@ namespace Ravenholm.Content
         public IReadOnlyList<QuestDefinition> Prerequisites => prerequisites;
         public int ReputationGate => reputationGate;
         public int MapTier => mapTier;
+        public RegionDefinition Region => region;
+        public int CampaignStep => campaignStep;
+        public bool CampaignFinale => campaignFinale;
+        public IReadOnlyList<QuestPreparation> Preparations => preparations;
+        public int MinContractorLevel => minContractorLevel;
+        public int DispatchReputation => dispatchReputation;
+        public int MinWeaponPower => minWeaponPower;
+        public int MinArmorProtection => minArmorProtection;
+        public bool RequireCounterPotion => requireCounterPotion;
         public IReadOnlyList<ResourceCost> SuccessMaterials => successMaterials;
         public IReadOnlyList<ResourceCost> GreatBonusMaterials => greatBonusMaterials;
         public IReadOnlyList<ResourceCost> PartialMaterials => partialMaterials;
@@ -81,6 +120,16 @@ namespace Ravenholm.Content
             foreach (var p in prerequisites) if (p == null) errors.Add($"{Describe()}: missing prerequisite");
             if (firstSuccessBlueprint != null && substituteMaterials.Count == 0) errors.Add($"{Describe()}: blueprint reward needs substitute materials");
             if (rareChance > 0 && rareResource == null && !recoveryContract) errors.Add($"{Describe()}: rare chance without a rare resource");
+            if (region == null) errors.Add($"{Describe()}: needs a map region");
+            if (campaignFinale && repeatable) errors.Add($"{Describe()}: the campaign finale is a one-time expedition");
+            foreach (var p in preparations)
+            {
+                if (p.quest == null || p.threat == null) { errors.Add($"{Describe()}: preparation entry incomplete"); continue; }
+                if (p.quest == this) errors.Add($"{Describe()}: prepares itself");
+                var present = false;
+                foreach (var t in p.quest.Threats) if (t.threat == p.threat) present = true;
+                if (!present) errors.Add($"{Describe()}: prepares {p.threat.Id}, which {p.quest.Id} does not have");
+            }
         }
 
 #if UNITY_EDITOR
@@ -89,6 +138,15 @@ namespace Ravenholm.Content
         {
             prerequisites = prereqs; reputationGate = gate; mapTier = tier; successMaterials = success; greatBonusMaterials = great;
             partialMaterials = partial; firstSuccessBlueprint = blueprint; substituteMaterials = substitute; rareResource = rare; rareChance = chance;
+        }
+
+        public void EditorSetRegion(RegionDefinition r) => region = r;
+
+        public void EditorSetupCampaign(int step, bool finale, List<QuestPreparation> preps, int minLevel, int dispatchRep, int minPower, int minProtection,
+            bool counterPotion, bool repeat)
+        {
+            campaignStep = step; campaignFinale = finale; preparations = preps; minContractorLevel = minLevel; dispatchReputation = dispatchRep;
+            minWeaponPower = minPower; minArmorProtection = minProtection; requireCounterPotion = counterPotion; repeatable = repeat;
         }
 
         public void EditorSetupQuest(int d, float seconds, List<QuestThreat> t, int gold, bool repeat, bool recovery, int prestige, string text)

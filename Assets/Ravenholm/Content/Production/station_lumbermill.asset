@@ -18,4 +18,5 @@ MonoBehaviour:
   outputPadContainerId: 
   outputPadCapacity: 6
   startingLevel: 1
-  maxLevel: 2
+  maxLevel: 3
+  batchTimePerLevel: 0.85

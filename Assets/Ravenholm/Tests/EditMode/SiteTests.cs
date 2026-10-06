@@ -380,13 +380,13 @@ namespace Ravenholm.Tests
         }
 
         [Test]
-        public void ProjectContentHasThreeChartedBandsPerSite()
+        public void ProjectContentHasSixChartedBandsPerSite()
         {
             var cat = AssetDatabase.LoadAssetAtPath<ContentCatalogue>(ContentValidationMenu.CataloguePath);
             Assert.AreEqual(2, cat.Sites.Count);
             foreach (var s in cat.Sites)
             {
-                Assert.AreEqual(3, s.Bands.Count, s.Id);
+                Assert.AreEqual(6, s.Bands.Count, s.Id);   // v1: six depth bands (GDD 1, Phase 7)
                 Assert.AreEqual(1, s.Workers.Count, s.Id);
                 var cfg = SitesService.BuildConfig(s);
                 Assert.AreEqual(s.SiteType == SiteType.Mine ? 240 : 40, SiteMath.Durability(cfg, 1, 0));

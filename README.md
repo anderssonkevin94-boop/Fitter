@@ -3,7 +3,7 @@
 iOS-first, portrait fantasy supply-company management game in Unity.
 Design authority: *Ravenholm Supply Co Unity GDD* (design baseline 1.0, 6 Oct 2026).
 
-**Current state: Phase 6 checkpoint (Trader, upgrades, worker equipment and crew, offline catch-up, recovery): the functional MVP. Phases 0–1 approved; Phases 2–6 built under the user's authorization to keep going. Awaiting playtest before Phase 7.**
+**Current state: Phase 7 checkpoint (world content and the Beacon campaign). Phases 0–1 approved; Phases 2–7 built under the user's authorization to keep going. Awaiting progression playtest before Phase 8 (art, UI, audio).**
 
 ## Open and run
 
@@ -40,6 +40,10 @@ Phase 6: after your first ordinary quest returns, the Trader arrives at the Trad
 Building panels show their next upgrade with its exact cost and prerequisite. The Mine and Forest panels show site equipment, crew expansion, and tool and pack purchases for each worker.
 Close the app and come back later: sites and facilities keep working for up to 8 hours, expeditions finish, and a "While you were away" card sums it up.
 Debug panel adds: simulate time away (+1 h / +8 h / +24 h), summon the Trader now.
+
+Phase 7: the Job Board map is grouped into regions (Frontier Paths, Hollow March, Crownward Ruins). The next region shows as a rumour, and "Next for the company" points at the next main-chain job.
+The Mine and Forest have depths and areas 4–6 (moonsilver, ironwood). Smelter 3, Lumbermill 3, Forge 3 and Workbench 2 unlock the advanced recipes that quests teach.
+The finale is the Beacon Expedition. First chart the Beacon Road and hold the Beacon Pass (each succeeds once and permanently removes a threat). Then send a level 6 contractor at reputation 70 with Power 13+ weapon, Protection 10+ armor and a counter potion for the Pale Flame. Success puts a trophy in town; repeatable contracts continue afterwards.
 
 ## Reset the test save
 

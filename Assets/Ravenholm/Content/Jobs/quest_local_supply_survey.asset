@@ -23,3 +23,22 @@ MonoBehaviour:
   recoveryContract: 1
   prestigeTarget: 20
   brief: A patron-sponsored survey of the nearby roads. Always safe; pays little.
+  prerequisites: []
+  reputationGate: 0
+  mapTier: 0
+  region: {fileID: 11400000, guid: 6fce9d744021141c59752ecbe46a228e, type: 2}
+  campaignStep: 0
+  campaignFinale: 0
+  preparations: []
+  minContractorLevel: 0
+  dispatchReputation: 0
+  minWeaponPower: 0
+  minArmorProtection: 0
+  requireCounterPotion: 0
+  successMaterials: []
+  greatBonusMaterials: []
+  partialMaterials: []
+  firstSuccessBlueprint: {fileID: 0}
+  substituteMaterials: []
+  rareResource: {fileID: 0}
+  rareChance: 0.5

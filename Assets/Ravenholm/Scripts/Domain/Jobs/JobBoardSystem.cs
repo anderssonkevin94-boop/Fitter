@@ -187,6 +187,20 @@ namespace Ravenholm.Domain.Jobs
         public string RareResource;
         public double RareChance;
 
+        // Phase 7: map region, campaign chain and dispatch requirements (GDD 14).
+        public string Region = "";
+        public int CampaignStep;
+        public bool Finale;
+        /// <summary>(quest, threat): on first success this quest removes that threat from that later quest.</summary>
+        public readonly List<KeyValuePair<string, string>> Prepares = new List<KeyValuePair<string, string>>();
+        public int MinLevel;
+        public int DispatchReputation;
+        public int MinWeaponPower;
+        public int MinArmorProtection;
+        public bool RequireCounterPotion;
+        /// <summary>View only: threats this company's earlier legs have already dealt with.</summary>
+        public List<string> PreparedThreats = new List<string>();
+
         public QuestInfo CloneShallow()
         {
             var q = (QuestInfo)MemberwiseClone();
@@ -322,8 +336,11 @@ namespace Ravenholm.Domain.Jobs
             var view = q.CloneShallow();
             var threats = new List<ThreatSpec>();
             _s.Progress.TryGetValue(id, out var prog);
+            var prepared = PreparedThreatsFor(id);
+            view.PreparedThreats = prepared;
             foreach (var t in q.Threats)
             {
+                if (prepared.Contains(t.Id)) continue;   // a completed preparation leg removed it for good
                 var known = t.Known || (prog != null && prog.RevealedThreats.Contains(t.Id));
                 threats.Add(new ThreatSpec
                 {
@@ -333,6 +350,45 @@ namespace Ravenholm.Domain.Jobs
             }
             view.Threats = threats;
             return view;
+        }
+
+        /// <summary>Threats removed from <paramref name="questId"/> by preparation legs that have succeeded.</summary>
+        public List<string> PreparedThreatsFor(string questId)
+        {
+            var r = new List<string>();
+            foreach (var other in _content.QuestIds)
+            {
+                if (!_s.Progress.TryGetValue(other, out var p) || p.Successes == 0) continue;
+                foreach (var kv in _content.Quest(other).Prepares)
+                    if (kv.Key == questId && !r.Contains(kv.Value)) r.Add(kv.Value);
+            }
+            return r;
+        }
+
+        /// <summary>The campaign breadcrumb: the earliest main-chain quest not yet succeeded (null when complete or none).</summary>
+        public string CampaignObjective()
+        {
+            string best = null;
+            var bestStep = int.MaxValue;
+            foreach (var id in _content.QuestIds)
+            {
+                var q = _content.Quest(id);
+                if (q.CampaignStep <= 0 || q.CampaignStep >= bestStep) continue;
+                if (_s.Progress.TryGetValue(id, out var p) && p.Successes > 0) continue;
+                best = id;
+                bestStep = q.CampaignStep;
+            }
+            return best;
+        }
+
+        public bool CampaignComplete
+        {
+            get
+            {
+                foreach (var id in _content.QuestIds)
+                    if (_content.Quest(id).Finale && _s.Progress.TryGetValue(id, out var p) && p.Successes > 0) return true;
+                return false;
+            }
         }
 
         /// <summary>Quests unlock once their prerequisites have succeeded and the reputation gate was first reached; they stay unlocked.</summary>
@@ -457,8 +513,30 @@ namespace Ravenholm.Domain.Jobs
         /// Screening estimate (GDD 10): innate capability plus the company's best compatible gear that is
         /// currently available. Not a guarantee that gear will still be there at dispatch.
         /// </summary>
-        public ForecastResult ScreeningForecast(ContractorRecord c, QuestInfo q) =>
-            Forecast(c, BestAvailableLoadout(c, null), q);
+        public ForecastResult ScreeningForecast(ContractorRecord c, QuestInfo q)
+        {
+            var l = BestAvailableLoadout(c, null);
+            AddBestCounterPotions(l, q, null);   // potions are company gear too
+            return Forecast(c, l, q);
+        }
+
+        /// <summary>Fills empty potion slots with available potions that counter this job's known threats (one per effect).</summary>
+        public void AddBestCounterPotions(Loadout l, QuestInfo q, string owner)
+        {
+            var used = new HashSet<string>();
+            foreach (var t in q.Threats)
+            {
+                if (!t.Known || string.IsNullOrEmpty(t.CounterTag) || (l.Potion1 != null && l.Potion2 != null)) continue;
+                foreach (var inst in _gear.StoreItems)
+                {
+                    if (_gear.IsReservedByOther(inst, owner ?? "") || inst == l.Potion1 || inst == l.Potion2) continue;
+                    var i = Info(inst);
+                    if (i == null || i.Kind != ItemKind.Potion || i.CounterTag != t.CounterTag || !used.Add(i.Id)) continue;
+                    if (l.Potion1 == null) l.Potion1 = inst; else l.Potion2 = inst;
+                    break;
+                }
+            }
+        }
 
         /// <summary>Strongest compatible, unreserved weapon and armor in the Store (potions left to the player).</summary>
         public Loadout BestAvailableLoadout(ContractorRecord c, string owner)
@@ -489,6 +567,7 @@ namespace Ravenholm.Domain.Jobs
             var q = Quest(questId);
             if (q == null) return "Unknown job";
             if (!IsUnlocked(questId)) return LockReason(questId);
+            if (!q.Repeatable && _s.Progress.TryGetValue(questId, out var done) && done.Successes > 0) return "Completed: this expedition is done for good";
             if (_s.Posting != null) return "One open posting at a time: cancel or fill the current one";
             foreach (var e in _s.Expeditions)
                 if (e.QuestId == questId) return q.Repeatable ? "Already running (one at a time for now)" : "Already underway";
@@ -541,7 +620,16 @@ namespace Ravenholm.Domain.Jobs
                 if (IsInterested(c, q)) interested.Add(c);
             }
 
-            // Grow the pool only when eligible availability requires it (GDD 11).
+            // Grow the pool only when eligible availability requires it (GDD 11). An elite posting nobody alive
+            // qualifies for may draw up to two seasoned newcomers, as seasoned as current reputation allows.
+            if (q.MinLevel > 1 && !HasLevel(q.MinLevel) && SeasonedLevel() >= q.MinLevel)
+                for (var n = 0; n < 2 && _s.Contractors.Count < _cfg.PoolTarget + 4; n++)
+                {
+                    var c = Generate();
+                    c.Level = Math.Max(c.Level, q.MinLevel);
+                    anyAvailable = true;
+                    if (IsInterested(c, q)) interested.Add(c);
+                }
             var guard = 0;
             while (interested.Count < target && _s.Contractors.Count < _cfg.PoolTarget && guard++ < 20)
             {
@@ -561,6 +649,8 @@ namespace Ravenholm.Domain.Jobs
             if (p.Applicants.Count == 0)
                 p.NoApplicantReason = !anyAvailable
                     ? "Every contractor is away or recovering. Try again later, or post the Local Supply Survey."
+                    : q.MinLevel > 1 && !HasLevel(q.MinLevel)
+                        ? $"This expedition needs a contractor of level {q.MinLevel} or higher. Contractors level up through successful jobs, and a higher reputation attracts seasoned newcomers."
                     : _s.Reputation < 10
                         ? "Your reputation is too low for anyone to risk this. Easier jobs and the Local Supply Survey rebuild it."
                         : "Nobody will take this on: even with your best gear it looks too dangerous. Try an easier job or improve your stock.";
@@ -568,8 +658,18 @@ namespace Ravenholm.Domain.Jobs
 
         private bool IsInterested(ContractorRecord c, QuestInfo q)
         {
+            if (c.Level < q.MinLevel) return false;   // only seasoned contractors answer an elite posting
             var band = ScreeningForecast(c, q).Band;
             return band != RiskBand.Suicidal && band >= MinimumBand(WillingnessOf(c));   // Suicidal candidates never apply
+        }
+
+        /// <summary>The most seasoned newcomer current reputation attracts: level 1 at 20, 6 at 70.</summary>
+        public int SeasonedLevel() => Math.Min(_cfg.LevelCap, 1 + Math.Max(0, _s.Reputation - 20) / 10);
+
+        private bool HasLevel(int level)
+        {
+            foreach (var c in _s.Contractors.Values) if (!c.Sponsored && c.Status != ContractorStatus.Dead && c.Level >= level) return true;
+            return false;
         }
 
         private void AddApplicant(PostingRecord p, QuestInfo q, ContractorRecord c, IRandomStream rng)
@@ -605,7 +705,8 @@ namespace Ravenholm.Domain.Jobs
                 Id = $"contractor.gen_{_s.GeneratedContractors:D3}",
                 Name = given.Count > 0 && family.Count > 0 ? $"{given[rng.NextInt(0, given.Count)]} {family[rng.NextInt(0, family.Count)]}" : $"Contractor {_s.GeneratedContractors}",
                 ClassId = classes.Count > 0 ? classes[rng.NextInt(0, classes.Count)] : "",
-                Level = Math.Min(_cfg.LevelCap, 1 + rng.NextInt(0, 1 + _s.Reputation / 30)),
+                // Reputation draws more seasoned newcomers (GDD 14): level 1 at 20, up to 6 at 70.
+                Level = 1 + rng.NextInt(0, SeasonedLevel()),
                 PersonalityPrice = Math.Round(0.9 + rng.NextDouble() * 0.25, 2),
                 Skin = rng.NextInt(0, 3),
             };
@@ -871,9 +972,35 @@ namespace Ravenholm.Domain.Jobs
                 var pi = Info(pid);
                 if (pid != null && (pi == null || pi.Kind != ItemKind.Potion)) return "Potion slot holds a non-potion";
             }
+            var req = RequirementProblem(c, l, q);
+            if (req != null) return req;
             if (!q.Recovery && Forecast(c, l, q).Band == RiskBand.Suicidal)
                 return $"{c.Name} refuses: with this gear the job looks suicidal";
             if (!q.Recovery && _s.Gold < a.Fee) return $"Not enough gold: the fee is {a.Fee}, you have {_s.Gold}";
+            return null;
+        }
+
+        /// <summary>The quest's authored dispatch requirements (level, current reputation, gear, counter potion), or null.</summary>
+        public string RequirementProblem(ContractorRecord c, Loadout l, QuestInfo q)
+        {
+            if (q.MinLevel > 0 && c.Level < q.MinLevel) return $"Needs a level {q.MinLevel} contractor ({c.Name} is level {c.Level})";
+            if (q.DispatchReputation > 0 && _s.Reputation < q.DispatchReputation)
+                return $"Needs reputation {q.DispatchReputation} when you send it (you have {_s.Reputation})";
+            var w = Info(l.Weapon);
+            if (q.MinWeaponPower > 0 && (w == null || w.Power < q.MinWeaponPower)) return $"Needs a weapon with Power {q.MinWeaponPower} or more";
+            var a = Info(l.Armor);
+            if (q.MinArmorProtection > 0 && (a == null || a.Protection < q.MinArmorProtection)) return $"Needs armor with Protection {q.MinArmorProtection} or more";
+            if (q.RequireCounterPotion)
+            {
+                var ok = false;
+                foreach (var pid in new[] { l.Potion1, l.Potion2 })
+                {
+                    var pi = Info(pid);
+                    if (pi == null || pi.Kind != ItemKind.Potion || string.IsNullOrEmpty(pi.CounterTag)) continue;
+                    foreach (var t in q.Threats) if (t.CounterTag == pi.CounterTag) ok = true;
+                }
+                if (!ok) return "Needs a potion that counters one of the known threats";
+            }
             return null;
         }
 

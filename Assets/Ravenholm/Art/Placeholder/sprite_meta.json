@@ -139,6 +139,12 @@
     0.5
    ]
   },
+  "Icons/Items/icon_fur_brigandine.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Icons/Items/icon_iron_dagger.png": {
    "pivot": [
     0.5,
@@ -151,7 +157,37 @@
     0.5
    ]
   },
+  "Icons/Items/icon_ironwood_greatbow.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Icons/Items/icon_maple_longbow.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_moonsilver_blade.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_moonsilver_focus.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_moonsilver_mail.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_pathfinder_draught.png": {
    "pivot": [
     0.5,
     0.5
@@ -175,7 +211,31 @@
     0.5
    ]
   },
+  "Icons/Items/icon_steel_maul.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_steel_stiletto.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Icons/Items/icon_steel_sword.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_strong_tonic.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_trapsense_draught.png": {
    "pivot": [
     0.5,
     0.5
@@ -253,6 +313,18 @@
     0.5
    ]
   },
+  "Icons/Resources/icon_ironwood_log.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Resources/icon_ironwood_lumber.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Icons/Resources/icon_maple_log.png": {
    "pivot": [
     0.5,
@@ -260,6 +332,18 @@
    ]
   },
   "Icons/Resources/icon_maple_lumber.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Resources/icon_moonsilver_ingot.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Resources/icon_moonsilver_ore.png": {
    "pivot": [
     0.5,
     0.5
@@ -365,6 +449,12 @@
    "pivot": [
     0.4982,
     0.201
+   ]
+  },
+  "Props/prop_beacon_trophy.png": {
+   "pivot": [
+    0.4977,
+    0.0921
    ]
   },
   "Props/prop_bell.png": {
@@ -499,6 +589,12 @@
     0.0833
    ]
   },
+  "Stacks/stack_fur_brigandine.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
   "Stacks/stack_gem.png": {
    "pivot": [
     0.5,
@@ -535,6 +631,24 @@
     0.0833
    ]
   },
+  "Stacks/stack_ironwood_greatbow.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Stacks/stack_ironwood_log.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Stacks/stack_ironwood_lumber.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
   "Stacks/stack_maple_log.png": {
    "pivot": [
     0.5,
@@ -548,6 +662,42 @@
    ]
   },
   "Stacks/stack_maple_lumber.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Stacks/stack_moonsilver_blade.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Stacks/stack_moonsilver_focus.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Stacks/stack_moonsilver_ingot.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Stacks/stack_moonsilver_mail.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Stacks/stack_moonsilver_ore.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Stacks/stack_pathfinder_draught.png": {
    "pivot": [
     0.5,
     0.0833
@@ -583,7 +733,31 @@
     0.0833
    ]
   },
+  "Stacks/stack_steel_maul.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Stacks/stack_steel_stiletto.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
   "Stacks/stack_steel_sword.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Stacks/stack_strong_tonic.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Stacks/stack_trapsense_draught.png": {
    "pivot": [
     0.5,
     0.0833

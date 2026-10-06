@@ -29,6 +29,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fcbade42719714b5d8b755ea04fc400e, type: 2}
   reputationGate: 0
   mapTier: 2
+  region: {fileID: 11400000, guid: 6fce9d744021141c59752ecbe46a228e, type: 2}
+  campaignStep: 6
+  campaignFinale: 0
+  preparations: []
+  minContractorLevel: 0
+  dispatchReputation: 0
+  minWeaponPower: 0
+  minArmorProtection: 0
+  requireCounterPotion: 0
   successMaterials:
   - resource: {fileID: 11400000, guid: d9423a863cc414f9ea62df0297b743c1, type: 2}
     quantity: 2

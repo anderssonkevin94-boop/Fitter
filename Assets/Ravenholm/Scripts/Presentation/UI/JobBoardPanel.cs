@@ -118,6 +118,7 @@ namespace Ravenholm.Presentation
             Text(() => $"Gold <b>{s.Gold}</b> · Reputation <b>{s.Reputation}</b> · Applicants per job: {Board.ApplicantTarget}");
             Text(() => string.IsNullOrEmpty(_message) ? "" : $"<b>{_message}</b>");
 
+            Text(CampaignText);
             Header("Map");
             Text(MapText);
 
@@ -157,13 +158,18 @@ namespace Ravenholm.Presentation
                 Button(() => "Cancel posting (free)", () => { _root.Services.Jobs.CancelPosting(); _message = "Posting cancelled."; }, null);
             }
 
-            Header("Jobs");
-            foreach (var q in Cat.Quests)
+            foreach (var region in Regions())
             {
-                if (q == null || !Board.IsUnlocked(q.Id)) continue;   // locked jobs appear on the map only
-                var quest = q;
-                Text(() => QuestCard(quest));
-                Button(() => Board.PostBlockedReason(quest.Id) ?? "Post Job", () => Post(quest.Id), () => Board.PostBlockedReason(quest.Id) == null);
+                var any = false;
+                foreach (var q in Cat.Quests)
+                {
+                    if (q == null || q.Region != region || !Board.IsUnlocked(q.Id)) continue;   // locked jobs appear on the map only
+                    if (!any) Header(region != null ? $"Jobs · {region.DisplayName}" : "Jobs");
+                    any = true;
+                    var quest = q;
+                    Text(() => QuestCard(quest));
+                    Button(() => Board.PostBlockedReason(quest.Id) ?? "Post Job", () => Post(quest.Id), () => Board.PostBlockedReason(quest.Id) == null);
+                }
             }
             var history = s.Results.FindAll(r => r.Acknowledged);
             if (history.Count > 0)
@@ -178,29 +184,60 @@ namespace Ravenholm.Presentation
             Button(() => "Close", Close, null);
         }
 
-        /// <summary>Basic quest map (GDD 14): tiers from the starting jobs outward; locked jobs show what opens them.</summary>
-        private string MapText()
+        private List<RegionDefinition> Regions()
+        {
+            var list = new List<RegionDefinition>();
+            foreach (var r in Cat.Regions) if (r != null) list.Add(r);
+            list.Sort((a, b) => a.Order.CompareTo(b.Order));
+            if (list.Count == 0) list.Add(null);
+            return list;
+        }
+
+        private bool RegionOpen(RegionDefinition r)
+        {
+            foreach (var q in Cat.Quests) if (q != null && q.Region == r && Board.IsUnlocked(q.Id)) return true;
+            return false;
+        }
+
+        /// <summary>Campaign breadcrumb (GDD 14): the next main-chain job and what it needs.</summary>
+        public string CampaignText()
+        {
+            if (Board.CampaignComplete)
+                return "<b>Campaign complete:</b> the Beacon burns over Ravenholm. Contracts, blueprints and better gear remain for as long as you like.";
+            var id = Board.CampaignObjective();
+            if (id == null) return "";
+            var q = Cat.Get<QuestDefinition>(id);
+            var status = Board.IsUnlocked(id) ? (Board.PostBlockedReason(id) == null ? "ready to post" : Board.PostBlockedReason(id)) : Board.LockReason(id).Replace("Locked: ", "");
+            return $"<b>Next for the company:</b> {q.DisplayName} ({(q.Region != null ? q.Region.DisplayName : "")}) · <size=85%>{status}</size>";
+        }
+
+        /// <summary>Quest map (GDD 14): regions in order; reached regions list their jobs, the next one shows as a rumour.</summary>
+        public string MapText()
         {
             var sb = new StringBuilder();
-            var maxTier = 0;
-            foreach (var q in Cat.Quests) if (q != null && q.MapTier > maxTier) maxTier = q.MapTier;
-            for (var tier = 0; tier <= maxTier; tier++)
+            var shownRumour = false;
+            foreach (var region in Regions())
             {
-                var first = true;
+                if (region != null && !RegionOpen(region))
+                {
+                    if (shownRumour) continue;   // only the adjacent region appears, as a silhouette
+                    shownRumour = true;
+                    sb.Append($"<color=#8A7F70><b>{region.DisplayName}</b> (unexplored): {region.Rumour}</color>\n");
+                    continue;
+                }
+                if (region != null) sb.Append($"<b>{region.DisplayName}</b> <size=85%>· {region.Theme}</size>\n");
+                var line = new StringBuilder();
                 foreach (var q in Cat.Quests)
                 {
-                    if (q == null || q.MapTier != tier) continue;
-                    sb.Append(first ? (tier == 0 ? "Start: " : $"Then: ") : "  ·  ");
+                    if (q == null || q.Region != region) continue;
                     var p = Board.ProgressOf(q.Id);
-                    if (!Board.IsUnlocked(q.Id)) sb.Append($"<color=#8A7F70>{q.DisplayName} (locked)</color>");
-                    else if (p.Successes > 0) sb.Append($"<b>{q.DisplayName}</b> (won {p.Successes})");
-                    else sb.Append($"<b>{q.DisplayName}</b>");
-                    first = false;
+                    if (line.Length > 0) line.Append("  ·  ");
+                    if (!Board.IsUnlocked(q.Id)) line.Append($"<color=#8A7F70>{q.DisplayName} (locked: {Board.LockReason(q.Id).Replace("Locked: ", "")})</color>");
+                    else if (p.Successes > 0) line.Append($"<b>{q.DisplayName}</b> (won {p.Successes})");
+                    else line.Append($"<b>{q.DisplayName}</b>");
                 }
-                sb.Append('\n');
+                sb.Append("<size=90%>").Append(line).Append("</size>\n");
             }
-            foreach (var q in Cat.Quests)
-                if (q != null && !Board.IsUnlocked(q.Id)) sb.Append($"<size=85%>{q.DisplayName}: {Board.LockReason(q.Id).Replace("Locked: ", "")}</size>\n");
             return sb.ToString();
         }
 
@@ -242,6 +279,15 @@ namespace Ravenholm.Presentation
                     first = false;
                 }
             }
+            foreach (var prep in view.PreparedThreats) sb.Append($"\n<color=#3B6E2E>Prepared: {UnitVisuals.DisplayName(prep)} dealt with by an earlier expedition</color>");
+            var needs = new List<string>();
+            if (q.MinContractorLevel > 0) needs.Add($"contractor level {q.MinContractorLevel}+");
+            if (q.DispatchReputation > 0) needs.Add($"reputation {q.DispatchReputation} when sent");
+            if (q.MinWeaponPower > 0) needs.Add($"weapon Power {q.MinWeaponPower}+");
+            if (q.MinArmorProtection > 0) needs.Add($"armor Protection {q.MinArmorProtection}+");
+            if (q.RequireCounterPotion) needs.Add("a counter potion");
+            if (needs.Count > 0) sb.Append("\n<b>Requires:</b> ").Append(string.Join(", ", needs));
+            if (!q.Repeatable) sb.Append("\n<size=85%>One-time expedition</size>");
             var prog = Board.ProgressOf(q.Id);
             if (prog.Attempts > 0) sb.Append($"\n<size=85%>Attempts {prog.Attempts} · successes {prog.Successes}</size>");
             if (prog.Successes == 0 && q.FirstSuccessBlueprint != null) sb.Append($"\n<size=85%>First success: {q.FirstSuccessBlueprint.DisplayName}</size>");

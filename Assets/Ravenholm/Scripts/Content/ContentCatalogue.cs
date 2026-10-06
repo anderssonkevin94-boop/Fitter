@@ -40,6 +40,7 @@ namespace Ravenholm.Content
         [SerializeField] private ContractorNamePool namePool;
         [SerializeField] private TraderStockDefinition traderStock;
         [SerializeField] private List<UpgradeDefinition> upgrades = new List<UpgradeDefinition>();
+        [SerializeField] private List<RegionDefinition> regions = new List<RegionDefinition>();
 
         private Dictionary<string, ContentDefinition> _byId;
 
@@ -62,6 +63,7 @@ namespace Ravenholm.Content
         public ContractorNamePool NamePool => namePool;
         public TraderStockDefinition TraderStock => traderStock;
         public IReadOnlyList<UpgradeDefinition> Upgrades => upgrades;
+        public IReadOnlyList<RegionDefinition> Regions => regions;
 
         public IEnumerable<ContentDefinition> All()
         {
@@ -82,6 +84,7 @@ namespace Ravenholm.Content
             foreach (var x in contractors) yield return x;
             if (traderStock != null) yield return traderStock;
             foreach (var x in upgrades) yield return x;
+            foreach (var x in regions) yield return x;
         }
 
         public bool TryGet<T>(string id, out T definition) where T : ContentDefinition
@@ -181,6 +184,11 @@ namespace Ravenholm.Content
                 foreach (var q in quests)
                     if (q != null && q.FirstSuccessBlueprint != null && !blueprints.Contains(q.FirstSuccessBlueprint))
                         report.Errors.Add($"{q.Describe()}: reward blueprint not in the catalogue");
+                foreach (var q in quests)
+                    if (q != null && q.Region != null && !regions.Contains(q.Region)) report.Errors.Add($"{q.Describe()}: region not in the catalogue");
+
+                // Phase 7: the whole progression must be reachable through ordinary play (no rare-drop walls).
+                if (report.Errors.Count == 0) report.Errors.AddRange(ProgressionGraph.Problems(this));
             }
             return report;
         }
@@ -218,6 +226,19 @@ namespace Ravenholm.Content
             recipes = newRecipes;
             blueprints = newBlueprints;
             startingState = start;
+            _byId = null;
+        }
+
+        public void EditorSetRegions(List<RegionDefinition> newRegions)
+        {
+            regions = newRegions;
+            _byId = null;
+        }
+
+        public void EditorSetQuests(List<QuestDefinition> newQuests, List<ThreatDefinition> newThreats)
+        {
+            quests = newQuests;
+            threats = newThreats;
             _byId = null;
         }
 

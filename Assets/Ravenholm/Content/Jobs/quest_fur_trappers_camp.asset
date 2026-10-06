@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c4b1ae7790f243f99270112d70e2d93, type: 3}
+  m_Name: quest_fur_trappers_camp
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
+  id: quest.fur_trappers_camp
+  displayName: Fur Trappers' Camp
+  contentVersion: 1
+  difficulty: 24
+  durationSeconds: 210
+  threats:
+  - threat: {fileID: 11400000, guid: b7dd25e2d92894af285942483ce1cd21, type: 2}
+    knownAtStart: 1
+  baseGold: 56
+  repeatable: 1
+  recoveryContract: 0
+  prestigeTarget: 45
+  brief: A trappers' camp in the hills wants an escort through unmapped country.
+  prerequisites:
+  - {fileID: 11400000, guid: fcbade42719714b5d8b755ea04fc400e, type: 2}
+  reputationGate: 30
+  mapTier: 3
+  region: {fileID: 11400000, guid: 8bfd23782780e4a6abee3fb5b7b92075, type: 2}
+  campaignStep: 0
+  campaignFinale: 0
+  preparations: []
+  minContractorLevel: 0
+  dispatchReputation: 0
+  minWeaponPower: 0
+  minArmorProtection: 0
+  requireCounterPotion: 0
+  successMaterials:
+  - resource: {fileID: 11400000, guid: 141c159cc394a40f2b3fcf56fc77958d, type: 2}
+    quantity: 2
+  - resource: {fileID: 11400000, guid: 25819f9025cc84311bdfe1999e38525c, type: 2}
+    quantity: 2
+  greatBonusMaterials:
+  - resource: {fileID: 11400000, guid: 141c159cc394a40f2b3fcf56fc77958d, type: 2}
+    quantity: 1
+  partialMaterials: []
+  firstSuccessBlueprint: {fileID: 11400000, guid: b18410ad7ac874217b8824b3dd345215, type: 2}
+  substituteMaterials:
+  - resource: {fileID: 11400000, guid: 141c159cc394a40f2b3fcf56fc77958d, type: 2}
+    quantity: 2
+  rareResource: {fileID: 11400000, guid: c92566d6dffce434b835bb60a6198cba, type: 2}
+  rareChance: 0.5

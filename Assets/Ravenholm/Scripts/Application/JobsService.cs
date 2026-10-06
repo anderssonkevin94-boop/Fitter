@@ -60,6 +60,16 @@ namespace Ravenholm.Services
                     RareResource = d.RareResource != null ? d.RareResource.Id : null, RareChance = d.RareChance,
                 };
                 foreach (var pre in d.Prerequisites) if (pre != null) qi.Prerequisites.Add(pre.Id);
+                qi.Region = d.Region != null ? d.Region.Id : "";
+                qi.CampaignStep = d.CampaignStep;
+                qi.Finale = d.CampaignFinale;
+                qi.MinLevel = d.MinContractorLevel;
+                qi.DispatchReputation = d.DispatchReputation;
+                qi.MinWeaponPower = d.MinWeaponPower;
+                qi.MinArmorProtection = d.MinArmorProtection;
+                qi.RequireCounterPotion = d.RequireCounterPotion;
+                foreach (var prep in d.Preparations)
+                    if (prep.quest != null && prep.threat != null) qi.Prepares.Add(new KeyValuePair<string, string>(prep.quest.Id, prep.threat.Id));
                 qi.SuccessMaterials.AddRange(Pairs(d.SuccessMaterials));
                 qi.GreatBonusMaterials.AddRange(Pairs(d.GreatBonusMaterials));
                 qi.PartialMaterials.AddRange(Pairs(d.PartialMaterials));
@@ -89,8 +99,9 @@ namespace Ravenholm.Services
                 switch (d.PotionEffect)
                 {
                     case PotionEffect.SurvivalMargin: ii.SurvivalBonus = d.PotionStrength; break;
-                    case PotionEffect.PoisonCounter: ii.CounterTag = CounterTag.Poison.ToString(); ii.CounterStrength = d.PotionStrength; break;
-                    case PotionEffect.ArcaneCounter: ii.CounterTag = CounterTag.Arcane.ToString(); ii.CounterStrength = d.PotionStrength; break;
+                    default:
+                        if (d.PotionCounterTag != CounterTag.None) { ii.CounterTag = d.PotionCounterTag.ToString(); ii.CounterStrength = d.PotionStrength; }
+                        break;
                 }
                 _items[d.Id] = ii;
             }

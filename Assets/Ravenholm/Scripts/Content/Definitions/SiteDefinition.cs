@@ -90,6 +90,7 @@ namespace Ravenholm.Content
 
 #if UNITY_EDITOR
         public void EditorSetRecruits(List<WorkerDefinition> r) => recruits = r;
+        public void EditorSetBands(List<SiteBandDefinition> b) => bands = b;
 
         public void EditorSetupSite(SiteType type, List<SiteBandDefinition> newBands, List<WorkerDefinition> newWorkers, string staging,
             int units, int trees, float baseD, float growth, float round, float kl, float kq, float hop)

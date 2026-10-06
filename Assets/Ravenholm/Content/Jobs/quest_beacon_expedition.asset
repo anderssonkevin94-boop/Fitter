@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c4b1ae7790f243f99270112d70e2d93, type: 3}
+  m_Name: quest_beacon_expedition
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
+  id: quest.beacon_expedition
+  displayName: The Beacon Expedition
+  contentVersion: 1
+  difficulty: 32
+  durationSeconds: 360
+  threats:
+  - threat: {fileID: 11400000, guid: a16993461e5974e3f99fd0c4598d1f6d, type: 2}
+    knownAtStart: 1
+  - threat: {fileID: 11400000, guid: 0e93de226d5a2427893559b4c281bc8e, type: 2}
+    knownAtStart: 1
+  - threat: {fileID: 11400000, guid: ff6675f22e0c942f0811f298367f36cb, type: 2}
+    knownAtStart: 1
+  baseGold: 150
+  repeatable: 0
+  recoveryContract: 0
+  prestigeTarget: 80
+  brief: Relight the Beacon. Send an elite contractor with advanced gear and a counter
+    to the Pale Flame.
+  prerequisites:
+  - {fileID: 11400000, guid: fefa2be95258f46fb845a50d29e13569, type: 2}
+  - {fileID: 11400000, guid: ce01369435fd840b89be0924aea993cb, type: 2}
+  reputationGate: 0
+  mapTier: 8
+  region: {fileID: 11400000, guid: 18359f64f813649d4828fff75e0c2bc6, type: 2}
+  campaignStep: 17
+  campaignFinale: 1
+  preparations: []
+  minContractorLevel: 6
+  dispatchReputation: 70
+  minWeaponPower: 13
+  minArmorProtection: 10
+  requireCounterPotion: 1
+  successMaterials:
+  - resource: {fileID: 11400000, guid: 0d02005e92bed413891ba93034540535, type: 2}
+    quantity: 4
+  - resource: {fileID: 11400000, guid: 5885b88db36ff46568810cd380656407, type: 2}
+    quantity: 2
+  greatBonusMaterials: []
+  partialMaterials: []
+  firstSuccessBlueprint: {fileID: 0}
+  substituteMaterials: []
+  rareResource: {fileID: 0}
+  rareChance: 0

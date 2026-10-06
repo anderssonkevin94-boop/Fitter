@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c4b1ae7790f243f99270112d70e2d93, type: 3}
+  m_Name: quest_mire_crossing
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
+  id: quest.mire_crossing
+  displayName: Mire Crossing
+  contentVersion: 1
+  difficulty: 25
+  durationSeconds: 210
+  threats:
+  - threat: {fileID: 11400000, guid: b66ec082958954f34abb9e5d14ea3fcf, type: 2}
+    knownAtStart: 1
+  - threat: {fileID: 11400000, guid: 05274abe26a254da895ea72c3ffe399b, type: 2}
+    knownAtStart: 0
+  baseGold: 58
+  repeatable: 1
+  recoveryContract: 0
+  prestigeTarget: 45
+  brief: A causeway over the mire, poisonous and rigged by smugglers.
+  prerequisites:
+  - {fileID: 11400000, guid: 5d2290eed8aa742dfbf4df2ab281d2bc, type: 2}
+  reputationGate: 30
+  mapTier: 3
+  region: {fileID: 11400000, guid: 8bfd23782780e4a6abee3fb5b7b92075, type: 2}
+  campaignStep: 10
+  campaignFinale: 0
+  preparations: []
+  minContractorLevel: 0
+  dispatchReputation: 0
+  minWeaponPower: 0
+  minArmorProtection: 0
+  requireCounterPotion: 0
+  successMaterials:
+  - resource: {fileID: 11400000, guid: d9423a863cc414f9ea62df0297b743c1, type: 2}
+    quantity: 3
+  - resource: {fileID: 11400000, guid: 25819f9025cc84311bdfe1999e38525c, type: 2}
+    quantity: 1
+  greatBonusMaterials:
+  - resource: {fileID: 11400000, guid: d9423a863cc414f9ea62df0297b743c1, type: 2}
+    quantity: 2
+  partialMaterials: []
+  firstSuccessBlueprint: {fileID: 11400000, guid: af2e1a86908cd4d79a76b257c563e9a1, type: 2}
+  substituteMaterials:
+  - resource: {fileID: 11400000, guid: d9423a863cc414f9ea62df0297b743c1, type: 2}
+    quantity: 3
+  rareResource: {fileID: 11400000, guid: c92566d6dffce434b835bb60a6198cba, type: 2}
+  rareChance: 0.5

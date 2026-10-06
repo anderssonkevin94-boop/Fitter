@@ -18,7 +18,7 @@ namespace Ravenholm.EditorTools
     ///
     /// Batch mode: -executeMethod Ravenholm.EditorTools.ProjectSetup.RunFromCommandLine [-rsc-rebuild-scenes]
     /// </summary>
-    public static class ProjectSetup
+    public static partial class ProjectSetup
     {
         public const string Root = "Assets/Ravenholm/";
         public const string ConfigDir = Root + "Content/Config/";
@@ -79,6 +79,7 @@ namespace Ravenholm.EditorTools
             EnsureProductionContent(catalogue);
             EnsureJobContent(catalogue);
             EnsureEconomyContent(catalogue);
+            EnsureCampaignContent(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
@@ -214,6 +215,11 @@ namespace Ravenholm.EditorTools
             new ResourceSpec { Key = "rope", Name = "Rope", Category = ResourceCategory.External, Receiver = ReceiverType.None },
             new ResourceSpec { Key = "fur", Name = "Fur", Category = ResourceCategory.External, Receiver = ReceiverType.None },
             new ResourceSpec { Key = "arcane_dust", Name = "Arcane Dust", Category = ResourceCategory.External, Receiver = ReceiverType.None },
+            // Phase 7: v1 higher-tier components from Mine depths 4-6 and Forest areas 4-6 (GDD 6/7).
+            new ResourceSpec { Key = "moonsilver_ore", Name = "Moonsilver Ore", Category = ResourceCategory.RawMetal, Receiver = ReceiverType.Smelter },
+            new ResourceSpec { Key = "ironwood_log", Name = "Ironwood Log", Category = ResourceCategory.RawTimber, Receiver = ReceiverType.Lumbermill },
+            new ResourceSpec { Key = "moonsilver_ingot", Name = "Moonsilver Ingot", Category = ResourceCategory.Processed, Receiver = ReceiverType.None },
+            new ResourceSpec { Key = "ironwood_lumber", Name = "Ironwood Lumber", Category = ResourceCategory.Processed, Receiver = ReceiverType.None },
         };
 
         private struct ItemSpec
@@ -242,6 +248,17 @@ namespace Ravenholm.EditorTools
             new ItemSpec { Key = "steel_coat", Name = "Steel Coat", Category = ItemCategory.Armor, Protection = 10, BuyValue = 5 },
             new ItemSpec { Key = "antidote", Name = "Antidote", Category = ItemCategory.Potion, Effect = PotionEffect.PoisonCounter, Strength = 6, BuyValue = 2 },
             new ItemSpec { Key = "warding_draught", Name = "Warding Draught", Category = ItemCategory.Potion, Effect = PotionEffect.ArcaneCounter, Strength = 6, BuyValue = 2 },
+            // Phase 7 advanced catalogue (balance starting points; Trader values ~10-15 % of replacement).
+            new ItemSpec { Key = "steel_maul", Name = "Steel Maul", Category = ItemCategory.Weapon, Power = 14, Tag = WeaponTag.Blunt, BuyValue = 6 },
+            new ItemSpec { Key = "steel_stiletto", Name = "Steel Stiletto", Category = ItemCategory.Weapon, Power = 13, Tag = WeaponTag.LightBlade, BuyValue = 5 },
+            new ItemSpec { Key = "fur_brigandine", Name = "Fur-lined Brigandine", Category = ItemCategory.Armor, Protection = 8, BuyValue = 4 },
+            new ItemSpec { Key = "strong_tonic", Name = "Strong Tonic", Category = ItemCategory.Potion, Effect = PotionEffect.SurvivalMargin, Strength = 7, BuyValue = 3 },
+            new ItemSpec { Key = "pathfinder_draught", Name = "Pathfinder's Draught", Category = ItemCategory.Potion, Effect = PotionEffect.ExplorationCounter, Strength = 6, BuyValue = 2 },
+            new ItemSpec { Key = "trapsense_draught", Name = "Trapsense Draught", Category = ItemCategory.Potion, Effect = PotionEffect.TrapsCounter, Strength = 6, BuyValue = 2 },
+            new ItemSpec { Key = "moonsilver_focus", Name = "Moonsilver Focus", Category = ItemCategory.Weapon, Power = 15, Tag = WeaponTag.Staff, BuyValue = 7 },
+            new ItemSpec { Key = "moonsilver_mail", Name = "Moonsilver Mail", Category = ItemCategory.Armor, Protection = 14, BuyValue = 8 },
+            new ItemSpec { Key = "ironwood_greatbow", Name = "Ironwood Greatbow", Category = ItemCategory.Weapon, Power = 16, Tag = WeaponTag.Bow, BuyValue = 7 },
+            new ItemSpec { Key = "moonsilver_blade", Name = "Moonsilver Blade", Category = ItemCategory.Weapon, Power = 17, Tag = WeaponTag.Blade, BuyValue = 8 },
         };
 
         private static ContentCatalogue EnsureContent()
@@ -298,6 +315,11 @@ namespace Ravenholm.EditorTools
             }
             var ward = AssetDatabase.LoadAssetAtPath<ItemDefinition>(ItemDir + "item_copper_ward_staff.asset");
             if (ward != null && ward.CounterTag == CounterTag.None) { ward.EditorSetCounter(CounterTag.Arcane, 4); EditorUtility.SetDirty(ward); }
+            foreach (var (key, tag, strength) in new[] { ("fur_brigandine", CounterTag.Exploration, 3), ("moonsilver_focus", CounterTag.Arcane, 5) })
+            {
+                var it = AssetDatabase.LoadAssetAtPath<ItemDefinition>(ItemDir + "item_" + key + ".asset");
+                if (it != null && it.CounterTag == CounterTag.None) { it.EditorSetCounter(tag, strength); EditorUtility.SetDirty(it); }
+            }
             return catalogue;
         }
 

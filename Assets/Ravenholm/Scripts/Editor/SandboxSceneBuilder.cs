@@ -134,6 +134,9 @@ namespace Ravenholm.EditorTools
             Rack(props, "Potion Shelf", "Props/rack_potions_empty", new Vector2(0.75f, 3.75f), ItemCategory.Potion,
                 new List<Vector2> { new Vector2(-0.3f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0.3f, 0.5f), new Vector2(-0.3f, 0.9f), new Vector2(0f, 0.9f), new Vector2(0.3f, 0.9f) });
             Bell(props, new Vector2(0.55f, 2.95f), 0.42f);
+            // Phase 7: the Beacon trophy, hidden until the campaign finale succeeds.
+            Prop(props, "Beacon Trophy", "Props/prop_beacon_trophy", new Vector2(-3.2f, 2.3f),
+                "The relit Beacon's flame, carried home by your contractors. Ravenholm remembers.", "").gameObject.AddComponent<TrophyView>();
             Flowers(props);
 
             // --- PHASE 1 FIXTURES: receivers, raw piles and output pads ---

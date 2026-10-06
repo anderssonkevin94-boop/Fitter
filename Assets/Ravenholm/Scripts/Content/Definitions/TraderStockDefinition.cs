@@ -72,6 +72,8 @@ namespace Ravenholm.Content
         }
 
 #if UNITY_EDITOR
+        public void EditorSetSideBlueprints(List<BlueprintDefinition> side) => sideBlueprints = side;
+
         public void EditorSetupTrader(List<TraderStockEntry> e, List<BlueprintDefinition> side, float gap, float stay, float delay)
         {
             entries = e; sideBlueprints = side; minutesBetweenVisits = gap; minutesPerVisit = stay; firstArrivalDelaySeconds = delay;

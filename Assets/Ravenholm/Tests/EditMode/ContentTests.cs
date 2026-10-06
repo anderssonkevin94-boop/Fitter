@@ -112,7 +112,7 @@ namespace Ravenholm.Tests
             var report = ContentValidationMenu.ValidateProjectCatalogue();
             Assert.IsTrue(report.IsValid, report.ToString());
             var c = AssetDatabase.LoadAssetAtPath<ContentCatalogue>(ContentValidationMenu.CataloguePath);
-            Assert.AreEqual(15, c.Resources.Count);
+            Assert.AreEqual(19, c.Resources.Count);   // 15 + moonsilver and ironwood (raw and processed), Phase 7
             Assert.GreaterOrEqual(c.Items.Count, 6, "the six GDD starter items, plus later additions");
             foreach (var key in new[] { "iron_sword", "cedar_bow", "iron_dagger", "cedar_staff", "riveted_coat", "recovery_tonic" })
                 Assert.IsTrue(c.TryGet<ItemDefinition>("item." + key, out _), key);
