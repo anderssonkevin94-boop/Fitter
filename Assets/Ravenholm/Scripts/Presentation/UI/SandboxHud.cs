@@ -50,6 +50,8 @@ namespace Ravenholm.Presentation
         private StationPanel _stationPanel;
         private StorePanel _storePanel;
         private TraderPanel _traderPanel;
+        private int _grantIndex;
+        private TextMeshProUGUI _grantPickText;
         private GameObject _banner;
         private readonly System.Collections.Generic.List<GameObject> _devOnly = new System.Collections.Generic.List<GameObject>();
         private SettingsPanel _settingsPanel;
@@ -503,6 +505,20 @@ namespace Ravenholm.Presentation
                 _root.Services.Production.DebugGrantBlueprint("blueprint.copper_ward_staff");
                 Report("Test unlock granted: Copper ward staff (Workbench). Advanced recipes otherwise come from quests (Phase 5).");
             }, out _);
+            _ui.Button("Reveal", content, "Reveal all threat knowledge (debug)", () =>
+                Report($"{_root.Services.Jobs.DebugRevealKnowledge()} threat facts revealed."), out _);
+            _ui.Button("Pick", content, "", () =>
+            {
+                var res = _root.Services.Catalogue.Resources;
+                _grantIndex = (_grantIndex + 1) % res.Count;
+                Refresh();
+            }, out _grantPickText);
+            _ui.Button("Grant", content, "Add 10 of the chosen material (debug)", () =>
+            {
+                var r = _root.Services.Catalogue.Resources[_grantIndex % _root.Services.Catalogue.Resources.Count];
+                _root.Services.Production.DebugGrantMaterials(new System.Collections.Generic.List<Content.ResourceCost> { new Content.ResourceCost { resource = r, quantity = 10 } });
+                Report($"Added 10 {r.DisplayName} (debug source).");
+            }, out _);
             _ui.Button("Materials", content, "Add test materials (ingots, lumber, herbs)", () =>
             {
                 var c = _root.Services.Catalogue;
@@ -775,6 +791,8 @@ namespace Ravenholm.Presentation
 
         private void Refresh()
         {
+            if (_grantPickText != null && _root.Services.Catalogue.Resources.Count > 0)
+                _grantPickText.text = $"Material to grant: {_root.Services.Catalogue.Resources[_grantIndex % _root.Services.Catalogue.Resources.Count].DisplayName} · tap to change";
             if (_root == null || _root.Services == null) return;
             var status = _root.Services.Saves.Status;
             var state = _root.Services.Sandbox.State;

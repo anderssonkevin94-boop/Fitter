@@ -152,12 +152,21 @@ namespace Ravenholm.Presentation
             if (key == _key) return;
             _key = key;
             for (var i = _list.childCount - 1; i >= 0; i--) Destroy(_list.GetChild(i).gameObject);
-            foreach (var (icon, text) in rows) Row(icon, text);
+            foreach (var (icon, text, pin) in rows) Row(icon, text, pin);
         }
 
-        private List<(Sprite icon, string text)> BuildRows()
+        /// <summary>Pins an item type to the racks (also used by tests).</summary>
+        public bool TogglePin(string itemDefinitionId)
         {
-            var rows = new List<(Sprite, string)>();
+            var on = _root.Services.Logistics.TogglePin(itemDefinitionId);
+            _key = "";
+            Refresh();
+            return on;
+        }
+
+        private List<(Sprite icon, string text, string pin)> BuildRows()
+        {
+            var rows = new List<(Sprite, string, string)>();
             var cat = _root.Services.Catalogue;
             var st = _root.Services.Logistics.System.State;
             switch (_tab)
@@ -165,8 +174,8 @@ namespace Ravenholm.Presentation
                 case Tab.Materials:
                     foreach (var kv in st.SharedMaterials)
                         if (cat.TryGet<ResourceDefinition>(kv.Key, out var r))
-                            rows.Add((r.Icon, $"<b>{r.DisplayName}</b> ×{kv.Value}\n<size=80%>{r.Category} · shared inventory, usable at any eligible station</size>"));
-                    if (rows.Count == 0) rows.Add((null, "No delivered materials yet."));
+                            rows.Add((r.Icon, $"<b>{r.DisplayName}</b> ×{kv.Value}\n<size=80%>{r.Category} · shared inventory, usable at any eligible station</size>", null));
+                    if (rows.Count == 0) rows.Add((null, "No delivered materials yet.", null));
                     break;
 
                 case Tab.Blueprints:
@@ -177,7 +186,7 @@ namespace Ravenholm.Presentation
                         var costs = new StringBuilder();
                         foreach (var c in rec.Cost) costs.Append(costs.Length > 0 ? ", " : "").Append(c.quantity).Append(' ').Append(c.resource.DisplayName);
                         rows.Add((rec.OutputItem.Icon,
-                            $"<b>{rec.OutputItem.DisplayName}</b> · {rec.OutputItem.StatLine()}\n<size=80%>Craft at {rec.Station.DisplayName}: {costs} · permanent</size>"));
+                            $"<b>{rec.OutputItem.DisplayName}</b> · {rec.OutputItem.StatLine()}\n<size=80%>Craft at {rec.Station.DisplayName}: {costs} · permanent</size>", null));
                     }
                     break;
 
@@ -188,10 +197,12 @@ namespace Ravenholm.Presentation
                     foreach (var kv in counts)
                     {
                         if (!cat.TryGet<ItemDefinition>(kv.Key, out var item) || !Matches(item)) continue;
+                        var pinned = st.PinnedDefinitions.Contains(item.Id);
                         rows.Add((item.Icon,
-                            $"<b>{item.DisplayName}</b> ×{kv.Value}\n<size=80%>{item.StatLine()}{Compatibility(item)} · In Store · Trader pays {item.TraderBuyValue} g</size>"));
+                            $"<b>{item.DisplayName}</b> ×{kv.Value}{(pinned ? " · <b>pinned to the racks</b>" : "")}\n<size=80%>{item.StatLine()}{Compatibility(item)} · In Store · Trader pays {item.TraderBuyValue} g</size>",
+                            item.Id));
                     }
-                    if (rows.Count == 0) rows.Add((null, "Nothing here yet. Craft at a station, then carry it to the Store's receiving strip."));
+                    if (rows.Count == 0) rows.Add((null, "Nothing here yet. Craft at a station, then carry it to the Store's receiving strip.", null));
                     break;
             }
             return rows;
@@ -212,7 +223,7 @@ namespace Ravenholm.Presentation
         private static string Compatibility(ItemDefinition item) =>
             item.Category == ItemCategory.Weapon ? "" : item.Category == ItemCategory.Armor ? " · any class" : " · used only if triggered";
 
-        private void Row(Sprite icon, string text)
+        private void Row(Sprite icon, string text, string pinId)
         {
             var row = _ui.Panel("Row", _list, _theme.chip);
             row.raycastTarget = false;
@@ -225,7 +236,14 @@ namespace Ravenholm.Presentation
             var t = _ui.Text("Text", row.transform, text, _theme.smallSize - 2f, _theme.ink, TextAlignmentOptions.MidlineLeft);
             UiFactory.Stretch(t.rectTransform);
             t.rectTransform.offsetMin = new Vector2(icon != null ? 148f : 28f, 8f);
-            t.rectTransform.offsetMax = new Vector2(-24f, -8f);
+            t.rectTransform.offsetMax = new Vector2(pinId != null ? -200f : -24f, -8f);
+            if (pinId != null)
+            {
+                var pinned = _root.Services.Logistics.System.State.PinnedDefinitions.Contains(pinId);
+                var b = _ui.Button("Pin", row.transform, pinned ? "Unpin" : "Pin", () => TogglePin(pinId), out var label, 132f);
+                label.fontSize = _theme.smallSize - 4f;
+                UiFactory.Place((RectTransform)b.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-16f, 0), new Vector2(170f, 132f));
+            }
         }
     }
 }

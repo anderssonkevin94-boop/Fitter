@@ -242,6 +242,10 @@ namespace Ravenholm.Presentation
             return sb.ToString();
         }
 
+        /// <summary>A shape for each risk word, so the forecast reads without colour (GDD 19).</summary>
+        public static string BandMarker(RiskBand b) =>
+            b == RiskBand.Excellent ? "[++]" : b == RiskBand.Good ? "[+]" : b == RiskBand.Risky ? "[~]" : b == RiskBand.Dangerous ? "[!]" : "[!!]";
+
         private string ForecastText()
         {
             var c = Contractor;
@@ -254,18 +258,19 @@ namespace Ravenholm.Presentation
                 return sb.ToString();
             }
             var f = Board.Forecast(c, _loadout, q);
-            sb.Append($"Forecast: <b>{f.Band}</b>{(f.LimitedKnowledge ? " · Limited knowledge (provisional)" : "")}\n");
+            sb.Append($"Forecast: <b>{BandMarker(f.Band)} {f.Band}</b>{(f.LimitedKnowledge ? " · Limited knowledge (provisional)" : "")}\n");
             foreach (var t in f.Threats)
             {
                 var name = UnitVisuals.DisplayName(t.Threat.Id);
                 switch (t.Status)
                 {
-                    case ThreatStatus.Countered: sb.Append($"• {name}: <color=#3B6E2E>countered</color>\n"); break;
-                    case ThreatStatus.Helps: sb.Append($"• {name}: helps (+{t.Supplied} of {t.Threat.Required} needed), still a risk\n"); break;
-                    default: sb.Append($"• {name}: <color=#B44034>not countered</color>\n"); break;
+                    // GDD 19: never colour alone. Each state also has its own marker and word.
+                    case ThreatStatus.Countered: sb.Append($"[+] {name}: <color=#3B6E2E>countered</color>\n"); break;
+                    case ThreatStatus.Helps: sb.Append($"[~] {name}: helps (+{t.Supplied} of {t.Threat.Required} needed), still a risk\n"); break;
+                    default: sb.Append($"[!] {name}: <color=#B44034>not countered</color>\n"); break;
                 }
             }
-            foreach (var t in q.Threats) if (!t.Known) sb.Append("• Threat not yet identified\n");
+            foreach (var t in q.Threats) if (!t.Known) sb.Append("[?] Threat not yet identified\n");
             if (f.LimitedKnowledge) sb.Append("Unknown threats may make this estimate optimistic.\n");
             foreach (var p in new[] { _loadout.Potion1, _loadout.Potion2 })
             {
@@ -278,6 +283,11 @@ namespace Ravenholm.Presentation
             }
             sb.Append("<b>Gear is permanently lost if the contractor dies.</b> Unused potions come back on any other return.");
             // Designer readout only (GDD 12: players never see exact odds, and this includes hidden threats).
+            if (Feel.DeveloperMode)
+            {
+                var terms = Board.Forecast(c, _loadout, q);
+                sb.Append($"\n<size=75%><color=#7A6A5A>DEBUG terms: A {terms.Readiness:0.0} (C {terms.Context:+0.0;-0.0}, route {q.RouteBonus}) · D {q.Difficulty} · margin {terms.MeanMargin:+0.0;-0.0} · V before K {terms.SurvivalWithoutRoll:+0.0;-0.0} (survival ctx {terms.SurvivalContext:+0;-0})</color></size>");
+            }
             if (Feel.DeveloperMode)
                 sb.Append($"\n<size=75%><color=#7A6A5A>DEBUG exact odds (2000 seeds, incl. hidden threats): {Distribution(c, q)}</color></size>");
             return sb.ToString();

@@ -319,6 +319,7 @@ namespace Ravenholm.Presentation
             sb.Append($"<b>Staging:</b> {staging}/{sim.Config.StagingCapacity}\n");
             foreach (var w in s.Workers) sb.Append($"<b>{w.Name}:</b> {WorkerView.Describe(sim, w)}\n");
             sb.Append($"<size=80%>Measured: {sim.MeasuredUnitsPerMinute:0.0} units/min to staging (sim time). Sim speed ×{_root.Services.Sites.SpeedMultiplier:0}.</size>");
+            if (Feel.DeveloperMode) sb.Append($"\n<size=75%><color=#7A6A5A>DEBUG workers: {sim.BottleneckText}</color></size>");
             _status.text = sb.ToString();
 
             var awaiting = s.Status == SiteStatus.AwaitDecision;

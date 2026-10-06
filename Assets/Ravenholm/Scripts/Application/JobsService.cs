@@ -275,6 +275,20 @@ namespace Ravenholm.Services
         }
 
         /// <summary>DEBUG: the next resolved expedition gets this outcome (marked as forced on the result).</summary>
+        /// <summary>DEBUG (GDD 24 "reveal knowledge"): every threat of every job becomes known.</summary>
+        public int DebugRevealKnowledge()
+        {
+            _scheduler.NoteAssisted("reveal knowledge");
+            var n = 0;
+            foreach (var id in _content.QuestIds)
+            {
+                var p = Board.ProgressOf(id);
+                foreach (var t in _content.Quest(id).Threats) if (!t.Known && p.RevealedThreats.Add(t.Id)) n++;
+            }
+            _scheduler.SaveNow("debug: reveal knowledge");
+            return n;
+        }
+
         public void DebugForceNext(Outcome? outcome)
         {
             if (outcome != null) _scheduler.NoteAssisted("forced outcome");

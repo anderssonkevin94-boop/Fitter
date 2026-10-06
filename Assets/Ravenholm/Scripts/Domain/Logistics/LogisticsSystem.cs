@@ -251,9 +251,12 @@ namespace Ravenholm.Domain.Logistics
         /// <summary>Most recent first; bounded and not saved (diagnosis only).</summary>
         public IEnumerable<TransactionRecord> History => _history;
 
+        private long _transactionSeq;
+
+        /// <summary>Transaction IDs are per session (the history is diagnostic, bounded and unsaved, GDD 8/24).</summary>
         private void Log(string reason, string detail)
         {
-            _history.AddFirst(new TransactionRecord(reason, detail));
+            _history.AddFirst(new TransactionRecord(++_transactionSeq, reason, detail));
             while (_history.Count > HistoryLimit) _history.RemoveLast();
         }
 

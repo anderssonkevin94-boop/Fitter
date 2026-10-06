@@ -61,7 +61,7 @@ namespace Ravenholm.Presentation
         private void Update()
         {
             var st = _root.Services.Logistics.System.State;
-            var key = st.StoreItems.Count + ":" + (st.StoreItems.Count > 0 ? st.StoreItems[st.StoreItems.Count - 1] : "");
+            var key = st.StoreItems.Count + ":" + (st.StoreItems.Count > 0 ? st.StoreItems[st.StoreItems.Count - 1] : "") + ":" + string.Join(",", st.PinnedDefinitions);
             if (key == _key) return;
             _key = key;
 
@@ -77,6 +77,9 @@ namespace Ravenholm.Presentation
             var list = new List<(ItemDefinition def, int count, string newest)>(groups.Values);
             list.Sort((a, b) =>
             {
+                var pa = st.PinnedDefinitions.Contains(a.def.Id);
+                var pb = st.PinnedDefinitions.Contains(b.def.Id);
+                if (pa != pb) return pa ? -1 : 1;   // pinned first
                 var sa = Strength(a.def);
                 var sb = Strength(b.def);
                 return sa != sb ? sb.CompareTo(sa) : string.CompareOrdinal(b.newest, a.newest);

@@ -131,6 +131,8 @@ namespace Ravenholm.Domain.Logistics
     /// </summary>
     public sealed class LogisticsState
     {
+        /// <summary>Item definitions the player pinned to the Store racks (GDD 4). Display preference only.</summary>
+        public readonly SortedSet<string> PinnedDefinitions = new SortedSet<string>(StringComparer.Ordinal);
         public readonly List<CarryUnit> Carry = new List<CarryUnit>();
         public readonly Dictionary<string, WorldContainer> Containers = new Dictionary<string, WorldContainer>(StringComparer.Ordinal);
         public readonly Dictionary<string, ReceiverZone> Receivers = new Dictionary<string, ReceiverZone>(StringComparer.Ordinal);
@@ -156,15 +158,17 @@ namespace Ravenholm.Domain.Logistics
     /// <summary>One entry of the bounded, unsaved transaction history shown in the debug panel (GDD 8).</summary>
     public readonly struct TransactionRecord
     {
+        public readonly long Id;
         public readonly string Reason;
         public readonly string Detail;
 
-        public TransactionRecord(string reason, string detail)
+        public TransactionRecord(long id, string reason, string detail)
         {
+            Id = id;
             Reason = reason;
             Detail = detail;
         }
 
-        public override string ToString() => $"{Reason}: {Detail}";
+        public override string ToString() => $"#{Id} {Reason}: {Detail}";
     }
 }

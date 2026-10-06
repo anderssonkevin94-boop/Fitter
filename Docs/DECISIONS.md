@@ -366,6 +366,24 @@ The user asked to "keep building without me playtesting". A read-only audit comp
   - Partial successes still reveal one threat fact. The recovery contract teaches nothing.
   - Saves add optional fields only (`observed`, `routeBonus`, `facts`), so no schema change.
 
+## Post-roadmap polish, batch 2 (2026-10-06)
+
+- **Store pinning (GDD 4).** Store rows have Pin/Unpin; pinned item types show first on the racks. It's saved as an optional logistics field (`pinned`) and is a display preference only.
+- **Colour is never the only signal (GDD 19).**
+  - Threat lines carry `[+]` countered, `[~]` helps, `[!]` not countered and `[?]` unknown.
+  - Each risk word has its own marker (`[++]` Excellent through `[!!]` Suicidal).
+  - Stopped sites in the away summary carry `[!]`.
+  - Text markers are used because the font lacks symbol glyphs; real icons can replace them with the final art.
+- **Developer tools (GDD 24), developer mode only:**
+  - reveal all threat knowledge,
+  - grant 10 of a chosen material,
+  - readiness and survival terms (A, C, route bonus, margin, V before the roll) in the loadout readout,
+  - expedition seed, difficulty and route on Job Board lines,
+  - per-site worker bottleneck share (staging full and waiting for a choice; session-only, like the throughput measure),
+  - per-session transaction IDs (`#n`) in the history and diagnostic export.
+
+  Every debug command is recorded as assistance.
+
 ## Open blockers
 
 - **iOS build:** the Unity → Xcode device export succeeded headlessly on 2026-10-06 (0 errors, 1 warning, IL2CPP, 114 s). The Xcode compile/sign/install step has not run yet: the startup disk had only ~2.5 GB free, too little for Xcode intermediates. To do: free disk space, export again (Ravenholm > Build > iOS Xcode Project (Device)), open `Builds/iOS-Device/Unity-iPhone.xcodeproj`, pick a signing team, then Run on the iPhone.

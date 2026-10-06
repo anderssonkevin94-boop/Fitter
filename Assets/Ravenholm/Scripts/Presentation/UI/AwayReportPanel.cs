@@ -96,7 +96,7 @@ namespace Ravenholm.Presentation
             sb.Append("<b>Sites</b>\n");
             if (r.Deposits.Count == 0) sb.Append("No new deposits.\n");
             foreach (var kv in r.Deposits) sb.Append($"{UnitVisuals.DisplayName(kv.Key)}: {kv.Value} raw units waiting at staging\n");
-            foreach (var kv in r.SiteBlockers) sb.Append($"<color=#B44034>{UnitVisuals.DisplayName(kv.Key)} stopped: {kv.Value}</color>\n");
+            foreach (var kv in r.SiteBlockers) sb.Append($"<color=#B44034>[!] {UnitVisuals.DisplayName(kv.Key)} stopped: {kv.Value}</color>\n");
 
             sb.Append("\n<b>Facilities</b>\n");
             if (r.Processed.Count == 0) sb.Append("Nothing processed (they only process what was delivered).\n");

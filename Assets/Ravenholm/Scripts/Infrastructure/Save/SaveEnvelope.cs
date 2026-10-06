@@ -73,6 +73,7 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("materialsCreated")] public SortedDictionary<string, long> MaterialsCreated = new SortedDictionary<string, long>();
         [JsonProperty("materialsConsumed")] public SortedDictionary<string, long> MaterialsConsumed = new SortedDictionary<string, long>();
         [JsonProperty("nextInstance")] public long NextInstanceNumber = 1;
+        [JsonProperty("pinned")] public List<string> Pinned = new List<string>();
     }
 
     [JsonObject(MemberSerialization.OptIn)]

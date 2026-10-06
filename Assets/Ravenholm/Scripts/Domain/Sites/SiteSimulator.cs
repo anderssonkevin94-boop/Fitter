@@ -148,8 +148,30 @@ namespace Ravenholm.Domain.Sites
             Resolve();
         }
 
+        // Worker bottleneck accounting (GDD 24 developer view). Session-only, like the throughput measurement.
+        public long ObservedWorkerMs { get; private set; }
+        public long StagingFullWorkerMs { get; private set; }
+        public long WaitingForChoiceWorkerMs { get; private set; }
+
+        private void Observe(long ms)
+        {
+            foreach (var w in _s.Workers)
+            {
+                ObservedWorkerMs += ms;
+                if (w.State == WorkerState.StagingFull) StagingFullWorkerMs += ms;
+                else if (w.State == WorkerState.AwaitDepthChoice) WaitingForChoiceWorkerMs += ms;
+            }
+        }
+
+        /// <summary>Share of worker time spent blocked since the last reset (developer readout).</summary>
+        public string BottleneckText =>
+            ObservedWorkerMs == 0 ? "no worker time observed yet"
+            : $"blocked {(StagingFullWorkerMs + WaitingForChoiceWorkerMs) * 100.0 / ObservedWorkerMs:0}% of worker time " +
+              $"(staging full {StagingFullWorkerMs * 100.0 / ObservedWorkerMs:0}%, waiting for a choice {WaitingForChoiceWorkerMs * 100.0 / ObservedWorkerMs:0}%)";
+
         public void ResetMeasurement()
         {
+            ObservedWorkerMs = StagingFullWorkerMs = WaitingForChoiceWorkerMs = 0;
             _s.MeasureStartMs = _s.SimMs;
             _s.DepositedSinceMeasure = 0;
         }
@@ -184,10 +206,12 @@ namespace Ravenholm.Domain.Sites
                 var next = NextEventDelay();
                 if (next == long.MaxValue)
                 {
+                    Observe(remaining);
                     _s.SimMs += remaining;
                     break;
                 }
                 var step = Math.Min(remaining, Math.Max(1, next));
+                Observe(step);
                 ApplyWork(step);
                 _s.SimMs += step;
                 remaining -= step;

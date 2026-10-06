@@ -117,6 +117,15 @@ namespace Ravenholm.Services
             foreach (var def in fixture.ItemDefinitions) System.CreateItemInContainer(id, def);
         }
 
+        /// <summary>Pins or unpins an item type on the Store racks (GDD 4: newest, strongest and player-pinned items show).</summary>
+        public bool TogglePin(string itemDefinitionId)
+        {
+            var pinned = _state.PinnedDefinitions.Add(itemDefinitionId);
+            if (!pinned) _state.PinnedDefinitions.Remove(itemDefinitionId);
+            _scheduler.MarkDirty();
+            return pinned;
+        }
+
         // ------------------------------------------------------------------ persistence
 
         void ISaveSection.Write(SaveEnvelope env)
@@ -135,6 +144,7 @@ namespace Ravenholm.Services
             foreach (var kv in _state.ItemDefinitions) d.ItemDefinitions[kv.Key] = kv.Value;
             foreach (var kv in _state.MaterialsCreated) d.MaterialsCreated[kv.Key] = kv.Value;
             foreach (var kv in _state.MaterialsConsumed) d.MaterialsConsumed[kv.Key] = kv.Value;
+            d.Pinned.AddRange(_state.PinnedDefinitions);
             env.Logistics = d;
         }
 
@@ -149,12 +159,14 @@ namespace Ravenholm.Services
             _state.MaterialsCreated.Clear();
             _state.MaterialsConsumed.Clear();
             _state.NextInstanceNumber = 1;
+            _state.PinnedDefinitions.Clear();
             // Receivers are scene geometry, not saved state; they stay registered.
 
             var d = env?.Logistics;
             if (d != null)
             {
                 _state.NextInstanceNumber = Math.Max(1, d.NextInstanceNumber);
+                if (d.Pinned != null) foreach (var p in d.Pinned) _state.PinnedDefinitions.Add(p);
                 foreach (var kv in d.ItemDefinitions) _state.ItemDefinitions[kv.Key] = kv.Value;
                 foreach (var kv in d.MaterialsCreated) _state.MaterialsCreated[kv.Key] = kv.Value;
                 if (d.MaterialsConsumed != null) foreach (var kv in d.MaterialsConsumed) _state.MaterialsConsumed[kv.Key] = kv.Value;

@@ -369,7 +369,8 @@ namespace Ravenholm.Presentation
             var c = Board.Contractor(e.ContractorId);
             var left = Math.Max(0, (e.EndMs - Board.State.SimMs) / 1000f);
             var tail = e.TestDeparture ? "TEST DEPARTURE (debug; does not resolve)" : $"back in {left:0} s";
-            return $"<b>{c?.Name}</b> · {Name(e.QuestId)} · forecast {e.ForecastBand} · {tail}";
+            var dev = Feel.DeveloperMode ? $"\n<size=75%><color=#7A6A5A>DEBUG seed {e.Seed} · D {e.Difficulty} · route {e.RouteBonus} · {e.Id}</color></size>" : "";
+            return $"<b>{c?.Name}</b> · {Name(e.QuestId)} · forecast {e.ForecastBand} · {tail}{dev}";
         }
     }
 }

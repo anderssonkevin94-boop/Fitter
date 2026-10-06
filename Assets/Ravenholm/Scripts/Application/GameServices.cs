@@ -97,7 +97,7 @@ namespace Ravenholm.Services
             var audit = Logistics.System.Audit();
             sb.AppendLine(audit.Count == 0 ? "ownership audit: OK" : "ownership audit FAILED:\n  " + string.Join("\n  ", audit));
             sb.AppendLine("recent transactions:");
-            foreach (var t in Logistics.System.History) sb.AppendLine($"  {t.Reason}: {t.Detail}");
+            foreach (var t in Logistics.System.History) sb.AppendLine($"  {t}");
             return sb.ToString();
         }
 
