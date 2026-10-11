@@ -9,22 +9,6 @@ namespace Ravenholm.EditorTools
     public static partial class ProjectSetup
     {
         public const string TutorialDir = Root + "Content/Tutorial/";
-        public const string VertexColourMaterialPath = Root + "Art/Materials/VertexColorUnlit.mat";
-
-        /// <summary>Material for procedural world meshes (Mine cutaway, town edge).</summary>
-        public static Material EnsureVertexColourMaterial()
-        {
-            var mat = AssetDatabase.LoadAssetAtPath<Material>(VertexColourMaterialPath);
-            if (mat != null) return mat;
-            var shader = Shader.Find("Ravenholm/VertexColorUnlit");
-            if (shader == null) { Debug.LogError("[Setup] Ravenholm/VertexColorUnlit shader missing"); return null; }
-            EnsureFolder(Root + "Art/Materials");
-            mat = new Material(shader) { name = "VertexColorUnlit" };
-            AssetDatabase.CreateAsset(mat, VertexColourMaterialPath);
-            AssetDatabase.SaveAssets();
-            return mat;
-        }
-
         /// <summary>
         /// Phase 8 first-hour prompts, following the GDD 19 first-hour hypothesis. Each finishes from game state,
         /// a game event or the player's "Got it"; none changes odds or outcomes.

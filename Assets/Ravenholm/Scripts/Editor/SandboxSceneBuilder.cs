@@ -25,9 +25,9 @@ namespace Ravenholm.EditorTools
         private static readonly Color Backdrop = new Color32(58, 86, 92, 255);
 
         private static Material _unlit;
-        private static Material _vertexColour;   // procedural meshes (Mine cutaway, town edge)
-        /// <summary>The Mine cutaway's front cell and front corner (world), snapped to the tile grid at the town's front edge.</summary>
+        /// <summary>The Mine pit's front cell and front corner (world), snapped to the tile grid at the town's front edge.</summary>
         private static Vector3Int _mineCell;
+        private static Grid _grid;
         private static Vector2 _mineCorner;
         private static readonly Vector2 MineCornerTarget = new Vector2(-9.0f, -8.7f);
         private static ContentCatalogue _catalogue;
@@ -59,7 +59,6 @@ namespace Ravenholm.EditorTools
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             // Load after NewScene (see BuildBootstrap).
             _unlit = AssetDatabase.LoadAssetAtPath<Material>(UnlitMaterialPath);
-            _vertexColour = ProjectSetup.EnsureVertexColourMaterial();
             _catalogue = AssetDatabase.LoadAssetAtPath<ContentCatalogue>(ContentValidationMenu.CataloguePath);
             var settings = AssetDatabase.LoadAssetAtPath<SandboxSettings>(settingsPath);
             if (settings == null) throw new System.IO.FileNotFoundException("SandboxSettings not found", settingsPath);
@@ -96,7 +95,7 @@ namespace Ravenholm.EditorTools
             var traderPad = Building(buildings, "Trader Pad", "bld_trader_pad", new Vector2(3.0f, -2.1f), new Vector2(2.2f, 2.0f),
                 "A periodic visitor sets up here to sell external materials and buy Store goods at poor prices.", "", new Vector2(2f, 2f));
             TraderStall(traderPad);
-            var mine = MineCutaway(buildings);
+            var mine = MineDig(buildings);
             var gate = Building(buildings, "Forest", "bld_forest_gate", new Vector2(6.5f, 6.1f), new Vector2(2.2f, 1.9f),
                 "Trail into the Forest. Workers chop the current clearing; Push Deeper reveals a new area further out.",
                 "", footprint: null, siteId: "site.forest");
@@ -157,7 +156,7 @@ namespace Ravenholm.EditorTools
             Receiver(logistics, "receiver.store", ReceiverKind.Store, new Vector2(-0.55f, 2.95f), 0.55f, store.transform, "icon_iron_sword", false);
 
             var mineStaging = Container(logistics, "container.mine_staging", "Mine Staging", ContainerKind.RawPile,
-                _mineCorner + (Vector2)MineCutawayView.Local(2.6f, 3.75f, 0f),
+                (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(2, MineDigView.Size + 1, 0)),
                 "The miner drops ore here (capacity 96). Workers never haul further: you carry it to the Smelter.", null, null, 96);
             var forestStaging = Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(8.6f, 4.4f),
                 "The woodcutter drops logs and herbs here (capacity 96). Logs go to the Lumbermill, herbs to the Apothecary.", null, null, 96);
@@ -178,7 +177,7 @@ namespace Ravenholm.EditorTools
             crowd.transform.SetParent(people, false);
             crowd.EditorSetup(new List<Vector2> { new Vector2(-1.9f, 1.75f), new Vector2(-1.15f, 1.35f), new Vector2(1.15f, 1.35f), new Vector2(1.9f, 1.75f) },
                 new List<Sprite> { ProjectSetup.LoadSprite("Characters/char_base_0"), ProjectSetup.LoadSprite("Characters/char_base_1"), ProjectSetup.LoadSprite("Characters/char_base_2") });
-            var mouth = mine.transform;   // miners follow the cutaway's ladder and floor (MineCutawayView)
+            var mouth = mine.transform;   // miners follow the pit's ladder and blocks (MineDigView)
             Worker(people, "Dagna Holt", "site.mine", "worker.dagna", 2, "ov_miner", mineStaging, mouth, null);
             Worker(people, "Tobin Ash", "site.forest", "worker.tobin", 0, "ov_woodcutter", forestStaging, null, pocket);
             // Crew expansion recruits (Phase 6): hidden until hired.
@@ -216,6 +215,7 @@ namespace Ravenholm.EditorTools
         {
             var gridGo = new GameObject("Grid");
             var grid = gridGo.AddComponent<Grid>();
+            _grid = grid;
             grid.cellLayout = GridLayout.CellLayout.Isometric;
             grid.cellSize = new Vector3(1f, 0.5f, 1f);
 
@@ -226,15 +226,14 @@ namespace Ravenholm.EditorTools
             tr.mode = TilemapRenderer.Mode.Individual;
             tr.sortingLayerName = "Ground";
             if (_unlit != null) tr.sharedMaterial = _unlit;
-            tmGo.AddComponent<PlotSkirtView>().EditorSetup(_vertexColour);   // the town's earthen edge
 
             var b = settings.plotBounds;
-            // The Mine cutaway sits in the front edge (GDD 6): snap its front corner to a tile so its rim meets the tiles.
+            // The Mine is dug into the ground at the exposed front edge (GDD 6), aligned to this grid.
             _mineCell = grid.WorldToCell(MineCornerTarget + new Vector2(0f, 0.25f));
             _mineCorner = (Vector2)grid.GetCellCenterWorld(_mineCell) - new Vector2(0f, 0.25f);
             bool InMine(Vector3Int cell) =>
-                cell.x >= _mineCell.x && cell.x < _mineCell.x + MineCutawayView.Footprint &&
-                cell.y >= _mineCell.y && cell.y < _mineCell.y + MineCutawayView.Footprint;
+                cell.x >= _mineCell.x && cell.x < _mineCell.x + MineDigView.Size &&
+                cell.y >= _mineCell.y && cell.y < _mineCell.y + MineDigView.Size;
             var paths = new[]
             {
                 (new Vector2(0f, 1.5f), new Vector2(0f, -6.5f)),
@@ -250,10 +249,11 @@ namespace Ravenholm.EditorTools
                 var cell = new Vector3Int(x, y, 0);
                 Vector2 c = grid.GetCellCenterWorld(cell);
                 if (c.x < b.xMin || c.x > b.xMax || c.y < b.yMin || c.y > b.yMax) continue;
-                if (InMine(cell)) continue;   // the cutaway draws its own rim here
-                // Nothing in front of the Mine's faces: they hang below the town's edge.
+                if (InMine(cell)) continue;   // the pit: its own ground blocks (MineDigView)
+                // Open front: nothing stands in front of the pit and its walls, so their layers face the camera.
                 var rel = c - _mineCorner;
-                if (Mathf.Abs(rel.x) < 2f && rel.y < Mathf.Abs(rel.x) * 0.5f) continue;
+                var half = (MineDigView.Size + 1) * 0.5f;
+                if (Mathf.Abs(rel.x) < half && rel.y < Mathf.Abs(rel.x) * 0.5f) continue;
 
                 string key;
                 var plaza = Mathf.Abs(c.x) / 3.6f + Mathf.Abs(c.y - 2.4f) / 2.0f < 1f;
@@ -369,28 +369,30 @@ namespace Ravenholm.EditorTools
         }
 
         /// <summary>
-        /// The Mine as a cutaway block set into the town's front edge (GDD 6): fixed size at any depth, a straight
-        /// shaft, strata on the two front faces. The shaft opening is a blocker so the supplier walks around the rim.
+        /// The Mine dug into the town's own ground (GDD 6): a 4×4 pit of ground blocks on the town grid at the
+        /// exposed front edge. The pit top blocks movement; the site is tapped on the pit or its exposed faces.
         /// </summary>
-        private static GameObject MineCutaway(Transform parent)
+        private static GameObject MineDig(Transform parent)
         {
             var go = new GameObject("Mine");
             go.transform.SetParent(parent, false);
             go.transform.position = _mineCorner;
-            go.AddComponent<MineCutawayView>().EditorSetup(_vertexColour);
-            Vector2 L(float u, float v, float z = 0f) => MineCutawayView.Local(u, v, z);
-            float n = MineCutawayView.Footprint, lo = MineCutawayView.Inset, hi = n - MineCutawayView.Inset;
+            var tiles = ProjectSetup.EnsureTiles();
+            go.AddComponent<MineDigView>().EditorSetup(_grid, _mineCell,
+                new[] { tiles["block_0"], tiles["block_1"], tiles["block_2"] }, ProjectSetup.LoadSprite("Props/prop_ladder"), _unlit);
+            // Local corners of the pit's top diamond (front corner at the origin; +x right-up, +y left-up).
+            Vector2 P(float u, float v) => new Vector2((u - v) * 0.5f, (u + v) * 0.25f);
+            float n = MineDigView.Size;
             var tap = go.AddComponent<PolygonCollider2D>();
-            tap.isTrigger = true;   // tap the top or the faces
-            tap.points = new[] { L(0, 0, -MineCutawayView.FaceHeight), L(n, 0, -MineCutawayView.FaceHeight), L(n, 0), L(n, n), L(0, n), L(0, n, -MineCutawayView.FaceHeight) };
+            tap.isTrigger = true;
+            tap.points = new[] { P(0, 0) + new Vector2(0, -2.5f), P(n, 0) + new Vector2(0, -2.5f), P(n, 0), P(n, n), P(0, n), P(0, n) + new Vector2(0, -2.5f) };
             var site = go.AddComponent<SiteInspectable>();
-            site.EditorSetup("Mine", "One active production site, seen as a cutaway: the faces show every layer you have dug through. " +
-                                     "Miners work the shaft floor; you choose to continue this layer or reveal a deeper one.", "");
+            site.EditorSetup("Mine", "The Mine is dug straight into the ground. Each level is one miner deep and shows the layer it was dug in; " +
+                                     "the levels below show darker. Miners clear a level block by block; then you choose to continue this layer or dig into the next.", "");
             site.EditorSetupSite("site.mine");
-            var hole = Blocker(go.transform, "ShaftBlocker");
-            var poly = hole.AddComponent<PolygonCollider2D>();
-            poly.points = new[] { L(lo, lo), L(hi, lo), L(hi, hi), L(lo, hi) };
-            AddLabel(go.transform, "Mine", 2.3f);
+            var hole = Blocker(go.transform, "PitBlocker");
+            hole.AddComponent<PolygonCollider2D>().points = new[] { P(0.1f, 0.1f), P(n - 0.1f, 0.1f), P(n - 0.1f, n - 0.1f), P(0.1f, n - 0.1f) };
+            AddLabel(go.transform, "Mine", 2.6f);
             return go;
         }
 

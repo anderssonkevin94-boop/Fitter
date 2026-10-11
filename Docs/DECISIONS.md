@@ -418,29 +418,28 @@ The user asked to "keep building without me playtesting". A read-only audit comp
   - Replace it with the final art.
 - **Privacy manifest:** the export includes Unity's `PrivacyInfo.xcprivacy` files (they declare the engine's file-timestamp use). Game code uses no required-reason APIs, collects no data and does no tracking. The App Store privacy answers still need the user's confirmation.
 
-## Mine cutaway (2026-10-11, user request; GDD 6 "angled cutaway, visibly stacked geological layers")
+## Mine dug into the ground (2026-10-11, user direction; GDD 6)
 
-- **What changed:** the Mine was a mine-mouth building with the strata only in its panel. Following the user's reference (an idle-digging style isometric block) and the GDD, it is now a cutaway block set into the town's front-left edge (`MineCutawayView`). The user chose this approach after two mockups: a straight shaft, no terraces, so depth is never capped (`Docs/Concepts/mine_cutaway_mockup_shaft.png`).
-- **Fixed-size window into the earth:** the footprint (4×4 tiles) and face height never change at any depth. Depth scrolls inside the block:
-  - Finished layers compress into thin bands at the top lip. The last three are shown separately; anything older merges into one labelled band ("Depths 1–4 · closed").
-  - The working layer and the unknown layer below stay in place.
-  - The shaft floor drops as the section is worked.
-  - "Continue here" adds a side-tunnel stub (up to three drawn).
-  - Labels on the front face give the working depth (and section) and the next depth (or "not charted").
-- **Colours:** each depth gets a warm earth base, alternating so neighbours read apart, blended 45 % with its ore mix. Ore flecks on the faces are drawn from the layer's own composition.
-- **Miners stay visible:** rim → ladder → floor and back, timed by the existing phase timing. In the shaft they draw between the interior and the rim, so the rim hides what's below it. Without a cutaway the old tunnel fade remains.
-- **Town layout:**
-  - Mine at the bottom-left edge, snapped to the tile grid; ground tiles removed under and in front of it.
-  - Mine staging on the back rim; Smelter moved down beside it (-9.4, -3.9); path rerouted.
-  - The shaft opening blocks movement; the block's tap area covers the top and faces.
-  - The camera may look 3.4 units below the town's bottom edge so the faces show.
-  - The old mine area stays a dirt yard with rock faces.
-- **Town edge:** `PlotSkirtView` draws earthen faces under every tile with open background below, so the town reads as a diorama.
-- **Rendering:** procedural meshes use a small `Ravenholm/VertexColorUnlit` shader (the sprite material multiplies by a per-sprite colour that only SpriteRenderers set, so on plain meshes it was invisible). Vertex colours are converted to linear for the linear-colour project.
-- **Simulation and saves unchanged;** it is presentation only.
-- **Tests:**
-  - New: the miner is visible in the shaft and the floor drops; digging to depth 5 keeps the same block size with four bands shown; "continue here" adds a tunnel stub; the shaft blocks walking.
-  - Older tests now find the Mine staging pile and the Smelter marker in the scene instead of using fixed coordinates.
+- **Superseded first attempt.** A procedural cutaway block pasted onto the town was rejected by the user, rightly: it ignored the town's own ground system. It is removed, together with its earthen-edge mesh and the custom shader both needed.
+- **The user's decisions (asked before building):**
+  - one level = one miner tall (1 world unit);
+  - miners clear the level tile by tile;
+  - the camera follows the dig down;
+  - a 4×4 pit at the bottom-left edge.
+- **How it works (`MineDigView`):**
+  - The pit is part of the town's isometric grid. Its blocks are the ground tile with its own earthen skirt extended one level deep (`tile_block_0..2`, same palette as the ground tiles).
+  - Each dug level is one Tilemap on the same grid, offset one level down.
+  - The working level keeps its 16 pit blocks until cleared, front first so the cut faces the camera. Blocks removed = section progress × 16.
+  - One section = one level: "Continue here" digs the next level in the same layer (same tint); "Dig deeper" digs the next level into the new layer.
+  - The ring of ground behind the pit continues down as the walls, tinted by the layer each level was dug in. The open front exposes them.
+  - The next three levels show darker as previews.
+  - Only levels near the camera exist, so depth is unlimited (tested to level 31).
+- **Simulation:** `SiteRecord.SectionDepths` records the depth of each completed section, saved as an optional field; older saves are inferred on load. No other rule changed.
+- **Miners:** staging → ladder on the back wall → stand on the block being cleared (or the cleared floor while a choice waits) → back. They stay on the normal character layer; the open front means nothing occludes them.
+- **Camera:** near the Mine it lowers as far as it can while keeping the supplier in view. The Mine panel's "Look down the shaft" frames the working level until the player moves. The view may extend below the town as far as the dig needs.
+- **Labels:** "Depth N · level L" and what lies below sit in the open background left of the pit and slide to stay on screen.
+- **Layout:** town tiles are removed only for the pit and the triangle in front of it and its walls; the Smelter and staging stay beside it.
+- **Tests:** blocks clear one by one, front first; the miner is visible in the pit; continue and deeper each dig one level with the right tints; previews are darker; only nearby levels are built at level 31; the camera keeps the supplier in view and "look down" frames the dig; the pit blocks walking.
 
 ## Open blockers
 

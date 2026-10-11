@@ -98,6 +98,7 @@ namespace Ravenholm.Presentation
             _continueLabel.fontSizeMin = _deeperLabel.fontSizeMin = 20f;
             _continueLabel.fontSizeMax = _deeperLabel.fontSizeMax = _theme.smallSize;
 
+            _lookDown = _ui.Button("LookDown", content, "Look down the shaft", LookDown, out _);
             _facilities = UiFactory.Rect("Facilities", content);
             UiFactory.Column(_facilities.gameObject, 14f, new RectOffset(0, 0, 8, 8));
 
@@ -214,6 +215,15 @@ namespace Ravenholm.Presentation
         {
             var b = _ui.RowButton(_facilities, onClick, out var label);
             _facilityButtons.Add((b, label, text, enabled));
+        }
+
+        private Button _lookDown;
+
+        /// <summary>Closes the panel and frames the Mine's working level until the player moves (GDD 6).</summary>
+        public void LookDown()
+        {
+            if (MineDigView.Current != null) MineDigView.Current.ViewingDig = true;
+            Close();
         }
 
         public void Show(string siteId)
@@ -351,6 +361,7 @@ namespace Ravenholm.Presentation
             }
 
             RefreshFacilities(sim);
+            _lookDown.gameObject.SetActive(mine && MineDigView.Current != null);
 
             _toolLabel.transform.parent.gameObject.SetActive(Feel.DeveloperMode);   // free gear is a developer tool only
             _packLabel.transform.parent.gameObject.SetActive(Feel.DeveloperMode);

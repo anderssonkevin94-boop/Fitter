@@ -96,6 +96,7 @@ namespace Ravenholm.Domain.Sites
         public bool ChooseContinue()
         {
             if (_s.Status != SiteStatus.AwaitDecision) return false;
+            _s.SectionDepths.Add(_s.Depth);
             _s.K++;
             _s.SectionsCompleted++;
             Resume();
@@ -106,6 +107,7 @@ namespace Ravenholm.Domain.Sites
         public bool ChooseDeeper()
         {
             if (_s.Status != SiteStatus.AwaitDecision || !CanGoDeeper) return false;
+            _s.SectionDepths.Add(_s.Depth);
             _s.Depth++;
             _s.K = 0;
             _s.SectionsCompleted++;

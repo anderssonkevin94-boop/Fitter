@@ -16,6 +16,7 @@ namespace Ravenholm.Presentation
         private Camera _camera;
         private Vector2 _focus;
         private Vector2 _velocity;
+        private float _extraBottom;   // how far below the town the Mine needs the view to reach
         private bool _snapped;
 
         public static int ViewWidthIndex
@@ -41,6 +42,20 @@ namespace Ravenholm.Presentation
             _camera.orthographicSize = OrthoSizeForWidth(s.viewWidthOptions[_viewWidthIndex], _camera.aspect);
 
             var t = (Vector2)target.position + new Vector2(0f, s.cameraLookAheadY);
+            // GDD 6: near the Mine the view follows the dig down, as far as it can while keeping the supplier in view;
+            // "Look down the shaft" frames the working level until the player moves again.
+            var mine = MineDigView.Current;
+            _extraBottom = 0f;
+            if (mine != null)
+            {
+                var focus = (Vector2)mine.DigFocus;
+                var halfH = _camera.orthographicSize;
+                if (mine.ViewingDig) t = focus;
+                else if (Vector2.Distance(target.position, mine.PitTopCentre) < 4.5f)
+                    t.y = Mathf.Max(focus.y, target.position.y - halfH + 2.2f);
+                // Let the view reach down far enough to centre on the working level.
+                _extraBottom = Mathf.Max(0f, s.plotBounds.yMin - (focus.y - halfH));
+            }
             if (!_snapped)
             {
                 _focus = t;
@@ -72,7 +87,7 @@ namespace Ravenholm.Presentation
             const float margin = 1.5f;        // show a little of the diorama edge
             const float bottomMargin = 3.4f;  // the Mine cutaway's faces hang below the town's front edge (GDD 6)
             p.x = ClampAxis(p.x, b.xMin - margin, b.xMax + margin, halfW);
-            p.y = ClampAxis(p.y, b.yMin - bottomMargin, b.yMax + margin, halfH);
+            p.y = ClampAxis(p.y, b.yMin - Mathf.Max(bottomMargin, _extraBottom), b.yMax + margin, halfH);
             return p;
         }
 

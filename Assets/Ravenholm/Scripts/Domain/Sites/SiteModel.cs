@@ -142,6 +142,8 @@ namespace Ravenholm.Domain.Sites
         public RandomState Rng;
         public Composition Composition = new Composition();
         public readonly SortedDictionary<int, Composition> Revealed = new SortedDictionary<int, Composition>();
+        /// <summary>Depth band of each completed section, in order (one dug level each; drives the Mine's layered view).</summary>
+        public readonly List<int> SectionDepths = new List<int>();
 
         // Mine
         public long SectionDurabilityMicro;

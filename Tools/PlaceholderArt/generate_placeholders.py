@@ -192,6 +192,56 @@ def tile(name, top, dark, pattern, seed):
     finish(name, img, (cx, cy), "Tiles", desc=f"Isometric ground tile ({pattern})", crop=False)
 
 
+def ground_block(name, seed):
+    """Mine block: the ground tile (same dirt top, same skirt colours) with its skirt extended one level down
+    (one miner tall = 1 world unit). Drawn light so a per-layer tint reads as that layer's earth."""
+    rnd = random.Random(seed)
+    depth = U   # one level = one world unit
+    img = Image.new("RGBA", (U, int(U / 2 + depth) + 2 * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    cx, cy = U / 2, U / 4
+    T, Rr, Bt, Lf = (cx, 0), (U, cy), (cx, U / 2), (0, cy)
+    L2, B2, R2 = (Lf[0], Lf[1] + depth), (Bt[0], Bt[1] + depth), (Rr[0], Rr[1] + depth)
+    left, right, top = shade(SKIRT_L, 1.18), shade(SKIRT_R, 1.18), shade(DIRT_C, 1.1)
+    d.polygon([Lf, Bt, B2, L2], fill=left)
+    d.polygon([Bt, Rr, R2, B2], fill=right)
+    d.polygon([T, Rr, Bt, Lf], fill=top)
+    # strata grain: pebbles on the faces and the top, always inside their face
+    for _ in range(9):
+        t, z = rnd.uniform(0.12, 0.88), rnd.uniform(0.12, 0.88)
+        x, y = Lf[0] + (Bt[0] - Lf[0]) * t, Lf[1] + (Bt[1] - Lf[1]) * t + depth * z
+        r = rnd.uniform(2.5, 5) * S
+        d.ellipse([x - r, y - r * 0.6, x + r, y + r * 0.6], fill=shade(left, 0.78))
+        x, y = Bt[0] + (Rr[0] - Bt[0]) * t, Bt[1] + (Rr[1] - Bt[1]) * t + depth * z
+        d.ellipse([x - r, y - r * 0.6, x + r, y + r * 0.6], fill=shade(right, 0.78))
+    for _ in range(5):
+        x, y = rnd.uniform(0.25, 0.75) * U, rnd.uniform(0.15, 0.35) * U
+        if abs(x - cx) / (U / 2) + abs(y - cy) / (U / 4) < 0.75:
+            r = rnd.uniform(2, 4) * S
+            d.ellipse([x - r, y - r / 2, x + r, y + r / 2], fill=shade(top, 0.82))
+    # crisp edges like the town kit
+    d.line([Lf, Bt, Rr], fill=shade(top, 0.75), width=2 * S)
+    d.line([Lf, L2, B2, R2, Rr], fill=INK, width=2 * S)
+    d.line([Bt, B2], fill=shade(right, 0.7), width=2 * S)
+    finish(name, img, (cx, cy), "Tiles", desc="Mine ground block: dirt tile with its earthen skirt one level deep (tinted per layer)", crop=False)
+
+
+def ladder_segment():
+    """One level of ladder for the shaft wall, drawn on the wall's slope (rungs follow the iso edge)."""
+    img = Image.new("RGBA", (U // 2, int(U * 1.3)), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    w, h = img.width, img.height
+    slope = 0.5
+    for x in (0.25 * w, 0.75 * w):
+        d.line([(x, h * 0.02 - x * slope * 0 + 0), (x, h - 1)], fill=INK, width=6 * S)
+        d.line([(x, h * 0.02), (x, h - 1)], fill=TIMBER_M, width=3 * S)
+    for k in range(5):
+        y = h * (0.12 + 0.18 * k)
+        d.line([(0.25 * w, y + 0.25 * w * slope), (0.75 * w, y - 0.25 * w * slope)], fill=INK, width=5 * S)
+        d.line([(0.25 * w, y + 0.25 * w * slope), (0.75 * w, y - 0.25 * w * slope)], fill=TIMBER_L, width=3 * S)
+    return finish("prop_ladder", img, (w / 2, h), "Props", desc="Shaft ladder, one level tall")
+
+
 # ---------------------------------------------------------------- buildings
 def building_canvas(a, b, extra_h):
     w = (a + b) / 2 + 1.2
@@ -1161,6 +1211,9 @@ def main():
     tile("tile_plaza", PLAZA_C, PLAZA_D, "flags", 4)
     tile("tile_dirt", DIRT_C, DIRT_D, "pebbles", 5)
     tile("tile_forest_floor", FOREST_C, FOREST_D, "tufts", 6)
+    for i in range(3):
+        ground_block(f"tile_block_{i}", 40 + i)
+    ladder_segment()
     store(); smelter(); forge(); mill(); bench(); apothecary(); trader(); mine_mouth(); forest_gate()
     tree_cedar(); tree_maple(); tree_ironwood(); bush_herb()
     rock("rock_stone", None, 11, "Rock face: plain stone")

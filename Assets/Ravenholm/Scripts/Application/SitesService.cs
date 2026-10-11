@@ -253,6 +253,7 @@ namespace Ravenholm.Services
                 DepositedTotal = s.DepositedTotal, MeasureStartMs = s.MeasureStartMs, DepositedSinceMeasure = s.DepositedSinceMeasure,
             };
             foreach (var kv in s.Revealed) d.Revealed[kv.Key] = ToSave(kv.Value);
+            d.SectionDepths = new List<int>(s.SectionDepths);
             d.FacePending.AddRange(s.FacePending);
             foreach (var t in s.Trees)
             {
@@ -311,6 +312,15 @@ namespace Ravenholm.Services
                 DepositedTotal = d.DepositedTotal, MeasureStartMs = d.MeasureStartMs, DepositedSinceMeasure = d.DepositedSinceMeasure,
             };
             foreach (var kv in d.Revealed) s.Revealed[kv.Key] = FromSave(kv.Value);
+            if (d.SectionDepths != null) s.SectionDepths.AddRange(d.SectionDepths);
+            else
+            {
+                // Older saves: one section per earlier depth, then the current depth's continuations.
+                for (var depth = 1; depth < s.Depth; depth++) s.SectionDepths.Add(depth);
+                for (var k = 0; k < s.K; k++) s.SectionDepths.Add(s.Depth);
+            }
+            while (s.SectionDepths.Count < s.SectionsCompleted) s.SectionDepths.Insert(0, 1);
+            while (s.SectionDepths.Count > s.SectionsCompleted) s.SectionDepths.RemoveAt(0);
             s.FacePending.AddRange(d.FacePending);
             foreach (var td in d.Trees)
             {

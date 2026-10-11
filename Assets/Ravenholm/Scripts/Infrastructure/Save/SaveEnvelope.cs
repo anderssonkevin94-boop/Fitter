@@ -100,6 +100,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("depth")] public int Depth;
         [JsonProperty("k")] public int K;
         [JsonProperty("sectionsCompleted")] public int SectionsCompleted;
+        /// <summary>Depth of each completed section (optional; older saves are inferred on load).</summary>
+        [JsonProperty("sectionDepths")] public List<int> SectionDepths;
         [JsonProperty("status")] public string Status;
         [JsonProperty("simMs")] public long SimMs;
         [JsonProperty("rngState")] public string RngState;
