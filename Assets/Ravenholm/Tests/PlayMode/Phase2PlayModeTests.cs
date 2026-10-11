@@ -71,8 +71,13 @@ namespace Ravenholm.Tests
             Assert.NotNull(miner, "the supplier's routine figure appears");
             Assert.IsTrue(player.HiddenForRoutine, "and the supplier is out working it");
             var start = miner.transform.position;
-            yield return WaitUntil(() => Staging("container.mine_staging") > 0, 6f, "first deposits");
-            Assert.AreNotEqual(start, miner.transform.position, "the routine visibly moves");
+            var furthest = 0f;
+            yield return WaitUntil(() =>
+            {
+                furthest = Mathf.Max(furthest, Vector3.Distance(start, miner.transform.position));
+                return Staging("container.mine_staging") > 0;
+            }, 6f, "first deposits");
+            Assert.Greater(furthest, 0.5f, "the routine visibly walks to the Mine and back");
             CollectionAssert.IsEmpty(services.Logistics.System.Audit());
             yield return Capture.Take("phase2_mine_working");
 

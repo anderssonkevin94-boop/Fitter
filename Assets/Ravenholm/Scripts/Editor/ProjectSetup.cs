@@ -28,6 +28,7 @@ namespace Ravenholm.EditorTools
         public const string SceneDir = Root + "Scenes/";
         public const string BootstrapScene = SceneDir + "Bootstrap.unity";
         public const string SandboxScene = SceneDir + "DebugSandbox.unity";
+        public const string MinePrototypeScene = SceneDir + "MinePrototype.unity";
         public const int BlockerLayerIndex = 8;
         public const string BundleId = "com.kevinandersson.ravenholmsupplyco";
         public const string MinIosVersion = "15.0";
@@ -102,10 +103,12 @@ namespace Ravenholm.EditorTools
 
             if (rebuildScenes || !File.Exists(BootstrapScene)) SandboxSceneBuilder.BuildBootstrap(ConfigDir + "BootConfig.asset", BootstrapScene);
             if (rebuildScenes || !File.Exists(SandboxScene)) SandboxSceneBuilder.BuildSandbox(ConfigDir + "SandboxSettings.asset", SandboxScene);
+            if (rebuildScenes || !File.Exists(MinePrototypeScene)) SandboxSceneBuilder.BuildMinePrototype(MinePrototypeScene);
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene(BootstrapScene, true),
                 new EditorBuildSettingsScene(SandboxScene, true),
+                new EditorBuildSettingsScene(MinePrototypeScene, true),
             };
             AssetDatabase.SaveAssets();
 
@@ -833,7 +836,7 @@ namespace Ravenholm.EditorTools
         public static Dictionary<string, TileBase> EnsureTiles()
         {
             var result = new Dictionary<string, TileBase>();
-            foreach (var key in new[] { "grass_a", "grass_b", "path", "plaza", "dirt", "forest_floor", "block_0", "block_1", "block_2", "block_seam_0", "block_seam_1", "block_seam_2", "slab", "sill", "fleck" })
+            foreach (var key in new[] { "grass_a", "grass_b", "path", "plaza", "dirt", "forest_floor", "block_0", "block_1", "block_2", "block_seam_0", "block_seam_1", "block_seam_2", "slab", "sill", "fleck", "halfblock_0", "halfblock_1", "halfblock_2", "fleck_half" })
             {
                 var path = TileDir + "tile_" + key + ".asset";
                 var tile = AssetDatabase.LoadAssetAtPath<Tile>(path);

@@ -571,3 +571,13 @@ Direction from the user: the supplier is the only character working; they cut an
   - The prospector's Tap button, shown near the Mine with a 5 s cooldown: ore blocks within 4 cells and ±1 level ring with echo rings in the ore's colour, even behind the face, and a toast names what answered.
   - Blocks crack in three stages while dug.
 - **Not yet built.** Lamp upgrades, the survey sketch, branching (choosing which block to dig), hard pockets and rare finds come in stage 4.
+
+## Prototype: option A digging (2026-10-12)
+
+This is a self-contained prototype (`MinePrototype` scene, `MiningPrototype`), opened from a signpost by the Mine or from the debug panel. It is for judging the feel before any big change, and it never touches the company save.
+
+- **Scale.** Blocks are half a level tall, so the supplier is two blocks tall. A tunnel is 2 high × 1 deep: the face row is dug, and the row behind is its back wall.
+- **Digging.** The stick aims: sideways at body height, up, down, or diagonally down. Holding Dig mines the highlighted block, which cracks as it goes.
+- **Moving.** Single blocks are stepped up; holes are dropped into.
+- **Ore and signs.** The real veins (world seed and the Mine's layer mixes) and flecks within the lamp's light. A tally shows what was dug.
+- **Next.** If it is adopted, the real Mine moves to this model and stage 4 (branching) folds into it.

@@ -153,9 +153,13 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Tiles/tile_block_seam_2.png` | Mine ground block: one level of earth, tinted per layer (layer seam) |
 | `Tiles/tile_dirt.png` | Isometric ground tile (pebbles) |
 | `Tiles/tile_fleck.png` | Prospecting: ore flecks on a block's faces (tinted per ore) |
+| `Tiles/tile_fleck_half.png` | Prospecting: ore flecks on a block's faces (tinted per ore) |
 | `Tiles/tile_forest_floor.png` | Isometric ground tile (tufts) |
 | `Tiles/tile_grass_a.png` | Isometric ground tile (tufts) |
 | `Tiles/tile_grass_b.png` | Isometric ground tile (tufts) |
+| `Tiles/tile_halfblock_0.png` | Mine ground block: one level of earth, tinted per layer |
+| `Tiles/tile_halfblock_1.png` | Mine ground block: one level of earth, tinted per layer |
+| `Tiles/tile_halfblock_2.png` | Mine ground block: one level of earth, tinted per layer |
 | `Tiles/tile_path.png` | Isometric ground tile (pebbles) |
 | `Tiles/tile_plaza.png` | Isometric ground tile (flags) |
 | `Tiles/tile_sill.png` | Mine sill: the cliff-face block cut down to a lip in front of a tunnel |

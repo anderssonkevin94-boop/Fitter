@@ -55,6 +55,42 @@ namespace Ravenholm.EditorTools
             EditorSceneManager.SaveScene(scene, path);
         }
 
+        /// <summary>PROTOTYPE scene: option-A digging in a cliff face (see <see cref="MiningPrototype"/>).</summary>
+        public static void BuildMinePrototype(string path)
+        {
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            _unlit = AssetDatabase.LoadAssetAtPath<Material>(UnlitMaterialPath);
+            var tiles = ProjectSetup.EnsureTiles();
+            new GameObject("SceneBootGuard").AddComponent<SceneBootGuard>();
+            var grid = new GameObject("Grid").AddComponent<Grid>();
+            grid.cellLayout = GridLayout.CellLayout.Isometric;
+            grid.cellSize = new Vector3(1f, 0.5f, 1f);
+
+            var player = new GameObject("Supplier").transform;
+            var visual = new GameObject("Visual").transform;
+            visual.SetParent(player, false);
+            player.gameObject.AddComponent<UnityEngine.Rendering.SortingGroup>();
+            Sprite(visual, "Base", "Characters/char_base_0", Vector2.zero, 0);
+            Sprite(visual, "Overlay", "Characters/ov_supplier", Vector2.zero, 1);
+
+            var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
+            var cam = camGo.AddComponent<Camera>();
+            cam.orthographic = true;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = Backdrop;
+            cam.nearClipPlane = 0.1f;
+            cam.farClipPlane = 50f;
+            camGo.transform.position = new Vector3(0f, 0f, -10f);
+            camGo.AddComponent<AudioListener>();
+            camGo.AddComponent<FeedbackAudio>();
+
+            new GameObject("MiningPrototype").AddComponent<MiningPrototype>().EditorSetup(grid, cam, player, visual,
+                new[] { tiles["halfblock_0"], tiles["halfblock_1"], tiles["halfblock_2"] }, tiles["grass_a"], tiles["fleck_half"],
+                new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") },
+                ProjectSetup.LoadSprite("Tiles/tile_halfblock_0"), _unlit);
+            EditorSceneManager.SaveScene(scene, path);
+        }
+
         public static void BuildSandbox(string settingsPath, string path)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -178,6 +214,12 @@ namespace Ravenholm.EditorTools
             Worker(people, "You (mining)", "site.mine", "worker.player", 0, "ov_supplier", mineStaging, mouth, null);
             Worker(people, "You (woodcutting)", "site.forest", "worker.player", 0, "ov_supplier", forestStaging, null, pocket);
             SiteMarker(mine.transform, "site.mine", 2.4f);
+            // PROTOTYPE: a signpost by the Mine into the option-A digging prototype.
+            var sign = Prop(props, "Mining prototype", "Props/trail_marker",
+                (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineDigView.Size + 3, 0, 0)),
+                "Try Minecraft-style digging in the cliff face (prototype). Nothing you dig there touches your company.", "");
+            Object.DestroyImmediate(sign.GetComponent<Inspectable>());
+            sign.gameObject.AddComponent<PrototypeSign>().EditorSetup("mining prototype", "Try Minecraft-style digging in the cliff face (prototype).", "");
             SiteMarker(gate.transform, "site.forest", 2.0f);
 
             player.gameObject.AddComponent<PlayerMotor>().EditorSetup(player.Find("Visual"));

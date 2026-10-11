@@ -285,7 +285,7 @@ namespace Ravenholm.Tests
         public static IEnumerator Take(string name, int w = 1206, int h = 2622)
         {
             SafeAreaFitter.NormalizedOverride = new Rect(0f, 102f / 2622f, 1f, 1f - (186f + 102f) / 2622f);
-            var cam = SandboxSceneController.Current.WorldCamera;
+            var cam = SandboxSceneController.Current != null ? SandboxSceneController.Current.WorldCamera : Camera.main;
             var rt = new RenderTexture(w, h, 24);
             cam.targetTexture = rt;
             for (var i = 0; i < 3; i++) yield return null;

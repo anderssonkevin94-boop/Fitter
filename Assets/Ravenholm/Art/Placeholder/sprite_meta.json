@@ -871,6 +871,12 @@
     0.8351
    ]
   },
+  "Tiles/tile_fleck_half.png": {
+   "pivot": [
+    0.5,
+    0.7538
+   ]
+  },
   "Tiles/tile_forest_floor.png": {
    "pivot": [
     0.5,
@@ -887,6 +893,24 @@
    "pivot": [
     0.5,
     0.6596
+   ]
+  },
+  "Tiles/tile_halfblock_0.png": {
+   "pivot": [
+    0.5,
+    0.7538
+   ]
+  },
+  "Tiles/tile_halfblock_1.png": {
+   "pivot": [
+    0.5,
+    0.7538
+   ]
+  },
+  "Tiles/tile_halfblock_2.png": {
+   "pivot": [
+    0.5,
+    0.7538
    ]
   },
   "Tiles/tile_path.png": {

@@ -502,6 +502,11 @@ namespace Ravenholm.Presentation
                 var n = _root.Services.Logistics.DebugUnloadCarry();
                 Report($"Unloaded {n} carried unit(s) into shared inventory / Store.");
             }, out _);
+            _ui.Button("Prototype", content, "Try the mining prototype (option A)", () =>
+            {
+                CloseDebug();
+                UnityEngine.SceneManagement.SceneManager.LoadScene(MiningPrototype.SceneName);
+            }, out _);
             _ui.Button("Unstuck", content, "Unstuck (keeps carried goods)", () =>
             {
                 SandboxSceneController.Current?.Unstuck();

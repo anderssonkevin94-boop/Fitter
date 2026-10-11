@@ -195,12 +195,12 @@ def tile(name, top, dark, pattern, seed):
 ROCK_TOP, ROCK_L, ROCK_R = (246, 240, 230, 255), (226, 218, 206, 255), (196, 188, 178, 255)
 
 
-def ground_block(name, seed, seam=False):
+def ground_block(name, seed, seam=False, height=1.0):
     """Mine ground block (option A look): one level of earth, light and nearly neutral so each layer's tint gives it its
     colour. No outlines: neighbouring blocks merge into one mass of ground, and only cuts (tunnels, the shaft) read as
     edges. `seam` adds the dark line that marks the top of a new layer along its faces."""
     rnd = random.Random(seed)
-    depth = U   # one level = one world unit
+    depth = int(U * height)   # one level = one world unit (half-height blocks: the mining prototype)
     img = Image.new("RGBA", (U, int(U / 2 + depth) + 2 * S), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     cx, cy = U / 2, U / 4
@@ -246,10 +246,10 @@ def rock_slab(name, height, seed, desc):
     finish(name, img, (cx, cy), "Tiles", desc=desc, crop=False)
 
 
-def ore_flecks(name, seed, count):
+def ore_flecks(name, seed, count, height=1.0):
     """Prospecting overlay: specks of ore on a block's exposed faces (white, tinted by the ore's colour in game)."""
     rnd = random.Random(seed)
-    depth = U
+    depth = int(U * height)
     img = Image.new("RGBA", (U, int(U / 2 + depth) + 2 * S), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     cx, cy = U / 2, U / 4
@@ -1311,12 +1311,14 @@ def main():
     for i in range(3):
         ground_block(f"tile_block_{i}", 40 + i)
         ground_block(f"tile_block_seam_{i}", 40 + i, seam=True)
+        ground_block(f"tile_halfblock_{i}", 50 + i, height=0.5)
     ladder_segment()
     timber_frame()
     mine_lamp()
     rock_slab("tile_slab", 0.25, 60, "Mine floor slab: a thin block of the layer's rock")
     rock_slab("tile_sill", 0.5, 61, "Mine sill: the cliff-face block cut down to a lip in front of a tunnel")
     ore_flecks("tile_fleck", 80, 4)
+    ore_flecks("tile_fleck_half", 81, 3, height=0.5)
     for stage in (1, 2, 3):
         block_cracks(stage)
     tap_ring()
