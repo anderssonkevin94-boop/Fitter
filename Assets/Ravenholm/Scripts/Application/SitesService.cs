@@ -114,6 +114,33 @@ namespace Ravenholm.Services
             return ok;
         }
 
+        // ------------------------------------------------------------------ Mine tunnels
+
+        /// <summary>Starts a sideways tunnel at a dug level; sends <paramref name="workerId"/> there when given. Returns the face (0 = failed).</summary>
+        public int StartTunnel(string siteId, int level, TunnelSide side, string workerId = null)
+        {
+            var sim = Get(siteId);
+            var face = sim?.StartTunnel(level, side) ?? 0;
+            if (face == 0) return 0;
+            if (workerId != null) sim.AssignWorker(workerId, face);
+            _scheduler.SaveNow("site: tunnel");
+            return face;
+        }
+
+        public bool ExtendTunnel(string siteId, int face)
+        {
+            var ok = Get(siteId)?.ExtendTunnel(face) ?? false;
+            if (ok) _scheduler.SaveNow("site: extend tunnel");
+            return ok;
+        }
+
+        public bool AssignWorker(string siteId, string workerId, int face)
+        {
+            var ok = Get(siteId)?.AssignWorker(workerId, face) ?? false;
+            if (ok) _scheduler.SaveNow("site: assign miner");
+            return ok;
+        }
+
         // ------------------------------------------------------------------ debug (Phase 2: no economy yet)
 
         /// <summary>DEBUG purchase: cycles a worker's tool or pack to the next tier (wrapping to tier 1).</summary>
@@ -255,6 +282,20 @@ namespace Ravenholm.Services
             foreach (var kv in s.Revealed) d.Revealed[kv.Key] = ToSave(kv.Value);
             d.SectionDepths = new List<int>(s.SectionDepths);
             d.FacePending.AddRange(s.FacePending);
+            if (s.Tunnels.Count > 0)
+            {
+                d.Tunnels = new List<TunnelSaveData>();
+                foreach (var t in s.Tunnels)
+                {
+                    var td = new TunnelSaveData
+                    {
+                        Level = t.Level, Side = t.Side.ToString(), Depth = t.Depth, K = t.K, Stretches = t.Stretches, Status = t.Status.ToString(),
+                        DurabilityMicro = t.DurabilityMicro, DoneMicro = t.DoneMicro, Emitted = t.Emitted, NextRecipient = t.NextRecipient,
+                    };
+                    td.Pending.AddRange(t.Pending);
+                    d.Tunnels.Add(td);
+                }
+            }
             foreach (var t in s.Trees)
             {
                 var td = new TreeSaveData
@@ -272,7 +313,7 @@ namespace Ravenholm.Services
                 var wd = new WorkerSaveData
                 {
                     Id = w.Id, Name = w.Name, ToolId = w.ToolId, PackId = w.PackId, State = w.State.ToString(),
-                    PhaseStartMs = w.PhaseStartMs, PhaseEndMs = w.PhaseEndMs, TargetTree = w.TargetTree,
+                    PhaseStartMs = w.PhaseStartMs, PhaseEndMs = w.PhaseEndMs, TargetTree = w.TargetTree, Face = w.Face,
                 };
                 wd.Carried.AddRange(w.Pack);
                 d.Workers.Add(wd);
@@ -322,6 +363,18 @@ namespace Ravenholm.Services
             while (s.SectionDepths.Count < s.SectionsCompleted) s.SectionDepths.Insert(0, 1);
             while (s.SectionDepths.Count > s.SectionsCompleted) s.SectionDepths.RemoveAt(0);
             s.FacePending.AddRange(d.FacePending);
+            if (d.Tunnels != null)
+                foreach (var td in d.Tunnels)
+                {
+                    var t = new TunnelRecord
+                    {
+                        Level = td.Level, Side = Enum.TryParse(td.Side, out TunnelSide side) ? side : TunnelSide.Left, Depth = Math.Max(1, td.Depth),
+                        K = td.K, Stretches = td.Stretches, Status = Enum.TryParse(td.Status, out SiteStatus ts) ? ts : SiteStatus.Working,
+                        DurabilityMicro = td.DurabilityMicro, DoneMicro = td.DoneMicro, Emitted = td.Emitted, NextRecipient = td.NextRecipient,
+                    };
+                    if (td.Pending != null) t.Pending.AddRange(td.Pending);
+                    s.Tunnels.Add(t);
+                }
             foreach (var td in d.Trees)
             {
                 var t = new TreeRecord
@@ -341,6 +394,7 @@ namespace Ravenholm.Services
                     Id = wd.Id, Name = wd.Name, ToolId = wd.ToolId, PackId = wd.PackId,
                     State = Enum.TryParse(wd.State, out WorkerState ws) ? ws : WorkerState.ReturnToStaging,
                     PhaseStartMs = wd.PhaseStartMs, PhaseEndMs = wd.PhaseEndMs, TargetTree = wd.TargetTree,
+                    Face = wd.Face >= 0 && wd.Face <= s.Tunnels.Count ? wd.Face : 0,
                 };
                 w.Pack.AddRange(wd.Carried);
                 s.Workers.Add(w);

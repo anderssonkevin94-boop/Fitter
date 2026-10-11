@@ -45,6 +45,9 @@ namespace Ravenholm.Domain.Sites
         public double KQuad = 0.04;
         public int TerminalKCap = 6;
 
+        public int ShaftBlocks = 16;            // Mine: blocks in one shaft level (one section)
+        public int TunnelStretchCells = 4;      // Mine: blocks in one tunnel stretch (one tunnel decision)
+
         public int HopMs = 800;                 // Forest: walk between trees
         public int DepositMs = 600;
     }
@@ -112,7 +115,34 @@ namespace Ravenholm.Domain.Sites
         public long PhaseStartMs;
         public long PhaseEndMs;
         public int TargetTree = -1;
+        /// <summary>Mine: which face the worker digs. 0 = the shaft; n = <see cref="SiteRecord.Tunnels"/>[n − 1].</summary>
+        public int Face;
         public readonly List<string> Pack = new List<string>();
+    }
+
+    public enum TunnelSide
+    {
+        Left,
+        Right,
+    }
+
+    /// <summary>
+    /// Mine: a sideways tunnel dug from the shaft at one level, in that level's layer. It advances in stretches of a
+    /// few blocks; each stretch is one decision (like "Continue Here"), with effort rising per stretch.
+    /// </summary>
+    public sealed class TunnelRecord
+    {
+        public int Level;                       // shaft level it leaves from (2 = first level below the town's own ground)
+        public TunnelSide Side;
+        public int Depth;                       // the layer (depth band) of that level
+        public int K;                           // continuation index driving effort
+        public int Stretches;                   // completed stretches
+        public SiteStatus Status;
+        public long DurabilityMicro;
+        public long DoneMicro;
+        public int Emitted;
+        public int NextRecipient;
+        public readonly List<string> Pending = new List<string>();
     }
 
     public sealed class TreeRecord
@@ -144,6 +174,8 @@ namespace Ravenholm.Domain.Sites
         public readonly SortedDictionary<int, Composition> Revealed = new SortedDictionary<int, Composition>();
         /// <summary>Depth band of each completed section, in order (one dug level each; drives the Mine's layered view).</summary>
         public readonly List<int> SectionDepths = new List<int>();
+        /// <summary>Mine: sideways tunnels, at most one per (level, side), each its own face.</summary>
+        public readonly List<TunnelRecord> Tunnels = new List<TunnelRecord>();
 
         // Mine
         public long SectionDurabilityMicro;
@@ -176,6 +208,12 @@ namespace Ravenholm.Domain.Sites
 
         /// <summary>The continuation index used for durability; capped only at the terminal (deepest authored) band.</summary>
         public static int EffectiveK(SiteConfig c, int depth, int k) => depth >= c.Bands.Count ? Math.Min(k, c.TerminalKCap) : k;
+
+        /// <summary>Durability of one tunnel stretch: the same per-block effort as a shaft section at that (depth, k).</summary>
+        public static long TunnelDurability(SiteConfig c, int depth, int k) =>
+            Math.Max(1, (long)Math.Round(Durability(c, depth, k) * (double)c.TunnelStretchCells / Math.Max(1, c.ShaftBlocks), MidpointRounding.AwayFromZero));
+
+        public static int TunnelUnits(SiteConfig c) => Math.Max(1, c.UnitsPerSection * c.TunnelStretchCells / Math.Max(1, c.ShaftBlocks));
 
         /// <summary>Durability (whole damage) of one Mine section or one Forest tree.</summary>
         public static long Durability(SiteConfig c, int depth, int k)

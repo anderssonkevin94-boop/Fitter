@@ -118,6 +118,24 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("depositedTotal")] public long DepositedTotal;
         [JsonProperty("measureStartMs")] public long MeasureStartMs;
         [JsonProperty("depositedSinceMeasure")] public long DepositedSinceMeasure;
+        /// <summary>Mine sideways tunnels (optional; absent in older saves).</summary>
+        [JsonProperty("tunnels")] public List<TunnelSaveData> Tunnels;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class TunnelSaveData
+    {
+        [JsonProperty("level")] public int Level;
+        [JsonProperty("side")] public string Side;
+        [JsonProperty("depth")] public int Depth;
+        [JsonProperty("k")] public int K;
+        [JsonProperty("stretches")] public int Stretches;
+        [JsonProperty("status")] public string Status;
+        [JsonProperty("durabilityMicro")] public long DurabilityMicro;
+        [JsonProperty("doneMicro")] public long DoneMicro;
+        [JsonProperty("emitted")] public int Emitted;
+        [JsonProperty("nextRecipient")] public int NextRecipient;
+        [JsonProperty("pending")] public List<string> Pending = new List<string>();
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -160,6 +178,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("phaseStartMs")] public long PhaseStartMs;
         [JsonProperty("phaseEndMs")] public long PhaseEndMs;
         [JsonProperty("targetTree")] public int TargetTree = -1;
+        /// <summary>Mine face (0 = shaft, n = tunnel n); optional.</summary>
+        [JsonProperty("face")] public int Face;
         [JsonProperty("carried")] public List<string> Carried = new List<string>();
     }
 

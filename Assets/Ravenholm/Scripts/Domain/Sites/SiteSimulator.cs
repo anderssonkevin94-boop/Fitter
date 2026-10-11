@@ -121,8 +121,113 @@ namespace Ravenholm.Domain.Sites
         {
             StartSection();
             foreach (var w in _s.Workers)
-                if (w.State == WorkerState.AwaitDepthChoice) StartWalkToWork(w);
+                if (w.State == WorkerState.AwaitDepthChoice && FaceOf(w) == 0) StartWalkToWork(w);
             SaveRng();
+        }
+
+        // ------------------------------------------------------------------ tunnels (Mine, player only)
+
+        /// <summary>Deepest shaft level whose blocks are all dug (tunnels can leave from levels 2..this).</summary>
+        public int OpenLevels => _s.SectionsCompleted;
+
+        public int TunnelIndex(int level, TunnelSide side) => _s.Tunnels.FindIndex(t => t.Level == level && t.Side == side);
+
+        public bool CanStartTunnel(int level, TunnelSide side) =>
+            _c.Kind == SiteKind.Mine && level >= 2 && level <= OpenLevels && TunnelIndex(level, side) < 0;
+
+        /// <summary>
+        /// Starts a sideways tunnel at a dug level, in the layer that level was dug in. Effort starts one step above the
+        /// level's own section (so a tunnel is never cheaper than continuing there) and rises with each stretch.
+        /// Returns the tunnel's face number (1-based), or 0.
+        /// </summary>
+        public int StartTunnel(int level, TunnelSide side)
+        {
+            if (!CanStartTunnel(level, side)) return 0;
+            var depth = _s.SectionDepths[level - 1];
+            var k = 0;
+            for (var i = 0; i < level - 1; i++) if (_s.SectionDepths[i] == depth) k++;
+            var t = new TunnelRecord { Level = level, Side = side, Depth = depth, K = k + 1 };
+            _s.Tunnels.Add(t);
+            StartStretch(t);
+            SaveRng();
+            return _s.Tunnels.Count;
+        }
+
+        /// <summary>Digs the tunnel's next stretch once the last one is cleared and collected.</summary>
+        public bool ExtendTunnel(int face)
+        {
+            var t = Tunnel(face);
+            if (t == null || t.Status != SiteStatus.AwaitDecision) return false;
+            t.Stretches++;
+            t.K++;
+            StartStretch(t);
+            foreach (var w in _s.Workers)
+                if (w.State == WorkerState.AwaitDepthChoice && FaceOf(w) == face) StartWalkToWork(w);
+            Resolve();
+            SaveRng();
+            return true;
+        }
+
+        /// <summary>Sends a miner to another face. A miner at work first carries their pack up to staging.</summary>
+        public bool AssignWorker(string workerId, int face)
+        {
+            var w = _s.Workers.Find(x => x.Id == workerId);
+            if (_c.Kind != SiteKind.Mine || w == null || face < 0 || face > _s.Tunnels.Count || w.Face == face) return false;
+            w.Face = face;
+            if (w.State == WorkerState.Working) StartReturn(w);
+            else if (w.State == WorkerState.AwaitDepthChoice && HasWork(w)) StartWalkToWork(w);
+            Resolve();
+            return true;
+        }
+
+        public TunnelRecord Tunnel(int face) => face > 0 && face <= _s.Tunnels.Count ? _s.Tunnels[face - 1] : null;
+        public int TunnelUnitsPerStretch => SiteMath.TunnelUnits(_c);
+        public long TunnelDurability(TunnelRecord t) => SiteMath.TunnelDurability(_c, t.Depth, t.K);
+
+        /// <summary>Blocks dug in a tunnel so far (whole stretches plus the current one's progress).</summary>
+        public int TunnelCellsDug(TunnelRecord t)
+        {
+            var n = _c.TunnelStretchCells;
+            if (t.Status == SiteStatus.AwaitDecision) return (t.Stretches + 1) * n;
+            var p = t.DurabilityMicro > 0 ? (double)t.DoneMicro / t.DurabilityMicro : 0;
+            return t.Stretches * n + Math.Min(n, (int)(p * n));
+        }
+
+        public void DebugCompleteTunnel(int face)
+        {
+            var t = Tunnel(face);
+            if (t == null) return;
+            t.DoneMicro = t.DurabilityMicro;
+            Resolve();
+        }
+
+        private void StartStretch(TunnelRecord t)
+        {
+            t.Status = SiteStatus.Working;
+            t.DurabilityMicro = SiteMath.TunnelDurability(_c, t.Depth, t.K) * 1000;
+            t.DoneMicro = 0;
+            t.Emitted = 0;
+        }
+
+        private int FaceOf(WorkerRecord w) => _c.Kind == SiteKind.Mine && w.Face > 0 && w.Face <= _s.Tunnels.Count ? w.Face : 0;
+        private int FaceCount => 1 + _s.Tunnels.Count;
+        private int FaceUnits(int f) => f == 0 ? _c.UnitsPerSection : SiteMath.TunnelUnits(_c);
+        private int FaceEmitted(int f) => f == 0 ? _s.SectionEmitted : _s.Tunnels[f - 1].Emitted;
+        private long FaceDone(int f) => f == 0 ? _s.SectionDoneMicro : _s.Tunnels[f - 1].DoneMicro;
+        private long FaceDurability(int f) => f == 0 ? _s.SectionDurabilityMicro : _s.Tunnels[f - 1].DurabilityMicro;
+        private List<string> FacePending(int f) => f == 0 ? _s.FacePending : _s.Tunnels[f - 1].Pending;
+        private bool FaceExhausted(int f) => FaceEmitted(f) >= FaceUnits(f);
+
+        private Composition FaceComposition(int f)
+        {
+            if (f == 0) return _s.Composition;
+            return _s.Revealed.TryGetValue(_s.Tunnels[f - 1].Depth, out var c) && c != null ? c : _s.Composition;
+        }
+
+        private void SetFaceDone(int f, long v)
+        {
+            if (f == 0) _s.SectionDoneMicro = v;
+            else _s.Tunnels[f - 1].DoneMicro = v;
         }
 
         public long CurrentDurability => SiteMath.Durability(_c, _s.Depth, _s.K);
@@ -236,11 +341,15 @@ namespace Ravenholm.Domain.Sites
                         best = Math.Min(best, CeilDiv(SiteMath.Threshold(t.DurabilityMicro, t.Emitted + 1, t.Primary.Count) - t.DoneMicro, dps));
                 }
             }
-            if (_c.Kind == SiteKind.Mine && _s.SectionEmitted < _c.UnitsPerSection)
+            if (_c.Kind == SiteKind.Mine)
             {
-                var dps = MineCombinedDps();
-                if (dps > 0)
-                    best = Math.Min(best, CeilDiv(SiteMath.Threshold(_s.SectionDurabilityMicro, _s.SectionEmitted + 1, _c.UnitsPerSection) - _s.SectionDoneMicro, dps));
+                for (var f = 0; f < FaceCount; f++)
+                {
+                    if (FaceExhausted(f)) continue;
+                    var dps = MineCombinedDps(f);
+                    if (dps > 0)
+                        best = Math.Min(best, CeilDiv(SiteMath.Threshold(FaceDurability(f), FaceEmitted(f) + 1, FaceUnits(f)) - FaceDone(f), dps));
+                }
             }
             return best;
         }
@@ -249,9 +358,9 @@ namespace Ravenholm.Domain.Sites
         {
             if (_c.Kind == SiteKind.Mine)
             {
-                var dps = MineCombinedDps();
                 // Damage beyond the section's durability is clamped; it never spills into the next section.
-                _s.SectionDoneMicro = Math.Min(_s.SectionDurabilityMicro, _s.SectionDoneMicro + dps * ms);
+                for (var f = 0; f < FaceCount; f++)
+                    SetFaceDone(f, Math.Min(FaceDurability(f), FaceDone(f) + MineCombinedDps(f) * ms));
                 return;
             }
             foreach (var w in _s.Workers)
@@ -279,16 +388,20 @@ namespace Ravenholm.Domain.Sites
             var changed = false;
             if (_c.Kind == SiteKind.Mine)
             {
-                while (_s.SectionEmitted < _c.UnitsPerSection &&
-                       _s.SectionDoneMicro >= SiteMath.Threshold(_s.SectionDurabilityMicro, _s.SectionEmitted + 1, _c.UnitsPerSection))
+                for (var f = 0; f < FaceCount; f++)
                 {
-                    _s.SectionEmitted++;
-                    // Primary and rare come from distinct draws: the rare roll is a bonus, never a primary share (GDD 6).
-                    var primary = _s.Composition.Draw(_rng);
-                    GiveMine(primary);
-                    if (!string.IsNullOrEmpty(_s.Composition.RareResourceId) && _rng.NextDouble() < _s.Composition.RareChance)
-                        GiveMine(_s.Composition.RareResourceId);
-                    changed = true;
+                    var comp = FaceComposition(f);
+                    while (!FaceExhausted(f) && FaceDone(f) >= SiteMath.Threshold(FaceDurability(f), FaceEmitted(f) + 1, FaceUnits(f)))
+                    {
+                        if (f == 0) _s.SectionEmitted++;
+                        else _s.Tunnels[f - 1].Emitted++;
+                        // Primary and rare come from distinct draws: the rare roll is a bonus, never a primary share (GDD 6).
+                        var primary = comp.Draw(_rng);
+                        GiveMine(f, primary);
+                        if (!string.IsNullOrEmpty(comp.RareResourceId) && _rng.NextDouble() < comp.RareChance)
+                            GiveMine(f, comp.RareResourceId);
+                        changed = true;
+                    }
                 }
                 return changed;
             }
@@ -307,20 +420,22 @@ namespace Ravenholm.Domain.Sites
         }
 
         /// <summary>Earned units go to working miners in stable rotating order; overflow waits on the face.</summary>
-        private void GiveMine(string resource)
+        private void GiveMine(int face, string resource)
         {
             _ledger.RecordCreated(resource);
             var n = _s.Workers.Count;
+            var next = face == 0 ? _s.NextRecipient : _s.Tunnels[face - 1].NextRecipient;
             for (var i = 0; i < n; i++)
             {
-                var w = _s.Workers[(_s.NextRecipient + i) % n];
-                if (w.State != WorkerState.Working || w.Pack.Count >= PackCap(w)) continue;
+                var w = _s.Workers[(next + i) % n];
+                if (w.State != WorkerState.Working || FaceOf(w) != face || w.Pack.Count >= PackCap(w)) continue;
                 w.Pack.Add(resource);
-                _s.NextRecipient = (_s.NextRecipient + i + 1) % n;
+                if (face == 0) _s.NextRecipient = (next + i + 1) % n;
+                else _s.Tunnels[face - 1].NextRecipient = (next + i + 1) % n;
                 UnitEarned?.Invoke(w.Id, -1, resource);
                 return;
             }
-            _s.FacePending.Add(resource);
+            FacePending(face).Add(resource);
             UnitEarned?.Invoke(null, -1, resource);
         }
 
@@ -353,7 +468,7 @@ namespace Ravenholm.Domain.Sites
                     if (w.Pack.Count >= PackCap(w)) { StartReturn(w); return true; }   // full pack returns early
                     if (_c.Kind == SiteKind.Mine)
                     {
-                        if (_s.SectionEmitted < _c.UnitsPerSection) return false;
+                        if (!FaceExhausted(FaceOf(w))) return false;
                         StartReturn(w);
                         return true;
                     }
@@ -393,8 +508,9 @@ namespace Ravenholm.Domain.Sites
         {
             if (_c.Kind == SiteKind.Mine)
             {
-                TakePending(w, _s.FacePending);
-                if (w.Pack.Count >= PackCap(w) || _s.SectionEmitted >= _c.UnitsPerSection) StartReturn(w);
+                var face = FaceOf(w);
+                TakePending(w, FacePending(face));
+                if (w.Pack.Count >= PackCap(w) || FaceExhausted(face)) StartReturn(w);
                 else SetState(w, WorkerState.Working);
                 return;
             }
@@ -446,7 +562,7 @@ namespace Ravenholm.Domain.Sites
 
         private bool HasWork(WorkerRecord w)
         {
-            if (_c.Kind == SiteKind.Mine) return _s.SectionEmitted < _c.UnitsPerSection || _s.FacePending.Count > 0;
+            if (_c.Kind == SiteKind.Mine) return !FaceExhausted(FaceOf(w)) || FacePending(FaceOf(w)).Count > 0;
             foreach (var t in _s.Trees)
             {
                 if (t.ClaimedBy == w.Id) return true;
@@ -475,10 +591,10 @@ namespace Ravenholm.Domain.Sites
                 SetState(w, WorkerState.AwaitDepthChoice);
                 return;
             }
-            StartTimed(w, WorkerState.WalkToWork, Leg());
+            StartTimed(w, WorkerState.WalkToWork, Leg(w));
         }
 
-        private void StartReturn(WorkerRecord w) => StartTimed(w, WorkerState.ReturnToStaging, Leg());
+        private void StartReturn(WorkerRecord w) => StartTimed(w, WorkerState.ReturnToStaging, Leg(w));
 
         private void StartTimed(WorkerRecord w, WorkerState state, int durationMs)
         {
@@ -496,6 +612,9 @@ namespace Ravenholm.Domain.Sites
 
         private void UpdateStatus()
         {
+            foreach (var t in _s.Tunnels)
+                if (t.Status == SiteStatus.Working && t.Emitted >= SiteMath.TunnelUnits(_c) && t.Pending.Count == 0)
+                    t.Status = SiteStatus.AwaitDecision;
             var exhausted = _c.Kind == SiteKind.Mine
                 ? _s.SectionEmitted >= _c.UnitsPerSection && _s.FacePending.Count == 0
                 : _s.Trees.TrueForAll(t => t.Felled && t.Pending.Count == 0);
@@ -508,14 +627,20 @@ namespace Ravenholm.Domain.Sites
 
         // ------------------------------------------------------------------ helpers
 
-        private int Leg() => _c.Bands[_s.Depth - 1].LegMs;
+        /// <summary>One-way travel for this worker's face (a tunnel uses its own layer's travel time).</summary>
+        private int Leg(WorkerRecord w)
+        {
+            var t = Tunnel(FaceOf(w));
+            var depth = t != null ? t.Depth : _s.Depth;
+            return _c.Bands[Math.Max(1, Math.Min(depth, _c.Bands.Count)) - 1].LegMs;
+        }
         private int Dps(WorkerRecord w) => _eq.ToolDamagePerSecond(w.ToolId);
         private int PackCap(WorkerRecord w) => Math.Max(1, _eq.PackCapacity(w.PackId));
 
-        private long MineCombinedDps()
+        private long MineCombinedDps(int face)
         {
             long sum = 0;
-            foreach (var w in _s.Workers) if (w.State == WorkerState.Working) sum += Dps(w);
+            foreach (var w in _s.Workers) if (w.State == WorkerState.Working && FaceOf(w) == face) sum += Dps(w);
             return sum;
         }
 
@@ -531,6 +656,7 @@ namespace Ravenholm.Domain.Sites
         {
             foreach (var w in _s.Workers) foreach (var u in w.Pack) yield return u;
             foreach (var u in _s.FacePending) yield return u;
+            foreach (var t in _s.Tunnels) foreach (var u in t.Pending) yield return u;
             foreach (var t in _s.Trees) foreach (var u in t.Pending) yield return u;
         }
     }
