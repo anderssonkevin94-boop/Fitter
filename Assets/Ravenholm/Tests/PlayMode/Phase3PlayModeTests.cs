@@ -103,8 +103,8 @@ namespace Ravenholm.Tests
             var log = s.Logistics.System;
             s.Sites.SpeedMultiplier = 1f;
             log.CreateMaterialsInContainer("container.mine_staging", "resource.iron_ore", 10);   // test fixture
-            yield return StandAt(new Vector2(-8.4f, 3.0f), 1.2f);
-            yield return StandAt(new Vector2(-6.35f, -0.1f), 1.2f);    // deliver to the smelter
+            yield return StandAt(Phase1PlayModeTests.Spot("container.mine_staging"), 1.2f);
+            yield return StandAt(Phase1PlayModeTests.Spot("receiver.smelter"), 1.2f);    // deliver to the smelter
             Assert.Greater(log.SharedAvailable("resource.iron_ore") + 2, 0);
             yield return new WaitForSeconds(0.5f);
             var bar = GameObject.Find("Smelter").transform.Find("ProcessorBar").gameObject;

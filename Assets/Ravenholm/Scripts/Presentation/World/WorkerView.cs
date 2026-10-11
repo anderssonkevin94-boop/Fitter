@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Ravenholm.Domain.Logistics;
 using Ravenholm.Domain.Sites;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Ravenholm.Presentation
 {
@@ -119,13 +120,41 @@ namespace Ravenholm.Presentation
             var target = TargetFor(sim, w, out var hidden);
             var timed = w.State == WorkerState.WalkToWork || w.State == WorkerState.Hop || w.State == WorkerState.ReturnToStaging;
             var pos = timed ? Vector3.Lerp(_from, target, t) : target;
+            var inShaft = false;
+            var cutaway = sim.Config.Kind == SiteKind.Mine ? Cutaway : null;
+            if (cutaway != null)
+            {
+                // GDD 6/20: miners stay visible: rim → ladder → shaft floor and back, in step with the phase timing.
+                var spot = cutaway.FloorSpot(s.Workers.IndexOf(w));
+                var staging = stagingPoint.position + new Vector3(0.55f, -0.1f, 0f);
+                hidden = false;
+                switch (w.State)
+                {
+                    case WorkerState.WalkToWork:
+                        pos = Path(t, staging, cutaway.LadderTop, cutaway.LadderBottom, spot, out inShaft);
+                        break;
+                    case WorkerState.ReturnToStaging:
+                        pos = Path(1f - t, staging, cutaway.LadderTop, cutaway.LadderBottom, spot, out inShaft);
+                        break;
+                    case WorkerState.Working:
+                    case WorkerState.Hop:
+                        pos = spot;
+                        inShaft = true;
+                        break;
+                    case WorkerState.AwaitDepthChoice:
+                        pos = s.Status == SiteStatus.AwaitDecision ? staging : spot;
+                        inShaft = s.Status != SiteStatus.AwaitDecision;
+                        break;
+                }
+            }
+            SetInShaft(inShaft);
             var dx = pos.x - transform.position.x;
             if (timed && Mathf.Abs(dx) > 0.001f) Face(dx);
             transform.position = pos;
 
-            // Mine: fade into the tunnel at the end of the walk, out of it at the start of the return.
+            // Mine without a cutaway (older scenes): fade into the tunnel at the end of the walk, out at the start of the return.
             var targetAlpha = hidden ? 0f : 1f;
-            if (sim.Config.Kind == SiteKind.Mine)
+            if (sim.Config.Kind == SiteKind.Mine && cutaway == null)
             {
                 if (w.State == WorkerState.WalkToWork) targetAlpha = t > 0.85f ? 0f : 1f;
                 if (w.State == WorkerState.ReturnToStaging) targetAlpha = t < 0.1f ? 0f : 1f;
@@ -145,6 +174,46 @@ namespace Ravenholm.Presentation
             }
 
             UpdateBubble(sim, w);
+        }
+
+        private MineCutawayView _cutaway;
+        private bool _cutawayLooked;
+        private bool? _inShaft;
+        private SortingGroup _sorting;
+
+        private MineCutawayView Cutaway
+        {
+            get
+            {
+                if (!_cutawayLooked) { _cutaway = FindAnyObjectByType<MineCutawayView>(); _cutawayLooked = true; }
+                return _cutaway;
+            }
+        }
+
+        /// <summary>True while the miner is drawn inside the shaft (tests).</summary>
+        public bool InShaft => _inShaft == true;
+
+        /// <summary>
+        /// Inside the shaft a miner draws on the Ground layer between the shaft interior and its rim, so the rim and the
+        /// front faces hide whatever is below them; on the surface they sort with the town as usual.
+        /// </summary>
+        private void SetInShaft(bool inShaft)
+        {
+            if (_inShaft == inShaft) return;
+            _inShaft = inShaft;
+            if (_sorting == null) _sorting = GetComponent<SortingGroup>();
+            if (_sorting == null) return;
+            _sorting.sortingLayerName = inShaft ? "Ground" : "Default";
+            _sorting.sortingOrder = inShaft ? 15 : 0;
+        }
+
+        /// <summary>Staging → ladder top → down the ladder → floor spot, by phase fraction (0..1).</summary>
+        private static Vector3 Path(float t, Vector3 staging, Vector3 top, Vector3 bottom, Vector3 spot, out bool inShaft)
+        {
+            inShaft = t > 0.4f;
+            if (t < 0.4f) return Vector3.Lerp(staging, top, t / 0.4f);
+            if (t < 0.8f) return Vector3.Lerp(top, bottom, (t - 0.4f) / 0.4f);
+            return Vector3.Lerp(bottom, spot, (t - 0.8f) / 0.2f);
         }
 
         private Vector3 TargetFor(SiteSimulator sim, WorkerRecord w, out bool hidden)

@@ -69,9 +69,10 @@ namespace Ravenholm.Presentation
             var halfH = _camera.orthographicSize;
             var halfW = halfH * _camera.aspect;
             var b = s.plotBounds;
-            const float margin = 1.5f;   // show a little of the diorama edge
+            const float margin = 1.5f;        // show a little of the diorama edge
+            const float bottomMargin = 3.4f;  // the Mine cutaway's faces hang below the town's front edge (GDD 6)
             p.x = ClampAxis(p.x, b.xMin - margin, b.xMax + margin, halfW);
-            p.y = ClampAxis(p.y, b.yMin - margin, b.yMax + margin, halfH);
+            p.y = ClampAxis(p.y, b.yMin - bottomMargin, b.yMax + margin, halfH);
             return p;
         }
 

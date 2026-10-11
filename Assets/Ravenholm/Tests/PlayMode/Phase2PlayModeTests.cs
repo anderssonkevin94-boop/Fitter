@@ -61,7 +61,7 @@ namespace Ravenholm.Tests
             yield return Boot();
             var services = GameRoot.Instance.Services;
             var player = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
-            player.Teleport(new Vector2(-7.6f, 2.2f));   // stand away from the pile so we do not pick it up
+            player.Teleport(new Vector2(1.5f, -5.5f));   // stand away from the piles so we do not pick them up
             services.Sites.SpeedMultiplier = 20f;
 
             var miner = GameObject.Find("Dagna Holt").transform;

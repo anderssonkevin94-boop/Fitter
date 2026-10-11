@@ -418,6 +418,30 @@ The user asked to "keep building without me playtesting". A read-only audit comp
   - Replace it with the final art.
 - **Privacy manifest:** the export includes Unity's `PrivacyInfo.xcprivacy` files (they declare the engine's file-timestamp use). Game code uses no required-reason APIs, collects no data and does no tracking. The App Store privacy answers still need the user's confirmation.
 
+## Mine cutaway (2026-10-11, user request; GDD 6 "angled cutaway, visibly stacked geological layers")
+
+- **What changed:** the Mine was a mine-mouth building with the strata only in its panel. Following the user's reference (an idle-digging style isometric block) and the GDD, it is now a cutaway block set into the town's front-left edge (`MineCutawayView`). The user chose this approach after two mockups: a straight shaft, no terraces, so depth is never capped (`Docs/Concepts/mine_cutaway_mockup_shaft.png`).
+- **Fixed-size window into the earth:** the footprint (4×4 tiles) and face height never change at any depth. Depth scrolls inside the block:
+  - Finished layers compress into thin bands at the top lip. The last three are shown separately; anything older merges into one labelled band ("Depths 1–4 · closed").
+  - The working layer and the unknown layer below stay in place.
+  - The shaft floor drops as the section is worked.
+  - "Continue here" adds a side-tunnel stub (up to three drawn).
+  - Labels on the front face give the working depth (and section) and the next depth (or "not charted").
+- **Colours:** each depth gets a warm earth base, alternating so neighbours read apart, blended 45 % with its ore mix. Ore flecks on the faces are drawn from the layer's own composition.
+- **Miners stay visible:** rim → ladder → floor and back, timed by the existing phase timing. In the shaft they draw between the interior and the rim, so the rim hides what's below it. Without a cutaway the old tunnel fade remains.
+- **Town layout:**
+  - Mine at the bottom-left edge, snapped to the tile grid; ground tiles removed under and in front of it.
+  - Mine staging on the back rim; Smelter moved down beside it (-9.4, -3.9); path rerouted.
+  - The shaft opening blocks movement; the block's tap area covers the top and faces.
+  - The camera may look 3.4 units below the town's bottom edge so the faces show.
+  - The old mine area stays a dirt yard with rock faces.
+- **Town edge:** `PlotSkirtView` draws earthen faces under every tile with open background below, so the town reads as a diorama.
+- **Rendering:** procedural meshes use a small `Ravenholm/VertexColorUnlit` shader (the sprite material multiplies by a per-sprite colour that only SpriteRenderers set, so on plain meshes it was invisible). Vertex colours are converted to linear for the linear-colour project.
+- **Simulation and saves unchanged;** it is presentation only.
+- **Tests:**
+  - New: the miner is visible in the shaft and the floor drops; digging to depth 5 keeps the same block size with four bands shown; "continue here" adds a tunnel stub; the shaft blocks walking.
+  - Older tests now find the Mine staging pile and the Smelter marker in the scene instead of using fixed coordinates.
+
 ## Open blockers
 
 - **iOS build:** the Unity → Xcode device export succeeded headlessly on 2026-10-06 (0 errors, 1 warning, IL2CPP, 114 s). The Xcode compile/sign/install step has not run yet: the startup disk had only ~2.5 GB free, too little for Xcode intermediates. To do: free disk space, export again (Ravenholm > Build > iOS Xcode Project (Device)), open `Builds/iOS-Device/Unity-iPhone.xcodeproj`, pick a signing team, then Run on the iPhone.

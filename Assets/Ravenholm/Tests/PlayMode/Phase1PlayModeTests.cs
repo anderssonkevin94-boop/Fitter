@@ -20,6 +20,15 @@ namespace Ravenholm.Tests
     {
         private string _dir;
 
+        /// <summary>Where to stand to use a container or receiver, read from the scene (layouts change; tests should not care).</summary>
+        public static Vector2 Spot(string id)
+        {
+            if (ReceiverView.TryGet(id, out var r)) return r.transform.position;
+            if (WorldContainerView.TryGet(id, out var c)) return (Vector2)c.transform.position + new Vector2(0f, -0.4f);
+            Assert.Fail("no container or receiver " + id);
+            return Vector2.zero;
+        }
+
         [UnitySetUp]
         public IEnumerator SetUp()
         {
@@ -101,7 +110,8 @@ namespace Ravenholm.Tests
             var radius = GameRoot.Instance.Config.Balance.playerFootprintRadius;
             var cases = new[]
             {
-                (from: new Vector2(-7.2f, -1.6f), to: new Vector2(-7.2f, 0.6f), name: "Smelter"),
+                (from: (Vector2)GameObject.Find("Smelter").transform.position + new Vector2(0f, -1.7f), to: (Vector2)GameObject.Find("Smelter").transform.position, name: "Smelter"),
+                (from: (Vector2)Object.FindAnyObjectByType<MineCutawayView>().World(2f, 4.6f, 0f), to: (Vector2)Object.FindAnyObjectByType<MineCutawayView>().World(2f, 2f, 0f), name: "Mine shaft"),
                 (from: new Vector2(-3.5f, -5.6f), to: new Vector2(-5.4f, -3.8f), name: "Forge"),
                 (from: new Vector2(-2.9f, -3.2f), to: new Vector2(-2.9f, -1.7f), name: "Apothecary"),
                 (from: new Vector2(0.0f, 5.2f), to: new Vector2(0f, 3.2f), name: "Store back wall"),
@@ -134,13 +144,13 @@ namespace Ravenholm.Tests
             SeedStaging();
             Assert.AreEqual(25, Sys.State.Containers["container.mine_staging"].UnitCount, "fixture seeded");
 
-            yield return StandAt(new Vector2(-8.4f, 3.0f), 2.0f);   // mine staging
+            yield return StandAt(Spot("container.mine_staging"), 2.0f);   // mine staging
             Assert.AreEqual(12, Sys.CarryCount, "fills to capacity");
             Assert.AreEqual(13, Sys.State.Containers["container.mine_staging"].UnitCount);
             Assert.AreEqual("Carry full", GameRoot.Instance.Hud.ToastText);
             yield return Capture.Take("phase1_full_at_mine");
 
-            yield return StandAt(new Vector2(-6.35f, -0.1f), 1.6f);  // smelter receiver
+            yield return StandAt(Spot("receiver.smelter"), 1.6f);  // smelter receiver
             Assert.AreEqual(0, Sys.CarryCount, "smelter accepts ore and gems");
             Assert.AreEqual(12, Shared("resource.iron_ore") + Shared("resource.copper_ore") + Shared("resource.gem"));
 
@@ -148,7 +158,7 @@ namespace Ravenholm.Tests
             Assert.AreEqual(5, Sys.CarryCount);
             Assert.IsTrue(Sys.State.Carry.All(u => u.Kind == UnitKind.Item));
 
-            yield return StandAt(new Vector2(-6.35f, -0.1f), 1.0f);  // wrong receiver
+            yield return StandAt(Spot("receiver.smelter"), 1.0f);  // wrong receiver
             Assert.AreEqual(5, Sys.CarryCount, "smelter refuses finished goods; they stay carried");
 
             yield return StandAt(new Vector2(-0.55f, 2.95f), 1.0f);  // store receiving strip
@@ -177,7 +187,7 @@ namespace Ravenholm.Tests
         {
             yield return Boot();
             SeedStaging();
-            yield return StandAt(new Vector2(-8.4f, 3.0f), 0.08f * 7 + 0.05f);
+            yield return StandAt(Spot("container.mine_staging"), 0.08f * 7 + 0.05f);
             var carried = Sys.CarryCount;
             Assert.That(carried, Is.InRange(5, 9));
             var carry = Sys.State.Carry.ToArray();
