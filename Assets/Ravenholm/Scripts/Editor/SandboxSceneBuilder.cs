@@ -113,6 +113,12 @@ namespace Ravenholm.EditorTools
                 t.gameObject.AddComponent<ObstructionFader>();
             }
             var pocket = ForestGrid(nature, settings);
+            var chop = new GameObject("ChopSpot");
+            chop.transform.SetParent(pocket.transform, false);
+            var chopCol = chop.AddComponent<CircleCollider2D>();
+            chopCol.isTrigger = true;
+            chopCol.radius = 0.4f;
+            chop.AddComponent<ForestChopSpot>();
             Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(-9.5f, 5.0f), "Herbs come as a bonus while chopping.", "Phase 2");
             Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(-11.5f, -0.9f), "Herbs come as a bonus while chopping.", "Phase 2");
             foreach (var (name, sprite, pos, desc) in new[]
@@ -147,7 +153,7 @@ namespace Ravenholm.EditorTools
 
             var mineStaging = Container(logistics, "container.mine_staging", "Mine Staging", ContainerKind.RawPile,
                 (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineDigView.Size + 2, 3, 0)),
-                "The miner drops ore here (capacity 96). Workers never haul further: you carry it to the Smelter.", null, null, 96);
+                "Ore lands here while you mine on a routine (capacity 96). Ore you mine by hand goes straight into your carry.", null, null, 96);
             var forestStaging = Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(-17.6f, 2.0f),
                 "The woodcutter drops logs and herbs here (capacity 96). Logs go to the Lumbermill, herbs to the Apothecary.", null, null, 96);
             Container(logistics, "container.forge_pad", "Forge Output", ContainerKind.OutputPad, new Vector2(-4.3f, -4.55f),
@@ -168,11 +174,9 @@ namespace Ravenholm.EditorTools
             crowd.EditorSetup(new List<Vector2> { new Vector2(-1.9f, 1.75f), new Vector2(-1.15f, 1.35f), new Vector2(1.15f, 1.35f), new Vector2(1.9f, 1.75f) },
                 new List<Sprite> { ProjectSetup.LoadSprite("Characters/char_base_0"), ProjectSetup.LoadSprite("Characters/char_base_1"), ProjectSetup.LoadSprite("Characters/char_base_2") });
             var mouth = mine.transform;   // miners follow the pit's ladder and blocks (MineDigView)
-            Worker(people, "Dagna Holt", "site.mine", "worker.dagna", 2, "ov_miner", mineStaging, mouth, null);
-            Worker(people, "Tobin Ash", "site.forest", "worker.tobin", 0, "ov_woodcutter", forestStaging, null, pocket);
-            // Crew expansion recruits (Phase 6): hidden until hired.
-            Worker(people, "Mara Quill", "site.mine", "worker.mara", 1, "ov_miner", mineStaging, mouth, null);
-            Worker(people, "Osk Fennel", "site.forest", "worker.osk", 1, "ov_woodcutter", forestStaging, null, pocket);
+            // Solo play: the supplier is the only one working. While on a routine they are drawn by these figures instead.
+            Worker(people, "You (mining)", "site.mine", "worker.player", 0, "ov_supplier", mineStaging, mouth, null);
+            Worker(people, "You (woodcutting)", "site.forest", "worker.player", 0, "ov_supplier", forestStaging, null, pocket);
             SiteMarker(mine.transform, "site.mine", 2.4f);
             SiteMarker(gate.transform, "site.forest", 2.0f);
 
@@ -383,7 +387,7 @@ namespace Ravenholm.EditorTools
                 tiles["slab"], tiles["sill"], ProjectSetup.LoadSprite("Props/prop_ladder"), ProjectSetup.LoadSprite("Props/prop_timber"),
                 ProjectSetup.LoadSprite("Props/prop_lamp"), _unlit);
             // Context actions in the mine: the ladder and the two tunnel ends of whichever level the player is on.
-            foreach (var kind in new[] { MineActionSpot.Kind.Ladder, MineActionSpot.Kind.Tunnel })
+            foreach (var kind in new[] { MineActionSpot.Kind.Ladder, MineActionSpot.Kind.Tunnel, MineActionSpot.Kind.Shaft })
             {
                 var spot = new GameObject($"MineAction{kind}");
                 spot.transform.SetParent(go.transform, false);

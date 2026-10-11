@@ -531,3 +531,25 @@ The user picked concept A (`Docs/Concepts/mine_layers_option_a.png`) and asked f
   - Floors, ledges and sills are thin blocks of the same rock.
   - Tunnels are timbered at every stretch, with a lamp at the working face.
   - Ledges stay only where needed: levels with a tunnel, each opened layer's next free level, and the pit floor. The ladder stops at those levels.
+
+## Solo play, stage 1 (2026-10-11)
+
+Direction from the user: the supplier is the only character working; they cut and mine. When going AFK, they put themselves on one job. Plan: `Docs/SOLO_ROADMAP.md`.
+
+- **No hired crew.**
+  - Content: starting workers, recruits, crew-expansion upgrades and their assets are removed (`ProjectSetup.ApplySoloPlay`, idempotent).
+  - Older saves: hired workers are taken off their sites on load. What they carried stays at the face or tree to collect.
+- **Working by hand.**
+  - Hold the context button to work: `Inspectable.Holdable` and `OnHold`, driven by the HUD's `HoldSensor`.
+  - Mine: the shaft is worked from its rim or floor (`MineActionSpot.Kind.Shaft`), and a tunnel at its face. Forest: the nearest tree of the current clearing (`ForestChopSpot`).
+  - It is the same section and tree simulation as before (`SiteSimulator.PlayerMine` and `PlayerChop`): units release at the same thresholds and go straight into the carry (`ISiteLedger.TryCarry`). With a full carry they wait at the face or stump; nothing is lost.
+  - With nobody working a site, the Mine waits for you only once nothing is left to dig.
+  - Work targets win the context button over plain inspection (`ContextPriority`).
+- **Routines.**
+  - `SitesService.StartRoutine(site, face)` adds the supplier to the site as its one worker (`worker.player`), so the existing simulation, offline catch-up and 8-hour cap apply unchanged.
+  - The supplier's figure (`WorkerView.PlayerAvatar`) does the work on screen while the player is hidden, and the camera follows it.
+  - Moving takes over: the routine ends, and what it carried returns to the carry, else staging.
+  - Routines are set from the site panel ("While you're away").
+- **Gear.** Tools and packs are the supplier's own (`playerGear` save field), bought with `EconomyService.BuyPlayerEquipment`. Site equipment levels unlock tiers, using the best level across sites. The tool's damage per second sets mining and chopping speed.
+- **Debug.** "Complete section" puts the finished section's units in staging when nobody works the site.
+- **Tutorial.** Wording updated to match.

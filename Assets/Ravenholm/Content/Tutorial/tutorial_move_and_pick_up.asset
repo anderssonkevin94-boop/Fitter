@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: move and pick up
   contentVersion: 1
   order: 1
-  prompt: 'Drag anywhere low on the screen to walk. Walk over the ore pile by the
-    Mine or the logs by the Forest: you pick things up automatically.'
+  prompt: Drag anywhere low on the screen to walk. At the Mine's rim, hold the action
+    button to dig; in the Forest, hold it by a tree to chop. What you gather goes
+    straight into your carry.
   condition: 1

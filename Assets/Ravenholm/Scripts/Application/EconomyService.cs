@@ -230,6 +230,40 @@ namespace Ravenholm.Services
             return true;
         }
 
+        /// <summary>Highest site equipment level built at any site: it unlocks the supplier's next tool and pack tiers.</summary>
+        public int BestSiteEquipmentLevel
+        {
+            get
+            {
+                var level = 1;
+                foreach (var s in _sites.Sites) level = Math.Max(level, SiteEquipmentLevel(s.Config.SiteId));
+                return level;
+            }
+        }
+
+        /// <summary>Why the supplier cannot buy this tool or pack (null = can).</summary>
+        public string PlayerEquipmentBlockedReason(WorkerEquipmentDefinition e)
+        {
+            var current = e.Slot == EquipmentSlot.Tool ? _sites.PlayerToolId : _sites.PlayerPackId;
+            var currentTier = _catalogue.TryGet<WorkerEquipmentDefinition>(current, out var cur) ? cur.Tier : 1;
+            if (e.Tier <= currentTier) return "Already equipped or better";
+            if (BestSiteEquipmentLevel < e.Tier) return $"Needs site equipment level {e.Tier}";
+            return CostBlockedReason(e.GoldCost, e.MaterialCost);
+        }
+
+        /// <summary>The supplier's own tool or pack (solo play): bought at a site, used everywhere.</summary>
+        public bool BuyPlayerEquipment(WorkerEquipmentDefinition e, out string failure)
+        {
+            failure = PlayerEquipmentBlockedReason(e);
+            if (failure != null) return false;
+            if (!_logistics.System.TryConsumeShared(Pairs(e.MaterialCost), "player equipment")) { failure = "Materials changed; try again"; return false; }
+            _jobs.AddGold(-e.GoldCost);
+            if (e.Slot == EquipmentSlot.Tool) _sites.SetPlayerGear(e.Id, null);
+            else _sites.SetPlayerGear(null, e.Id);
+            _scheduler.SaveNow("player equipment bought");
+            return true;
+        }
+
         /// <summary>Why a worker cannot be given this tool or pack (null = can).</summary>
         public string EquipmentBlockedReason(string siteId, string workerId, WorkerEquipmentDefinition e)
         {

@@ -86,13 +86,13 @@ namespace Ravenholm.Content
                 var expected = siteType == SiteType.Mine ? typeof(LayerDefinition) : typeof(ForestZoneDefinition);
                 if (b.GetType() != expected) errors.Add($"{Describe()}: band '{b.Id}' must be a {expected.Name}");
             }
-            if (workers.Count == 0) errors.Add($"{Describe()}: needs at least one worker");
             foreach (var w in workers) if (w == null) errors.Add($"{Describe()}: missing worker reference");
             if (string.IsNullOrEmpty(stagingContainerId)) errors.Add($"{Describe()}: staging container ID is empty");
         }
 
 #if UNITY_EDITOR
         public void EditorSetRecruits(List<WorkerDefinition> r) => recruits = r;
+        public void EditorSetWorkers(List<WorkerDefinition> w) => workers = w;
         public void EditorSetBands(List<SiteBandDefinition> b) => bands = b;
 
         public void EditorSetupSite(SiteType type, List<SiteBandDefinition> newBands, List<WorkerDefinition> newWorkers, string staging,

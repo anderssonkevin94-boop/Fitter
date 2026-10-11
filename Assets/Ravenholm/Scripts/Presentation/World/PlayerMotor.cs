@@ -54,6 +54,13 @@ namespace Ravenholm.Presentation
         {
             var move = _root.InputRouter.MoveVector;
             var mine = MineDigView.Current;
+            // Solo play: on a routine the supplier is out working it (drawn by the routine's avatar); moving takes over.
+            if (_root.Services.Sites.RoutineSiteId != null)
+            {
+                if (move.sqrMagnitude > 0.01f) TakeOverFromRoutine(mine);
+                else { SetHidden(true); return; }
+            }
+            SetHidden(false);
             if (mine == null && Underground) { OnLadder = false; MineLevel = 0; }
             if (OnLadder) Climb(move, mine);
             else if (MineLevel > 0) WalkMine(move, mine);
@@ -90,6 +97,11 @@ namespace Ravenholm.Presentation
                 {
                     _reach = Mathf.MoveTowards(_reach, 0f, Time.deltaTime * 4f);
                     lean = -10f * facing * Mathf.Sin(_reach * Mathf.PI);
+                }
+                if (_swing > 0f)
+                {
+                    _swing = Mathf.MoveTowards(_swing, 0f, Time.deltaTime);
+                    lean = Mathf.Sin(Time.time * 12f) * 12f * facing;   // a pick or axe swing while the button is held
                 }
             }
             visual.localPosition = _visualBase + new Vector3(0f, bob, 0f);
@@ -240,6 +252,35 @@ namespace Ravenholm.Presentation
 
         /// <summary>A short reach toward what the player just used (context button or tap).</summary>
         public void PlayInteract() => _reach = 1f;
+
+        /// <summary>Keeps the work swing going (called each frame mining or chopping is held).</summary>
+        public void PlaySwing() => _swing = 0.15f;
+        public bool Swinging => _swing > 0f;
+        private float _swing;
+
+        private bool _hidden;
+
+        private void SetHidden(bool hidden)
+        {
+            if (_hidden == hidden) return;
+            _hidden = hidden;
+            foreach (var r in GetComponentsInChildren<Renderer>(true)) r.enabled = !hidden;
+        }
+
+        public bool HiddenForRoutine => _hidden;
+
+        /// <summary>The supplier steps back in: the routine ends where their avatar was (in town, or at the ladder top).</summary>
+        private void TakeOverFromRoutine(MineDigView mine)
+        {
+            var avatar = WorkerView.PlayerAvatar;
+            var at = avatar != null ? (Vector2)avatar.transform.position : (Vector2)transform.position;
+            var underground = avatar != null && avatar.InShaft;
+            _root.Services.Sites.EndRoutine();
+            if (mine != null && (underground || !mine.SurfaceWalkable(at))) at = mine.LadderPlane + new Vector2(0.25f, 0.125f);
+            else if (mine == null && avatar == null) at = transform.position;
+            Teleport(at);
+            SandboxSceneController.Current?.SnapPlayerToSavedPosition();
+        }
         public bool Reaching => _reach > 0f;
 
         /// <summary>Safe "unstuck": moves the player without touching what they carry.</summary>

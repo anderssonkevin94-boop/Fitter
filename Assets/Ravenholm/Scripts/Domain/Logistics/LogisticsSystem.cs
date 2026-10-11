@@ -55,6 +55,8 @@ namespace Ravenholm.Domain.Logistics
         public event Action<string> CapacityBlocked;
         /// <summary>Any ownership change (including debug fixtures).</summary>
         public event Action Changed;
+        /// <summary>(resourceId) the supplier mined or chopped a unit straight into the carry.</summary>
+        public event Action<string> Gathered;
 
         // ------------------------------------------------------------------ registration
 
@@ -236,6 +238,19 @@ namespace Ravenholm.Domain.Logistics
 
         /// <summary>Approved source: a unit extracted by a worker. Ownership starts in the site's pack or pending yield.</summary>
         public void RecordCreated(string resourceId) => AddLong(_s.MaterialsCreated, resourceId, 1);
+
+        /// <summary>
+        /// A unit the supplier just mined or chopped (already recorded as created) goes straight into the carry.
+        /// False when the carry is full: the site keeps it waiting at the face or tree instead.
+        /// </summary>
+        public bool TryCarry(string resourceId)
+        {
+            if (IsFull) return false;
+            _s.Carry.Add(CarryUnit.Material(resourceId));
+            Gathered?.Invoke(resourceId);
+            Changed?.Invoke();
+            return true;
+        }
 
         public int StagingFree(string containerId, int capacity) =>
             _s.Containers.TryGetValue(containerId, out var c) ? Math.Max(0, capacity - c.UnitCount) : 0;

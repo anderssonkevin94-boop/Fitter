@@ -24,6 +24,14 @@ namespace Ravenholm.Tests
         public int StagingFree(string id, int cap) => Math.Max(0, (CapacityOverride ?? cap) - StagingCount);
         public void Deposit(string id, string r) => Staging[r] = Staging.TryGetValue(r, out var n) ? n + 1 : 1;
         public int CreatedTotal => Created.Values.Sum();
+        public readonly List<string> Carry = new List<string>();
+        public int CarryCapacity = 12;
+        public bool TryCarry(string r)
+        {
+            if (Carry.Count >= CarryCapacity) return false;
+            Carry.Add(r);
+            return true;
+        }
     }
 
     public sealed class FakeEquipment : IEquipmentTable
@@ -387,7 +395,7 @@ namespace Ravenholm.Tests
             foreach (var s in cat.Sites)
             {
                 Assert.AreEqual(6, s.Bands.Count, s.Id);   // v1: six depth bands (GDD 1, Phase 7)
-                Assert.AreEqual(1, s.Workers.Count, s.Id);
+                Assert.AreEqual(0, s.Workers.Count, s.Id + ": solo play, no hired crew");
                 var cfg = SitesService.BuildConfig(s);
                 Assert.AreEqual(s.SiteType == SiteType.Mine ? 240 : 40, SiteMath.Durability(cfg, 1, 0));
             }

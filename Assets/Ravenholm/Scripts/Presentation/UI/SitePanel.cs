@@ -122,8 +122,10 @@ namespace Ravenholm.Presentation
         private void RefreshFacilities(SiteSimulator sim)
         {
             var eco = _root.Services.Economy;
-            var key = new StringBuilder(_siteId).Append('|').Append(eco.Purchased.Count);
-            foreach (var w in sim.Record.Workers) key.Append('|').Append(w.Id).Append(w.ToolId).Append(w.PackId);
+            var sites = _root.Services.Sites;
+            var key = new StringBuilder(_siteId).Append('|').Append(eco.Purchased.Count).Append('|').Append(sites.PlayerToolId).Append(sites.PlayerPackId)
+                .Append('|').Append(sites.RoutineSiteId).Append('|').Append(sim.Record.Tunnels.Count).Append('|').Append(sim.ShaftDone).Append('|').Append(sim.Record.Status);
+            foreach (var t in sim.Record.Tunnels) key.Append(t.Status);
             if (key.ToString() != _facilitiesKey)
             {
                 _facilitiesKey = key.ToString();
@@ -146,9 +148,26 @@ namespace Ravenholm.Presentation
             var cat = _root.Services.Catalogue;
             var siteId = _siteId;
 
-            var h = _ui.Text("Header", _facilities, "Site equipment and crew", _theme.bodySize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            // While you're away (solo play): put yourself on one job; the simulation keeps doing it, online and offline.
+            var rh = _ui.Text("Header", _facilities, "While you're away", _theme.bodySize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            rh.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
+            var sites = _root.Services.Sites;
+            FacilityText(() => sites.RoutineSiteId == null
+                ? "Leave yourself on one job and it carries on while you're away (up to 8 hours), at the ordinary rate. Move to take over again."
+                : sites.RoutineSiteId == siteId ? "You're on a routine here. Move (or stop it below) to take over." : "You're on a routine at the other site.");
+            if (sites.RoutineSiteId == siteId) FacilityButton(() => "Stop the routine", () => { sites.EndRoutine(); _facilitiesKey = ""; Refresh(); }, null);
+            else if (sim.Config.Kind == SiteKind.Mine)
+            {
+                if (!sim.ShaftDone) RoutineButton("Keep mining the shaft", 0);
+                for (var i = 0; i < sim.Record.Tunnels.Count; i++)
+                    if (sim.Record.Tunnels[i].Status == SiteStatus.Working) RoutineButton($"Keep mining the level {sim.Record.Tunnels[i].Level} tunnel", i + 1);
+            }
+            else if (sim.Record.Status == SiteStatus.Working) RoutineButton("Keep cutting this clearing", 0);
+
+            var h = _ui.Text("Header", _facilities, "Site equipment and your gear", _theme.bodySize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             h.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
-            FacilityText(() => $"Site equipment level {eco.SiteEquipmentLevel(siteId)}. Upgrading only unlocks better tools and packs for purchase; buy them for each worker below." +
+            FacilityText(() => $"Site equipment level {eco.SiteEquipmentLevel(siteId)}. Upgrading unlocks better tools and packs; buy them for yourself below. " +
+                               "Your tool sets how fast you mine and chop." +
                                (string.IsNullOrEmpty(LastMessage) ? "" : $"\n<b>{UnitVisuals.PrettyIds(LastMessage)}</b>"));
 
             foreach (var u in cat.Upgrades)
@@ -160,31 +179,36 @@ namespace Ravenholm.Presentation
                 FacilityButton(() => StationPanel.UpgradeButtonText(_root, up), () => BuyUpgrade(up), () => eco.UpgradeBlockedReason(up) == null);
             }
 
-            foreach (var w in sim.Record.Workers)
+            foreach (var e in cat.Equipment)
             {
-                var workerId = w.Id;
-                foreach (var e in cat.Equipment)
-                {
-                    if (e == null || e.Tier <= 1) continue;
-                    var cur = e.Slot == EquipmentSlot.Tool ? w.ToolId : w.PackId;
-                    var curTier = cat.TryGet<WorkerEquipmentDefinition>(cur, out var ce) ? ce.Tier : 1;
-                    if (e.Tier != curTier + 1) continue;   // only the next step is offered
-                    var eq = e;
-                    FacilityButton(() => EquipmentButtonText(workerId, eq), () => BuyEquipment(workerId, eq),
-                        () => eco.EquipmentBlockedReason(siteId, workerId, eq) == null);
-                }
+                if (e == null || e.Tier <= 1) continue;
+                var cur = e.Slot == EquipmentSlot.Tool ? sites.PlayerToolId : sites.PlayerPackId;
+                var curTier = cat.TryGet<WorkerEquipmentDefinition>(cur, out var ce) ? ce.Tier : 1;
+                if (e.Tier != curTier + 1) continue;   // only the next step is offered
+                var eq = e;
+                FacilityButton(() => EquipmentButtonText(eq), () => BuyEquipment(eq), () => eco.PlayerEquipmentBlockedReason(eq) == null);
             }
         }
 
-        private string EquipmentButtonText(string workerId, WorkerEquipmentDefinition e)
+        private void RoutineButton(string text, int face)
         {
-            var w = Sim?.Record.Workers.Find(x => x.Id == workerId);
-            var name = w != null ? w.Name : workerId;
-            var unit = e.Slot == EquipmentSlot.Tool ? "/s" : " units";
+            var site = _siteId;
+            FacilityButton(() => text, () =>
+            {
+                _root.Services.Sites.StartRoutine(site, face);
+                LastMessage = "Routine set. Move to take over again.";
+                _facilitiesKey = "";
+                Close();
+            }, null);
+        }
+
+        private string EquipmentButtonText(WorkerEquipmentDefinition e)
+        {
+            var unit = e.Slot == EquipmentSlot.Tool ? " damage/s" : " units (routine pack)";
             var cost = new StringBuilder($"{e.GoldCost} gold");
             foreach (var c in e.MaterialCost) cost.Append($" + {c.quantity} {c.resource.DisplayName}");
-            var reason = _root.Services.Economy.EquipmentBlockedReason(_siteId, workerId, e);
-            return reason == null ? $"Buy {e.DisplayName} ({e.Value}{unit}) for {name} · {cost}" : $"{e.DisplayName} for {name}: {reason}";
+            var reason = _root.Services.Economy.PlayerEquipmentBlockedReason(e);
+            return reason == null ? $"Buy {e.DisplayName} ({e.Value}{unit}) · {cost}" : $"{e.DisplayName}: {reason}";
         }
 
         public bool BuyUpgrade(UpgradeDefinition u)
@@ -197,9 +221,9 @@ namespace Ravenholm.Presentation
             return ok;
         }
 
-        public bool BuyEquipment(string workerId, WorkerEquipmentDefinition e)
+        public bool BuyEquipment(WorkerEquipmentDefinition e)
         {
-            var ok = _root.Services.Economy.BuyEquipment(_siteId, workerId, e, out var failure);
+            var ok = _root.Services.Economy.BuyPlayerEquipment(e, out var failure);
             LastMessage = ok ? $"{e.DisplayName} bought and equipped." : failure;
             if (ok) FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
             _facilitiesKey = "";
@@ -417,9 +441,7 @@ namespace Ravenholm.Presentation
 
         private void Cycle(EquipmentSlot slot)
         {
-            var sim = Sim;
-            if (sim == null || sim.Record.Workers.Count == 0) return;
-            _root.Services.Sites.DebugCycleEquipment(_siteId, sim.Record.Workers[0].Id, slot);
+            _root.Services.Sites.DebugCyclePlayerGear(slot);
             Refresh();
         }
 
@@ -502,9 +524,9 @@ namespace Ravenholm.Presentation
 
             _toolLabel.transform.parent.gameObject.SetActive(Feel.DeveloperMode);   // free gear is a developer tool only
             _packLabel.transform.parent.gameObject.SetActive(Feel.DeveloperMode);
-            var w0 = s.Workers.Count > 0 ? s.Workers[0] : null;
-            _toolLabel.text = w0 != null ? $"DEBUG tool: {UnitVisuals.DisplayName(w0.ToolId)} ({Value(w0.ToolId)}/s) · tap to change" : "";
-            _packLabel.text = w0 != null ? $"DEBUG pack: {UnitVisuals.DisplayName(w0.PackId)} ({Value(w0.PackId)} units) · tap to change" : "";
+            var gear = _root.Services.Sites;
+            _toolLabel.text = $"DEBUG your tool: {UnitVisuals.DisplayName(gear.PlayerToolId)} ({Value(gear.PlayerToolId)}/s) · tap to change";
+            _packLabel.text = $"DEBUG your pack: {UnitVisuals.DisplayName(gear.PlayerPackId)} ({Value(gear.PlayerPackId)} units) · tap to change";
         }
 
         /// <summary>

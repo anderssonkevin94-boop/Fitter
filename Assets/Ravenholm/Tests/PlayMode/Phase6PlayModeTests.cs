@@ -111,7 +111,7 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
-        public IEnumerator UpgradesAtTheBuildingAndCrewAppearsInTown()
+        public IEnumerator UpgradesAtTheBuildingAndYourOwnGear()
         {
             yield return Boot();
             var s = GameRoot.Instance.Services;
@@ -130,23 +130,18 @@ namespace Ravenholm.Tests
             Assert.AreEqual(2, s.Production.System.Level("station.lumbermill"));
             hud.StationPanel.Close();
 
-            var mara = GameObject.Find("Mara Quill");
-            Assert.NotNull(mara);
-            yield return null;
-            Assert.IsFalse(mara.transform.Find("Visual").gameObject.activeSelf, "recruit hidden until hired");
-
             s.Jobs.State.Progress["quest.roadside_patrol"] = new QuestProgress { Attempts = 2, Successes = 2 };   // test fixture
             hud.ShowSite("site.mine");
             yield return new WaitForSeconds(0.4f);
             Assert.IsTrue(hud.SitePanel.BuyUpgrade(s.Catalogue.Get<UpgradeDefinition>("upgrade.mine_equipment_2")), hud.SitePanel.LastMessage);
-            Assert.IsTrue(hud.SitePanel.BuyEquipment("worker.dagna", s.Catalogue.Get<WorkerEquipmentDefinition>("equipment.tool_iron")), hud.SitePanel.LastMessage);
-            Assert.IsTrue(hud.SitePanel.BuyUpgrade(s.Catalogue.Get<UpgradeDefinition>("upgrade.mine_crew")), hud.SitePanel.LastMessage);
+            // Solo play: site equipment unlocks the supplier's own next tool.
+            Assert.IsTrue(hud.SitePanel.BuyEquipment(s.Catalogue.Get<WorkerEquipmentDefinition>("equipment.tool_iron")), hud.SitePanel.LastMessage);
+            Assert.AreEqual("equipment.tool_iron", s.Sites.PlayerToolId);
+            Assert.Greater(s.Sites.PlayerDamagePerSecond, 10);
             yield return new WaitForSeconds(0.4f);
-            yield return Capture.Take("phase6_site_crew");
+            yield return Capture.Take("phase6_site_gear");
             hud.SitePanel.Close();
-            yield return null;
-            Assert.IsTrue(mara.transform.Find("Visual").gameObject.activeSelf, "recruit appears once hired");
-            Assert.AreEqual(2, s.Sites.Get("site.mine").Record.Workers.Count);
+            Assert.AreEqual(0, s.Sites.Get("site.mine").Record.Workers.Count, "no hired crew");
             CollectionAssert.IsEmpty(s.Logistics.System.Audit());
         }
 

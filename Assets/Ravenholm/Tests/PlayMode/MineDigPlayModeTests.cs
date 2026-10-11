@@ -97,14 +97,22 @@ namespace Ravenholm.Tests
             Assert.AreEqual(1, dig.WorkingLevel, "the shaft starts at the town's own ground");
             Assert.AreEqual(MineDigView.Blocks, PitTiles(dig, 1), "the pit starts as solid ground");
 
+            // Solo play: the supplier works the shaft from its rim, holding the button.
+            Motor.Teleport(dig.LadderPlane + new Vector2(0.25f, 0.125f));
+            yield return null;
+            yield return null;
+            var spot = MineActionSpot.Find(MineActionSpot.Kind.Shaft);
+            Assert.IsTrue(spot.Available && spot.Holdable, "the shaft can be mined from the rim");
+            Assert.AreSame(spot, SandboxSceneController.Current.ContextTarget);
             s.Sites.SpeedMultiplier = 6f;
-            var dagna = Object.FindObjectsByType<WorkerView>(FindObjectsInactive.Exclude).First(w => w.WorkerId == "worker.dagna");
+            GameRoot.Instance.Hud.ScriptedHold = true;
             var deadline = Time.realtimeSinceStartup + 25f;
-            while (!(dagna.InShaft && dig.BlocksRemoved >= 6) && Time.realtimeSinceStartup < deadline) yield return null;
+            while (dig.BlocksRemoved < 6 && Time.realtimeSinceStartup < deadline) yield return null;
+            GameRoot.Instance.Hud.ScriptedHold = false;
             s.Sites.SpeedMultiplier = 1f;
             yield return null;
-            Assert.IsTrue(dagna.InShaft, "the miner works down in the pit");
-            Assert.IsTrue(dagna.transform.Find("Visual").gameObject.activeSelf, "and stays visible");
+            Assert.IsTrue(Motor.Swinging || dig.BlocksRemoved >= 6, "the supplier swings");
+            Assert.Greater(s.Logistics.System.CarryCount, 0, "ore goes straight into the carry");
             var level = dig.WorkingLevel;
             Assert.AreEqual(MineDigView.Blocks - dig.BlocksRemoved, PitTiles(dig, level), "each block of work removes one ground block");
             Assert.IsFalse(Level(level).HasTile(dig.DigOrder[0]), "the front block goes first, so the cut faces the camera");
@@ -230,13 +238,21 @@ namespace Ravenholm.Tests
             var t = mine.Record.Tunnels[0];
             Assert.AreEqual(2, t.Level);
             Assert.AreEqual(1, t.Depth, "in the level's own layer");
-            Assert.AreEqual(1, mine.Record.Workers[0].Face, "the waiting miner was sent to it");
+
+            // Hold Mine at its face: the supplier digs the tunnel themself.
+            yield return Hold(Vector2.left, () => SandboxSceneController.Current.ContextTarget is MineActionSpot sp3 && sp3.ContextVerb == "Mine", 3f,
+                "the tunnel face is in reach");
+            GameRoot.Instance.Hud.ScriptedHold = true;
+            yield return new WaitForSeconds(1.5f);
+            GameRoot.Instance.Hud.ScriptedHold = false;
+            Assert.Greater(t.DoneMicro, 0, "the supplier mined the tunnel face");
 
             // The level below digs its own tunnel at the same time, separated by a slab of dirt.
             Assert.AreEqual(2, s.Sites.StartTunnel("site.mine", 3));
             s.Logistics.System.State.Containers["container.mine_staging"].Materials.Clear();
-            mine.DebugCompleteTunnel(1);
-            mine.DebugCompleteTunnel(2);
+            s.Logistics.System.DebugUnloadCarry();
+            mine.DebugCompleteTunnel(1, toStaging: true);
+            mine.DebugCompleteTunnel(2, toStaging: true);
             s.Simulation.Advance(120_000, 120_000);
             yield return new WaitForSeconds(0.5f);
             var path = dig.TunnelPath;

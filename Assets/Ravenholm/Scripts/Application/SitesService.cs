@@ -114,6 +114,93 @@ namespace Ravenholm.Services
             return ok;
         }
 
+        // ------------------------------------------------------------------ the supplier's own work (solo play)
+
+        /// <summary>The supplier's tool and pack (equipment ids). The tool sets how fast they mine and chop.</summary>
+        public string PlayerToolId { get; private set; }
+        public string PlayerPackId { get; private set; }
+        public int PlayerDamagePerSecond => _equipment.ToolDamagePerSecond(PlayerToolId);
+
+        public void SetPlayerGear(string toolId, string packId)
+        {
+            if (toolId != null) PlayerToolId = toolId;
+            if (packId != null) PlayerPackId = packId;
+            foreach (var sim in _sims) sim.Equip(SiteSimulator.PlayerId, toolId, packId);   // a routine in progress gets it too
+            _scheduler.SaveNow("player gear");
+        }
+
+        /// <summary>The site the supplier is working on a routine, or null.</summary>
+        public string RoutineSiteId => _sims.Find(s => s.Record.Workers.Exists(w => w.Id == SiteSimulator.PlayerId))?.Config.SiteId;
+
+        public WorkerRecord RoutineWorker
+        {
+            get
+            {
+                foreach (var s in _sims)
+                {
+                    var w = s.Record.Workers.Find(x => x.Id == SiteSimulator.PlayerId);
+                    if (w != null) return w;
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Puts the supplier on a routine while away (one job: mine a face, or cut the forest). The simulation does that
+        /// work at the ordinary rate, online and offline, until the supplier takes control again.
+        /// </summary>
+        public bool StartRoutine(string siteId, int face = 0)
+        {
+            var sim = Get(siteId);
+            if (sim == null) return false;
+            EndRoutine();
+            sim.AddWorker(new WorkerRecord { Id = SiteSimulator.PlayerId, Name = "You", ToolId = PlayerToolId, PackId = PlayerPackId, Face = face });
+            _scheduler.SaveNow("routine started");
+            RoutineChanged?.Invoke();
+            return true;
+        }
+
+        /// <summary>Ends the routine: whatever the supplier carries for it comes back to the carry (else staging).</summary>
+        public bool EndRoutine()
+        {
+            var ended = false;
+            foreach (var sim in _sims) ended |= sim.RemoveWorker(SiteSimulator.PlayerId);
+            if (!ended) return false;
+            _scheduler.SaveNow("routine ended");
+            RoutineChanged?.Invoke();
+            return true;
+        }
+
+        public event Action RoutineChanged;
+
+        private double _mineMs, _chopMs;
+
+        /// <summary>The supplier swings at a Mine face for <paramref name="seconds"/>. Returns units carried away.</summary>
+        public int PlayerMine(string siteId, int face, float seconds)
+        {
+            var sim = Get(siteId);
+            if (sim == null) return 0;
+            _mineMs += seconds * 1000.0 * SpeedMultiplier;
+            var ms = (long)Math.Floor(_mineMs);
+            _mineMs -= ms;
+            var n = sim.PlayerMine(face, ms, PlayerDamagePerSecond);
+            _scheduler.MarkDirty();
+            return n;
+        }
+
+        /// <summary>The supplier chops a tree of the current clearing. Returns units carried away.</summary>
+        public int PlayerChop(string siteId, int tree, float seconds)
+        {
+            var sim = Get(siteId);
+            if (sim == null) return 0;
+            _chopMs += seconds * 1000.0 * SpeedMultiplier;
+            var ms = (long)Math.Floor(_chopMs);
+            _chopMs -= ms;
+            var n = sim.PlayerChop(tree, ms, PlayerDamagePerSecond);
+            _scheduler.MarkDirty();
+            return n;
+        }
+
         // ------------------------------------------------------------------ Mine tunnels
 
         /// <summary>Starts a sideways tunnel at a dug level; sends <paramref name="workerId"/> there when given. Returns the face (0 = failed).</summary>
@@ -161,6 +248,20 @@ namespace Ravenholm.Services
             else sim.Equip(workerId, null, next.Id);
             _scheduler.SaveNow("debug: equipment");
             return next;
+        }
+
+        /// <summary>DEBUG: cycles the supplier's own tool or pack to the next tier (wrapping to tier 1).</summary>
+        public void DebugCyclePlayerGear(EquipmentSlot slot)
+        {
+            _scheduler.NoteAssisted("free player gear");
+            var tiers = new List<WorkerEquipmentDefinition>();
+            foreach (var e in _catalogue.Equipment) if (e != null && e.Slot == slot) tiers.Add(e);
+            if (tiers.Count == 0) return;
+            tiers.Sort((a, b) => a.Tier.CompareTo(b.Tier));
+            var current = slot == EquipmentSlot.Tool ? PlayerToolId : PlayerPackId;
+            var next = tiers[(tiers.FindIndex(e => e.Id == current) + 1) % tiers.Count];
+            if (slot == EquipmentSlot.Tool) SetPlayerGear(next.Id, null);
+            else SetPlayerGear(null, next.Id);
         }
 
         public void DebugCompleteSection(string siteId)
@@ -220,6 +321,14 @@ namespace Ravenholm.Services
             return c;
         }
 
+        private string StartingGear(EquipmentSlot slot)
+        {
+            WorkerEquipmentDefinition best = null;
+            foreach (var e in _catalogue.Equipment)
+                if (e != null && e.Slot == slot && (best == null || e.Tier < best.Tier)) best = e;
+            return best?.Id;
+        }
+
         private IEnumerable<string> HeldUnits()
         {
             foreach (var s in _sims)
@@ -242,6 +351,8 @@ namespace Ravenholm.Services
             _sims.Clear();
             _msRemainder = 0;
             if (_catalogue == null) return;
+            PlayerToolId = env?.PlayerGear?.ToolId ?? StartingGear(EquipmentSlot.Tool);
+            PlayerPackId = env?.PlayerGear?.PackId ?? StartingGear(EquipmentSlot.Pack);
             foreach (var def in _catalogue.Sites)
             {
                 if (def == null) continue;
@@ -250,7 +361,11 @@ namespace Ravenholm.Services
                 {
                     var record = FromSave(saved);
                     if (def.SiteType == SiteType.Mine && saved.Layout < MineLayout) ConvertOldMine(record);
-                    _sims.Add(Create(def, record));
+                    var loaded = Create(def, record);
+                    // Solo play: hired crews from older saves go home; what they carried stays on the site to collect.
+                    foreach (var w in record.Workers.ToArray())
+                        if (w.Id != SiteSimulator.PlayerId) loaded.RemoveWorker(w.Id, keepOnSite: true);
+                    _sims.Add(loaded);
                     continue;
                 }
                 var sim = Create(def, new SiteRecord());
@@ -265,6 +380,7 @@ namespace Ravenholm.Services
 
         void ISaveSection.Write(SaveEnvelope env)
         {
+            env.PlayerGear = new PlayerGearData { ToolId = PlayerToolId, PackId = PlayerPackId };
             env.Sites = new List<SiteSaveData>();
             foreach (var sim in _sims)
             {

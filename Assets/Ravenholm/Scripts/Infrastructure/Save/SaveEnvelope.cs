@@ -46,6 +46,9 @@ namespace Ravenholm.Infrastructure.Save
         /// <summary>First-hour prompts finished or hidden (schema 9+). Null = new player (or derived on migration).</summary>
         [JsonProperty("onboarding")] public OnboardingSaveData Onboarding;
 
+        /// <summary>The supplier's own tool and pack (solo play). Null = starting gear.</summary>
+        [JsonProperty("playerGear")] public PlayerGearData PlayerGear;
+
         public ulong GetWorldSeed() => ulong.Parse(WorldSeed, System.Globalization.CultureInfo.InvariantCulture);
 
         public void SetWorldSeed(ulong seed) => WorldSeed = seed.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -122,6 +125,13 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("tunnels")] public List<TunnelSaveData> Tunnels;
         /// <summary>Mine layout version: 2 = layers of levels, Continue digs left (optional; absent = older layout).</summary>
         [JsonProperty("layout")] public int Layout;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class PlayerGearData
+    {
+        [JsonProperty("tool")] public string ToolId;
+        [JsonProperty("pack")] public string PackId;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

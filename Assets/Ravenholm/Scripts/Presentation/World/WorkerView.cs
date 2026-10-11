@@ -35,6 +35,9 @@ namespace Ravenholm.Presentation
         private Vector3 _from;
         private float _alpha = 1f;
 
+        /// <summary>The supplier's own figure while they work a routine (null otherwise).</summary>
+        public static WorkerView PlayerAvatar { get; private set; }
+
         public string SiteId => siteId;
         public string WorkerId => workerId;
 
@@ -74,6 +77,11 @@ namespace Ravenholm.Presentation
             _from = transform.position;
         }
 
+        private void OnDestroy()
+        {
+            if (PlayerAvatar == this) PlayerAvatar = null;
+        }
+
         private bool TryGetWorker(out SiteSimulator sim, out WorkerRecord w)
         {
             sim = _root.Services.Sites.Get(siteId);
@@ -99,7 +107,18 @@ namespace Ravenholm.Presentation
             var insp = GetComponent<WorkerInspectable>();
             if (insp != null) insp.enabled = present;
             if (present && stagingPoint != null) transform.position = stagingPoint.position + new Vector3(0.55f, -0.1f, 0f);
+            if (present && workerId == SiteSimulator.PlayerId)
+            {
+                // The routine starts where the supplier stood.
+                var player = SandboxSceneController.Current != null ? SandboxSceneController.Current.Player : null;
+                if (player != null) transform.position = player.position;
+            }
             _from = transform.position;
+            if (workerId == SiteSimulator.PlayerId)
+            {
+                if (present) PlayerAvatar = this;
+                else if (PlayerAvatar == this) PlayerAvatar = null;
+            }
         }
 
         private void Update()

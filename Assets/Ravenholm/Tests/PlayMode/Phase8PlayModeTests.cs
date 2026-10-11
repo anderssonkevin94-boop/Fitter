@@ -164,9 +164,9 @@ namespace Ravenholm.Tests
 
             root.Settings.Update(s => s.ReducedMotion = true);
             Assert.IsTrue(Feel.ReducedMotion);
-            var w = Object.FindObjectsByType<WorkerView>(FindObjectsInactive.Exclude).First(x => x.WorkerId == "worker.dagna");
-            for (var i = 0; i < 30; i++) yield return null;
-            Assert.AreEqual(0f, Mathf.DeltaAngle(0f, w.transform.Find("Visual").localEulerAngles.z), 0.01f, "no work swing in reduced motion");
+            var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
+            for (var i = 0; i < 30; i++) { motor.PlaySwing(); yield return null; }
+            Assert.AreEqual(0f, Mathf.DeltaAngle(0f, motor.transform.Find("Visual").localEulerAngles.z), 0.01f, "no work swing in reduced motion");
         }
 
         [UnityTest]

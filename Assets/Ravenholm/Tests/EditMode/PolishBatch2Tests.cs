@@ -63,6 +63,7 @@ namespace Ravenholm.Tests
         {
             var g = Boot();
             var mine = g.Sites.Get("site.mine");
+            g.Sites.StartRoutine("site.mine");   // solo play: the supplier on a mining routine
             mine.ResetMeasurement();
             g.Simulation.Advance(8 * 3_600_000L, 8 * 3_600_000L);   // nobody hauls: staging fills or the section waits for a choice
             Assert.Greater(mine.ObservedWorkerMs, 0);

@@ -75,7 +75,7 @@ namespace Ravenholm.Presentation
             foreach (var i in _inspectables)
             {
                 if (i == null || !i.isActiveAndEnabled || !i.IsContextAvailable || i.transform == player) continue;   // the player is tappable but never a context target
-                var d = Vector2.Distance(player.position, i.transform.position);
+                var d = Vector2.Distance(player.position, i.transform.position) - i.ContextPriority;
                 if (i == _contextTarget) d -= contextHysteresis;
                 if (d < bestDist) { bestDist = d; best = i; }
             }

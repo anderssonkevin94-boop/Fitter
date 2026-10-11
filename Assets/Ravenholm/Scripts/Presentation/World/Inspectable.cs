@@ -19,6 +19,15 @@ namespace Ravenholm.Presentation
         /// <summary>Verb shown on the context button (GDD 4 microcopy: short action names).</summary>
         public virtual string ContextVerb => "Inspect";
 
+        /// <summary>World units a target counts as nearer when picking the context button: work beats looking around.</summary>
+        public virtual float ContextPriority => 0f;
+
+        /// <summary>True for work the supplier does by holding the button (mining, chopping).</summary>
+        public virtual bool Holdable => false;
+
+        /// <summary>Called every frame while the context button is held on a holdable target.</summary>
+        public virtual void OnHold(float deltaSeconds) { }
+
         /// <summary>False while this target has nothing to offer here (it is then never the context-button target).</summary>
         public virtual bool IsContextAvailable => true;
 

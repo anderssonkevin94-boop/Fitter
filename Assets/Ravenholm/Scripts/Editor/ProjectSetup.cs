@@ -79,6 +79,7 @@ namespace Ravenholm.EditorTools
             EnsureProductionContent(catalogue);
             EnsureJobContent(catalogue);
             EnsureEconomyContent(catalogue);
+            ApplySoloPlay(catalogue);
             EnsureCampaignContent(catalogue);
             EnsureTutorialContent(catalogue);
             EnsurePostgameContent(catalogue);
@@ -116,6 +117,43 @@ namespace Ravenholm.EditorTools
         }
 
         // ------------------------------------------------------------------ player settings
+
+        /// <summary>
+        /// Solo play (2026-10-11): the supplier is the only one working the sites, so there is no starting crew, no
+        /// recruits and no crew expansion. Removes them from existing content too (idempotent).
+        /// </summary>
+        private static void ApplySoloPlay(ContentCatalogue catalogue)
+        {
+            foreach (var site in catalogue.Sites)
+            {
+                if (site == null || site.Workers.Count == 0 && site.Recruits.Count == 0) continue;
+                site.EditorSetWorkers(new List<WorkerDefinition>());
+                site.EditorSetRecruits(new List<WorkerDefinition>());
+                EditorUtility.SetDirty(site);
+            }
+            if (catalogue.Workers.Count > 0)
+            {
+                catalogue.EditorSetSites(new List<SiteDefinition>(catalogue.Sites), new List<SiteBandDefinition>(catalogue.Bands), new List<WorkerDefinition>(),
+                    new List<WorkerEquipmentDefinition>(catalogue.Equipment));
+                EditorUtility.SetDirty(catalogue);
+            }
+            var upgrades = new List<UpgradeDefinition>();
+            var dropped = false;
+            foreach (var u in catalogue.Upgrades)
+            {
+                if (u != null && u.Kind == UpgradeKind.CrewExpansion) { dropped = true; continue; }
+                upgrades.Add(u);
+            }
+            if (dropped)
+            {
+                catalogue.EditorSetEconomy(catalogue.TraderStock, upgrades);
+                EditorUtility.SetDirty(catalogue);
+            }
+            foreach (var key in new[] { "dagna", "tobin", "mara", "osk" })
+                if (File.Exists(WorkerDir + "worker_" + key + ".asset")) AssetDatabase.DeleteAsset(WorkerDir + "worker_" + key + ".asset");
+            foreach (var key in new[] { "mine_crew", "forest_crew" })
+                if (File.Exists(EconomyDir + "upgrade_" + key + ".asset")) AssetDatabase.DeleteAsset(EconomyDir + "upgrade_" + key + ".asset");
+        }
 
         public static void ConfigurePlayer()
         {
@@ -384,19 +422,6 @@ namespace Ravenholm.EditorTools
                 Equip("pack_reinforced", "Reinforced pack", EquipmentSlot.Pack, 3, 18, 65, "maple_lumber", 6, "Site equipment level 3"),
             };
 
-            WorkerDefinition Worker(string key, string name, int seed)
-            {
-                var path = WorkerDir + "worker_" + key + ".asset";
-                var created = !File.Exists(path);
-                var w = EnsureAsset<WorkerDefinition>(path);
-                if (!created) return w;
-                w.EditorInitialize("worker." + key, name);
-                w.EditorSetupWorker(seed, equipment[0], equipment[3]);
-                EditorUtility.SetDirty(w);
-                return w;
-            }
-            var miner = Worker("dagna", "Dagna Holt", 101);
-            var woodcutter = Worker("tobin", "Tobin Ash", 202);
 
             T Band<T>(string key, string name, int index, string discovery, (string res, float w)[] weights, string rare, float chance, float leg, string baseline)
                 where T : SiteBandDefinition
@@ -425,7 +450,7 @@ namespace Ravenholm.EditorTools
                 Band<ForestZoneDefinition>("zone.forest_3", "Shaded hollow", 3, "Rich maple and herbs", new[] { ("cedar_log", 55f), ("maple_log", 45f) }, "herb", 0.08f, 4f, "cedar_log"),
             };
 
-            SiteDefinition Site(string key, string name, SiteType type, List<SiteBandDefinition> bands, WorkerDefinition worker, string staging,
+            SiteDefinition Site(string key, string name, SiteType type, List<SiteBandDefinition> bands, string staging,
                 int units, float baseD, float growth, float round, float kl, float kq)
             {
                 var path = SiteDir + "site_" + key + ".asset";
@@ -433,18 +458,18 @@ namespace Ravenholm.EditorTools
                 var site = EnsureAsset<SiteDefinition>(path);
                 if (!created) return site;
                 site.EditorInitialize("site." + key, name);
-                site.EditorSetupSite(type, bands, new List<WorkerDefinition> { worker }, staging, units, 6, baseD, growth, round, kl, kq, 0.8f);
+                site.EditorSetupSite(type, bands, new List<WorkerDefinition>(), staging, units, 6, baseD, growth, round, kl, kq, 0.8f);
                 EditorUtility.SetDirty(site);
                 return site;
             }
-            var mine = Site("mine", "Mine", SiteType.Mine, layers, miner, "container.mine_staging", 24, 240f, 1.22f, 10f, 0.18f, 0.04f);
-            var forest = Site("forest", "Forest", SiteType.Forest, zones, woodcutter, "container.forest_staging", 4, 40f, 1.18f, 5f, 0.15f, 0.03f);
+            var mine = Site("mine", "Mine", SiteType.Mine, layers, "container.mine_staging", 24, 240f, 1.22f, 10f, 0.18f, 0.04f);
+            var forest = Site("forest", "Forest", SiteType.Forest, zones, "container.forest_staging", 4, 40f, 1.18f, 5f, 0.15f, 0.03f);
 
             if (catalogue.Sites.Count == 0)
             {
                 var bands = new List<SiteBandDefinition>(layers);
                 bands.AddRange(zones);
-                catalogue.EditorSetSites(new List<SiteDefinition> { mine, forest }, bands, new List<WorkerDefinition> { miner, woodcutter }, equipment);
+                catalogue.EditorSetSites(new List<SiteDefinition> { mine, forest }, bands, new List<WorkerDefinition>(), equipment);
                 EditorUtility.SetDirty(catalogue);
             }
         }
@@ -715,32 +740,6 @@ namespace Ravenholm.EditorTools
             StationDefinition St(string key) => catalogue.Get<StationDefinition>("station." + key);
             QuestDefinition Q(string key) => catalogue.Get<QuestDefinition>("quest." + key);
 
-            // Crew expansion recruits (GDD 16: one additional named worker per site).
-            WorkerDefinition Recruit(string key, string name, int seed)
-            {
-                var path = WorkerDir + "worker_" + key + ".asset";
-                var created = !File.Exists(path);
-                var w = EnsureAsset<WorkerDefinition>(path);
-                if (!created) return w;
-                w.EditorInitialize("worker." + key, name);
-                w.EditorSetupWorker(seed, catalogue.Get<WorkerEquipmentDefinition>("equipment.tool_basic"), catalogue.Get<WorkerEquipmentDefinition>("equipment.pack_basic"));
-                EditorUtility.SetDirty(w);
-                return w;
-            }
-            var mara = Recruit("mara", "Mara Quill", 303);
-            var osk = Recruit("osk", "Osk Fennel", 404);
-            if (mine.Recruits.Count == 0) { mine.EditorSetRecruits(new List<WorkerDefinition> { mara }); EditorUtility.SetDirty(mine); }
-            if (forest.Recruits.Count == 0) { forest.EditorSetRecruits(new List<WorkerDefinition> { osk }); EditorUtility.SetDirty(forest); }
-            var workers = new List<WorkerDefinition>(catalogue.Workers);
-            if (!workers.Contains(mara) || !workers.Contains(osk))
-            {
-                if (!workers.Contains(mara)) workers.Add(mara);
-                if (!workers.Contains(osk)) workers.Add(osk);
-                catalogue.EditorSetSites(new List<SiteDefinition>(catalogue.Sites), new List<SiteBandDefinition>(catalogue.Bands), workers,
-                    new List<WorkerEquipmentDefinition>(catalogue.Equipment));
-                EditorUtility.SetDirty(catalogue);
-            }
-
             UpgradeDefinition Up(string key, string name, UpgradeKind kind, StationDefinition st, SiteDefinition si, int level, int gold,
                 List<ResourceCost> mats, string effect, UpgradeDefinition reqUp = null, SiteDefinition reqSite = null, int reqBand = 0,
                 QuestDefinition reqQuest = null, int reqSuccesses = 0)
@@ -771,10 +770,6 @@ namespace Ravenholm.EditorTools
                 "Unlocks tempered tools and reinforced packs for purchase", reqUp: mineEq2, reqSuccesses: 5);
             var forestEq3 = Up("forest_equipment_3", "Forest Equipment 3", UpgradeKind.SiteEquipment, null, forest, 3, 90, M(("steel_ingot", 8), ("maple_lumber", 6)),
                 "Unlocks tempered axes and reinforced packs for purchase", reqUp: forestEq2, reqSuccesses: 5);
-            var mineCrew = Up("mine_crew", "Mine crew expansion", UpgradeKind.CrewExpansion, null, mine, 1, 100, M(("iron_ingot", 10), ("cedar_lumber", 10)),
-                "One more named miner", reqUp: mineEq2);
-            var forestCrew = Up("forest_crew", "Forest crew expansion", UpgradeKind.CrewExpansion, null, forest, 1, 100, M(("iron_ingot", 10), ("cedar_lumber", 10)),
-                "One more named woodcutter", reqUp: forestEq2);
 
             var traderPath = EconomyDir + "trader_stock.asset";
             var traderCreated = !File.Exists(traderPath);
@@ -799,7 +794,7 @@ namespace Ravenholm.EditorTools
 
             if (catalogue.TraderStock == null || catalogue.Upgrades.Count == 0)
             {
-                catalogue.EditorSetEconomy(trader, new List<UpgradeDefinition> { smelter2, mill2, forge2, apo2, mineEq2, forestEq2, mineEq3, forestEq3, mineCrew, forestCrew });
+                catalogue.EditorSetEconomy(trader, new List<UpgradeDefinition> { smelter2, mill2, forge2, apo2, mineEq2, forestEq2, mineEq3, forestEq3 });
                 EditorUtility.SetDirty(catalogue);
             }
             AssetDatabase.SaveAssets();

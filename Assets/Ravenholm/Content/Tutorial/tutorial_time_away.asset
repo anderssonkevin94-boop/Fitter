@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: time away
   contentVersion: 1
   order: 12
-  prompt: Leave work and a quest running when you go. Sites and facilities keep working
-    for up to 8 hours, and a summary greets you on return.
+  prompt: Before you go, open the Mine or Forest and leave yourself on a routine.
+    It keeps working for up to 8 hours, with the facilities, and a summary greets
+    you on return.
   condition: 0

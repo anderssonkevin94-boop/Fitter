@@ -138,6 +138,15 @@ namespace Ravenholm.Presentation
             return CellTop(_order[i], _partialLevel);
         }
 
+        /// <summary>The top of the next shaft block to clear (null while the shaft is through its layer).</summary>
+        public bool NextShaftBlock(out Vector3 top)
+        {
+            top = Vector3.zero;
+            if (_partialLevel <= 0 || _order.Count == 0) return false;
+            top = CellTop(_order[Mathf.Min(_removed.Count, Blocks - 1)], _partialLevel);
+            return true;
+        }
+
         /// <summary>The ladder stands on the shaft's right back wall; its top cell is town ground.</summary>
         public Vector3Int LadderTopCell => new Vector3Int(pitOrigin.x + Size, pitOrigin.y + 2, 0);
         public Vector3Int LadderFootCell => new Vector3Int(pitOrigin.x + Size - 1, pitOrigin.y + 2, 0);

@@ -172,13 +172,113 @@ namespace Ravenholm.Domain.Sites
             return true;
         }
 
-        /// <summary>The face whose miners wait for you (the shaft first), or −1.</summary>
+        /// <summary>
+        /// The face that waits for your choice (the shaft first), or −1. With a crew (a routine), a face waits when its
+        /// miner does; when the supplier digs alone, the Mine waits once nothing is left to dig.
+        /// </summary>
         public int WaitingFace()
         {
+            if (_s.Workers.Count == 0)
+            {
+                if (_s.Tunnels.Exists(t => t.Status == SiteStatus.Working)) return -1;
+                var waiting = _s.Tunnels.FindIndex(t => t.Status == SiteStatus.AwaitDecision);
+                if (waiting >= 0) return waiting + 1;
+                return ShaftDone ? 0 : -1;
+            }
             if (ShaftDone && _s.Workers.Exists(w => FaceOf(w) == 0)) return 0;
             for (var i = 0; i < _s.Tunnels.Count; i++)
                 if (_s.Tunnels[i].Status == SiteStatus.AwaitDecision && _s.Workers.Exists(w => FaceOf(w) == i + 1)) return i + 1;
             return -1;
+        }
+
+        // ------------------------------------------------------------------ the supplier's own work (GDD: solo play)
+
+        private int _playerFace = -1;
+        private int _playerTree = -1;
+
+        /// <summary>
+        /// The supplier mines a Mine face (0 = shaft, n = tunnel n) for <paramref name="ms"/> with a tool of
+        /// <paramref name="dps"/>. Same section rules as any miner: units release at the same thresholds, and go
+        /// straight into the carry (or wait at the face when the carry is full). Returns the units carried away.
+        /// </summary>
+        public int PlayerMine(int face, long ms, int dps)
+        {
+            if (_c.Kind != SiteKind.Mine || face < 0 || face > _s.Tunnels.Count) return 0;
+            var given = PlayerCollect(face);
+            if (FaceExhausted(face) || ms <= 0 || dps <= 0) { Resolve(); return given; }
+            _playerFace = face;
+            _carried = 0;
+            SetFaceDone(face, Math.Min(FaceDurability(face), FaceDone(face) + dps * ms));
+            Resolve();
+            _playerFace = -1;
+            SaveRng();
+            return given + _carried;
+        }
+
+        /// <summary>The supplier chops tree <paramref name="tree"/> of the current clearing. Returns the units carried away.</summary>
+        public int PlayerChop(int tree, long ms, int dps)
+        {
+            if (_c.Kind != SiteKind.Forest || tree < 0 || tree >= _s.Trees.Count) return 0;
+            var t = _s.Trees[tree];
+            if (t.ClaimedBy != null) return 0;   // a routine woodcutter is on it
+            var given = TakeIntoCarry(t.Pending);
+            if (t.Felled || ms <= 0 || dps <= 0) { Resolve(); return given; }
+            _playerTree = tree;
+            _carried = 0;
+            t.DoneMicro = Math.Min(t.DurabilityMicro, t.DoneMicro + dps * ms);
+            Resolve();
+            _playerTree = -1;
+            SaveRng();
+            return given + _carried;
+        }
+
+        /// <summary>Takes units waiting at a face into the carry, as far as it has room.</summary>
+        public int PlayerCollect(int face) => _c.Kind == SiteKind.Mine && face >= 0 && face <= _s.Tunnels.Count ? TakeIntoCarry(FacePending(face)) : 0;
+
+        private int _carried;
+
+        private int TakeIntoCarry(List<string> pending)
+        {
+            var n = 0;
+            while (pending.Count > 0 && _ledger.TryCarry(pending[0]))
+            {
+                UnitEarned?.Invoke(PlayerId, -1, pending[0]);
+                pending.RemoveAt(0);
+                n++;
+            }
+            return n;
+        }
+
+        /// <summary>Worker id the supplier uses while on a routine, and for units they gather by hand.</summary>
+        public const string PlayerId = "worker.player";
+
+        /// <summary>
+        /// Takes a worker off the site (the supplier ending a routine). Whatever they carry goes to the supplier's carry,
+        /// else to staging, else back to the face or tree, so nothing owned is lost.
+        /// </summary>
+        public bool RemoveWorker(string workerId, bool keepOnSite = false)
+        {
+            var w = _s.Workers.Find(x => x.Id == workerId);
+            if (w == null) return false;
+            foreach (var unit in w.Pack)
+            {
+                if (!keepOnSite && _ledger.TryCarry(unit)) continue;
+                if (!keepOnSite && _ledger.StagingFree(_c.StagingContainerId, _c.StagingCapacity) > 0) { _ledger.Deposit(_c.StagingContainerId, unit); continue; }
+                if (_c.Kind == SiteKind.Mine) FacePending(FaceOf(w)).Add(unit);
+                else
+                {
+                    var tree = w.TargetTree >= 0 && w.TargetTree < _s.Trees.Count ? _s.Trees[w.TargetTree] : _s.Trees.Count > 0 ? _s.Trees[0] : null;
+                    if (tree != null) tree.Pending.Add(unit);
+                    else _s.FacePending.Add(unit);
+                }
+            }
+            w.Pack.Clear();
+            foreach (var t in _s.Trees) if (t.ClaimedBy == workerId) t.ClaimedBy = null;
+            _s.Workers.Remove(w);
+            if (_s.NextRecipient >= Math.Max(1, _s.Workers.Count)) _s.NextRecipient = 0;
+            foreach (var t in _s.Tunnels) if (t.NextRecipient >= Math.Max(1, _s.Workers.Count)) t.NextRecipient = 0;
+            if (!keepOnSite) Resolve();   // while loading, other sections may not be ready yet
+            return true;
         }
 
         private void Resume()
@@ -371,6 +471,27 @@ namespace Ravenholm.Domain.Sites
             if (_c.Kind == SiteKind.Mine) _s.SectionDoneMicro = _s.SectionDurabilityMicro;
             else foreach (var t in _s.Trees) t.DoneMicro = t.DurabilityMicro;
             Resolve();
+            if (_s.Workers.Count > 0) return;
+            // Nobody is working the site (solo play): the finished section's units go to staging as if carried there.
+            DebugToStaging(_s.FacePending);
+            foreach (var t in _s.Trees) DebugToStaging(t.Pending);
+            Resolve();
+        }
+
+        private void DebugToStaging(List<string> pending)
+        {
+            while (pending.Count > 0 && _ledger.StagingFree(_c.StagingContainerId, _c.StagingCapacity) > 0)
+            {
+                _ledger.Deposit(_c.StagingContainerId, pending[0]);
+                pending.RemoveAt(0);
+            }
+        }
+
+        public void DebugCompleteTunnel(int face, bool toStaging)
+        {
+            DebugCompleteTunnel(face);
+            var t = Tunnel(face);
+            if (toStaging && t != null && _s.Workers.Count == 0) { DebugToStaging(t.Pending); Resolve(); }
         }
 
         // ------------------------------------------------------------------ simulation
@@ -501,6 +622,13 @@ namespace Ravenholm.Domain.Sites
         private void GiveMine(int face, string resource)
         {
             _ledger.RecordCreated(resource);
+            if (face == _playerFace)
+            {
+                // The supplier's own swing: straight into the carry, or waiting at the face.
+                if (_ledger.TryCarry(resource)) { _carried++; UnitEarned?.Invoke(PlayerId, -1, resource); }
+                else { FacePending(face).Add(resource); UnitEarned?.Invoke(null, -1, resource); }
+                return;
+            }
             var n = _s.Workers.Count;
             var next = face == 0 ? _s.NextRecipient : _s.Tunnels[face - 1].NextRecipient;
             for (var i = 0; i < n; i++)
@@ -520,6 +648,12 @@ namespace Ravenholm.Domain.Sites
         private void GiveTree(TreeRecord t, string resource)
         {
             _ledger.RecordCreated(resource);
+            if (t.Index == _playerTree)
+            {
+                if (_ledger.TryCarry(resource)) { _carried++; UnitEarned?.Invoke(PlayerId, t.Index, resource); }
+                else { t.Pending.Add(resource); UnitEarned?.Invoke(null, t.Index, resource); }
+                return;
+            }
             var w = t.ClaimedBy != null ? _s.Workers.Find(x => x.Id == t.ClaimedBy) : null;
             if (w != null && w.State == WorkerState.Working && w.TargetTree == t.Index && w.Pack.Count < PackCap(w))
             {

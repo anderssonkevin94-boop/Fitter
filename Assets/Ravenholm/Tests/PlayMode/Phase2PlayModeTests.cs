@@ -56,7 +56,7 @@ namespace Ravenholm.Tests
         private static int Staging(string id) => GameRoot.Instance.Services.Logistics.System.State.Containers[id].UnitCount;
 
         [UnityTest]
-        public IEnumerator WorkersHaulToStagingAndDecisionsAreThePlayers()
+        public IEnumerator ARoutineHaulsToStagingAndDecisionsAreThePlayers()
         {
             yield return Boot();
             var services = GameRoot.Instance.Services;
@@ -64,10 +64,15 @@ namespace Ravenholm.Tests
             player.Teleport(new Vector2(1.5f, -5.5f));   // stand away from the piles so we do not pick them up
             services.Sites.SpeedMultiplier = 20f;
 
-            var miner = GameObject.Find("Dagna Holt").transform;
-            var start = miner.position;
-            yield return WaitUntil(() => Staging("container.mine_staging") > 0 && Staging("container.forest_staging") > 0, 6f, "first deposits");
-            Assert.AreNotEqual(start, miner.position, "the miner visibly moved");
+            // Solo play: the supplier leaves themself on a mining routine; their figure does the work.
+            Assert.IsTrue(services.Sites.StartRoutine("site.mine"));
+            yield return null;
+            var miner = WorkerView.PlayerAvatar;
+            Assert.NotNull(miner, "the supplier's routine figure appears");
+            Assert.IsTrue(player.HiddenForRoutine, "and the supplier is out working it");
+            var start = miner.transform.position;
+            yield return WaitUntil(() => Staging("container.mine_staging") > 0, 6f, "first deposits");
+            Assert.AreNotEqual(start, miner.transform.position, "the routine visibly moves");
             CollectionAssert.IsEmpty(services.Logistics.System.Audit());
             yield return Capture.Take("phase2_mine_working");
 
@@ -100,18 +105,35 @@ namespace Ravenholm.Tests
             yield return Capture.Take("phase2_mine_panel_depth2");
             GameRoot.Instance.Hud.SitePanel.Close();
             Assert.IsFalse(TouchInputRouter.IsBlocked);
+
+            // Moving takes over again.
+            GameRoot.Instance.InputRouter.ScriptedMove = Vector2.right;
+            yield return null;
+            yield return null;
+            GameRoot.Instance.InputRouter.ScriptedMove = null;
+            Assert.IsNull(services.Sites.RoutineSiteId, "moving ends the routine");
+            Assert.IsFalse(player.HiddenForRoutine);
             CollectionAssert.IsEmpty(services.Logistics.System.Audit());
         }
 
         [UnityTest]
-        public IEnumerator ForestClearingAndPanel()
+        public IEnumerator TheSupplierChopsTheClearingByHand()
         {
             yield return Boot();
             var services = GameRoot.Instance.Services;
-            SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(new Vector2(7.6f, 3.4f));
-            services.Sites.SpeedMultiplier = 20f;
             var forest = services.Sites.Get("site.forest");
+            var view = Object.FindAnyObjectByType<ForestGridView>();
+            SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(view.WorkSpot(0));
+            yield return null;
+            yield return null;
+            var target = SandboxSceneController.Current.ContextTarget;
+            Assert.IsTrue(target is ForestChopSpot, "the context button targets the nearest tree");
+            Assert.AreEqual("Chop", target.ContextVerb);
+            services.Sites.SpeedMultiplier = 20f;
+            GameRoot.Instance.Hud.ScriptedHold = true;   // hold the button
             yield return WaitUntil(() => forest.Record.Trees.Exists(t => t.Felled), 10f, "first tree felled");
+            GameRoot.Instance.Hud.ScriptedHold = false;
+            Assert.GreaterOrEqual(services.Logistics.System.CarryCount, 4, "its logs went straight into the carry");
             yield return Capture.Take("phase2_forest_clearing");
 
             GameRoot.Instance.Hud.ShowSite("site.forest");

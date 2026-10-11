@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: site choice
   contentVersion: 1
   order: 3
-  prompt: 'When a Mine section or Forest clearing is worked out, the workers wait.
-    Open the site: continue with the known yield, or go deeper into the unknown.'
+  prompt: 'When the Mine''s shaft is through a layer or a Forest clearing is cut,
+    the next step is yours. Open the site: continue with the known yield, or go deeper
+    into the unknown.'
   condition: 3

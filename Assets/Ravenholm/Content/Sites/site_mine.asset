@@ -23,10 +23,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7f2e59ed1c2e5489cb133933812c449a, type: 2}
   - {fileID: 11400000, guid: 45ef1db1001674d5a9b3388f44ffc1ae, type: 2}
   - {fileID: 11400000, guid: 9e068c654881643d38fcf8f51164d694, type: 2}
-  workers:
-  - {fileID: 11400000, guid: a4ff5ca602dc84d9ab303180fae31f6d, type: 2}
-  recruits:
-  - {fileID: 11400000, guid: d9d872a20526f4e7ebb416a6730a501f, type: 2}
+  workers: []
+  recruits: []
   stagingContainerId: container.mine_staging
   stagingCapacity: 96
   unitsPerSectionOrTree: 24
@@ -37,5 +35,6 @@ MonoBehaviour:
   continuationLinear: 0.18
   continuationQuadratic: 0.04
   terminalContinuationCap: 6
+  levelsPerBand: 3
   hopSeconds: 0.8
   depositSeconds: 0.6

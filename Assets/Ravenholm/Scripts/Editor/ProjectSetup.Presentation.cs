@@ -21,20 +21,20 @@ namespace Ravenholm.EditorTools
                 var path = TutorialDir + "tutorial_" + key + ".asset";
                 var created = !File.Exists(path);
                 var s = EnsureAsset<TutorialStepDefinition>(path);
-                if (created)
+                if (created) s.EditorInitialize("tutorial." + key, key.Replace('_', ' '));
+                if (created || s.Prompt != text)   // wording follows design changes (solo play)
                 {
-                    s.EditorInitialize("tutorial." + key, key.Replace('_', ' '));
                     s.EditorSetupStep(order, text, c);
                     EditorUtility.SetDirty(s);
                 }
                 steps.Add(s);
             }
             Step("move_and_pick_up", 1, TutorialCondition.CarryingSomething,
-                "Drag anywhere low on the screen to walk. Walk over the ore pile by the Mine or the logs by the Forest: you pick things up automatically.");
+                "Drag anywhere low on the screen to walk. At the Mine's rim, hold the action button to dig; in the Forest, hold it by a tree to chop. What you gather goes straight into your carry.");
             Step("deliver", 2, TutorialCondition.DeliveredRawMaterial,
                 "Carry ore to the Smelter's marker and logs to the Lumbermill's. They process deliveries into ingots and lumber on their own.");
             Step("site_choice", 3, TutorialCondition.SiteDecisionMade,
-                "When a Mine section or Forest clearing is worked out, the workers wait. Open the site: continue with the known yield, or go deeper into the unknown.");
+                "When the Mine's shaft is through a layer or a Forest clearing is cut, the next step is yours. Open the site: continue with the known yield, or go deeper into the unknown.");
             Step("craft", 4, TutorialCondition.CraftedItem,
                 "Open the Forge or Workbench and craft a weapon from the starter stock. Crafting is instant; the item appears on the output pad.");
             Step("stock_store", 5, TutorialCondition.GearInStore,
@@ -50,9 +50,9 @@ namespace Ravenholm.EditorTools
             Step("blueprint", 10, TutorialCondition.NewBlueprintOwned,
                 "First successes at new jobs teach blueprints. Briar Track and Old Shrine each teach one.");
             Step("upgrade_and_trade", 11, TutorialCondition.UpgradeBought,
-                "Gold buys building upgrades, worker tools and Trader goods. Open a building to see its next level and exactly what it needs.");
+                "Gold buys building upgrades, your own tools and Trader goods. Open a building to see its next level and exactly what it needs.");
             Step("time_away", 12, TutorialCondition.Acknowledge,
-                "Leave work and a quest running when you go. Sites and facilities keep working for up to 8 hours, and a summary greets you on return.");
+                "Before you go, open the Mine or Forest and leave yourself on a routine. It keeps working for up to 8 hours, with the facilities, and a summary greets you on return.");
             if (catalogue.Tutorial.Count == 0) { catalogue.EditorSetTutorial(steps); EditorUtility.SetDirty(catalogue); }
             AssetDatabase.SaveAssets();
         }

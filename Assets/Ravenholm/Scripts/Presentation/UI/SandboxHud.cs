@@ -386,6 +386,7 @@ namespace Ravenholm.Presentation
             UiFactory.Place(btnImg.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), Vector2.zero, new Vector2(230f, 230f));
             _contextButton = btnImg.gameObject.AddComponent<Button>();
             _contextButton.onClick.AddListener(OnContextPressed);
+            _contextHold = btnImg.gameObject.AddComponent<HoldSensor>();
             var icon = _ui.Icon("Icon", btnImg.transform, _theme.interact, 130f);
             UiFactory.Place(icon.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 6f), new Vector2(130f, 130f));
 
@@ -613,6 +614,7 @@ namespace Ravenholm.Presentation
             var showBanner = dev || _root.ActiveProfile == Services.PlayerSettingsService.DebugProfile;   // never hide which save is in use
             if (_banner != null && _banner.activeSelf != showBanner) _banner.SetActive(showBanner);
             UpdateContextButton();
+            UpdateHold();
             UpdateJoystick();
             _toastGroup.alpha = Mathf.MoveTowards(_toastGroup.alpha, Time.unscaledTime < _toastUntil ? 1f : 0f, Time.unscaledDeltaTime * 6f);
             _carryPulse = Mathf.MoveTowards(_carryPulse, 0f, Time.unscaledDeltaTime * 3f);
@@ -675,10 +677,29 @@ namespace Ravenholm.Presentation
             _contextLabel.text = text;
         }
 
+        private HoldSensor _contextHold;
+
+        /// <summary>True while the context button is held down (tests and the hold-to-work loop).</summary>
+        public bool ContextHeld => _contextHold != null && _contextHold.Held || ScriptedHold;
+        public bool ScriptedHold { get; set; }
+
         private void OnContextPressed()
         {
             var c = SandboxSceneController.Current;
-            if (c != null && c.ContextTarget != null) c.Inspect(c.ContextTarget);
+            if (c == null || c.ContextTarget == null) return;
+            if (c.ContextTarget.Holdable) return;   // holdable work happens while held (see UpdateHold)
+            c.Inspect(c.ContextTarget);
+        }
+
+        /// <summary>Holding the context button on mining or chopping works it every frame, with a swing.</summary>
+        private void UpdateHold()
+        {
+            var c = SandboxSceneController.Current;
+            if (c == null || !ContextHeld) return;
+            var target = c.ContextTarget;
+            if (target == null || !target.Holdable) return;
+            target.OnHold(Time.deltaTime);
+            c.Player.GetComponent<PlayerMotor>()?.PlaySwing();
         }
 
         public void ShowInfo(Inspectable target)

@@ -106,6 +106,7 @@ namespace Ravenholm.Tests
         public void CatchUpCapsResourcesAtEightHoursAndMakesNoDecisions()
         {
             var g = Boot(T0);
+            Assert.IsTrue(g.Sites.StartRoutine("site.mine"), "solo play: the supplier leaves themself mining");
             var oreBefore = g.Logistics.System.SharedAvailable("resource.iron_ore");
             var sitesMs = g.Sites.Get("site.mine").Record.SimMs;
             var jobsMs = g.Jobs.State.SimMs;
@@ -329,46 +330,67 @@ namespace Ravenholm.Tests
             g.Jobs.DebugSetGold(500);
             GrantMaterials(g, ("cedar_lumber", 30), ("iron_ingot", 30));
             StringAssert.Contains("quest successes", g.Economy.UpgradeBlockedReason(eq2));
-            StringAssert.Contains("level 2", g.Economy.EquipmentBlockedReason("site.mine", "worker.dagna", iron));
+            StringAssert.Contains("level 2", g.Economy.PlayerEquipmentBlockedReason(iron));
 
             g.Jobs.State.Progress["quest.roadside_patrol"] = new QuestProgress { Attempts = 2, Successes = 2 };   // test fixture
             Assert.IsTrue(g.Economy.BuyUpgrade(eq2, out var f), f);
             Assert.AreEqual(2, g.Economy.SiteEquipmentLevel("site.mine"));
-            Assert.AreEqual("equipment.tool_basic", g.Sites.Get("site.mine").Record.Workers[0].ToolId, "unlocking does not equip");
+            Assert.AreEqual("equipment.tool_basic", g.Sites.PlayerToolId, "unlocking does not equip");
             Assert.AreEqual(1, g.Economy.SiteEquipmentLevel("site.forest"), "per site");
 
             var gold = g.Jobs.State.Gold;
-            Assert.IsTrue(g.Economy.BuyEquipment("site.mine", "worker.dagna", iron, out f), f);
+            Assert.IsTrue(g.Economy.BuyPlayerEquipment(iron, out f), f);
             Assert.AreEqual(gold - iron.GoldCost, g.Jobs.State.Gold);
-            Assert.AreEqual(iron.Id, g.Sites.Get("site.mine").Record.Workers[0].ToolId);
-            Assert.IsFalse(g.Economy.BuyEquipment("site.mine", "worker.dagna", iron, out _), "already equipped");
+            Assert.AreEqual(iron.Id, g.Sites.PlayerToolId, "the supplier's own pick");
+            Assert.IsFalse(g.Economy.BuyPlayerEquipment(iron, out _), "already equipped");
             var tempered = Cat.Get<WorkerEquipmentDefinition>("equipment.tool_tempered");
-            StringAssert.Contains("level 3", g.Economy.EquipmentBlockedReason("site.mine", "worker.dagna", tempered));
+            StringAssert.Contains("level 3", g.Economy.PlayerEquipmentBlockedReason(tempered));
 
             var reloaded = Boot(T0);
-            Assert.AreEqual(iron.Id, reloaded.Sites.Get("site.mine").Record.Workers[0].ToolId);
+            Assert.AreEqual(iron.Id, reloaded.Sites.PlayerToolId);
             Assert.AreEqual(2, reloaded.Economy.SiteEquipmentLevel("site.mine"));
         }
 
         [Test]
-        public void CrewExpansionAddsTheNamedRecruitOnce()
+        public void TheSupplierMinesAndChopsIntoTheCarryAndRoutinesRunWhileAway()
         {
             var g = Boot(T0);
-            var crew = Up("mine_crew");
-            g.Jobs.DebugSetGold(1000);
-            GrantMaterials(g, ("cedar_lumber", 40), ("iron_ingot", 40));
-            StringAssert.Contains("Mine Equipment 2", g.Economy.UpgradeBlockedReason(crew));
-            g.Jobs.State.Progress["quest.roadside_patrol"] = new QuestProgress { Attempts = 2, Successes = 2 };
-            Assert.IsTrue(g.Economy.BuyUpgrade(Up("mine_equipment_2"), out var f), f);
-            Assert.IsTrue(g.Economy.BuyUpgrade(crew, out f), f);
-            var workers = g.Sites.Get("site.mine").Record.Workers;
-            Assert.AreEqual(2, workers.Count);
-            Assert.AreEqual("worker.mara", workers[1].Id);
-            Assert.IsFalse(g.Economy.BuyUpgrade(crew, out _));
+            Assert.AreEqual(0, g.Sites.Get("site.mine").Record.Workers.Count, "solo play: no hired crew");
+            Assert.AreEqual(0, g.Sites.Get("site.forest").Record.Workers.Count);
 
+            // Hold to mine: the shaft's units go straight into the carry, at the same thresholds as any miner.
+            var got = 0;
+            for (var i = 0; i < 600 && g.Logistics.System.CarryCount < 4; i++) got += g.Sites.PlayerMine("site.mine", 0, 0.1f);
+            Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 4);
+            Assert.AreEqual(got, g.Logistics.System.CarryCount);
+            CollectionAssert.IsEmpty(g.Logistics.System.Audit());
+
+            // A full carry leaves the rest waiting at the face; nothing is lost.
+            for (var i = 0; i < 4000 && g.Sites.Get("site.mine").Record.FacePending.Count == 0; i++) g.Sites.PlayerMine("site.mine", 0, 0.1f);
+            Assert.IsTrue(g.Logistics.System.IsFull);
+            Assert.Greater(g.Sites.Get("site.mine").Record.FacePending.Count, 0);
+            CollectionAssert.IsEmpty(g.Logistics.System.Audit());
+            g.Logistics.System.DebugUnloadCarry();
+
+            // Chop a tree of the current clearing.
+            var forest = g.Sites.Get("site.forest");
+            for (var i = 0; i < 2000 && !forest.Record.Trees[0].Felled; i++) g.Sites.PlayerChop("site.forest", 0, 0.1f);
+            Assert.IsTrue(forest.Record.Trees[0].Felled);
+            Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 4, "a tree's four logs (herbs are a bonus roll)");
+            CollectionAssert.IsEmpty(g.Logistics.System.Audit());
+
+            // A routine: the supplier keeps cutting while away; taking over again brings back what they carried.
+            Assert.IsTrue(g.Sites.StartRoutine("site.forest"));
+            Assert.AreEqual("site.forest", g.Sites.RoutineSiteId);
             g.Simulation.Advance(10 * Minute, 10 * Minute);
+            var routine = g.Sites.RoutineWorker;
+            Assert.IsNotNull(routine);
+            Assert.Greater(forest.Record.Trees.Count(t => t.Felled) + routine.Pack.Count, 1, "the routine keeps cutting while away");
+            g.Scheduler.SaveNow("test");
             var reloaded = Boot(T0);
-            Assert.AreEqual(2, reloaded.Sites.Get("site.mine").Record.Workers.Count);
+            Assert.AreEqual("site.forest", reloaded.Sites.RoutineSiteId, "a routine survives a restart");
+            Assert.IsTrue(reloaded.Sites.EndRoutine());
+            Assert.IsNull(reloaded.Sites.RoutineSiteId);
             CollectionAssert.IsEmpty(reloaded.Logistics.System.Audit());
         }
 

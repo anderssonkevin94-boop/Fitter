@@ -66,6 +66,8 @@ namespace Ravenholm.Domain.Sites
         int StagingFree(string containerId, int capacity);
         /// <summary>Moves one unit from a worker pack into a staging container (no creation).</summary>
         void Deposit(string containerId, string resourceId);
+        /// <summary>Gives a just-created unit to the supplier's carry; false when the carry is full.</summary>
+        bool TryCarry(string resourceId);
     }
 
     public sealed class Composition

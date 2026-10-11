@@ -16,6 +16,6 @@ MonoBehaviour:
   displayName: upgrade and trade
   contentVersion: 1
   order: 11
-  prompt: Gold buys building upgrades, worker tools and Trader goods. Open a building
+  prompt: Gold buys building upgrades, your own tools and Trader goods. Open a building
     to see its next level and exactly what it needs.
   condition: 10

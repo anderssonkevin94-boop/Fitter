@@ -206,9 +206,10 @@ namespace Ravenholm.Tests
             var a = Boot();
             a.Sites.DebugCompleteSection("site.mine");
             for (var i = 0; i < 900 && !a.Sites.Get("site.mine").ShaftDone; i++) a.Sites.Tick(1f);
-            var miner = a.Sites.Get("site.mine").Record.Workers[0].Id;
-            var face = a.Sites.StartTunnel("site.mine", 3, miner);
+            var face = a.Sites.StartTunnel("site.mine", 3);
             Assert.AreEqual(1, face);
+            Assert.IsTrue(a.Sites.StartRoutine("site.mine", face), "the supplier mines it on a routine");
+            var miner = SiteSimulator.PlayerId;
             for (var i = 0; i < 40; i++) a.Sites.Tick(1f);
             a.Scheduler.SaveNow("test");
 
