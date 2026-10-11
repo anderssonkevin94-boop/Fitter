@@ -15,12 +15,12 @@ namespace Ravenholm.Presentation
     }
 
     /// <summary>
-    /// The Forest on the frontier (GDD 7, as directed): a dense grid of trees, one per tile, on the ground left of the
-    /// town, directly above the Mine's tunnels. It has the same two directions as the Mine:
-    ///   - left is progression: each area (band) is a column of tiles further left ("Push Deeper");
-    ///   - up is staying in an area: each clearing ("Continue Here") is the next trees up the same column.
-    /// Trees are cut in order from the bottom of a column, so the woodcutters (and the supplier) physically cut their
-    /// way in: only cut tiles can be walked. The current clearing's trees are the simulation's trees (species, felled);
+    /// The Forest on the frontier (GDD 7, as directed): a dense grid of trees, one per tile, on the frontier beyond the
+    /// town's upper-left edge, directly above the Mine's tunnels. It has the same two directions as the Mine, on the grid:
+    ///   - left is progression: each area (band) is the next few tiles along the cliff edge (up-left, "Push Deeper");
+    ///   - up is staying in an area: each clearing ("Continue Here") is the next rows back from the edge (up-right).
+    /// Trees are cut in order from the cliff edge back, so the woodcutters (and the supplier) physically cut their way in:
+    /// only cut tiles can be walked. They walk the trail along the town, then the cut edge row out to their area. The current clearing's trees are the simulation's trees (species, felled);
     /// earlier clearings are stumps; ground not yet reached stays forest, darker in areas not yet entered.
     /// Only trees near the camera are drawn. Presentation only.
     /// </summary>
@@ -29,12 +29,12 @@ namespace Ravenholm.Presentation
         [SerializeField] private string siteId = "site.forest";
         [SerializeField] private Grid grid;
         [SerializeField] private Tilemap ground;
-        [Tooltip("World x of the town's left edge: the frontier starts here.")]
-        [SerializeField] private float townLeft = -12f;
-        [Tooltip("Open trail between the town and the first area (world units).")]
-        [SerializeField] private float trailWidth = 1.25f;   // keeps column edges between tile centres
-        [Tooltip("Width of one area's column of trees (world units).")]
-        [SerializeField] private float columnWidth = 2f;
+        [Tooltip("The cliff-edge cell where the first area starts (x = the frontier's front edge, y = past the trail).")]
+        [SerializeField] private Vector2Int start;
+        [Tooltip("Tiles along the cliff edge per area.")]
+        [Min(1)] [SerializeField] private int areaLength = 3;
+        [Tooltip("The open trail between the town and the first area: where woodcutters enter the frontier.")]
+        [SerializeField] private Vector2Int trailCell;
         [SerializeField] private float treeScale = 0.78f;
         [SerializeField] private List<SpeciesSprite> speciesSprites = new List<SpeciesSprite>();
         [SerializeField] private Sprite cedarSprite;
@@ -55,12 +55,13 @@ namespace Ravenholm.Presentation
         private string _key = "";
         private bool _built;
 
-        public void EditorSetup(Grid g, Tilemap groundMap, float left, Sprite cedar, Sprite maple, Sprite stump, List<ResourceDefinition> broadleaf,
-            List<SpeciesSprite> species, Material mat)
+        public void EditorSetup(Grid g, Tilemap groundMap, Vector2Int firstCell, Vector2Int trail, Sprite cedar, Sprite maple, Sprite stump,
+            List<ResourceDefinition> broadleaf, List<SpeciesSprite> species, Material mat)
         {
             grid = g;
             ground = groundMap;
-            townLeft = left;
+            start = firstCell;
+            trailCell = trail;
             cedarSprite = cedar;
             mapleSprite = maple;
             stumpSprite = stump;
@@ -91,8 +92,6 @@ namespace Ravenholm.Presentation
 
         private Vector3 Centre(Vector3Int c) => grid.GetCellCenterWorld(c);
 
-        /// <summary>Right edge (world x) of area <paramref name="area"/>'s column (1-based).</summary>
-        public float ColumnRight(int area) => townLeft - trailWidth - (area - 1) * columnWidth;
 
         private void Build()
         {
@@ -104,11 +103,8 @@ namespace Ravenholm.Presentation
             for (var y = b.yMin; y < b.yMax; y++)
             {
                 var c = new Vector3Int(x, y, 0);
-                if (!ground.HasTile(c)) continue;
-                var p = Centre(c);
-                var right = townLeft - trailWidth;
-                if (p.x >= right) continue;
-                var area = Mathf.FloorToInt((right - p.x) / columnWidth) + 1;
+                if (!ground.HasTile(c) || x < start.x || y < start.y) continue;
+                var area = (y - start.y) / areaLength + 1;
                 if (!byArea.TryGetValue(area, out var list)) byArea[area] = list = new List<Vector3Int>();
                 list.Add(c);
             }
@@ -117,11 +113,8 @@ namespace Ravenholm.Presentation
             for (var a = 1; byArea.ContainsKey(a); a++)
             {
                 var list = byArea[a];
-                list.Sort((p, q) =>
-                {
-                    var dy = Centre(p).y.CompareTo(Centre(q).y);
-                    return dy != 0 ? dy : Centre(q).x.CompareTo(Centre(p).x);   // bottom row first, nearest the town first
-                });
+                // The cliff-edge row first, then each row further back; along a row, nearest the town first.
+                list.Sort((p, q) => p.x != q.x ? p.x.CompareTo(q.x) : p.y.CompareTo(q.y));
                 for (var i = 0; i < list.Count; i++) _slotOf[list[i]] = (a, i);
                 _columns.Add(list);
             }
@@ -161,17 +154,10 @@ namespace Ravenholm.Presentation
             Build();
             var s = sim.Record;
             var spot = WorkSpot(treeIndex);
-            var bottom = Centre(Column(1).Count > 0 ? Column(1)[0] : TreeCell(treeIndex)).y;
-            route.Add(new Vector3(townLeft - trailWidth * 0.5f, bottom, 0f));
-            // The previous area's first clearing (always cut before pushing deeper) borders this one along the bottom.
-            if (s.Depth > 1)
-            {
-                var prev = Column(s.Depth - 1);
-                var edge = prev[0];
-                for (var i = 0; i < Mathf.Min(sim.Config.TreesPerClearing, prev.Count); i++)
-                    if (Centre(prev[i]).x < Centre(edge).x) edge = prev[i];
-                route.Add(Centre(edge));
-            }
+            // Into the frontier by the trail, then out along the cut cliff-edge row (every earlier area's first clearing).
+            route.Add(Centre((Vector3Int)trailCell));
+            route.Add(Centre(new Vector3Int(start.x, trailCell.y, 0)));
+            if (s.Depth > 1) route.Add(Centre(new Vector3Int(start.x, start.y + (s.Depth - 1) * areaLength - 1, 0)));
             var col = Column(s.Depth);
             var cut = Mathf.Min(s.K * sim.Config.TreesPerClearing, col.Count);
             if (cut > 0)
@@ -250,8 +236,6 @@ namespace Ravenholm.Presentation
             var keep = new HashSet<Vector3Int>();
             for (var a = 1; a < _columns.Count; a++)
             {
-                var right = ColumnRight(a);
-                if (right < cam.x - halfW || right - columnWidth > cam.x + halfW) continue;
                 var col = _columns[a];
                 for (var slot = 0; slot < col.Count; slot++)
                 {

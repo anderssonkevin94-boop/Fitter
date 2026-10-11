@@ -128,7 +128,7 @@ namespace Ravenholm.Tests
 
             var q = new Vector2(10f, 0f);
             for (var i = 0; i < 200; i++) q = PlayerMotor.Slide(q, Vector2.right * 0.06f, radius, mask);
-            Assert.LessOrEqual(q.x, GameRoot.Instance.Config.SandboxSettings.plotBounds.xMax);
+            Assert.LessOrEqual(q.x, GameRoot.Instance.Config.SandboxSettings.WorldBounds.xMax);
 
             // Sliding: pushing diagonally into a wall still makes progress along it.
             var s = new Vector2(-1.5f, 5.0f);

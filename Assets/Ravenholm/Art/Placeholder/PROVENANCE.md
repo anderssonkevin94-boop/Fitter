@@ -87,8 +87,10 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Props/prop_beacon_trophy.png` | Beacon trophy: settlement monument after the final expedition |
 | `Props/prop_bell.png` | Store counter bell (sandbox persistence sample) |
 | `Props/prop_ladder.png` | Shaft ladder, one level tall |
+| `Props/prop_lamp.png` | Mine lamp at a tunnel face |
 | `Props/prop_output_pad.png` | Station output pad (pallet) for finished goods |
 | `Props/prop_pennant.png` | Building level pennant (one per upgrade level) |
+| `Props/prop_timber.png` | Tunnel timber: post and cap beam |
 | `Props/rack_armor.png` | Store armor stand |
 | `Props/rack_armor_empty.png` | Store armor stand (empty; items drawn in-engine) |
 | `Props/rack_potions.png` | Store potion shelf |
@@ -139,15 +141,20 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Stacks/stack_strong_tonic.png` | Carry/stack piece: strong tonic |
 | `Stacks/stack_trapsense_draught.png` | Carry/stack piece: trapsense draught |
 | `Stacks/stack_warding_draught.png` | Carry/stack piece: warding draught |
-| `Tiles/tile_block_0.png` | Mine ground block: dirt tile with its earthen skirt one level deep (tinted per layer) |
-| `Tiles/tile_block_1.png` | Mine ground block: dirt tile with its earthen skirt one level deep (tinted per layer) |
-| `Tiles/tile_block_2.png` | Mine ground block: dirt tile with its earthen skirt one level deep (tinted per layer) |
+| `Tiles/tile_block_0.png` | Mine ground block: one level of earth, tinted per layer |
+| `Tiles/tile_block_1.png` | Mine ground block: one level of earth, tinted per layer |
+| `Tiles/tile_block_2.png` | Mine ground block: one level of earth, tinted per layer |
+| `Tiles/tile_block_seam_0.png` | Mine ground block: one level of earth, tinted per layer (layer seam) |
+| `Tiles/tile_block_seam_1.png` | Mine ground block: one level of earth, tinted per layer (layer seam) |
+| `Tiles/tile_block_seam_2.png` | Mine ground block: one level of earth, tinted per layer (layer seam) |
 | `Tiles/tile_dirt.png` | Isometric ground tile (pebbles) |
 | `Tiles/tile_forest_floor.png` | Isometric ground tile (tufts) |
 | `Tiles/tile_grass_a.png` | Isometric ground tile (tufts) |
 | `Tiles/tile_grass_b.png` | Isometric ground tile (tufts) |
 | `Tiles/tile_path.png` | Isometric ground tile (pebbles) |
 | `Tiles/tile_plaza.png` | Isometric ground tile (flags) |
+| `Tiles/tile_sill.png` | Mine sill: the cliff-face block cut down to a lip in front of a tunnel |
+| `Tiles/tile_slab.png` | Mine floor slab: a thin block of the layer's rock |
 | `UI/Icons/ic_bag.png` | Status icon: carry |
 | `UI/Icons/ic_board.png` | Status icon: Job Board |
 | `UI/Icons/ic_check.png` | Status icon: ready/ok |

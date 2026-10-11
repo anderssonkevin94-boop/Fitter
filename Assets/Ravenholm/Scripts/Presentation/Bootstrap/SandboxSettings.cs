@@ -12,12 +12,39 @@ namespace Ravenholm.Presentation
         [Header("Town")]
         [Tooltip("Walkable town footprint in world units (GDD: about 24 x 18).")]
         public Rect plotBounds = new Rect(-12f, -9f, 24f, 18f);
-        [Tooltip("The frontier: the town's ground continues this far left of the town (world units). The Forest grows on it " +
-                 "and the Mine's tunnels run under it; both progress left, so raise this as more is charted.")]
-        [Min(0f)] public float frontierLength = 48f;
+        [Header("World grid (cells: x runs right-up, y runs left-up)")]
+        [Tooltip("The town plot as a rectangle of grid cells, so every edge is a straight cliff face along the grid.")]
+        public RectInt townCells = new RectInt(-20, -16, 48, 37);
+        [Tooltip("Front cell (lowest x and y) of the Mine's 4×4 shaft. It sits out from the town's left corner, so its left face " +
+                 "continues the cliff that the tunnels and the frontier run along.")]
+        public Vector2Int mineCell = new Vector2Int(-24, 17);
+        [Tooltip("The frontier beyond the town's upper-left edge: how far it runs left (cells along y) and back (cells along x). " +
+                 "Tunnels run along its front edge and the Forest grows on it; raise these as more is charted.")]
+        [Min(4)] public int frontierLengthCells = 100;
+        [Min(4)] public int frontierWidthCells = 30;
 
-        /// <summary>Walkable world: the town plus the frontier strip on its left.</summary>
-        public Rect WorldBounds => new Rect(plotBounds.xMin - frontierLength, plotBounds.yMin, plotBounds.width + frontierLength, plotBounds.height);
+        /// <summary>World position of a cell's centre on the town grid (cell size 1 × 0.5, isometric).</summary>
+        public static Vector2 CellCentre(int x, int y) => new Vector2((x - y) * 0.5f, (x + y) * 0.25f + 0.25f);
+
+        /// <summary>Walkable world, as a bounding rectangle: the town plot plus the frontier (tiles decide the exact shape).</summary>
+        public Rect WorldBounds
+        {
+            get
+            {
+                var t = townCells;
+                var fy0 = t.yMax;
+                var corners = new[]
+                {
+                    CellCentre(t.xMin, t.yMin), CellCentre(t.xMax - 1, t.yMin), CellCentre(t.xMin, t.yMax - 1), CellCentre(t.xMax - 1, t.yMax - 1),
+                    CellCentre(mineCell.x, mineCell.y), CellCentre(mineCell.x, fy0 + frontierLengthCells),
+                    CellCentre(mineCell.x + frontierWidthCells, fy0), CellCentre(mineCell.x + frontierWidthCells, fy0 + frontierLengthCells),
+                };
+                var min = corners[0];
+                var max = corners[0];
+                foreach (var c in corners) { min = Vector2.Min(min, c); max = Vector2.Max(max, c); }
+                return Rect.MinMaxRect(min.x - 0.5f, min.y - 0.5f, max.x + 0.5f, max.y + 0.5f);
+            }
+        }
 
         [Header("Camera")]
         [Tooltip("Visible world width in units. The debug panel cycles through these to compare framing; the game itself has no zoom (locked).")]

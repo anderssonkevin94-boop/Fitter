@@ -192,9 +192,13 @@ def tile(name, top, dark, pattern, seed):
     finish(name, img, (cx, cy), "Tiles", desc=f"Isometric ground tile ({pattern})", crop=False)
 
 
-def ground_block(name, seed):
-    """Mine block: the ground tile (same dirt top, same skirt colours) with its skirt extended one level down
-    (one miner tall = 1 world unit). Drawn light so a per-layer tint reads as that layer's earth."""
+ROCK_TOP, ROCK_L, ROCK_R = (246, 240, 230, 255), (226, 218, 206, 255), (196, 188, 178, 255)
+
+
+def ground_block(name, seed, seam=False):
+    """Mine ground block (option A look): one level of earth, light and nearly neutral so each layer's tint gives it its
+    colour. No outlines: neighbouring blocks merge into one mass of ground, and only cuts (tunnels, the shaft) read as
+    edges. `seam` adds the dark line that marks the top of a new layer along its faces."""
     rnd = random.Random(seed)
     depth = U   # one level = one world unit
     img = Image.new("RGBA", (U, int(U / 2 + depth) + 2 * S), (0, 0, 0, 0))
@@ -202,28 +206,70 @@ def ground_block(name, seed):
     cx, cy = U / 2, U / 4
     T, Rr, Bt, Lf = (cx, 0), (U, cy), (cx, U / 2), (0, cy)
     L2, B2, R2 = (Lf[0], Lf[1] + depth), (Bt[0], Bt[1] + depth), (Rr[0], Rr[1] + depth)
-    left, right, top = shade(SKIRT_L, 1.18), shade(SKIRT_R, 1.18), shade(DIRT_C, 1.1)
-    d.polygon([Lf, Bt, B2, L2], fill=left)
-    d.polygon([Bt, Rr, R2, B2], fill=right)
-    d.polygon([T, Rr, Bt, Lf], fill=top)
-    # strata grain: pebbles on the faces and the top, always inside their face
-    for _ in range(9):
-        t, z = rnd.uniform(0.12, 0.88), rnd.uniform(0.12, 0.88)
+    d.polygon([Lf, Bt, B2, L2], fill=ROCK_L)
+    d.polygon([Bt, Rr, R2, B2], fill=ROCK_R)
+    d.polygon([T, Rr, Bt, Lf], fill=ROCK_TOP)
+    # faint strata grain, always inside its face
+    for _ in range(7):
+        t, z = rnd.uniform(0.12, 0.88), rnd.uniform(0.15, 0.9)
         x, y = Lf[0] + (Bt[0] - Lf[0]) * t, Lf[1] + (Bt[1] - Lf[1]) * t + depth * z
-        r = rnd.uniform(2.5, 5) * S
-        d.ellipse([x - r, y - r * 0.6, x + r, y + r * 0.6], fill=shade(left, 0.78))
+        r = rnd.uniform(2.5, 4.5) * S
+        d.ellipse([x - r, y - r * 0.55, x + r, y + r * 0.55], fill=shade(ROCK_L, 0.9))
         x, y = Bt[0] + (Rr[0] - Bt[0]) * t, Bt[1] + (Rr[1] - Bt[1]) * t + depth * z
-        d.ellipse([x - r, y - r * 0.6, x + r, y + r * 0.6], fill=shade(right, 0.78))
-    for _ in range(5):
+        d.ellipse([x - r, y - r * 0.55, x + r, y + r * 0.55], fill=shade(ROCK_R, 0.9))
+    if seam:
+        w = 3 * S
+        d.line([(Lf[0], Lf[1] + w / 2), (Bt[0], Bt[1] + w / 2), (Rr[0], Rr[1] + w / 2)], fill=shade(ROCK_R, 0.45), width=w)
+    finish(name, img, (cx, cy), "Tiles", desc="Mine ground block: one level of earth, tinted per layer" + (" (layer seam)" if seam else ""), crop=False)
+
+
+def rock_slab(name, height, seed, desc):
+    """A thin block of the same rock (tunnel floors, the shaft's ledges, the cut-down sill in front of a tunnel), so it
+    takes its layer's colour and reads as ground left in place, not as boards."""
+    rnd = random.Random(seed)
+    depth = int(U * height)
+    img = Image.new("RGBA", (U, int(U / 2 + depth) + 2 * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    cx, cy = U / 2, U / 4
+    T, Rr, Bt, Lf = (cx, 0), (U, cy), (cx, U / 2), (0, cy)
+    L2, B2, R2 = (Lf[0], Lf[1] + depth), (Bt[0], Bt[1] + depth), (Rr[0], Rr[1] + depth)
+    d.polygon([Lf, Bt, B2, L2], fill=ROCK_L)
+    d.polygon([Bt, Rr, R2, B2], fill=ROCK_R)
+    d.polygon([T, Rr, Bt, Lf], fill=ROCK_TOP)
+    for _ in range(4):
         x, y = rnd.uniform(0.25, 0.75) * U, rnd.uniform(0.15, 0.35) * U
-        if abs(x - cx) / (U / 2) + abs(y - cy) / (U / 4) < 0.75:
-            r = rnd.uniform(2, 4) * S
-            d.ellipse([x - r, y - r / 2, x + r, y + r / 2], fill=shade(top, 0.82))
-    # crisp edges like the town kit
-    d.line([Lf, Bt, Rr], fill=shade(top, 0.75), width=2 * S)
-    d.line([Lf, L2, B2, R2, Rr], fill=INK, width=2 * S)
-    d.line([Bt, B2], fill=shade(right, 0.7), width=2 * S)
-    finish(name, img, (cx, cy), "Tiles", desc="Mine ground block: dirt tile with its earthen skirt one level deep (tinted per layer)", crop=False)
+        if abs(x - cx) / (U / 2) + abs(y - cy) / (U / 4) < 0.7:
+            r = rnd.uniform(2, 3.5) * S
+            d.ellipse([x - r, y - r / 2, x + r, y + r / 2], fill=shade(ROCK_TOP, 0.9))
+    # a lit top edge: the cut surface catches the light
+    d.line([Lf, Bt, Rr], fill=(255, 252, 244, 255), width=2 * S)
+    finish(name, img, (cx, cy), "Tiles", desc=desc, crop=False)
+
+
+def timber_frame():
+    """Tunnel timbering: a post and a cap beam running along the tunnel (the grid's left-up axis), drawn at a sill."""
+    img = Image.new("RGBA", (int(U * 1.1), int(U * 1.3)), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    w, h = img.width, img.height
+    foot = (w - 0.1 * U, h - 2 * S)
+    top = (foot[0], foot[1] - 0.72 * U)
+    beam_end = (top[0] - 1.0 * U, top[1] - 0.5 * U)
+    d.line([foot, top], fill=INK, width=9 * S)
+    d.line([foot, top], fill=TIMBER_M, width=5 * S)
+    d.line([(top[0] + 4 * S, top[1] + 2 * S), beam_end], fill=INK, width=9 * S)
+    d.line([(top[0] + 4 * S, top[1] + 2 * S), beam_end], fill=TIMBER_L, width=5 * S)
+    finish("prop_timber", img, foot, "Props", desc="Tunnel timber: post and cap beam")
+
+
+def mine_lamp():
+    """A hanging lamp marking a tunnel's working face."""
+    img = Image.new("RGBA", (U // 2, U // 2), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    c = (U / 4, U / 4)
+    for r, a in ((0.24, 60), (0.17, 110)):
+        d.ellipse([c[0] - r * U, c[1] - r * U, c[0] + r * U, c[1] + r * U], fill=(255, 214, 120, a))
+    d.ellipse([c[0] - 0.07 * U, c[1] - 0.09 * U, c[0] + 0.07 * U, c[1] + 0.07 * U], fill=(255, 226, 140, 255), outline=INK, width=2 * S)
+    finish("prop_lamp", img, c, "Props", desc="Mine lamp at a tunnel face")
 
 
 def ladder_segment():
@@ -1213,7 +1259,12 @@ def main():
     tile("tile_forest_floor", FOREST_C, FOREST_D, "tufts", 6)
     for i in range(3):
         ground_block(f"tile_block_{i}", 40 + i)
+        ground_block(f"tile_block_seam_{i}", 40 + i, seam=True)
     ladder_segment()
+    timber_frame()
+    mine_lamp()
+    rock_slab("tile_slab", 0.25, 60, "Mine floor slab: a thin block of the layer's rock")
+    rock_slab("tile_sill", 0.5, 61, "Mine sill: the cliff-face block cut down to a lip in front of a tunnel")
     store(); smelter(); forge(); mill(); bench(); apothecary(); trader(); mine_mouth(); forest_gate()
     tree_cedar(); tree_maple(); tree_ironwood(); bush_herb()
     rock("rock_stone", None, 11, "Rock face: plain stone")

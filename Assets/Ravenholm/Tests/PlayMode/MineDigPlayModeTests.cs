@@ -149,9 +149,9 @@ namespace Ravenholm.Tests
             var dig = Object.FindAnyObjectByType<MineDigView>();
             var ground = Map("Ground");
             yield return StandNearMine(dig);
-            var edge = dig.TunnelPath[2];
-            while (ground.HasTile(edge + Vector3Int.down)) edge += Vector3Int.down;
-            Assert.IsTrue(Level(1).HasTile(edge), "the bottom edge shows as a full ground block");
+            var edge = dig.TunnelPath[6] + Vector3Int.left;   // the cliff face beside the tunnel line
+            Assert.IsTrue(ground.HasTile(edge) && !ground.HasTile(edge + Vector3Int.left), "a cell on the frontier's straight cliff face");
+            Assert.IsTrue(Level(1).HasTile(edge), "the edge shows as a full ground block");
             Assert.IsTrue(Level(2).HasTile(edge), "and the cliff of layers continues below it");
             Assert.IsFalse(Level(2).HasTile(edge + new Vector3Int(3, 3, 0)), "hidden blocks inside the ground are never drawn");
             Assert.AreEqual(ground.GetCellCenterWorld(edge).y - 1f, Level(2).GetCellCenterWorld(edge).y, 0.001f, "one level = one block down");
@@ -215,43 +215,44 @@ namespace Ravenholm.Tests
             FinishShaft(s);
             yield return null;
 
-            // Climb down to level 3 and walk to the left end of its ledge: the context button offers its tunnel there.
+            // Climb down to level 2 (the layer's next level without a tunnel) and walk to the left end of its ledge: the context button offers its tunnel there.
             Motor.Teleport(dig.LadderPlane + new Vector2(0.25f, 0.125f));
-            Motor.ClimbTo(3);
+            Motor.ClimbTo(2);
             var deadline = Time.realtimeSinceStartup + 5f;
-            while ((Motor.OnLadder || Motor.MineLevel != 3) && Time.realtimeSinceStartup < deadline) yield return null;
-            Assert.AreEqual(3, Motor.MineLevel, "the ladder's context action climbs to a level");
+            while ((Motor.OnLadder || Motor.MineLevel != 2) && Time.realtimeSinceStartup < deadline) yield return null;
+            Assert.AreEqual(2, Motor.MineLevel, "the ladder's context action climbs to a level");
             yield return Hold(Vector2.left, () => SandboxSceneController.Current.ContextTarget is MineActionSpot sp && sp.SpotKind == MineActionSpot.Kind.Tunnel,
                 4f, "walks the ledge to the tunnel end");
             var spot = MineActionSpot.Find(MineActionSpot.Kind.Tunnel);
             Assert.AreEqual("Dig", spot.ContextVerb);
             SandboxSceneController.Current.Inspect(spot);
-            Assert.AreEqual(1, mine.Record.Tunnels.Count, "a tunnel is started at level 3");
+            Assert.AreEqual(1, mine.Record.Tunnels.Count, "a tunnel is started at level 2");
             var t = mine.Record.Tunnels[0];
-            Assert.AreEqual(3, t.Level);
+            Assert.AreEqual(2, t.Level);
             Assert.AreEqual(1, t.Depth, "in the level's own layer");
             Assert.AreEqual(1, mine.Record.Workers[0].Face, "the waiting miner was sent to it");
 
             // The level below digs its own tunnel at the same time, separated by a slab of dirt.
-            Assert.AreEqual(2, s.Sites.StartTunnel("site.mine", 4));
+            Assert.AreEqual(2, s.Sites.StartTunnel("site.mine", 3));
             s.Logistics.System.State.Containers["container.mine_staging"].Materials.Clear();
             mine.DebugCompleteTunnel(1);
             mine.DebugCompleteTunnel(2);
             s.Simulation.Advance(120_000, 120_000);
             yield return new WaitForSeconds(0.5f);
             var path = dig.TunnelPath;
-            Assert.AreEqual(4, dig.TunnelDug(3));
+            Assert.AreEqual(4, dig.TunnelDug(2));
             for (var i = 0; i < 4; i++)
             {
-                Assert.IsFalse(Level(3).HasTile(path[i]), "tunnel blocks are dug out");
-                Assert.IsTrue(Map("MineSlabs3").HasTile(path[i]), "and stand on a slab of dirt");
+                Assert.IsFalse(Level(2).HasTile(path[i]), "tunnel blocks are dug out");
+                Assert.IsTrue(Map("MineSlabs2").HasTile(path[i]), "and stand on a slab of dirt");
             }
-            Assert.Less(dig.FloorPoint(path[3], 3).x, dig.PitTopCentre.x - 2f, "the tunnel runs left");
-            Assert.IsTrue(Level(3).HasTile(path[4]), "the next stretch is still ground");
-            Assert.Greater(Map("MineSills3").GetUsedTilesCount(), 0, "the blocks in front are cut down to a sill: the tunnel sits one row in");
-            Assert.IsFalse(Level(3).HasTile(path[1] + Vector3Int.down), "nothing full-height stands in front of the tunnel");
-            Assert.IsTrue(dig.Walkable(3, Level(1).GetCellCenterWorld(path[2])), "the player can walk into the tunnel");
-            Assert.IsTrue(Map("MineSlabs4").HasTile(path[0]), "the level below has its own tunnel");
+            Assert.Less(dig.FloorPoint(path[3], 2).x, dig.PitTopCentre.x - 2f, "the tunnel runs left");
+            Assert.IsTrue(Level(2).HasTile(path[4]), "the next stretch is still ground");
+            Assert.Greater(Map("MineSills2").GetUsedTilesCount(), 0, "the blocks in front are cut down to a sill: the tunnel sits one row in");
+            Assert.IsFalse(Level(2).HasTile(path[1] + Vector3Int.left), "nothing full-height stands in front of the tunnel");
+            Assert.IsTrue(Map("MineSills2").HasTile(path[1] + Vector3Int.left), "the cliff-face block in front is a sill");
+            Assert.IsTrue(dig.Walkable(2, Level(1).GetCellCenterWorld(path[2])), "the player can walk into the tunnel");
+            Assert.IsTrue(Map("MineSlabs3").HasTile(path[0]), "the level below has its own tunnel");
 
             yield return Hold(Vector2.left, () => SandboxSceneController.Current.ContextTarget is MineActionSpot sp2 && sp2.ContextVerb == "Extend", 5f,
                 "at the tunnel face, the cleared stretch can be continued");
@@ -299,7 +300,8 @@ namespace Ravenholm.Tests
             var ground = Map("Ground");
             Assert.NotNull(forest);
             var first = ground.GetCellCenterWorld(forest.TreeCell(0));
-            Assert.Less(first.x, -12f, "the Forest stands on the frontier, left of town");
+            Assert.Greater(forest.TreeCell(0).y, GameRoot.Instance.Config.SandboxSettings.townCells.yMax, "the Forest stands on the frontier, beyond the town");
+            Assert.AreEqual(dig.TunnelPath[0].x - 1, forest.TreeCell(0).x, "its first trees stand on the cliff edge, right above the tunnels");
             Assert.Less(first.y, dig.PitTopCentre.y + 1.5f, "starting at the bottom edge, right above the tunnels");
 
             // Tightly grown: standing trees block the way; only cut tiles can be walked.

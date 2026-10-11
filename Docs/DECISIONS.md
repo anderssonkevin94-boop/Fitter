@@ -512,3 +512,22 @@ Direction from the user: down is progression and left is staying at a depth, for
   - every miner returns to the shaft.
 
   Nothing owned is lost. The schema is not bumped.
+
+## Town on the grid, option A look (2026-10-11)
+
+The user picked concept A (`Docs/Concepts/mine_layers_option_a.png`) and asked for the town to be set up so its angle works.
+
+- **The town is a rectangle of grid cells** (`SandboxSettings.townCells`), so every edge is a straight cliff face.
+  - The Mine's shaft (`mineCell`) stands out from the town's left corner.
+  - The frontier (`frontierLengthCells` × `frontierWidthCells`) continues the shaft's left face beyond the town's upper-left edge.
+  - Tunnels run straight along the grid (up-left on screen) one row in from that face, with a one-tile sill in front.
+  - The Forest stands on the frontier right above them. Areas go along the edge ("left"), and clearings go back from it ("up"), with no town in the way.
+  - Walkable space is decided by the tiles; `WorldBounds` is only the bounding box for the camera and the player.
+- **Relocations.** The Smelter (−14.5, −1.5), Lumbermill (−11.6, 3.2), Forest gate (−15.5, 3.0) and both staging piles moved next to the shaft and the Forest trail. Two placeholder rock faces moved to the town's right side.
+- **The look.**
+  - Ground blocks are plain rock with no outlines, so solid earth reads as one mass.
+  - Each layer has a clear colour, and a seam line marks each layer's first level. Level 1 is topsoil.
+  - Everything inside the dig (shaft walls, tunnel back walls, floors) is shaded dark, so every opening reads at a glance.
+  - Floors, ledges and sills are thin blocks of the same rock.
+  - Tunnels are timbered at every stretch, with a lamp at the working face.
+  - Ledges stay only where needed: levels with a tunnel, each opened layer's next free level, and the pit floor. The ladder stops at those levels.

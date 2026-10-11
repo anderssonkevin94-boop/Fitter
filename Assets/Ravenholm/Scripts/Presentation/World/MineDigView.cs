@@ -16,11 +16,11 @@ namespace Ravenholm.Presentation
     /// above is open. So the exposed edges show as a cliff of layers, and whatever the miners dig opens into it.
     ///
     /// The Mine has two directions (GDD 6, as directed):
-    ///   - down is progression: the shaft, a 4×4 pit at the town's bottom-left edge, sinks through one layer (three
-    ///     levels) per "Dig Deeper" section, blocks clearing top level first and front first;
-    ///   - left is staying in a layer: each level has its own tunnel ("Continue Here"), running left along the bottom
-    ///     edge under the Forest. Tunnels are recessed one row behind the cliff face: the front blocks are cut down to a
-    ///     low dirt sill and the tunnel floor is a slab of dirt left between levels.
+    ///   - down is progression: the shaft, a 4×4 pit standing out from the town's left corner, sinks through one layer
+    ///     (three levels) per "Dig Deeper" section, blocks clearing top level first and front first;
+    ///   - left is staying in a layer: each level has its own tunnel ("Continue Here"), running straight along the grid
+    ///     (up-left on screen) under the frontier Forest. Tunnels are recessed one row behind the cliff face: the face
+    ///     blocks in front are cut down to a low dirt sill and the tunnel floor is a slab of dirt left between levels.
     /// A dirt ledge along the shaft's back wall joins the ladder (right wall) to the tunnel mouths at every level.
     /// Layers are tinted by their band; undug ground darkens with depth. Only levels near the camera exist, so depth and
     /// length are unlimited. Presentation only: what is dug comes from the site simulation.
@@ -34,13 +34,18 @@ namespace Ravenholm.Presentation
         public const float SillRise = 0.5f;     // the cut-down front blocks in front of a tunnel
         public const int Blocks = Size * Size;
         private const int Preview = 3;
-        private const int MaxTunnelCells = 400;
+        private const int MaxTunnelCells = 1000;
 
         [SerializeField] private Grid grid;
         [SerializeField] private Tilemap ground;
         [SerializeField] private Vector3Int pitOrigin;   // front cell of the pit (lowest x and y), on the bottom row
         [SerializeField] private TileBase[] blockTiles = new TileBase[0];
+        [Tooltip("Block variants with the dark line that marks the top of a new layer.")]
+        [SerializeField] private TileBase[] seamTiles = new TileBase[0];
         [SerializeField] private TileBase slabTile;
+        [SerializeField] private TileBase sillTile;
+        [SerializeField] private Sprite timberSprite;
+        [SerializeField] private Sprite lampSprite;
         [SerializeField] private Sprite ladderSprite;
         [SerializeField] private Material spriteMaterial;
 
@@ -69,12 +74,17 @@ namespace Ravenholm.Presentation
         private int _fullLevels;       // levels 1.._fullLevels: every pit block dug
         private int _partialLevel;     // the level the shaft is clearing now (0 = none)
 
-        public void EditorSetup(Grid g, Tilemap groundMap, Vector3Int origin, TileBase[] tiles, TileBase slab, Sprite ladder, Material mat)
+        public void EditorSetup(Grid g, Tilemap groundMap, Vector3Int origin, TileBase[] tiles, TileBase[] seams, TileBase slab, TileBase sill,
+            Sprite ladder, Sprite timber, Sprite lamp, Material mat)
         {
+            sillTile = sill;
             grid = g;
             ground = groundMap;
             pitOrigin = origin;
             blockTiles = tiles;
+            seamTiles = seams;
+            timberSprite = timber;
+            lampSprite = lamp;
             slabTile = slab;
             ladderSprite = ladder;
             spriteMaterial = mat;
@@ -164,12 +174,23 @@ namespace Ravenholm.Presentation
             return ForestGridView.Current == null || !ForestGridView.Current.HasStandingTree(c);
         }
 
+        /// <summary>
+        /// A ledge is left in the shaft only where it is needed: at levels with a tunnel, at each opened layer's next
+        /// level without one (so it can be started there), and at the pit floor.
+        /// </summary>
+        public bool HasLedge(int level)
+        {
+            if (level < 2 || level > DeepestFloor) return false;
+            if (level == DeepestFloor || _sim == null) return true;
+            return _sim.TunnelIndex(level) >= 0 || level == _sim.NextTunnelLevel(_sim.BandOfLevel(level));
+        }
+
         /// <summary>A slab floor (ledge or dug tunnel) at this level.</summary>
         public bool IsSlab(Vector3Int c, int level)
         {
             if (level < 2) return false;
             EnsureGeometry();
-            if (_ledgeSet.Contains(c)) return level <= DeepestFloor;
+            if (_ledgeSet.Contains(c)) return HasLedge(level);
             return _pathIndex.TryGetValue(c, out var i) && TunnelDug(level) > i;
         }
 
@@ -185,7 +206,7 @@ namespace Ravenholm.Presentation
         public float FloorDrop(int level, Vector2 plane) => level * LevelHeight - (IsSlab(CellAt(plane), level) ? SlabRise : 0f);
 
         /// <summary>Levels the ladder lets the player off at: the town (0), every ledge, and the pit floor.</summary>
-        public bool IsStop(int level) => level == 0 || (level >= 1 && level == DeepestFloor) || (level >= 2 && level <= DeepestFloor);
+        public bool IsStop(int level) => level == 0 || (level >= 1 && level == DeepestFloor) || HasLedge(level);
 
         /// <summary>World point of a body standing on cell <paramref name="c"/> at <paramref name="level"/> (≥ 1).</summary>
         public Vector3 FloorPoint(Vector3Int c, int level) => Centre(c) + new Vector3(0f, -level * LevelHeight + (IsSlab(c, level) ? SlabRise : 0f), 0f);
@@ -242,39 +263,28 @@ namespace Ravenholm.Presentation
 
             // The ledge, from the tunnel mouth along the back row to the ladder's foot on the right wall.
             _ledge.Clear();
-            for (var x = 0; x < Size; x++) _ledge.Add(new Vector3Int(pitOrigin.x + x, pitOrigin.y + Size - 1, 0));
+            for (var x = 1; x < Size; x++) _ledge.Add(new Vector3Int(pitOrigin.x + x, pitOrigin.y + Size - 1, 0));
             _ledge.Add(LadderFootCell);
             _ledgeSet.Clear();
             foreach (var c in _ledge) _ledgeSet.Add(c);
 
-            // The tunnel: left from the shaft's back-left cell, one row behind the bottom edge's front row, zigzagging on
-            // the grid (left-down, then left-up) so it runs straight left on screen.
+            // The tunnel: straight along the grid from the shaft's back-left wall, one row in from the cliff face (which
+            // continues the shaft's left face), as far as the ground goes.
             _path.Clear();
             _pathIndex.Clear();
-            var cur = new Vector3Int(pitOrigin.x - 1, pitOrigin.y + Size - 1, 0);
+            var cur = new Vector3Int(pitOrigin.x + 1, pitOrigin.y + Size, 0);
             for (var i = 0; i < MaxTunnelCells && InPlot(cur); i++)
             {
                 _pathIndex[cur] = _path.Count;
                 _path.Add(cur);
-                cur += i % 2 == 0 ? Vector3Int.left : Vector3Int.up;
+                cur += Vector3Int.up;
             }
-            // Sills: whatever stands in front of a tunnel cell (down to the cliff face) is cut down to a low lip.
+            // Sills: the cliff-face block in front of each tunnel block is cut down to a low lip.
             _sillIndex.Clear();
             for (var i = 0; i < _path.Count; i++)
             {
-                var frontier = new List<Vector3Int> { _path[i] };
-                for (var step = 0; step < 3; step++)
-                {
-                    var next = new List<Vector3Int>();
-                    foreach (var c in frontier)
-                        foreach (var f in new[] { c + Vector3Int.left, c + Vector3Int.down })
-                        {
-                            if (!InPlot(f) || IsPitCell(f) || _pathIndex.ContainsKey(f) || _sillIndex.ContainsKey(f)) continue;
-                            _sillIndex[f] = i;
-                            next.Add(f);
-                        }
-                    frontier = next;
-                }
+                var f = _path[i] + Vector3Int.left;
+                if (InPlot(f) && !IsPitCell(f) && !_pathIndex.ContainsKey(f)) _sillIndex[f] = i;
             }
 
             // Blocks that can ever be seen: the exposed edge, the pit and its walls, and around the tunnels.
@@ -431,6 +441,8 @@ namespace Ravenholm.Presentation
             if (_sills.TryGetValue(level, out var sill)) { Destroy(sill.gameObject); _sills.Remove(level); }
             _levelKeys.Remove(level);
             if (_ladders.TryGetValue(level, out var l)) { Destroy(l.gameObject); _ladders.Remove(level); }
+            if (_props.TryGetValue(level, out var p) && p != null) Destroy(p.gameObject);
+            _props.Remove(level);
         }
 
         private Tilemap NewMap(string name, float y, int order)
@@ -450,7 +462,7 @@ namespace Ravenholm.Presentation
         private void EnsureLevel(int level, SiteSimulator sim)
         {
             var band = DepthOfLevel(sim, level);
-            var ledge = level >= 2 && level <= DeepestFloor;
+            var ledge = HasLedge(level);
             var key = $"{PitState(level)}|{PitState(level - 1)}|{TunnelDug(level)}|{TunnelDug(level - 1)}|{ledge}|{band}|{level - WorkingLevel}|{sim.Record.Revealed.Count}";
             if (_levelKeys.TryGetValue(level, out var k) && k == key) return;
             _levelKeys[level] = key;
@@ -459,14 +471,23 @@ namespace Ravenholm.Presentation
             {
                 // Deeper levels behind; the town surface (order 0) above all. A level's slabs and sills sit above its blocks.
                 var top = -(level - 1) * LevelHeight;
-                tm = NewMap($"MineLevel{level}", top, -3 * level);
+                tm = NewMap($"MineLevel{level}", top, -4 * level);
                 _levels[level] = tm;
-                _slabs[level] = NewMap($"MineSlabs{level}", top - (LevelHeight - SlabRise), -3 * level + 1);
-                _sills[level] = NewMap($"MineSills{level}", top - (LevelHeight - SillRise), -3 * level + 2);
+                _slabs[level] = NewMap($"MineSlabs{level}", top - (LevelHeight - SlabRise), -4 * level + 1);
+                _sills[level] = NewMap($"MineSills{level}", top - (LevelHeight - SillRise), -4 * level + 2);
             }
             tm.ClearAllTiles();
+            var seam = level >= 2 && level == sim.FirstLevelOf(band);
             foreach (var c in _candidates)
-                if (Solid(c, level) && Visible(c, level)) SetBlock(tm, c);
+            {
+                if (!Solid(c, level) || !Visible(c, level)) continue;
+                SetBlock(tm, c, seam);
+                // Inside the dig (the shaft's walls, a tunnel's back wall) the ground is in shadow, so every opening reads
+                // at a glance; the outside of the cliff stays lit.
+                var inside = Dug(c + Vector3Int.left, level) || Dug(c + Vector3Int.down, level);
+                var floor = level >= 2 && Dug(c, level - 1) && !_sillIndex.ContainsKey(c);
+                if (inside || floor) Shade(tm, c, inside ? InsideShade : FloorShade);
+            }
 
             var slabs = _slabs[level];
             var sills = _sills[level];
@@ -474,28 +495,75 @@ namespace Ravenholm.Presentation
             sills.ClearAllTiles();
             if (level >= 2 && slabTile != null)
             {
-                if (ledge) foreach (var c in _ledge) slabs.SetTile(c, slabTile);
+                if (ledge) foreach (var c in _ledge) { slabs.SetTile(c, slabTile); Shade(slabs, c, LedgeShade); }
                 var n = Mathf.Min(TunnelDug(level), _path.Count);
-                for (var i = 0; i < n; i++) slabs.SetTile(_path[i], slabTile);
+                for (var i = 0; i < n; i++) { slabs.SetTile(_path[i], slabTile); Shade(slabs, _path[i], FloorShade); }
                 foreach (var kv in _sillIndex)
-                    if (kv.Value < n)
-                    {
-                        slabs.SetTile(kv.Key, slabTile);   // the sill's lower half
-                        sills.SetTile(kv.Key, slabTile);   // and its lip
-                    }
+                    if (kv.Value < n) sills.SetTile(kv.Key, sillTile != null ? sillTile : slabTile);
             }
-            // The town's own layer matches the town's ground; the layers below carry their band's tint.
-            var tint = level == 1 ? Color.white : Tint(band, level - Mathf.Max(DeepestFloor, WorkingLevel));
+            // The town's own layer is topsoil; the layers below carry their band's colour.
+            var tint = level == 1 ? Topsoil : Tint(band, level - Mathf.Max(DeepestFloor, WorkingLevel));
             tm.color = tint;
             slabs.color = tint;
-            sills.color = tint * new Color(1.06f, 1.06f, 1.06f, 1f);
+            sills.color = tint;
             UpdateLadder(level);
+            UpdateProps(level, tint);
         }
 
-        private void SetBlock(Tilemap tm, Vector3Int cell)
+        private static readonly Color Topsoil = new Color(0.80f, 0.64f, 0.46f);
+        private static readonly Color InsideShade = new Color(0.5f, 0.48f, 0.5f);
+        private static readonly Color FloorShade = new Color(0.68f, 0.66f, 0.66f);
+        private static readonly Color LedgeShade = new Color(0.8f, 0.78f, 0.78f);
+
+        private static void Shade(Tilemap tm, Vector3Int c, Color shade)
+        {
+            tm.SetTileFlags(c, TileFlags.None);
+            tm.SetColor(c, shade);
+        }
+
+        private void SetBlock(Tilemap tm, Vector3Int cell, bool seam)
         {
             var h = (cell.x * 73856093) ^ (cell.y * 19349663);
-            tm.SetTile(cell, blockTiles[Mathf.Abs(h) % blockTiles.Length]);
+            var set = seam && seamTiles.Length > 0 ? seamTiles : blockTiles;
+            tm.SetTile(cell, set[Mathf.Abs(h) % set.Length]);
+        }
+
+        // ------------------------------------------------------------------ timbering and lamps
+
+        private readonly Dictionary<int, Transform> _props = new Dictionary<int, Transform>();
+
+        /// <summary>Each tunnel is timbered at every stretch, with a lamp at its working face.</summary>
+        private void UpdateProps(int level, Color tint)
+        {
+            if (_props.TryGetValue(level, out var old) && old != null) Destroy(old.gameObject);
+            _props.Remove(level);
+            var n = Mathf.Min(TunnelDug(level), _path.Count);
+            if (level < 2 || n <= 0) return;
+            var root = new GameObject($"MineProps{level}").transform;
+            root.SetParent(transform, false);
+            _props[level] = root;
+            var floor = -level * LevelHeight + SlabRise;
+            for (var i = 0; i < n; i += 4)
+            {
+                // At the tunnel's front edge, beside the sill; the cap beam runs along the tunnel.
+                var at = Centre(_path[i]) + new Vector3(-0.25f, -0.125f + floor, 0f);
+                Prop(root, timberSprite, at, -4 * level + 3, Color.Lerp(Color.white, tint, 0.15f));
+            }
+            Prop(root, lampSprite, Centre(_path[n - 1]) + new Vector3(0f, floor + 0.62f, 0f), -4 * level + 3, Color.white);
+        }
+
+        private void Prop(Transform parent, Sprite sprite, Vector3 at, int order, Color colour)
+        {
+            if (sprite == null) return;
+            var go = new GameObject(sprite.name);
+            go.transform.SetParent(parent, false);
+            go.transform.position = at;
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = sprite;
+            sr.color = colour;
+            sr.sortingLayerName = "Ground";
+            sr.sortingOrder = order;
+            if (spriteMaterial != null) sr.sharedMaterial = spriteMaterial;
         }
 
         private void UpdateLadder(int level)
@@ -515,7 +583,7 @@ namespace Ravenholm.Presentation
                 sr.sprite = ladderSprite;
                 sr.flipX = true;   // on the right back wall, facing down-left
                 sr.sortingLayerName = "Ground";
-                sr.sortingOrder = -3 * level + 2;
+                sr.sortingOrder = -4 * level + 3;
                 if (spriteMaterial != null) sr.sharedMaterial = spriteMaterial;
                 _ladders[level] = sr;
             }
@@ -525,23 +593,25 @@ namespace Ravenholm.Presentation
         /// <summary>Which band (layer) a level belongs to: layers are a fixed number of levels tall.</summary>
         public static int DepthOfLevel(SiteSimulator sim, int level) => sim.BandOfLevel(level);
 
+        /// <summary>One clear colour per layer (they repeat, slightly darker, for layers beyond the palette).</summary>
         private static readonly Color[] Bands =
         {
-            new Color(0.96f, 0.86f, 0.78f), new Color(0.86f, 0.84f, 0.88f), new Color(0.98f, 0.92f, 0.80f),
-            new Color(0.84f, 0.80f, 0.78f), new Color(0.92f, 0.86f, 0.90f), new Color(0.90f, 0.90f, 0.82f),
+            new Color(0.86f, 0.71f, 0.50f), new Color(0.76f, 0.48f, 0.37f), new Color(0.53f, 0.56f, 0.65f),
+            new Color(0.58f, 0.67f, 0.47f), new Color(0.62f, 0.49f, 0.60f), new Color(0.82f, 0.63f, 0.31f),
         };
 
         /// <summary>The layer's earth tint (its ore mix over a base that alternates by band), darker below the dig.</summary>
         public Color Tint(int depth, int belowDug)
         {
             var sim = _root != null ? _root.Services.Sites.Get(SiteId) : null;
-            var col = Bands[(Mathf.Max(1, depth) - 1) % Bands.Length];
+            var i = Mathf.Max(1, depth) - 1;
+            var col = Bands[i % Bands.Length] * Mathf.Pow(0.9f, i / Bands.Length);
             if (sim != null && sim.Record.Revealed.TryGetValue(depth, out var comp) && comp != null)
             {
                 var ore = Color.black;
                 foreach (var w in comp.Weights)
                     ore += (_root.Services.Catalogue.TryGet<ResourceDefinition>(w.Key, out var r) ? r.MapTint : Color.gray) * (float)w.Value;
-                col = Color.Lerp(col, Color.Lerp(Color.white, ore, 0.6f), 0.5f);
+                col = Color.Lerp(col, col * Color.Lerp(Color.white, ore, 0.6f), 0.25f);   // a hint of its ores; the layer colour leads
             }
             else if (belowDug <= 0) belowDug = 1;   // an unrevealed layer is unknown ground
             if (belowDug > 0) col = Color.Lerp(col, new Color(0.35f, 0.3f, 0.32f), Mathf.Clamp01(0.3f + 0.12f * belowDug));

@@ -475,6 +475,12 @@
     0.0
    ]
   },
+  "Props/prop_lamp.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Props/prop_output_pad.png": {
    "pivot": [
     0.4985,
@@ -485,6 +491,12 @@
    "pivot": [
     0.1688,
     0.0485
+   ]
+  },
+  "Props/prop_timber.png": {
+   "pivot": [
+    0.9254,
+    0.012
    ]
   },
   "Props/rack_armor.png": {
@@ -805,6 +817,24 @@
     0.8351
    ]
   },
+  "Tiles/tile_block_seam_0.png": {
+   "pivot": [
+    0.5,
+    0.8351
+   ]
+  },
+  "Tiles/tile_block_seam_1.png": {
+   "pivot": [
+    0.5,
+    0.8351
+   ]
+  },
+  "Tiles/tile_block_seam_2.png": {
+   "pivot": [
+    0.5,
+    0.8351
+   ]
+  },
   "Tiles/tile_dirt.png": {
    "pivot": [
     0.5,
@@ -839,6 +869,18 @@
    "pivot": [
     0.5,
     0.6596
+   ]
+  },
+  "Tiles/tile_sill.png": {
+   "pivot": [
+    0.5,
+    0.7538
+   ]
+  },
+  "Tiles/tile_slab.png": {
+   "pivot": [
+    0.5,
+    0.6735
    ]
   },
   "UI/Icons/ic_bag.png": {
