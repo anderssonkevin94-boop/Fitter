@@ -74,6 +74,23 @@ namespace Ravenholm.Tests
             Assert.GreaterOrEqual(p.DugCount, 4 + 6, "the shaft down and a 2-high tunnel");
             Assert.Greater(p.Tally.Values.Sum(), 0);
             Assert.IsFalse(p.Solid(Mathf.RoundToInt(p.U), p.Feet - 1) || p.Solid(Mathf.RoundToInt(p.U), p.Feet - 2), "the supplier stands in open tunnel");
+            // Tap a block to select it, then hold Dig: that block (not the stick's aim) is mined.
+            var col = Mathf.RoundToInt(p.U);
+            var pick = new Vector2Int(col - 1, p.Feet - 1);   // the block beside the body, the other way along the tunnel
+            if (!p.Solid(pick.x, pick.y)) pick = new Vector2Int(col, p.Feet);   // else the floor under the feet
+            Assert.IsTrue(p.Solid(pick.x, pick.y));
+            var face = p.Top(pick.x, pick.y) + new Vector3(0f, -0.3f, 0f);
+            p.OnTapped(Camera.main.WorldToScreenPoint(face));
+            Assert.AreEqual(pick, p.Selected, "a tap selects the block drawn there");
+            yield return null;
+            Assert.AreEqual(pick, p.Target, "and it becomes the block to dig");
+            p.ScriptedDig = true;
+            yield return Until(() => !p.Solid(pick.x, pick.y), 5f, "the selected block is dug");
+            p.ScriptedDig = false;
+            Assert.IsNull(p.Selected, "the selection clears once dug");
+            var far = new Vector2Int(col + 6, 2);
+            Assert.IsFalse(p.InReach(far), "blocks far away are out of reach");
+
             yield return new WaitForSeconds(0.6f);
             yield return Capture.Take("mining_prototype");
 

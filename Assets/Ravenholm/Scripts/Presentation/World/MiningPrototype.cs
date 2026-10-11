@@ -119,6 +119,7 @@ namespace Ravenholm.Presentation
         private void OnDestroy()
         {
             if (Current == this) Current = null;
+            if (_root != null && _root.InputRouter != null) _root.InputRouter.Tapped -= OnTapped;
             if (_root != null && _root.Hud != null) _root.Hud.gameObject.SetActive(true);
         }
 
@@ -136,6 +137,7 @@ namespace Ravenholm.Presentation
             _highlight = MakeRenderer("Target", highlightSprite, new Color(1f, 0.92f, 0.45f, 0.45f));
             _crack = MakeRenderer("Crack", null, Color.white);
             BuildUi();
+            _root.InputRouter.Tapped += OnTapped;
             _drawFeet = _feet;
             PlacePlayer();
             SnapCamera();
@@ -224,7 +226,7 @@ namespace Ravenholm.Presentation
             PlacePlayer();
             Flecks();
             TrackCamera();
-            _tallyText.text = TallyText();
+            _tallyText.text = Time.time < _hintUntil ? _hint : TallyText();
         }
 
         private int Column => Mathf.RoundToInt(_u);
@@ -265,6 +267,13 @@ namespace Ravenholm.Presentation
         /// </summary>
         private void Aim(Vector2 move)
         {
+            // A tapped block stays selected while it is in reach and still there.
+            if (_selected.HasValue && (!Solid(_selected.Value.x, _selected.Value.y) || !InReach(_selected.Value))) _selected = null;
+            if (_selected.HasValue)
+            {
+                SetTarget(_selected);
+                return;
+            }
             var col = Column;
             Vector2Int? t = null;
             if (move.y < -0.5f && Mathf.Abs(move.x) < 0.5f) t = new Vector2Int(col, _feet);
@@ -278,15 +287,81 @@ namespace Ravenholm.Presentation
                 else if (Solid(side, _feet - 2)) t = new Vector2Int(side, _feet - 2);
                 else t = new Vector2Int(side, _feet);
             }
-            if (t.HasValue && (t.Value.y < 0 || t.Value.x < 0 || t.Value.x >= Width || t.Value.y >= Depth || !Solid(t.Value.x, t.Value.y))) t = null;
+            if (t.HasValue && !Diggable(t.Value)) t = null;
+            SetTarget(t);
+        }
+
+        private bool Diggable(Vector2Int b) => b.y >= 0 && b.x >= 0 && b.x < Width && b.y < Depth && Solid(b.x, b.y);
+
+        private void SetTarget(Vector2Int? t)
+        {
             if (t != _target) _progress = 0f;
             _target = t;
             _highlight.enabled = t.HasValue;
-            if (t.HasValue)
+            if (!t.HasValue) return;
+            _highlight.transform.position = Top(t.Value.x, t.Value.y);
+            _highlight.sortingOrder = -2 * t.Value.y + 1;
+            _highlight.color = _selected.HasValue ? new Color(1f, 0.86f, 0.3f, 0.7f) : new Color(1f, 0.92f, 0.45f, 0.4f);
+        }
+
+        // ------------------------------------------------------------------ tap to select
+
+        private Vector2Int? _selected;
+        private string _hint = "";
+        private float _hintUntil;
+
+        public Vector2Int? Selected => _selected;
+
+        /// <summary>Within reach: up to two blocks to either side, from one under the feet to one above the head.</summary>
+        public bool InReach(Vector2Int b) => Mathf.Abs(b.x - Column) <= 2 && b.y >= _feet - 3 && b.y <= _feet + 1;
+
+        /// <summary>A tap on the screen selects the block drawn there (the frontmost solid one), if it is in reach.</summary>
+        public void OnTapped(Vector2 screen)
+        {
+            var world = (Vector2)worldCamera.ScreenToWorldPoint(new Vector3(screen.x, screen.y, 10f));
+            if (!BlockAt(world, out var b)) return;
+            if (!InReach(b))
             {
-                _highlight.transform.position = Top(t.Value.x, t.Value.y);
-                _highlight.sortingOrder = -2 * t.Value.y + 1;
+                _hint = "Too far: walk closer to dig that block.";
+                _hintUntil = Time.time + 2f;
+                return;
             }
+            _selected = _selected == b ? (Vector2Int?)null : b;   // tapping it again deselects
+            _progress = 0f;
+        }
+
+        /// <summary>The frontmost solid face block whose sprite covers this world point.</summary>
+        public bool BlockAt(Vector2 world, out Vector2Int block)
+        {
+            block = default;
+            var found = false;
+            for (var row = Mathf.Max(0, _feet - 8); row <= Mathf.Min(Depth - 1, _feet + 6); row++)
+            for (var u = Mathf.Max(0, Column - 6); u <= Mathf.Min(Width - 1, Column + 6); u++)
+            {
+                if (!Solid(u, row) || !InSilhouette(world, Top(u, row))) continue;
+                // Upper rows and nearer columns are drawn over the others.
+                if (!found || row < block.y || row == block.y && u < block.x) block = new Vector2Int(u, row);
+                found = true;
+            }
+            return found;
+        }
+
+        /// <summary>Point inside a half-block's silhouette (top diamond plus its two faces), given its top centre.</summary>
+        private static bool InSilhouette(Vector2 p, Vector3 top)
+        {
+            var c = (Vector2)top;
+            var poly = new[]
+            {
+                c + new Vector2(0f, 0.25f), c + new Vector2(0.5f, 0f), c + new Vector2(0.5f, -RowHeight),
+                c + new Vector2(0f, -0.25f - RowHeight), c + new Vector2(-0.5f, -RowHeight), c + new Vector2(-0.5f, 0f),
+            };
+            for (var i = 0; i < poly.Length; i++)
+            {
+                var a = poly[i];
+                var b = poly[(i + 1) % poly.Length];
+                if ((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x) >= 0f) return false;   // clockwise outline; edges belong to neither
+            }
+            return true;
         }
 
         private float Hardness(Vector2Int b) => 0.55f + 0.02f * b.y + (OreAt(b.x, b.y) != null ? 0.25f : 0f);
@@ -309,6 +384,7 @@ namespace Ravenholm.Presentation
             if (_progress < 1f) return;
             _progress = 0f;
             _dug.Add(b);
+            if (_selected == b) _selected = null;
             var ore = OreAt(b.x, b.y) ?? _bands[Layer(b.y) - 1].BaselineResourceId ?? "rock";
             _tally[ore] = _tally.TryGetValue(ore, out var n) ? n + 1 : 1;
             for (var r = b.y - 1; r <= b.y + 1; r++) DrawRow(r);
@@ -404,7 +480,7 @@ namespace Ravenholm.Presentation
             var card = ui.Panel("Card", safe, theme.panel);
             UiFactory.Place(card.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(1100f, 300f));
             var title = ui.Text("Title", card.transform,
-                "<b>Mining prototype</b> (option A)\nDrag left/right to walk; lean the stick up or down to aim. Hold Dig to mine the lit block. Dig a 2-high tunnel, step up, drop down, chase the flecks.",
+                "<b>Mining prototype</b> (option A)\nDrag left/right to walk. Tap a block near you to select it (or lean the stick to aim), then hold Dig. Dig a 2-high tunnel, step up, drop down, chase the flecks.",
                 theme.smallSize - 6f, theme.ink, TextAlignmentOptions.TopLeft);
             UiFactory.Place(title.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -20f), new Vector2(1040f, 190f));
             _tallyText = ui.Text("Tally", card.transform, "", theme.smallSize - 4f, theme.ink, TextAlignmentOptions.BottomLeft, FontStyles.Bold);

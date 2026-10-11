@@ -160,6 +160,9 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Tiles/tile_halfblock_0.png` | Mine ground block: one level of earth, tinted per layer |
 | `Tiles/tile_halfblock_1.png` | Mine ground block: one level of earth, tinted per layer |
 | `Tiles/tile_halfblock_2.png` | Mine ground block: one level of earth, tinted per layer |
+| `Tiles/tile_halfblock_outline_0.png` | Mine ground block: one level of earth, tinted per layer |
+| `Tiles/tile_halfblock_outline_1.png` | Mine ground block: one level of earth, tinted per layer |
+| `Tiles/tile_halfblock_outline_2.png` | Mine ground block: one level of earth, tinted per layer |
 | `Tiles/tile_path.png` | Isometric ground tile (pebbles) |
 | `Tiles/tile_plaza.png` | Isometric ground tile (flags) |
 | `Tiles/tile_sill.png` | Mine sill: the cliff-face block cut down to a lip in front of a tunnel |

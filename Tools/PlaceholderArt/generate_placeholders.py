@@ -195,7 +195,7 @@ def tile(name, top, dark, pattern, seed):
 ROCK_TOP, ROCK_L, ROCK_R = (246, 240, 230, 255), (226, 218, 206, 255), (196, 188, 178, 255)
 
 
-def ground_block(name, seed, seam=False, height=1.0):
+def ground_block(name, seed, seam=False, height=1.0, outline=False):
     """Mine ground block (option A look): one level of earth, light and nearly neutral so each layer's tint gives it its
     colour. No outlines: neighbouring blocks merge into one mass of ground, and only cuts (tunnels, the shaft) read as
     edges. `seam` adds the dark line that marks the top of a new layer along its faces."""
@@ -220,6 +220,13 @@ def ground_block(name, seed, seam=False, height=1.0):
     if seam:
         w = 3 * S
         d.line([(Lf[0], Lf[1] + w / 2), (Bt[0], Bt[1] + w / 2), (Rr[0], Rr[1] + w / 2)], fill=shade(ROCK_R, 0.45), width=w)
+    if outline:
+        # Crisp block edges (the digging prototype): every block reads as its own block.
+        edge = shade(ROCK_R, 0.55)
+        w = 2 * S
+        d.line([T, Rr, Bt, Lf, T], fill=edge, width=w)
+        d.line([Lf, L2, B2, R2, Rr], fill=edge, width=w)
+        d.line([Bt, B2], fill=edge, width=w)
     finish(name, img, (cx, cy), "Tiles", desc="Mine ground block: one level of earth, tinted per layer" + (" (layer seam)" if seam else ""), crop=False)
 
 
@@ -1312,6 +1319,7 @@ def main():
         ground_block(f"tile_block_{i}", 40 + i)
         ground_block(f"tile_block_seam_{i}", 40 + i, seam=True)
         ground_block(f"tile_halfblock_{i}", 50 + i, height=0.5)
+        ground_block(f"tile_halfblock_outline_{i}", 50 + i, height=0.5, outline=True)
     ladder_segment()
     timber_frame()
     mine_lamp()

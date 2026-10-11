@@ -913,6 +913,24 @@
     0.7538
    ]
   },
+  "Tiles/tile_halfblock_outline_0.png": {
+   "pivot": [
+    0.5,
+    0.7538
+   ]
+  },
+  "Tiles/tile_halfblock_outline_1.png": {
+   "pivot": [
+    0.5,
+    0.7538
+   ]
+  },
+  "Tiles/tile_halfblock_outline_2.png": {
+   "pivot": [
+    0.5,
+    0.7538
+   ]
+  },
   "Tiles/tile_path.png": {
    "pivot": [
     0.5,

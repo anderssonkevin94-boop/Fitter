@@ -85,7 +85,7 @@ namespace Ravenholm.EditorTools
             camGo.AddComponent<FeedbackAudio>();
 
             new GameObject("MiningPrototype").AddComponent<MiningPrototype>().EditorSetup(grid, cam, player, visual,
-                new[] { tiles["halfblock_0"], tiles["halfblock_1"], tiles["halfblock_2"] }, tiles["grass_a"], tiles["fleck_half"],
+                new[] { tiles["halfblock_outline_0"], tiles["halfblock_outline_1"], tiles["halfblock_outline_2"] }, tiles["grass_a"], tiles["fleck_half"],
                 new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") },
                 ProjectSetup.LoadSprite("Tiles/tile_halfblock_0"), _unlit);
             EditorSceneManager.SaveScene(scene, path);
