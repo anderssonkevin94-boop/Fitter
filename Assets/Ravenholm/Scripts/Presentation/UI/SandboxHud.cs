@@ -667,11 +667,12 @@ namespace Ravenholm.Presentation
         private void UpdateContextButton()
         {
             var target = SandboxSceneController.Current != null ? SandboxSceneController.Current.ContextTarget : null;
-            if (target == _shownContext && _contextLabel.text.Length > 0) return;
+            var text = target != null ? $"{target.ContextVerb} {target.Title}" : "Walk closer";   // some targets change verb in place
+            if (target == _shownContext && _contextLabel.text == text) return;
             _shownContext = target;
             _contextButton.interactable = target != null;
             _contextGroup.alpha = target != null ? 1f : 0.55f;
-            _contextLabel.text = target != null ? $"{target.ContextVerb} {target.Title}" : "Walk closer";
+            _contextLabel.text = text;
         }
 
         private void OnContextPressed()

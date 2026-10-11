@@ -471,3 +471,19 @@ Stalls / losses:
 Proposed tuning changes:
 Approval status:
 ```
+
+## Mine: one block grid, walkable shaft, tunnels per level (2026-10-11)
+
+Asked for: grids that line up, going down the ladder yourself, a camera that just follows, the shaft as a long corridor, and sideways digging at each level ("each level has its own", with dirt between the layers).
+
+- **One block grid.** Every town cell is a column of ground blocks, one miner tall per level; level 1 is the town's own ground. `MineDigView` draws a block only when the camera can see it (an open front neighbour, or an open cell above), so the town's exposed edges now show as a cliff of layers on the same grid as the shaft. The pit's front cell sits on the town's bottom row, and the notch in front of it is cut on cell lines, so nothing overlaps.
+- **Walkable shaft.** Push down at the ladder to climb on. On the ladder, up and down move along the shaft like a corridor; letting go settles on the nearest level, and sideways steps off. You can stop at the town (0), at every ledge (levels 2 and deeper), and at the pit floor. The context button offers "Climb down", which goes to the floor, and "Climb up", which goes to the town. Underground the player uses the same plane coordinates, drawn one level lower per level. A reload puts you back at the ladder top.
+- **Dirt between layers.** At every open level below the town's ground, a dirt ledge (a slab 0.25 tall, using the town's own dirt tile) stays along the shaft's back walls, joining the ladder to both tunnel mouths. Each tunnel block stands on its own slab, so stacked tunnels stay separated by dirt.
+- **Tunnels (changes a GDD default).** The GDD default is that older layers close once you dig deeper. Now each level from 2 down can have one tunnel per side, dug along the exposed front in that level's own layer, alongside the shaft.
+  - A tunnel advances in stretches of 4 blocks, each worth 6 units, and each stretch is one decision ("Extend").
+  - Effort is the same per block as a shaft section. It starts one continuation step above the level's own section, so a tunnel is never cheaper than continuing there, and rises by one step per stretch.
+  - Miners are assigned per face: the shaft or one of the tunnels. Reassigning a working miner sends them up with their pack first.
+  - Starting a tunnel in the mine sends a miner. The first choice is one whose tunnel is waiting, then a spare shaft miner, then the only shaft miner, with a toast saying the shaft waits.
+  - The Mine panel lists the tunnels, can extend them, and can send miners between faces.
+- **Camera.** The near-Mine framing rule is removed; the camera follows the player everywhere, and its bottom limit extends as deep as anyone can stand. "Look down the shaft" still frames the working level.
+- **Saves.** These are optional fields (`tunnels`, worker `face`), so the schema is not bumped. Older saves load with no tunnels and every miner on the shaft.

@@ -29,7 +29,9 @@ namespace Ravenholm.EditorTools
         private static Vector3Int _mineCell;
         private static Grid _grid;
         private static Vector2 _mineCorner;
-        private static readonly Vector2 MineCornerTarget = new Vector2(-9.0f, -8.7f);
+        /// <summary>The pit's front corner sits on the town's bottom row of tiles, so the front cell is the edge itself.</summary>
+        private static readonly Vector2 MineCornerTarget = new Vector2(-7.0f, -9.25f);
+        private static Tilemap _groundMap;
         private static ContentCatalogue _catalogue;
 
         public static void BuildBootstrap(string bootConfigPath, string path)
@@ -222,6 +224,7 @@ namespace Ravenholm.EditorTools
             var tmGo = new GameObject("Ground");
             tmGo.transform.SetParent(gridGo.transform, false);
             var tm = tmGo.AddComponent<Tilemap>();
+            _groundMap = tm;
             var tr = tmGo.AddComponent<TilemapRenderer>();
             tr.mode = TilemapRenderer.Mode.Individual;
             tr.sortingLayerName = "Ground";
@@ -238,7 +241,7 @@ namespace Ravenholm.EditorTools
             {
                 (new Vector2(0f, 1.5f), new Vector2(0f, -6.5f)),
                 (new Vector2(0f, 0.6f), new Vector2(-7.2f, 0.0f)), (new Vector2(-7.2f, 0.0f), new Vector2(-8.9f, -3.3f)),
-                (new Vector2(-8.9f, -3.3f), new Vector2(-9.5f, -6.4f)),
+                (new Vector2(-8.9f, -3.3f), new Vector2(-8.6f, -6.9f)),
                 (new Vector2(0f, 0.6f), new Vector2(7.2f, 0.0f)), (new Vector2(7.2f, 0.0f), new Vector2(8.8f, 4.6f)),
                 (new Vector2(0f, -1.0f), new Vector2(-5.4f, -3.2f)), (new Vector2(0f, -1.0f), new Vector2(5.6f, -3.2f)),
             };
@@ -250,17 +253,16 @@ namespace Ravenholm.EditorTools
                 Vector2 c = grid.GetCellCenterWorld(cell);
                 if (c.x < b.xMin || c.x > b.xMax || c.y < b.yMin || c.y > b.yMax) continue;
                 if (InMine(cell)) continue;   // the pit: its own ground blocks (MineDigView)
-                // Open front: nothing stands in front of the pit and its walls, so their layers face the camera.
-                var rel = c - _mineCorner;
-                var half = (MineDigView.Size + 1) * 0.5f;
-                if (Mathf.Abs(rel.x) < half && rel.y < Mathf.Abs(rel.x) * 0.5f) continue;
+                // The notch: no ground in front of the pit's two faces, so the shaft is open to the camera.
+                var n = MineDigView.Size - 1;
+                if ((x < _mineCell.x || y < _mineCell.y) && x <= _mineCell.x + n && y <= _mineCell.y + n) continue;
 
                 string key;
                 var plaza = Mathf.Abs(c.x) / 3.6f + Mathf.Abs(c.y - 2.4f) / 2.0f < 1f;
                 if (plaza) key = "plaza";
                 else if (NearAnyPath(c, paths, 0.55f)) key = "path";
                 else if (c.x < -6.4f && c.y > 2.2f) key = "dirt";
-                else if (c.x < -6.6f && c.y < -5.4f) key = "dirt";   // worked ground around the Mine
+                else if (Mathf.Abs(c.x - _mineCorner.x) < 3.4f && c.y < -5.9f) key = "dirt";   // worked ground around the Mine
                 else if (c.x > 6.2f && c.y > 2.2f) key = "forest_floor";
                 else key = Hash01(x, y) < 0.22f ? "grass_b" : "grass_a";
                 tm.SetTile(cell, tiles[key]);
@@ -378,8 +380,18 @@ namespace Ravenholm.EditorTools
             go.transform.SetParent(parent, false);
             go.transform.position = _mineCorner;
             var tiles = ProjectSetup.EnsureTiles();
-            go.AddComponent<MineDigView>().EditorSetup(_grid, _mineCell,
-                new[] { tiles["block_0"], tiles["block_1"], tiles["block_2"] }, ProjectSetup.LoadSprite("Props/prop_ladder"), _unlit);
+            go.AddComponent<MineDigView>().EditorSetup(_grid, _groundMap, _mineCell,
+                new[] { tiles["block_0"], tiles["block_1"], tiles["block_2"] }, tiles["dirt"], ProjectSetup.LoadSprite("Props/prop_ladder"), _unlit);
+            // Context actions in the mine: the ladder and the two tunnel ends of whichever level the player is on.
+            foreach (var kind in new[] { MineActionSpot.Kind.Ladder, MineActionSpot.Kind.TunnelLeft, MineActionSpot.Kind.TunnelRight })
+            {
+                var spot = new GameObject($"MineAction{kind}");
+                spot.transform.SetParent(go.transform, false);
+                var col = spot.AddComponent<CircleCollider2D>();
+                col.isTrigger = true;
+                col.radius = 0.35f;
+                spot.AddComponent<MineActionSpot>().EditorSetup(kind);
+            }
             // Local corners of the pit's top diamond (front corner at the origin; +x right-up, +y left-up).
             Vector2 P(float u, float v) => new Vector2((u - v) * 0.5f, (u + v) * 0.25f);
             float n = MineDigView.Size;
@@ -388,7 +400,8 @@ namespace Ravenholm.EditorTools
             tap.points = new[] { P(0, 0) + new Vector2(0, -2.5f), P(n, 0) + new Vector2(0, -2.5f), P(n, 0), P(n, n), P(0, n), P(0, n) + new Vector2(0, -2.5f) };
             var site = go.AddComponent<SiteInspectable>();
             site.EditorSetup("Mine", "The Mine is dug straight into the ground. Each level is one miner deep and shows the layer it was dug in; " +
-                                     "the levels below show darker. Miners clear a level block by block; then you choose to continue this layer or dig into the next.", "");
+                                     "the levels below show darker. Miners clear a level block by block; then you choose to continue this layer or dig into the next. " +
+                                     "Climb down the ladder to any level below the town's ground and walk to either end of its ledge to start a tunnel sideways in that layer.", "");
             site.EditorSetupSite("site.mine");
             var hole = Blocker(go.transform, "PitBlocker");
             hole.AddComponent<PolygonCollider2D>().points = new[] { P(0.1f, 0.1f), P(n - 0.1f, 0.1f), P(n - 0.1f, n - 0.1f), P(0.1f, n - 0.1f) };

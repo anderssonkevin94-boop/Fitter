@@ -42,19 +42,16 @@ namespace Ravenholm.Presentation
             _camera.orthographicSize = OrthoSizeForWidth(s.viewWidthOptions[_viewWidthIndex], _camera.aspect);
 
             var t = (Vector2)target.position + new Vector2(0f, s.cameraLookAheadY);
-            // GDD 6: near the Mine the view follows the dig down, as far as it can while keeping the supplier in view;
-            // "Look down the shaft" frames the working level until the player moves again.
+            // The camera simply follows the player, into the Mine too (GDD 6); "Look down the shaft" frames the working
+            // level until the player moves again. The view may reach below the town as deep as anyone can stand.
             var mine = MineDigView.Current;
             _extraBottom = 0f;
             if (mine != null)
             {
-                var focus = (Vector2)mine.DigFocus;
                 var halfH = _camera.orthographicSize;
-                if (mine.ViewingDig) t = focus;
-                else if (Vector2.Distance(target.position, mine.PitTopCentre) < 4.5f)
-                    t.y = Mathf.Max(focus.y, target.position.y - halfH + 2.2f);
-                // Let the view reach down far enough to centre on the working level.
-                _extraBottom = Mathf.Max(0f, s.plotBounds.yMin - (focus.y - halfH));
+                if (mine.ViewingDig) t = mine.DigFocus;
+                var lowest = Mathf.Min(mine.DeepestFloorY, mine.DigFocus.y, target.position.y) - 1.5f;
+                _extraBottom = Mathf.Max(0f, s.plotBounds.yMin - (lowest - halfH));
             }
             if (!_snapped)
             {
@@ -85,7 +82,7 @@ namespace Ravenholm.Presentation
             var halfW = halfH * _camera.aspect;
             var b = s.plotBounds;
             const float margin = 1.5f;        // show a little of the diorama edge
-            const float bottomMargin = 3.4f;  // the Mine cutaway's faces hang below the town's front edge (GDD 6)
+            const float bottomMargin = 3.4f;  // the town's ground continues below its front edge as a cliff of layers (GDD 6)
             p.x = ClampAxis(p.x, b.xMin - margin, b.xMax + margin, halfW);
             p.y = ClampAxis(p.y, b.yMin - Mathf.Max(bottomMargin, _extraBottom), b.yMax + margin, halfH);
             return p;

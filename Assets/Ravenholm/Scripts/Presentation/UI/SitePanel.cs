@@ -99,6 +99,8 @@ namespace Ravenholm.Presentation
             _continueLabel.fontSizeMax = _deeperLabel.fontSizeMax = _theme.smallSize;
 
             _lookDown = _ui.Button("LookDown", content, "Look down the shaft", LookDown, out _);
+            _tunnels = UiFactory.Rect("Tunnels", content);
+            UiFactory.Column(_tunnels.gameObject, 14f, new RectOffset(0, 0, 8, 8));
             _facilities = UiFactory.Rect("Facilities", content);
             UiFactory.Column(_facilities.gameObject, 14f, new RectOffset(0, 0, 8, 8));
 
@@ -219,6 +221,125 @@ namespace Ravenholm.Presentation
 
         private Button _lookDown;
 
+        // ------------------------------------------------------------------ Mine tunnels and who digs where (GDD 6)
+
+        private RectTransform _tunnels;
+        private string _tunnelsKey = "";
+        private readonly List<(Button button, TextMeshProUGUI label, Func<string> text, Func<bool> enabled)> _tunnelButtons =
+            new List<(Button, TextMeshProUGUI, Func<string>, Func<bool>)>();
+        private readonly List<(TextMeshProUGUI text, Func<string> provider)> _tunnelTexts = new List<(TextMeshProUGUI, Func<string>)>();
+
+        private void RefreshTunnels(SiteSimulator sim)
+        {
+            var mine = sim.Config.Kind == SiteKind.Mine;
+            _tunnels.gameObject.SetActive(mine);
+            if (!mine) return;
+            var key = $"{_siteId}|{sim.Record.Workers.Count}|{sim.Record.Tunnels.Count}";
+            if (key != _tunnelsKey)
+            {
+                _tunnelsKey = key;
+                RebuildTunnels(sim);
+            }
+            foreach (var t in _tunnelTexts) t.text.text = t.provider();
+            foreach (var b in _tunnelButtons)
+            {
+                b.label.text = b.text();
+                b.button.interactable = b.enabled == null || b.enabled();
+            }
+        }
+
+        private void RebuildTunnels(SiteSimulator sim)
+        {
+            for (var i = _tunnels.childCount - 1; i >= 0; i--) Destroy(_tunnels.GetChild(i).gameObject);
+            _tunnelButtons.Clear();
+            _tunnelTexts.Clear();
+            var h = _ui.Text("Header", _tunnels, "Tunnels", _theme.bodySize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            h.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
+            TunnelText(() => Sim == null || Sim.Record.Tunnels.Count == 0
+                ? "Each level below the town's ground can have a tunnel on each side, dug in that level's layer alongside the shaft. " +
+                  "Climb down the ladder, step off at a level and walk to either end of its ledge to start one."
+                : "Each tunnel advances in stretches; when one is cleared its miner waits for you to extend it. Send miners between the shaft and the tunnels here.");
+
+            foreach (var w in sim.Record.Workers)
+            {
+                var id = w.Id;
+                TunnelButton(() =>
+                {
+                    var cur = Sim?.Record.Workers.Find(x => x.Id == id);
+                    if (cur == null) return "";
+                    var where = WorkerView.FaceName(Sim, cur.Face);
+                    return Sim.Record.Tunnels.Count == 0 ? $"{cur.Name} digs {where}" : $"{cur.Name} digs {where} · send to {WorkerView.FaceName(Sim, NextFace(cur))}";
+                }, () => SendMiner(id), () => Sim != null && Sim.Record.Tunnels.Count > 0);
+            }
+            for (var i = 0; i < sim.Record.Tunnels.Count; i++)
+            {
+                var face = i + 1;
+                TunnelText(() => TunnelSummary(face));
+                TunnelButton(() => ExtendText(face), () => ExtendTunnel(face), () => CanExtend(face));
+            }
+        }
+
+        private int NextFace(WorkerRecord w) => (w.Face + 1) % (Sim.Record.Tunnels.Count + 1);
+
+        /// <summary>Sends a miner on to the next face (shaft → tunnel 1 → … → shaft).</summary>
+        public bool SendMiner(string workerId)
+        {
+            var w = Sim?.Record.Workers.Find(x => x.Id == workerId);
+            if (w == null) return false;
+            var ok = _root.Services.Sites.AssignWorker(_siteId, workerId, NextFace(w));
+            Refresh();
+            return ok;
+        }
+
+        private string TunnelSummary(int face)
+        {
+            var sim = Sim;
+            var t = sim?.Tunnel(face);
+            if (t == null) return "";
+            var miners = sim.Record.Workers.FindAll(x => x.Face == face).ConvertAll(x => x.Name);
+            var who = miners.Count == 0 ? "nobody digging" : string.Join(", ", miners);
+            var pct = t.DurabilityMicro > 0 ? 100.0 * t.DoneMicro / t.DurabilityMicro : 0;
+            return $"<b>Level {t.Level} {(t.Side == TunnelSide.Left ? "left" : "right")}</b> · depth {t.Depth} layer · {sim.TunnelCellsDug(t)} blocks · " +
+                   (t.Status == SiteStatus.AwaitDecision ? "stretch cleared" : $"{pct:0}% of this stretch") + $" · {who}";
+        }
+
+        private int Capacity(TunnelRecord t) => MineDigView.Current != null ? MineDigView.Current.TunnelCapacityCells(t.Side) : int.MaxValue;
+
+        private bool CanExtend(int face)
+        {
+            var sim = Sim;
+            var t = sim?.Tunnel(face);
+            return t != null && t.Status == SiteStatus.AwaitDecision && sim.TunnelCellsDug(t) + sim.Config.TunnelStretchCells <= Capacity(t);
+        }
+
+        private string ExtendText(int face)
+        {
+            var sim = Sim;
+            var t = sim?.Tunnel(face);
+            if (t == null) return "";
+            if (t.Status != SiteStatus.AwaitDecision) return "Extend tunnel (when this stretch is cleared)";
+            if (!CanExtend(face)) return "This tunnel has reached the town's edge";
+            var now = sim.TunnelDurability(t);
+            var next = SiteMath.TunnelDurability(sim.Config, t.Depth, t.K + 1);
+            return $"Extend tunnel · effort {now} → {next} per stretch";
+        }
+
+        public bool ExtendTunnel(int face)
+        {
+            if (!CanExtend(face)) return false;
+            var ok = _root.Services.Sites.ExtendTunnel(_siteId, face);
+            Refresh();
+            return ok;
+        }
+
+        private void TunnelText(Func<string> provider) => _tunnelTexts.Add((_ui.LiveText(_tunnels, _theme.smallSize), provider));
+
+        private void TunnelButton(Func<string> text, Action onClick, Func<bool> enabled)
+        {
+            var b = _ui.RowButton(_tunnels, onClick, out var label);
+            _tunnelButtons.Add((b, label, text, enabled));
+        }
+
         /// <summary>Closes the panel and frames the Mine's working level until the player moves (GDD 6).</summary>
         public void LookDown()
         {
@@ -230,6 +351,7 @@ namespace Ravenholm.Presentation
         {
             LastMessage = "";
             _facilitiesKey = "";
+            _tunnelsKey = "";
             _siteId = siteId;
             _deeperArmedUntil = -1f;
             _diagramKey = "";
@@ -361,6 +483,7 @@ namespace Ravenholm.Presentation
             }
 
             RefreshFacilities(sim);
+            RefreshTunnels(sim);
             _lookDown.gameObject.SetActive(mine && MineDigView.Current != null);
 
             _toolLabel.transform.parent.gameObject.SetActive(Feel.DeveloperMode);   // free gear is a developer tool only

@@ -38,6 +38,9 @@ namespace Ravenholm.Presentation
         /// <summary>Normalized movement, magnitude 0..1, screen-up = +y.</summary>
         public Vector2 MoveVector { get; private set; }
 
+        /// <summary>Tests: a held stick direction that replaces touch, mouse and keyboard input while set.</summary>
+        public Vector2? ScriptedMove { get; set; }
+
         /// <summary>Joystick state in screen pixels for the HUD visual.</summary>
         public bool JoystickVisible => _joystick.Active && _movedBeyondTap;
         public Vector2 JoystickAnchorPixels => _joystick.Anchor * PixelsPerPoint();
@@ -90,6 +93,12 @@ namespace Ravenholm.Presentation
                 if (_mouseTracking) _mouseIgnored = true;
                 ResetInput();
                 foreach (var t in ETouch.activeTouches) _ignoredTouchIds.Add(t.touchId);
+                return;
+            }
+
+            if (ScriptedMove.HasValue)
+            {
+                MoveVector = ScriptedMove.Value;
                 return;
             }
 

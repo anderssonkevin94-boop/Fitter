@@ -124,17 +124,27 @@ namespace Ravenholm.Presentation
             var cutaway = sim.Config.Kind == SiteKind.Mine ? MineDigView.Current : null;
             if (cutaway != null)
             {
-                // GDD 6/20: miners stay visible: rim → ladder → the block they are clearing, and back, in step with the phase timing.
-                var spot = cutaway.StandSpot(s.Workers.IndexOf(w));
+                // GDD 6/20: miners stay visible: rim → down the ladder → the block they are clearing (shaft) or along the
+                // ledge into their tunnel, and back, in step with the phase timing.
+                var index = 0;
+                foreach (var o in s.Workers)
+                {
+                    if (o == w) break;
+                    if (o.Face == w.Face) index++;
+                }
+                cutaway.RouteTo(sim, w, index, _route);
                 var staging = stagingPoint.position + new Vector3(0.55f, -0.1f, 0f);
+                var spot = _route[_route.Count - 1];
+                var tunnel = sim.Tunnel(w.Face);
+                var waiting = tunnel != null ? tunnel.Status == SiteStatus.AwaitDecision : s.Status == SiteStatus.AwaitDecision;
                 hidden = false;
                 switch (w.State)
                 {
                     case WorkerState.WalkToWork:
-                        pos = Path(t, staging, cutaway.LadderTop, cutaway.LadderBottom, spot, out inShaft);
+                        pos = Path(t, staging, _route, out inShaft);
                         break;
                     case WorkerState.ReturnToStaging:
-                        pos = Path(1f - t, staging, cutaway.LadderTop, cutaway.LadderBottom, spot, out inShaft);
+                        pos = Path(1f - t, staging, _route, out inShaft);
                         break;
                     case WorkerState.Working:
                     case WorkerState.Hop:
@@ -142,8 +152,8 @@ namespace Ravenholm.Presentation
                         inShaft = true;
                         break;
                     case WorkerState.AwaitDepthChoice:
-                        pos = s.Status == SiteStatus.AwaitDecision ? staging : spot;
-                        inShaft = s.Status != SiteStatus.AwaitDecision;
+                        pos = waiting ? staging : spot;
+                        inShaft = !waiting;
                         break;
                 }
             }
@@ -179,13 +189,27 @@ namespace Ravenholm.Presentation
         /// <summary>True while the miner is down in the pit (tests).</summary>
         public bool InShaft { get; private set; }
 
-        /// <summary>Staging → ladder top → down the ladder → floor spot, by phase fraction (0..1).</summary>
-        private static Vector3 Path(float t, Vector3 staging, Vector3 top, Vector3 bottom, Vector3 spot, out bool inShaft)
+        private readonly List<Vector3> _route = new List<Vector3>();
+
+        /// <summary>
+        /// Staging → ladder top (first 30 % of the phase) → down the ladder (next 30 %) → along the floor to the spot
+        /// (last 40 %, split by distance), by phase fraction (0..1). <paramref name="route"/> starts at the ladder top.
+        /// </summary>
+        private static Vector3 Path(float t, Vector3 staging, List<Vector3> route, out bool inShaft)
         {
-            inShaft = t > 0.4f;
-            if (t < 0.4f) return Vector3.Lerp(staging, top, t / 0.4f);
-            if (t < 0.8f) return Vector3.Lerp(top, bottom, (t - 0.4f) / 0.4f);
-            return Vector3.Lerp(bottom, spot, (t - 0.8f) / 0.2f);
+            inShaft = t > 0.3f;
+            if (t < 0.3f || route.Count < 2) return Vector3.Lerp(staging, route[0], Mathf.Clamp01(t / 0.3f));
+            if (t < 0.6f || route.Count < 3) return Vector3.Lerp(route[0], route[1], Mathf.Clamp01((t - 0.3f) / 0.3f));
+            var total = 0f;
+            for (var i = 2; i < route.Count; i++) total += Vector3.Distance(route[i - 1], route[i]);
+            var along = (t - 0.6f) / 0.4f * total;
+            for (var i = 2; i < route.Count; i++)
+            {
+                var d = Vector3.Distance(route[i - 1], route[i]);
+                if (along <= d || i == route.Count - 1) return Vector3.Lerp(route[i - 1], route[i], d > 0f ? Mathf.Clamp01(along / d) : 1f);
+                along -= d;
+            }
+            return route[route.Count - 1];
         }
 
         private Vector3 TargetFor(SiteSimulator sim, WorkerRecord w, out bool hidden)
@@ -220,9 +244,22 @@ namespace Ravenholm.Presentation
             if (bubble == null) return;
             Sprite icon = null;
             if (w.State == WorkerState.StagingFull) icon = blockedIcon;
-            else if (w.State == WorkerState.AwaitDepthChoice && sim.Record.Status == SiteStatus.AwaitDecision) icon = waitingIcon;
+            else if (w.State == WorkerState.AwaitDepthChoice && FaceWaiting(sim, w)) icon = waitingIcon;
             bubble.gameObject.SetActive(icon != null && _alpha > 0.5f);
             if (icon != null) bubbleIcon.sprite = icon;
+        }
+
+        private static bool FaceWaiting(SiteSimulator sim, WorkerRecord w)
+        {
+            var t = sim.Tunnel(w.Face);
+            return t != null ? t.Status == SiteStatus.AwaitDecision : sim.Record.Status == SiteStatus.AwaitDecision;
+        }
+
+        /// <summary>Where a miner digs, in words ("the shaft", "the level 3 left tunnel").</summary>
+        public static string FaceName(SiteSimulator sim, int face)
+        {
+            var t = sim.Tunnel(face);
+            return t == null ? "the shaft" : $"the level {t.Level} {(t.Side == TunnelSide.Left ? "left" : "right")} tunnel";
         }
 
         /// <summary>Plain-language reason shown in panels (GDD 5: report why a worker paused).</summary>
@@ -231,13 +268,15 @@ namespace Ravenholm.Presentation
             var mine = sim.Config.Kind == SiteKind.Mine;
             switch (w.State)
             {
-                case WorkerState.WalkToWork: return mine ? "Heading down to the face" : "Walking to a tree";
-                case WorkerState.Working: return mine ? "Mining the face" : "Chopping";
+                case WorkerState.WalkToWork: return mine ? $"Heading down to {FaceName(sim, w.Face)}" : "Walking to a tree";
+                case WorkerState.Working: return mine ? $"Mining {FaceName(sim, w.Face)}" : "Chopping";
                 case WorkerState.Hop: return "Moving to the next tree";
                 case WorkerState.ReturnToStaging: return w.Pack.Count > 0 ? $"Bringing back {w.Pack.Count} unit{(w.Pack.Count == 1 ? "" : "s")}" : "Returning";
                 case WorkerState.Depositing: return "Unloading at staging";
                 case WorkerState.StagingFull: return $"Paused: staging full ({w.Pack.Count} still in pack). Haul some away.";
                 case WorkerState.AwaitDepthChoice:
+                    if (mine && sim.Tunnel(w.Face) != null)
+                        return FaceWaiting(sim, w) ? $"Waiting: extend {FaceName(sim, w.Face)}" : "Waiting";
                     return sim.Record.Status == SiteStatus.AwaitDecision
                         ? (mine ? "Waiting: choose next section" : "Waiting: choose next area")
                         : "Waiting";
