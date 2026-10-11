@@ -51,7 +51,7 @@ namespace Ravenholm.Presentation
                 var halfH = _camera.orthographicSize;
                 if (mine.ViewingDig) t = mine.DigFocus;
                 var lowest = Mathf.Min(mine.DeepestFloorY, mine.DigFocus.y, target.position.y) - 1.5f;
-                _extraBottom = Mathf.Max(0f, s.plotBounds.yMin - (lowest - halfH));
+                _extraBottom = Mathf.Max(0f, s.WorldBounds.yMin - (lowest - halfH));
             }
             if (!_snapped)
             {
@@ -80,7 +80,7 @@ namespace Ravenholm.Presentation
         {
             var halfH = _camera.orthographicSize;
             var halfW = halfH * _camera.aspect;
-            var b = s.plotBounds;
+            var b = s.WorldBounds;
             const float margin = 1.5f;        // show a little of the diorama edge
             const float bottomMargin = 3.4f;  // the town's ground continues below its front edge as a cliff of layers (GDD 6)
             p.x = ClampAxis(p.x, b.xMin - margin, b.xMax + margin, halfW);

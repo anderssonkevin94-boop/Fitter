@@ -21,7 +21,7 @@ namespace Ravenholm.Presentation
         [SerializeField] private Transform stagingPoint;
         [Tooltip("Mine: the tunnel mouth the miner walks into. Forest: unused (trees come from the pocket).")]
         [SerializeField] private Transform workPoint;
-        [SerializeField] private TreePocketView pocket;
+        [SerializeField] private ForestGridView pocket;
         [SerializeField] private SpriteRenderer bubble;
         [SerializeField] private SpriteRenderer bubbleIcon;
         [SerializeField] private Sprite waitingIcon;
@@ -38,7 +38,7 @@ namespace Ravenholm.Presentation
         public string SiteId => siteId;
         public string WorkerId => workerId;
 
-        public void EditorSetup(string site, string worker, Transform visualRoot, Transform staging, Transform work, TreePocketView treePocket,
+        public void EditorSetup(string site, string worker, Transform visualRoot, Transform staging, Transform work, ForestGridView treePocket,
             SpriteRenderer bubbleRenderer, SpriteRenderer icon, Sprite waiting, Sprite blocked)
         {
             siteId = site;
@@ -115,6 +115,7 @@ namespace Ravenholm.Presentation
                 _seenState = w.State;
             }
 
+            if (w.TargetTree >= 0) _lastTree = w.TargetTree;
             var span = Mathf.Max(1f, w.PhaseEndMs - w.PhaseStartMs);
             var t = Mathf.Clamp01((s.SimMs - w.PhaseStartMs) / span);
             var target = TargetFor(sim, w, out var hidden);
@@ -157,6 +158,14 @@ namespace Ravenholm.Presentation
                         break;
                 }
             }
+            else if (pocket != null && sim.Config.Kind == SiteKind.Forest && (w.TargetTree >= 0 || _lastTree >= 0) &&
+                     (w.State == WorkerState.WalkToWork || w.State == WorkerState.ReturnToStaging))
+            {
+                // GDD 7: woodcutters walk the cut trail: along the forest's bottom edge, then up their area's column.
+                var staging = stagingPoint.position + new Vector3(0.55f, -0.1f, 0f);
+                pocket.RouteTo(staging, w.TargetTree >= 0 ? w.TargetTree : _lastTree, _route);
+                pos = Along(_route, w.State == WorkerState.WalkToWork ? t : 1f - t);
+            }
             InShaft = inShaft;
             var dx = pos.x - transform.position.x;
             if (timed && Mathf.Abs(dx) > 0.001f) Face(dx);
@@ -190,6 +199,22 @@ namespace Ravenholm.Presentation
         public bool InShaft { get; private set; }
 
         private readonly List<Vector3> _route = new List<Vector3>();
+        private int _lastTree = -1;   // the tree a returning woodcutter walks back from
+
+        /// <summary>Point at fraction <paramref name="t"/> of a polyline's length.</summary>
+        private static Vector3 Along(List<Vector3> route, float t)
+        {
+            var total = 0f;
+            for (var i = 1; i < route.Count; i++) total += Vector3.Distance(route[i - 1], route[i]);
+            var along = Mathf.Clamp01(t) * total;
+            for (var i = 1; i < route.Count; i++)
+            {
+                var d = Vector3.Distance(route[i - 1], route[i]);
+                if (along <= d || i == route.Count - 1) return Vector3.Lerp(route[i - 1], route[i], d > 0f ? Mathf.Clamp01(along / d) : 1f);
+                along -= d;
+            }
+            return route[route.Count - 1];
+        }
 
         /// <summary>
         /// Staging → ladder top (first 30 % of the phase) → down the ladder (next 30 %) → along the floor to the spot
@@ -259,7 +284,7 @@ namespace Ravenholm.Presentation
         public static string FaceName(SiteSimulator sim, int face)
         {
             var t = sim.Tunnel(face);
-            return t == null ? "the shaft" : $"the level {t.Level} {(t.Side == TunnelSide.Left ? "left" : "right")} tunnel";
+            return t == null ? "the shaft" : $"the level {t.Level} tunnel";
         }
 
         /// <summary>Plain-language reason shown in panels (GDD 5: report why a worker paused).</summary>

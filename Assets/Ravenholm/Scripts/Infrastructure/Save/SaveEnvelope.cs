@@ -120,6 +120,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("depositedSinceMeasure")] public long DepositedSinceMeasure;
         /// <summary>Mine sideways tunnels (optional; absent in older saves).</summary>
         [JsonProperty("tunnels")] public List<TunnelSaveData> Tunnels;
+        /// <summary>Mine layout version: 2 = layers of levels, Continue digs left (optional; absent = older layout).</summary>
+        [JsonProperty("layout")] public int Layout;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

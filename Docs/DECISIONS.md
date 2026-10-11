@@ -487,3 +487,28 @@ Asked for: grids that line up, going down the ladder yourself, a camera that jus
   - The Mine panel lists the tunnels, can extend them, and can send miners between faces.
 - **Camera.** The near-Mine framing rule is removed; the camera follows the player everywhere, and its bottom limit extends as deep as anyone can stand. "Look down the shaft" still frames the working level.
 - **Saves.** These are optional fields (`tunnels`, worker `face`), so the schema is not bumped. Older saves load with no tunnels and every miner on the shaft.
+
+## Directions: Mine down and left, Forest left and up (2026-10-11)
+
+Direction from the user: down is progression and left is staying at a depth, for the Mine; left is progression and up is staying in an area, for the Forest. Both run in the same direction, so the two gathering sites read as one track. Each layer has three levels, and left is unlimited.
+
+- **Mine, change to a locked mechanic (approved).**
+  - Dig Deeper sinks the shaft through the next layer. A layer is `levelsPerBand` levels, 3 by default and set on SiteDefinition; level 1 is the town's own ground. The shaft section for depth 1 also opens level 1.
+  - Continue Here digs left. A waiting tunnel goes one stretch further. Once the shaft is through a layer, it starts the tunnel on the layer's next free level and sends the shaft's miners there.
+  - A tunnel stretch is one full section: same durability curve, 24 units. Each level's tunnel has its own continuation index, starting at k = 1. So a layer's three levels can be worked by three miners side by side, and older layers stay open.
+  - The site waits for you only while some miner waits on a finished face. Nothing is ever decided automatically.
+  - `SectionsCompleted` now means the number of layers the shaft has been sunk through.
+- **Tunnels run left only.** They run along the bottom edge, recessed one row behind the cliff face. The blocks in front are cut down to a sill (`SillRise` 0.5), and the floor is a dirt slab.
+  - The ladder moved to the shaft's right back wall. A ledge along the back row joins it to the tunnel mouths, and the notch is open on the shaft's right side only.
+- **The frontier.** The town's ground continues `frontierLength` (48) units to the left on the same grid, with the same bottom edge. Camera and player bounds use `SandboxSettings.WorldBounds`. To keep going further, raise `frontierLength` as more is charted. Nothing in the code caps the number of layers or the tunnel length.
+- **Forest (`ForestGridView`, replacing the tree pocket).** The frontier is a dense grid of trees, one per tile, directly above the tunnels.
+  - Areas are 2-unit columns going left (Push Deeper). Clearings go up the column (Continue Here), cut from the bottom.
+  - Standing trees block walking. Woodcutters walk only cut ground: out along the bottom edge, which every area's first clearing has cut, then up the cut column.
+  - The Forest's own rules (6 trees, 4 units each, bands) are unchanged.
+- **Relocations.** The Mine moved to the town's bottom-left corner. The Lumbermill (−8.6, 0.9) and Forest staging (−12.3, −4.9) moved next to the frontier, and the Forest gate is at the frontier trail.
+- **Saves.** Mine saves from before this layout (`layout` < 2) convert on load:
+  - the layer in progress becomes the shaft sinking through it;
+  - old tunnels close, and their waiting units move to the shaft face;
+  - every miner returns to the shaft.
+
+  Nothing owned is lost. The schema is not bumped.

@@ -30,7 +30,7 @@ namespace Ravenholm.EditorTools
         private static Grid _grid;
         private static Vector2 _mineCorner;
         /// <summary>The pit's front corner sits on the town's bottom row of tiles, so the front cell is the edge itself.</summary>
-        private static readonly Vector2 MineCornerTarget = new Vector2(-7.0f, -9.25f);
+        private static readonly Vector2 MineCornerTarget = new Vector2(-9.5f, -9.25f);   // the town's bottom-left corner
         private static Tilemap _groundMap;
         private static ContentCatalogue _catalogue;
 
@@ -88,7 +88,7 @@ namespace Ravenholm.EditorTools
             Building(buildings, "Forge", "bld_forge", new Vector2(-5.4f, -3.8f), new Vector2(2.2f, 2.0f),
                 "Covered work area. Crafts metal weapons and armor instantly from permanent blueprints. Finished goods appear on its output pad.",
                 "", new Vector2(2f, 2f), stationId: "station.forge");
-            var mill = Building(buildings, "Lumbermill", "bld_lumbermill", new Vector2(7.2f, 0.6f), new Vector2(2.4f, 2.0f),
+            var mill = Building(buildings, "Lumbermill", "bld_lumbermill", new Vector2(-8.6f, 0.9f), new Vector2(2.4f, 2.0f),
                 "Receives logs, then saws them into lumber automatically.", "", new Vector2(2.5f, 2f), ReceiverKind.Lumbermill, stationId: "station.lumbermill");
             Building(buildings, "Workbench", "bld_workbench", new Vector2(5.6f, -3.8f), new Vector2(1.7f, 1.8f),
                 "Crafts bows and staves instantly. Finished goods appear on its output pad.", "", new Vector2(1.5f, 1.5f), stationId: "station.workbench");
@@ -98,8 +98,9 @@ namespace Ravenholm.EditorTools
                 "A periodic visitor sets up here to sell external materials and buy Store goods at poor prices.", "", new Vector2(2f, 2f));
             TraderStall(traderPad);
             var mine = MineDig(buildings);
-            var gate = Building(buildings, "Forest", "bld_forest_gate", new Vector2(6.5f, 6.1f), new Vector2(2.2f, 1.9f),
-                "Trail into the Forest. Workers chop the current clearing; Push Deeper reveals a new area further out.",
+            var gate = Building(buildings, "Forest", "bld_forest_gate", new Vector2(-12.75f, -2.6f), new Vector2(2.2f, 1.9f),
+                "The frontier Forest, left of town and above the Mine's tunnels. Its trees grow tight: woodcutters cut their way in. " +
+                "Continue Here cuts the next trees up this area; Push Deeper cuts into the next area to the left.",
                 "", footprint: null, siteId: "site.forest");
             Circle(gate.transform, new Vector2(-0.85f, 0f), 0.12f);
             Circle(gate.transform, new Vector2(0.85f, 0f), 0.12f);
@@ -112,21 +113,9 @@ namespace Ravenholm.EditorTools
                 Circle(t.transform, Vector2.zero, 0.22f);
                 t.gameObject.AddComponent<ObstructionFader>();
             }
-            var pocket = TreePocket(nature, new[]
-            {
-                new Vector2(8.1f, 6.7f), new Vector2(9.5f, 6.4f), new Vector2(10.9f, 6.8f),
-                new Vector2(8.7f, 7.9f), new Vector2(10.1f, 8.1f), new Vector2(11.3f, 8.3f),
-            }, new[]
-            {
-                new Vector2(6.9f, 5.2f), new Vector2(7.3f, 5.0f), new Vector2(7.7f, 4.8f),
-                new Vector2(7.9f, 5.5f), new Vector2(8.4f, 5.75f), new Vector2(8.9f, 5.95f),   // areas 4-6 (Phase 7 bands), towards the pocket
-            });
-            pocket.EditorSetSpecies(new List<SpeciesSprite>
-            {
-                new SpeciesSprite { resource = _catalogue.Get<ResourceDefinition>("resource.ironwood_log"), sprite = ProjectSetup.LoadSprite("Nature/tree_ironwood") },
-            });
-            Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(8.6f, 3.3f), "Herbs come as a bonus while chopping.", "Phase 2");
-            Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(10.2f, 2.5f), "Herbs come as a bonus while chopping.", "Phase 2");
+            var pocket = ForestGrid(nature);
+            Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(-11.3f, 4.2f), "Herbs come as a bonus while chopping.", "Phase 2");
+            Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(-11.5f, -0.9f), "Herbs come as a bonus while chopping.", "Phase 2");
             foreach (var (name, sprite, pos, desc) in new[]
                      {
                          ("Stone Face", "Nature/rock_stone", new Vector2(-11.0f, 3.5f), "Placeholder rock face (plain stone)."),
@@ -153,14 +142,14 @@ namespace Ravenholm.EditorTools
 
             // --- PHASE 1 FIXTURES: receivers, raw piles and output pads ---
             Receiver(logistics, "receiver.smelter", ReceiverKind.Smelter, new Vector2(-8.55f, -4.6f), 0.6f, smelter.transform, "icon_iron_ore", true);
-            Receiver(logistics, "receiver.lumbermill", ReceiverKind.Lumbermill, new Vector2(6.3f, -0.15f), 0.6f, mill.transform, "icon_cedar_log", true);
+            Receiver(logistics, "receiver.lumbermill", ReceiverKind.Lumbermill, new Vector2(-9.5f, 0.15f), 0.6f, mill.transform, "icon_cedar_log", true);
             Receiver(logistics, "receiver.apothecary", ReceiverKind.Apothecary, new Vector2(-2.15f, -2.45f), 0.55f, apothecary.transform, "icon_herb", true);
             Receiver(logistics, "receiver.store", ReceiverKind.Store, new Vector2(-0.55f, 2.95f), 0.55f, store.transform, "icon_iron_sword", false);
 
             var mineStaging = Container(logistics, "container.mine_staging", "Mine Staging", ContainerKind.RawPile,
-                (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(2, MineDigView.Size + 1, 0)),
+                (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineDigView.Size + 2, 3, 0)),
                 "The miner drops ore here (capacity 96). Workers never haul further: you carry it to the Smelter.", null, null, 96);
-            var forestStaging = Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(8.6f, 4.4f),
+            var forestStaging = Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(-12.3f, -4.9f),
                 "The woodcutter drops logs and herbs here (capacity 96). Logs go to the Lumbermill, herbs to the Apothecary.", null, null, 96);
             Container(logistics, "container.forge_pad", "Forge Output", ContainerKind.OutputPad, new Vector2(-4.3f, -4.55f),
                 "Crafted goods appear here (holds 6). Walk close to pick them up, then stock them at the Store.", null, null, 6);
@@ -230,7 +219,8 @@ namespace Ravenholm.EditorTools
             tr.sortingLayerName = "Ground";
             if (_unlit != null) tr.sharedMaterial = _unlit;
 
-            var b = settings.plotBounds;
+            var b = settings.WorldBounds;   // the town and the frontier on its left
+            var town = settings.plotBounds;
             // The Mine is dug into the ground at the exposed front edge (GDD 6), aligned to this grid.
             _mineCell = grid.WorldToCell(MineCornerTarget + new Vector2(0f, 0.25f));
             _mineCorner = (Vector2)grid.GetCellCenterWorld(_mineCell) - new Vector2(0f, 0.25f);
@@ -241,28 +231,40 @@ namespace Ravenholm.EditorTools
             {
                 (new Vector2(0f, 1.5f), new Vector2(0f, -6.5f)),
                 (new Vector2(0f, 0.6f), new Vector2(-7.2f, 0.0f)), (new Vector2(-7.2f, 0.0f), new Vector2(-8.9f, -3.3f)),
-                (new Vector2(-8.9f, -3.3f), new Vector2(-8.6f, -6.9f)),
-                (new Vector2(0f, 0.6f), new Vector2(7.2f, 0.0f)), (new Vector2(7.2f, 0.0f), new Vector2(8.8f, 4.6f)),
+                (new Vector2(-8.9f, -3.3f), new Vector2(-6.9f, -6.9f)),
+                (new Vector2(-7.2f, 0.0f), new Vector2(-9.5f, 0.15f)), (new Vector2(-9.5f, 0.15f), new Vector2(-11.6f, -1.5f)),
+                (new Vector2(-11.6f, -1.5f), new Vector2(-12.2f, -4.6f)),
+                (new Vector2(0f, 0.6f), new Vector2(7.2f, 0.0f)),
                 (new Vector2(0f, -1.0f), new Vector2(-5.4f, -3.2f)), (new Vector2(0f, -1.0f), new Vector2(5.6f, -3.2f)),
             };
 
-            for (var x = -40; x <= 40; x++)
-            for (var y = -40; y <= 40; y++)
+            // Every cell whose centre lies in the world bounds (cells: x − y = 2·wx, x + y = 4·wy).
+            var span = Mathf.CeilToInt(Mathf.Max(Mathf.Abs(b.xMin), Mathf.Abs(b.xMax)) + 2f * Mathf.Max(Mathf.Abs(b.yMin), Mathf.Abs(b.yMax))) + 4;
+            for (var x = -span; x <= span; x++)
+            for (var y = -span; y <= span; y++)
             {
                 var cell = new Vector3Int(x, y, 0);
                 Vector2 c = grid.GetCellCenterWorld(cell);
                 if (c.x < b.xMin || c.x > b.xMax || c.y < b.yMin || c.y > b.yMax) continue;
                 if (InMine(cell)) continue;   // the pit: its own ground blocks (MineDigView)
-                // The notch: no ground in front of the pit's two faces, so the shaft is open to the camera.
+                // The notch: no ground in front of the pit's right face, so the shaft is open to the camera there. The left
+                // side stays ground: the tunnels leave that way, under the Forest.
                 var n = MineDigView.Size - 1;
-                if ((x < _mineCell.x || y < _mineCell.y) && x <= _mineCell.x + n && y <= _mineCell.y + n) continue;
+                if (y < _mineCell.y && x >= _mineCell.x && x <= _mineCell.x + n) continue;
+
+                if (c.x < town.xMin)
+                {
+                    // The frontier: the Forest's ground (its trees are drawn by ForestGridView), with an open trail along the town.
+                    tm.SetTile(cell, tiles[c.x > town.xMin - 1.25f ? "path" : "forest_floor"]);
+                    continue;
+                }
 
                 string key;
                 var plaza = Mathf.Abs(c.x) / 3.6f + Mathf.Abs(c.y - 2.4f) / 2.0f < 1f;
                 if (plaza) key = "plaza";
                 else if (NearAnyPath(c, paths, 0.55f)) key = "path";
                 else if (c.x < -6.4f && c.y > 2.2f) key = "dirt";
-                else if (Mathf.Abs(c.x - _mineCorner.x) < 3.4f && c.y < -5.9f) key = "dirt";   // worked ground around the Mine
+                else if (Mathf.Abs(c.x - _mineCorner.x - 0.5f) < 3.0f && c.y < -6.1f) key = "dirt";   // worked ground around the Mine
                 else if (c.x > 6.2f && c.y > 2.2f) key = "forest_floor";
                 else key = Hash01(x, y) < 0.22f ? "grass_b" : "grass_a";
                 tm.SetTile(cell, tiles[key]);
@@ -274,7 +276,7 @@ namespace Ravenholm.EditorTools
         {
             var go = new GameObject("TownBoundary") { layer = ProjectSetup.BlockerLayerIndex };
             var edge = go.AddComponent<EdgeCollider2D>();
-            var b = settings.plotBounds;
+            var b = settings.WorldBounds;
             edge.points = new[]
             {
                 new Vector2(b.xMin, b.yMin), new Vector2(b.xMax, b.yMin), new Vector2(b.xMax, b.yMax),
@@ -383,7 +385,7 @@ namespace Ravenholm.EditorTools
             go.AddComponent<MineDigView>().EditorSetup(_grid, _groundMap, _mineCell,
                 new[] { tiles["block_0"], tiles["block_1"], tiles["block_2"] }, tiles["dirt"], ProjectSetup.LoadSprite("Props/prop_ladder"), _unlit);
             // Context actions in the mine: the ladder and the two tunnel ends of whichever level the player is on.
-            foreach (var kind in new[] { MineActionSpot.Kind.Ladder, MineActionSpot.Kind.TunnelLeft, MineActionSpot.Kind.TunnelRight })
+            foreach (var kind in new[] { MineActionSpot.Kind.Ladder, MineActionSpot.Kind.Tunnel })
             {
                 var spot = new GameObject($"MineAction{kind}");
                 spot.transform.SetParent(go.transform, false);
@@ -401,7 +403,8 @@ namespace Ravenholm.EditorTools
             var site = go.AddComponent<SiteInspectable>();
             site.EditorSetup("Mine", "The Mine is dug straight into the ground. Each level is one miner deep and shows the layer it was dug in; " +
                                      "the levels below show darker. Miners clear a level block by block; then you choose to continue this layer or dig into the next. " +
-                                     "Climb down the ladder to any level below the town's ground and walk to either end of its ledge to start a tunnel sideways in that layer.", "");
+                                     "Down is progress: Dig Deeper sinks the shaft through the next layer, three levels deep. Left is staying in a layer: " +
+                                     "Continue Here digs that level's tunnel left, under the Forest. Climb down the ladder to walk the levels yourself.", "");
             site.EditorSetupSite("site.mine");
             var hole = Blocker(go.transform, "PitBlocker");
             hole.AddComponent<PolygonCollider2D>().points = new[] { P(0.1f, 0.1f), P(n - 0.1f, 0.1f), P(n - 0.1f, n - 0.1f), P(0.1f, n - 0.1f) };
@@ -567,34 +570,23 @@ namespace Ravenholm.EditorTools
             building.gameObject.AddComponent<ProcessorView>().EditorSetup(stationId, root, fill, icon);
         }
 
-        private static TreePocketView TreePocket(Transform parent, Vector2[] spots, Vector2[] markerSpots)
+        /// <summary>The Forest on the frontier: a dense grid of trees drawn by <see cref="ForestGridView"/> (GDD 7).</summary>
+        private static ForestGridView ForestGrid(Transform parent)
         {
-            var root = new GameObject("Forest Clearing");
+            var root = new GameObject("Forest Frontier");
             root.transform.SetParent(parent, false);
-            var renderers = new List<SpriteRenderer>();
-            for (var i = 0; i < spots.Length; i++)
-            {
-                var sr = Sprite(root.transform, $"Tree{i}", "Nature/tree_cedar", spots[i]);
-                var col = sr.gameObject.AddComponent<BoxCollider2D>();
-                col.isTrigger = true;
-                col.size = new Vector2(1.2f, 2.2f);
-                col.offset = new Vector2(0f, 1.0f);
-                sr.gameObject.AddComponent<Inspectable>().EditorSetup("Clearing tree",
-                    "Part of the active clearing. The woodcutter claims one tree at a time; each yields 4 units (herbs are a bonus roll).", "");
-                Circle(sr.transform, Vector2.zero, 0.2f);
-                sr.gameObject.AddComponent<ObstructionFader>();
-                renderers.Add(sr);
-            }
-            var markers = new List<GameObject>();
-            foreach (var m in markerSpots) markers.Add(Sprite(root.transform, "TrailMarker", "Props/trail_marker", m).gameObject);
-            var view = root.AddComponent<TreePocketView>();
-            view.EditorSetup("site.forest", renderers, markers, ProjectSetup.LoadSprite("Nature/tree_cedar"), ProjectSetup.LoadSprite("Nature/tree_maple"),
-                ProjectSetup.LoadSprite("Nature/tree_stump"), new List<ResourceDefinition> { _catalogue.Get<ResourceDefinition>("resource.maple_log") });
+            var view = root.AddComponent<ForestGridView>();
+            view.EditorSetup(_grid, _groundMap, -12f, ProjectSetup.LoadSprite("Nature/tree_cedar"), ProjectSetup.LoadSprite("Nature/tree_maple"),
+                ProjectSetup.LoadSprite("Nature/tree_stump"), new List<ResourceDefinition> { _catalogue.Get<ResourceDefinition>("resource.maple_log") },
+                new List<SpeciesSprite>
+                {
+                    new SpeciesSprite { resource = _catalogue.Get<ResourceDefinition>("resource.ironwood_log"), sprite = ProjectSetup.LoadSprite("Nature/tree_ironwood") },
+                }, _unlit);
             return view;
         }
 
         private static void Worker(Transform parent, string title, string siteId, string workerId, int skin, string overlay,
-            Transform staging, Transform workPoint, TreePocketView pocket)
+            Transform staging, Transform workPoint, ForestGridView pocket)
         {
             var root = new GameObject(title);
             root.transform.SetParent(parent, false);

@@ -69,23 +69,18 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
-        public IEnumerator DeepForestShowsIronwoodDarkerAndFadesInTheNewPocket()
+        public IEnumerator DeepForestShowsIronwoodAndDarkerAreasFurtherLeft()
         {
             yield return Boot();
-            var pocket = Object.FindAnyObjectByType<TreePocketView>();
-            var cedar = pocket.SpriteFor("resource.cedar_log");
-            var ironwood = pocket.SpriteFor("resource.ironwood_log");
+            var forest = Object.FindAnyObjectByType<ForestGridView>();
+            var cedar = forest.SpriteFor("resource.cedar_log");
+            var ironwood = forest.SpriteFor("resource.ironwood_log");
             Assert.NotNull(ironwood);
             Assert.AreNotEqual(cedar, ironwood, "ironwood has its own tree");
             yield return null;
-            Assert.AreEqual(1, pocket.ShownDepth);
-            var forest = GameRoot.Instance.Services.Sites.Get("site.forest");
-            forest.Record.Depth = 5;   // fixture: view only
-            yield return null;
-            Assert.AreEqual(5, pocket.ShownDepth);
-            var tree = pocket.GetComponentsInChildren<SpriteRenderer>().First(s => s.gameObject.activeInHierarchy && s.name.StartsWith("Tree"));
-            Assert.Less(tree.color.a, 1f, "the new pocket fades in");
-            Assert.Less(tree.color.r, 0.7f, "deeper areas are darker");
+            Assert.AreEqual(1, forest.ShownDepth);
+            var sim = GameRoot.Instance.Services.Sites.Get("site.forest");
+            Assert.Less(forest.AreaTint(sim, 5).r, forest.AreaTint(sim, 1).r, "areas further left are darker");
         }
 
         [UnityTest]

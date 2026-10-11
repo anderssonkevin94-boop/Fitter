@@ -92,9 +92,15 @@ namespace Ravenholm.Domain.Sites
 
         // ------------------------------------------------------------------ decisions (player only)
 
-        /// <summary>"Continue Here": same composition, higher effort, same yield.</summary>
+        /// <summary>
+        /// "Continue Here": same composition, higher effort, same yield. Forest: the next clearing in this area.
+        /// Mine (GDD 6, directions): stay in this layer by digging left. A waiting tunnel is extended by one stretch;
+        /// a finished shaft opens a tunnel on the layer's next free level (else feeds its least-crewed tunnel), and the
+        /// shaft's miners go there.
+        /// </summary>
         public bool ChooseContinue()
         {
+            if (_c.Kind == SiteKind.Mine) return MineContinue();
             if (_s.Status != SiteStatus.AwaitDecision) return false;
             _s.SectionDepths.Add(_s.Depth);
             _s.K++;
@@ -103,18 +109,76 @@ namespace Ravenholm.Domain.Sites
             return true;
         }
 
-        /// <summary>"Dig Deeper" / "Push Deeper": closes this band and reveals the next one.</summary>
+        /// <summary>
+        /// "Dig Deeper" / "Push Deeper": reveals the next band. Mine: the shaft sinks through the new layer's levels
+        /// (one section); every waiting miner goes to the shaft. Forest: closes this area for the next one.
+        /// </summary>
         public bool ChooseDeeper()
         {
+            if (_c.Kind == SiteKind.Mine)
+            {
+                if (!ShaftDone || !CanGoDeeper) return false;
+                RevealNextBand();
+                StartSection();
+                foreach (var w in _s.Workers)
+                    if (w.State == WorkerState.AwaitDepthChoice || FaceOf(w) == 0)
+                    {
+                        w.Face = 0;
+                        if (w.State == WorkerState.AwaitDepthChoice) StartWalkToWork(w);
+                    }
+                Resolve();
+                SaveRng();
+                return true;
+            }
             if (_s.Status != SiteStatus.AwaitDecision || !CanGoDeeper) return false;
             _s.SectionDepths.Add(_s.Depth);
-            _s.Depth++;
-            _s.K = 0;
             _s.SectionsCompleted++;
-            _s.Composition = SiteMath.Generate(_worldSeed, _c.SiteId, _c.Bands[_s.Depth - 1]);
-            _s.Revealed[_s.Depth] = _s.Composition;
+            RevealNextBand();
             Resume();
             return true;
+        }
+
+        private void RevealNextBand()
+        {
+            _s.Depth++;
+            _s.K = 0;
+            _s.Composition = SiteMath.Generate(_worldSeed, _c.SiteId, _c.Bands[_s.Depth - 1]);
+            _s.Revealed[_s.Depth] = _s.Composition;
+        }
+
+        private bool MineContinue()
+        {
+            var face = WaitingFace();
+            if (face < 0) return false;
+            if (face > 0) return ExtendTunnel(face);
+            var level = NextTunnelLevel(_s.Depth);
+            int target;
+            if (level > 0) target = StartTunnel(level);
+            else
+            {
+                target = 0;
+                var fewest = int.MaxValue;
+                for (var i = 0; i < _s.Tunnels.Count; i++)
+                {
+                    if (_s.Tunnels[i].Depth != _s.Depth) continue;
+                    var crew = _s.Workers.FindAll(w => FaceOf(w) == i + 1).Count;
+                    if (crew < fewest) { fewest = crew; target = i + 1; }
+                }
+                if (target > 0 && Tunnel(target).Status == SiteStatus.AwaitDecision) ExtendTunnel(target);
+            }
+            if (target == 0) return false;
+            foreach (var w in _s.Workers.ToArray())
+                if (FaceOf(w) == 0) AssignWorker(w.Id, target);
+            return true;
+        }
+
+        /// <summary>The face whose miners wait for you (the shaft first), or −1.</summary>
+        public int WaitingFace()
+        {
+            if (ShaftDone && _s.Workers.Exists(w => FaceOf(w) == 0)) return 0;
+            for (var i = 0; i < _s.Tunnels.Count; i++)
+                if (_s.Tunnels[i].Status == SiteStatus.AwaitDecision && _s.Workers.Exists(w => FaceOf(w) == i + 1)) return i + 1;
+            return -1;
         }
 
         private void Resume()
@@ -125,28 +189,42 @@ namespace Ravenholm.Domain.Sites
             SaveRng();
         }
 
-        // ------------------------------------------------------------------ tunnels (Mine, player only)
+        // ------------------------------------------------------------------ the Mine's levels and tunnels (player only)
 
-        /// <summary>Deepest shaft level whose blocks are all dug (tunnels can leave from levels 2..this).</summary>
-        public int OpenLevels => _s.SectionsCompleted;
+        /// <summary>True once the shaft has sunk through the current layer (until you dig deeper).</summary>
+        public bool ShaftDone => _c.Kind == SiteKind.Mine && _s.SectionsCompleted >= _s.Depth;
 
-        public int TunnelIndex(int level, TunnelSide side) => _s.Tunnels.FindIndex(t => t.Level == level && t.Side == side);
+        /// <summary>Shaft levels per layer (level 1 is the town's own ground; layer 1 starts at level 2).</summary>
+        public int LevelsPerBand => Math.Max(1, _c.LevelsPerBand);
 
-        public bool CanStartTunnel(int level, TunnelSide side) =>
-            _c.Kind == SiteKind.Mine && level >= 2 && level <= OpenLevels && TunnelIndex(level, side) < 0;
+        public int FirstLevelOf(int band) => (band - 1) * LevelsPerBand + 2;
+        public int BandOfLevel(int level) => level < 2 ? 1 : (level - 2) / LevelsPerBand + 1;
+
+        /// <summary>Deepest level the shaft has fully opened (1 = only through the town's ground).</summary>
+        public int OpenLevels => _s.SectionsCompleted > 0 ? FirstLevelOf(_s.SectionsCompleted) + LevelsPerBand - 1 : 1;
+
+        public int TunnelIndex(int level) => _s.Tunnels.FindIndex(t => t.Level == level);
+
+        public bool CanStartTunnel(int level) =>
+            _c.Kind == SiteKind.Mine && level >= 2 && BandOfLevel(level) <= _s.SectionsCompleted && TunnelIndex(level) < 0;
+
+        /// <summary>First level of a layer without a tunnel yet, or 0.</summary>
+        public int NextTunnelLevel(int band)
+        {
+            for (var l = FirstLevelOf(band); l < FirstLevelOf(band + 1); l++)
+                if (CanStartTunnel(l)) return l;
+            return 0;
+        }
 
         /// <summary>
-        /// Starts a sideways tunnel at a dug level, in the layer that level was dug in. Effort starts one step above the
-        /// level's own section (so a tunnel is never cheaper than continuing there) and rises with each stretch.
-        /// Returns the tunnel's face number (1-based), or 0.
+        /// Starts a tunnel left from the shaft at an opened level, in that level's layer: "Continue Here" at that
+        /// level. Each tunnel has its own continuation (its first stretch costs one step above the layer's shaft
+        /// section) so a layer's levels can be worked in parallel. Returns the tunnel's face number (1-based), or 0.
         /// </summary>
-        public int StartTunnel(int level, TunnelSide side)
+        public int StartTunnel(int level)
         {
-            if (!CanStartTunnel(level, side)) return 0;
-            var depth = _s.SectionDepths[level - 1];
-            var k = 0;
-            for (var i = 0; i < level - 1; i++) if (_s.SectionDepths[i] == depth) k++;
-            var t = new TunnelRecord { Level = level, Side = side, Depth = depth, K = k + 1 };
+            if (!CanStartTunnel(level)) return 0;
+            var t = new TunnelRecord { Level = level, Side = TunnelSide.Left, Depth = BandOfLevel(level), K = 1 };
             _s.Tunnels.Add(t);
             StartStretch(t);
             SaveRng();
@@ -612,13 +690,22 @@ namespace Ravenholm.Domain.Sites
 
         private void UpdateStatus()
         {
-            foreach (var t in _s.Tunnels)
-                if (t.Status == SiteStatus.Working && t.Emitted >= SiteMath.TunnelUnits(_c) && t.Pending.Count == 0)
-                    t.Status = SiteStatus.AwaitDecision;
-            var exhausted = _c.Kind == SiteKind.Mine
-                ? _s.SectionEmitted >= _c.UnitsPerSection && _s.FacePending.Count == 0
-                : _s.Trees.TrueForAll(t => t.Felled && t.Pending.Count == 0);
-            if (!exhausted) return;
+            if (_c.Kind == SiteKind.Mine)
+            {
+                foreach (var t in _s.Tunnels)
+                    if (t.Status == SiteStatus.Working && t.Emitted >= SiteMath.TunnelUnits(_c) && t.Pending.Count == 0)
+                        t.Status = SiteStatus.AwaitDecision;
+                if (_s.SectionEmitted >= _c.UnitsPerSection && _s.FacePending.Count == 0 && _s.SectionsCompleted < _s.Depth)
+                    _s.SectionsCompleted = _s.Depth;   // the shaft is through this layer
+                // Workers wait until you choose (GDD 6): only a face with miners waiting on it asks for a decision.
+                if (WaitingFace() < 0)
+                {
+                    _s.Status = SiteStatus.Working;
+                    _decisionAnnounced = false;
+                    return;
+                }
+            }
+            else if (!_s.Trees.TrueForAll(t => t.Felled && t.Pending.Count == 0)) return;
             _s.Status = SiteStatus.AwaitDecision;
             if (_decisionAnnounced) return;
             _decisionAnnounced = true;

@@ -12,6 +12,12 @@ namespace Ravenholm.Presentation
         [Header("Town")]
         [Tooltip("Walkable town footprint in world units (GDD: about 24 x 18).")]
         public Rect plotBounds = new Rect(-12f, -9f, 24f, 18f);
+        [Tooltip("The frontier: the town's ground continues this far left of the town (world units). The Forest grows on it " +
+                 "and the Mine's tunnels run under it; both progress left, so raise this as more is charted.")]
+        [Min(0f)] public float frontierLength = 48f;
+
+        /// <summary>Walkable world: the town plus the frontier strip on its left.</summary>
+        public Rect WorldBounds => new Rect(plotBounds.xMin - frontierLength, plotBounds.yMin, plotBounds.width + frontierLength, plotBounds.height);
 
         [Header("Camera")]
         [Tooltip("Visible world width in units. The debug panel cycles through these to compare framing; the game itself has no zoom (locked).")]

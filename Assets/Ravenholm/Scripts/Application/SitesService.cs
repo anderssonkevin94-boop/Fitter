@@ -117,10 +117,10 @@ namespace Ravenholm.Services
         // ------------------------------------------------------------------ Mine tunnels
 
         /// <summary>Starts a sideways tunnel at a dug level; sends <paramref name="workerId"/> there when given. Returns the face (0 = failed).</summary>
-        public int StartTunnel(string siteId, int level, TunnelSide side, string workerId = null)
+        public int StartTunnel(string siteId, int level, string workerId = null)
         {
             var sim = Get(siteId);
-            var face = sim?.StartTunnel(level, side) ?? 0;
+            var face = sim?.StartTunnel(level) ?? 0;
             if (face == 0) return 0;
             if (workerId != null) sim.AssignWorker(workerId, face);
             _scheduler.SaveNow("site: tunnel");
@@ -194,6 +194,7 @@ namespace Ravenholm.Services
                 KLinear = def.ContinuationLinear,
                 KQuad = def.ContinuationQuadratic,
                 TerminalKCap = def.TerminalContinuationCap,
+                LevelsPerBand = Math.Max(1, def.LevelsPerBand),
                 HopMs = (int)Math.Round(def.HopSeconds * 1000),
                 DepositMs = (int)Math.Round(def.DepositSeconds * 1000),
             };
@@ -247,7 +248,9 @@ namespace Ravenholm.Services
                 var saved = env?.Sites?.Find(x => x.SiteId == def.Id);
                 if (saved != null)
                 {
-                    _sims.Add(Create(def, FromSave(saved)));
+                    var record = FromSave(saved);
+                    if (def.SiteType == SiteType.Mine && saved.Layout < MineLayout) ConvertOldMine(record);
+                    _sims.Add(Create(def, record));
                     continue;
                 }
                 var sim = Create(def, new SiteRecord());
@@ -263,7 +266,30 @@ namespace Ravenholm.Services
         void ISaveSection.Write(SaveEnvelope env)
         {
             env.Sites = new List<SiteSaveData>();
-            foreach (var sim in _sims) env.Sites.Add(ToSave(sim.Record));
+            foreach (var sim in _sims)
+            {
+                var d = ToSave(sim.Record);
+                if (sim.Config.Kind == SiteKind.Mine) d.Layout = MineLayout;
+                env.Sites.Add(d);
+            }
+        }
+
+        public const int MineLayout = 2;
+
+        /// <summary>
+        /// Saves from before the Mine had directions (every section dug a level down; tunnels ran both ways): keep the
+        /// layer, its revealed mixes and everything earned. The section in progress becomes the shaft sinking through the
+        /// current layer (layers above count as dug), old tunnels close, and their waiting units go to the shaft face so
+        /// nothing owned is lost. Every miner returns to the shaft.
+        /// </summary>
+        public static void ConvertOldMine(SiteRecord s)
+        {
+            s.SectionsCompleted = s.Status == SiteStatus.AwaitDecision ? s.Depth : s.Depth - 1;
+            s.K = 0;
+            s.SectionDepths.Clear();
+            foreach (var t in s.Tunnels) s.FacePending.AddRange(t.Pending);
+            s.Tunnels.Clear();
+            foreach (var w in s.Workers) w.Face = 0;
         }
 
         private static SiteSaveData ToSave(SiteRecord s)

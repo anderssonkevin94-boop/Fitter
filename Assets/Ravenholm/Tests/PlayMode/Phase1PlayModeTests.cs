@@ -115,7 +115,7 @@ namespace Ravenholm.Tests
                 (from: new Vector2(-3.5f, -5.6f), to: new Vector2(-5.4f, -3.8f), name: "Forge"),
                 (from: new Vector2(-2.9f, -3.2f), to: new Vector2(-2.9f, -1.7f), name: "Apothecary"),
                 (from: new Vector2(0.0f, 5.2f), to: new Vector2(0f, 3.2f), name: "Store back wall"),
-                (from: new Vector2(8.5f, -0.9f), to: new Vector2(7.2f, 0.6f), name: "Lumbermill"),
+                (from: (Vector2)GameObject.Find("Lumbermill").transform.position + new Vector2(1.9f, -1.2f), to: (Vector2)GameObject.Find("Lumbermill").transform.position, name: "Lumbermill"),
             };
             foreach (var c in cases)
             {
@@ -168,12 +168,12 @@ namespace Ravenholm.Tests
 
             // Forest staging holds 16 cedar, 6 herbs, 4 maple; pickup order is by stable ID, so the
             // first trip is all cedar and the second trip mixes in the herbs.
-            yield return StandAt(new Vector2(8.6f, 3.7f), 2.0f);
-            yield return StandAt(new Vector2(6.3f, -0.15f), 1.6f);
+            yield return StandAt(Spot("container.forest_staging"), 2.0f);
+            yield return StandAt(Spot("receiver.lumbermill"), 1.6f);
             Assert.AreEqual(0, Sys.CarryCount);
-            yield return StandAt(new Vector2(8.6f, 3.7f), 2.0f);
+            yield return StandAt(Spot("container.forest_staging"), 2.0f);
             Assert.AreEqual(6, Sys.State.Carry.Count(u => u.Id == "resource.herb"));
-            yield return StandAt(new Vector2(6.3f, -0.15f), 1.6f);   // lumbermill takes logs only
+            yield return StandAt(Spot("receiver.lumbermill"), 1.6f);   // lumbermill takes logs only
             Assert.AreEqual(6, Sys.CarryCount);
             Assert.IsTrue(Sys.State.Carry.All(u => u.Id == "resource.herb"), "herbs remain for the apothecary");
             yield return StandAt(new Vector2(-2.15f, -2.45f), 1.0f);

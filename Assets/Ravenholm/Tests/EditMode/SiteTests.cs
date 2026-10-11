@@ -163,7 +163,7 @@ namespace Ravenholm.Tests
             var t1 = RunToDecision(sim);
             Assert.AreEqual(24, ledger.CreatedTotal - after0, "same yield");
             Assert.Greater(t1, t0, "more effort");
-            Assert.AreEqual(1, sim.Record.K);
+            Assert.AreEqual(1, sim.Record.Tunnels[0].K, "the Mine continues left: the tunnel is the continuation");
             Assert.AreEqual(0.0, 1.0 - SiteMath.Generate(Seed, "site.mine", sim.Config.Bands[0]).Weights.Sum(w => w.Value), 1e-9);
         }
 

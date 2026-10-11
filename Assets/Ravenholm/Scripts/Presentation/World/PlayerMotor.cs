@@ -114,7 +114,7 @@ namespace Ravenholm.Presentation
             }
             var delta = move * (balance.walkSpeed * Time.deltaTime);
             var p = Slide(old, delta, balance.playerFootprintRadius, _blockerMask);
-            var b = _root.Config.SandboxSettings.plotBounds;
+            var b = _root.Config.SandboxSettings.WorldBounds;
             p.x = Mathf.Clamp(p.x, b.xMin + 0.4f, b.xMax - 0.4f);
             p.y = Mathf.Clamp(p.y, b.yMin + 0.4f, b.yMax - 0.4f);
             // Only the town's ground tiles are walkable: not the open shaft or the notch in front of it.

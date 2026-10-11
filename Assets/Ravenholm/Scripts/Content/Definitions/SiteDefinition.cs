@@ -46,6 +46,8 @@ namespace Ravenholm.Content
         [Min(0)] [SerializeField] private float continuationQuadratic = 0.04f;
         [Tooltip("At the terminal band only, the continuation index used for durability is capped here (GDD 6).")]
         [Min(0)] [SerializeField] private int terminalContinuationCap = 6;
+        [Tooltip("Mine: shaft levels per layer. Each level has its own tunnel, so this many miners can work one layer side by side.")]
+        [Min(1)] [SerializeField] private int levelsPerBand = 3;
 
         [Header("Timing")]
         [Tooltip("Forest: seconds to walk between trees in a clearing.")]
@@ -68,6 +70,7 @@ namespace Ravenholm.Content
         public float ContinuationLinear => continuationLinear;
         public float ContinuationQuadratic => continuationQuadratic;
         public int TerminalContinuationCap => terminalContinuationCap;
+        public int LevelsPerBand => levelsPerBand;
         public float HopSeconds => hopSeconds;
         public float DepositSeconds => depositSeconds;
 

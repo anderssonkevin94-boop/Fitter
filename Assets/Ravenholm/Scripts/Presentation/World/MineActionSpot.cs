@@ -15,8 +15,7 @@ namespace Ravenholm.Presentation
         public enum Kind
         {
             Ladder,
-            TunnelLeft,
-            TunnelRight,
+            Tunnel,
         }
 
         [SerializeField] private Kind kind;
@@ -44,8 +43,6 @@ namespace Ravenholm.Presentation
         private static PlayerMotor Player =>
             SandboxSceneController.Current != null && SandboxSceneController.Current.Player != null
                 ? SandboxSceneController.Current.Player.GetComponent<PlayerMotor>() : null;
-
-        private TunnelSide Side => kind == Kind.TunnelLeft ? TunnelSide.Left : TunnelSide.Right;
 
         private void Update()
         {
@@ -79,28 +76,26 @@ namespace Ravenholm.Presentation
                 return;
             }
             if (level < 2) return;
-            var side = Side;
-            var ledge = mine.LedgeCells;
-            var end = ledge[side == TunnelSide.Left ? 0 : ledge.Count - 1];
-            var index = sim.TunnelIndex(level, side);
-            var name = side == TunnelSide.Left ? "left" : "right";
+            // At this level's end of the ledge: start its tunnel ("Continue Here" at this level), or at the tunnel's
+            // face extend it once the stretch is cleared.
+            var path = mine.TunnelPath;
+            var index = sim.TunnelIndex(level);
             if (index < 0)
             {
-                if (sim.CanStartTunnel(level, side) && mine.TunnelCapacityCells(side) > 0)
-                    Set(mine.FloorPoint(end, level), "Dig", $"tunnel {name}", true);
+                if (sim.CanStartTunnel(level) && path.Count > 0)
+                    Set(mine.FloorPoint(mine.LedgeCells[0], level), "Dig", "tunnel", true);
                 return;
             }
             var t = sim.Record.Tunnels[index];
-            var path = mine.TunnelPath(side);
-            var dug = Mathf.Min(mine.TunnelDug(level, side), path.Count);
-            var at = dug > 0 ? mine.FloorPoint(path[dug - 1], level) : mine.FloorPoint(end, level);
+            var dug = Mathf.Min(mine.TunnelDug(level), path.Count);
+            var at = dug > 0 ? mine.FloorPoint(path[dug - 1], level) : mine.FloorPoint(mine.LedgeCells[0], level);
             var cells = sim.TunnelCellsDug(t);
-            var detail = $"Level {level} {name} tunnel, dug in the depth {t.Depth} layer: {cells} block{(cells == 1 ? "" : "s")} so far " +
-                         $"(stretches of {sim.Config.TunnelStretchCells}, effort {sim.TunnelDurability(t)} each and rising).";
+            var detail = $"Level {level} tunnel, in the depth {t.Depth} layer: {cells} block{(cells == 1 ? "" : "s")} dug so far. " +
+                         $"Each stretch is one section (effort {sim.TunnelDurability(t)} now, rising each time you continue).";
             if (t.Status == SiteStatus.AwaitDecision && cells + sim.Config.TunnelStretchCells <= path.Count)
                 Set(at, "Extend", "tunnel", true, detail);
             else
-                Set(at, "Inspect", "tunnel", false, t.Status == SiteStatus.AwaitDecision ? detail + " It has reached the town's edge." : detail);
+                Set(at, "Inspect", "tunnel", false, t.Status == SiteStatus.AwaitDecision ? detail + " It has reached the end of the charted frontier." : detail);
         }
 
         public override void OnInspected()
@@ -118,19 +113,18 @@ namespace Ravenholm.Presentation
             }
             if (!_action) return;
             var level = player.MineLevel;
-            var side = Side;
-            var index = sim.TunnelIndex(level, side);
+            var index = sim.TunnelIndex(level);
             if (index >= 0)
             {
                 if (sites.ExtendTunnel(MineDigView.SiteId, index + 1)) root.Hud.ShowToast("Tunnel extended");
                 return;
             }
             var miner = PickMiner(sim, out var leavesShaft);
-            var face = sites.StartTunnel(MineDigView.SiteId, level, side, miner?.Id);
+            var face = sites.StartTunnel(MineDigView.SiteId, level, miner?.Id);
             if (face == 0) return;
             FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
             if (miner == null) root.Hud.ShowToast($"Tunnel marked at level {level}. Send a miner from the Mine panel.");
-            else root.Hud.ShowToast(leavesShaft
+            else root.Hud.ShowToast(leavesShaft && !sim.ShaftDone
                 ? $"{miner.Name} digs the level {level} tunnel. The shaft waits until you send a miner back (Mine panel)."
                 : $"{miner.Name} digs the level {level} tunnel");
         }

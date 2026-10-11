@@ -256,9 +256,9 @@ namespace Ravenholm.Presentation
             var h = _ui.Text("Header", _tunnels, "Tunnels", _theme.bodySize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
             h.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
             TunnelText(() => Sim == null || Sim.Record.Tunnels.Count == 0
-                ? "Each level below the town's ground can have a tunnel on each side, dug in that level's layer alongside the shaft. " +
-                  "Climb down the ladder, step off at a level and walk to either end of its ledge to start one."
-                : "Each tunnel advances in stretches; when one is cleared its miner waits for you to extend it. Send miners between the shaft and the tunnels here.");
+                ? "Each layer is three levels deep and every level has its own tunnel, dug left under the Forest in that layer, " +
+                  "so several miners can work one layer side by side. Continue Here starts one, or climb down the ladder and walk to the left end of a level's ledge."
+                : "Each tunnel advances one stretch per Continue; when a stretch is cleared its miner waits for you. Send miners between the shaft and the tunnels here.");
 
             foreach (var w in sim.Record.Workers)
             {
@@ -299,11 +299,11 @@ namespace Ravenholm.Presentation
             var miners = sim.Record.Workers.FindAll(x => x.Face == face).ConvertAll(x => x.Name);
             var who = miners.Count == 0 ? "nobody digging" : string.Join(", ", miners);
             var pct = t.DurabilityMicro > 0 ? 100.0 * t.DoneMicro / t.DurabilityMicro : 0;
-            return $"<b>Level {t.Level} {(t.Side == TunnelSide.Left ? "left" : "right")}</b> · depth {t.Depth} layer · {sim.TunnelCellsDug(t)} blocks · " +
+            return $"<b>Level {t.Level} tunnel</b> · depth {t.Depth} layer · {sim.TunnelCellsDug(t)} blocks · " +
                    (t.Status == SiteStatus.AwaitDecision ? "stretch cleared" : $"{pct:0}% of this stretch") + $" · {who}";
         }
 
-        private int Capacity(TunnelRecord t) => MineDigView.Current != null ? MineDigView.Current.TunnelCapacityCells(t.Side) : int.MaxValue;
+        private int Capacity(TunnelRecord t) => MineDigView.Current != null ? MineDigView.Current.TunnelCapacityCells : int.MaxValue;
 
         private bool CanExtend(int face)
         {
@@ -318,7 +318,7 @@ namespace Ravenholm.Presentation
             var t = sim?.Tunnel(face);
             if (t == null) return "";
             if (t.Status != SiteStatus.AwaitDecision) return "Extend tunnel (when this stretch is cleared)";
-            if (!CanExtend(face)) return "This tunnel has reached the town's edge";
+            if (!CanExtend(face)) return "This tunnel has reached the end of the charted frontier";
             var now = sim.TunnelDurability(t);
             var next = SiteMath.TunnelDurability(sim.Config, t.Depth, t.K + 1);
             return $"Extend tunnel · effort {now} → {next} per stretch";
@@ -397,7 +397,13 @@ namespace Ravenholm.Presentation
         {
             var sim = Sim;
             if (sim == null || !sim.CanGoDeeper) return;
-            // Leaving a band is permanent (GDD 6), so it takes a second tap to confirm.
+            if (sim.Config.Kind == SiteKind.Mine)
+            {
+                _root.Services.Sites.ChooseDeeper(_siteId);   // the layer stays open: its tunnels can still be worked
+                Refresh();
+                return;
+            }
+            // Leaving a Forest area is permanent (GDD 7), so it takes a second tap to confirm.
             if (Time.unscaledTime > _deeperArmedUntil)
             {
                 _deeperArmedUntil = Time.unscaledTime + 3f;
@@ -435,7 +441,10 @@ namespace Ravenholm.Presentation
             if (mine)
             {
                 var pct = s.SectionDurabilityMicro > 0 ? 100.0 * s.SectionDoneMicro / s.SectionDurabilityMicro : 0;
-                sb.Append($"<b>Face:</b> {s.SectionEmitted}/{sim.Config.UnitsPerSection} units released · {pct:0}% worked · durability {sim.CurrentDurability}");
+                var top = s.Depth == 1 ? 2 : sim.FirstLevelOf(s.Depth);
+                sb.Append(sim.ShaftDone
+                    ? $"<b>Shaft:</b> down through depth {s.Depth} (levels {top}–{top + sim.LevelsPerBand - 1}, a tunnel each)"
+                    : $"<b>Shaft:</b> sinking through depth {s.Depth} · {s.SectionEmitted}/{sim.Config.UnitsPerSection} units · {pct:0}% · durability {sim.CurrentDurability}");
                 if (s.FacePending.Count > 0) sb.Append($" · {s.FacePending.Count} waiting at the face");
             }
             else
@@ -446,7 +455,8 @@ namespace Ravenholm.Presentation
                 foreach (var t in s.Trees) pending += t.Pending.Count;
                 if (pending > 0) sb.Append($" · {pending} waiting at the trees");
             }
-            sb.Append($"\n<b>Effort:</b> ×{SiteMath.ContinuationMultiplier(sim.Config, SiteMath.EffectiveK(sim.Config, s.Depth, s.K)):0.00} (continuation {s.K}) · sections done {s.SectionsCompleted}\n");
+            if (!mine) sb.Append($"\n<b>Effort:</b> ×{SiteMath.ContinuationMultiplier(sim.Config, SiteMath.EffectiveK(sim.Config, s.Depth, s.K)):0.00} (continuation {s.K}) · sections done {s.SectionsCompleted}");
+            sb.Append('\n');
             var staging = _root.Services.Logistics.System.State.Containers.TryGetValue(sim.Config.StagingContainerId, out var c) ? c.UnitCount : 0;
             sb.Append($"<b>Staging:</b> {staging}/{sim.Config.StagingCapacity}\n");
             foreach (var w in s.Workers) sb.Append($"<b>{w.Name}:</b> {WorkerView.Describe(sim, w)}\n");
@@ -455,30 +465,34 @@ namespace Ravenholm.Presentation
             _status.text = sb.ToString();
 
             var awaiting = s.Status == SiteStatus.AwaitDecision;
-            _decisionText.text = awaiting
-                ? (mine ? "<b>This section is worked out.</b> Workers wait until you choose. Nothing is decided for you." : "<b>This clearing is cut.</b> Workers wait until you choose.")
-                : "<size=85%>Your next choice comes when this " + (mine ? "section is worked out." : "clearing is cut.") + "</size>";
-            _continue.gameObject.SetActive(awaiting);
-            _deeper.gameObject.SetActive(awaiting);
-            if (awaiting)
+            if (mine) RefreshMineDecision(sim);
+            else
             {
-                var now = sim.CurrentDurability;
-                var next = sim.ContinueDurability;
-                _continueLabel.text = $"Continue Here · same mix, effort {now} → {next} (+{(next - now) * 100.0 / now:0}%) · same yield";
-                if (sim.CanGoDeeper)
+                _decisionText.text = awaiting
+                    ? "<b>This clearing is cut.</b> Workers wait until you choose."
+                    : "<size=85%>Your next choice comes when this clearing is cut.</size>";
+                _continue.gameObject.SetActive(awaiting);
+                _deeper.gameObject.SetActive(awaiting);
+                if (awaiting)
                 {
-                    var nb = sim.Config.Bands[s.Depth];
-                    var verb = mine ? "Dig Deeper" : "Push Deeper";
-                    var where = mine ? $"depth {s.Depth + 1}" : $"area {s.Depth + 1}";
-                    _deeperLabel.text = Time.unscaledTime < _deeperArmedUntil
-                        ? $"Tap again: leave this {(mine ? "layer" : "area")} for good and reveal {where}"
-                        : $"{verb} · reveal {where} ({nb.Discovery}) · composition unknown";
-                    _deeper.interactable = true;
-                }
-                else
-                {
-                    _deeperLabel.text = mine ? "More depths not yet charted" : "No further areas charted yet";
-                    _deeper.interactable = false;
+                    var now = sim.CurrentDurability;
+                    var next = sim.ContinueDurability;
+                    _continueLabel.text = $"Continue Here · same mix, effort {now} → {next} (+{(next - now) * 100.0 / now:0}%) · same yield";
+                    if (sim.CanGoDeeper)
+                    {
+                        var nb = sim.Config.Bands[s.Depth];
+                        var verb = mine ? "Dig Deeper" : "Push Deeper";
+                        var where = mine ? $"depth {s.Depth + 1}" : $"area {s.Depth + 1}";
+                        _deeperLabel.text = Time.unscaledTime < _deeperArmedUntil
+                            ? $"Tap again: leave this {(mine ? "layer" : "area")} for good and reveal {where}"
+                            : $"{verb} · reveal {where} ({nb.Discovery}) · composition unknown";
+                        _deeper.interactable = true;
+                    }
+                    else
+                    {
+                        _deeperLabel.text = mine ? "More depths not yet charted" : "No further areas charted yet";
+                        _deeper.interactable = false;
+                    }
                 }
             }
 
@@ -491,6 +505,47 @@ namespace Ravenholm.Presentation
             var w0 = s.Workers.Count > 0 ? s.Workers[0] : null;
             _toolLabel.text = w0 != null ? $"DEBUG tool: {UnitVisuals.DisplayName(w0.ToolId)} ({Value(w0.ToolId)}/s) · tap to change" : "";
             _packLabel.text = w0 != null ? $"DEBUG pack: {UnitVisuals.DisplayName(w0.PackId)} ({Value(w0.PackId)} units) · tap to change" : "";
+        }
+
+        /// <summary>
+        /// Mine choices are directions (GDD 6): Continue Here digs left in a layer (a waiting tunnel's next stretch, or the
+        /// layer's next level once the shaft is through); Dig Deeper sinks the shaft through the next layer.
+        /// </summary>
+        private void RefreshMineDecision(SiteSimulator sim)
+        {
+            var s = sim.Record;
+            var face = sim.WaitingFace();
+            var canDeeper = sim.ShaftDone && sim.CanGoDeeper;
+            _continue.gameObject.SetActive(face >= 0);
+            _deeper.gameObject.SetActive(sim.ShaftDone);
+            _decisionText.text = face >= 0
+                ? "<b>Miners are waiting for you.</b> Continue left in this layer, or dig deeper. Nothing is decided for you."
+                : sim.ShaftDone
+                    ? "<size=85%>The shaft is through this layer. Dig deeper whenever you like; tunnels keep working meanwhile.</size>"
+                    : "<size=85%>Your next choice comes when the shaft is through this layer or a tunnel stretch is cleared.</size>";
+            if (face > 0)
+            {
+                var t = sim.Tunnel(face);
+                var next = SiteMath.TunnelDurability(sim.Config, t.Depth, t.K + 1);
+                _continueLabel.text = $"Continue Here · level {t.Level} tunnel one stretch further left · effort {sim.TunnelDurability(t)} → {next} · same yield";
+            }
+            else if (face == 0)
+            {
+                var level = sim.NextTunnelLevel(s.Depth);
+                _continueLabel.text = level > 0
+                    ? $"Continue Here · dig left at level {level} (depth {s.Depth} layer) · effort {SiteMath.TunnelDurability(sim.Config, s.Depth, 1)}"
+                    : "Continue Here · join a tunnel in this layer";
+            }
+            if (sim.ShaftDone)
+            {
+                if (canDeeper)
+                {
+                    var nb = sim.Config.Bands[s.Depth];
+                    _deeperLabel.text = $"Dig Deeper · sink the shaft {sim.LevelsPerBand} levels to depth {s.Depth + 1} ({nb.Discovery}) · composition unknown";
+                }
+                else _deeperLabel.text = "More depths not yet charted";
+                _deeper.interactable = canDeeper;
+            }
         }
 
         private int Value(string equipmentId) =>

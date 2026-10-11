@@ -45,8 +45,8 @@ namespace Ravenholm.Domain.Sites
         public double KQuad = 0.04;
         public int TerminalKCap = 6;
 
-        public int ShaftBlocks = 16;            // Mine: blocks in one shaft level (one section)
-        public int TunnelStretchCells = 4;      // Mine: blocks in one tunnel stretch (one tunnel decision)
+        public int LevelsPerBand = 3;           // Mine: shaft levels per layer (one tunnel per level)
+        public int TunnelStretchCells = 4;      // Mine: blocks dug left per tunnel stretch (presentation and reach)
 
         public int HopMs = 800;                 // Forest: walk between trees
         public int DepositMs = 600;
@@ -133,6 +133,7 @@ namespace Ravenholm.Domain.Sites
     public sealed class TunnelRecord
     {
         public int Level;                       // shaft level it leaves from (2 = first level below the town's own ground)
+        // Side: tunnels run left (kept for saves made while tunnels could also run right).
         public TunnelSide Side;
         public int Depth;                       // the layer (depth band) of that level
         public int K;                           // continuation index driving effort
@@ -209,11 +210,10 @@ namespace Ravenholm.Domain.Sites
         /// <summary>The continuation index used for durability; capped only at the terminal (deepest authored) band.</summary>
         public static int EffectiveK(SiteConfig c, int depth, int k) => depth >= c.Bands.Count ? Math.Min(k, c.TerminalKCap) : k;
 
-        /// <summary>Durability of one tunnel stretch: the same per-block effort as a shaft section at that (depth, k).</summary>
-        public static long TunnelDurability(SiteConfig c, int depth, int k) =>
-            Math.Max(1, (long)Math.Round(Durability(c, depth, k) * (double)c.TunnelStretchCells / Math.Max(1, c.ShaftBlocks), MidpointRounding.AwayFromZero));
+        /// <summary>A tunnel stretch is one Mine section ("Continue Here" in that layer): same durability curve and yield.</summary>
+        public static long TunnelDurability(SiteConfig c, int depth, int k) => Durability(c, depth, k);
 
-        public static int TunnelUnits(SiteConfig c) => Math.Max(1, c.UnitsPerSection * c.TunnelStretchCells / Math.Max(1, c.ShaftBlocks));
+        public static int TunnelUnits(SiteConfig c) => c.UnitsPerSection;
 
         /// <summary>Durability (whole damage) of one Mine section or one Forest tree.</summary>
         public static long Durability(SiteConfig c, int depth, int k)
