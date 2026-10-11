@@ -201,18 +201,44 @@ namespace Ravenholm.Domain.Sites
         /// <paramref name="dps"/>. Same section rules as any miner: units release at the same thresholds, and go
         /// straight into the carry (or wait at the face when the carry is full). Returns the units carried away.
         /// </summary>
-        public int PlayerMine(int face, long ms, int dps)
+        public int PlayerMine(int face, long ms, int dps) => PlayerMine(face, ms, dps, null);
+
+        /// <summary>
+        /// As <see cref="PlayerMine(int,long,int)"/>, digging a known block (prospecting): every unit released is that
+        /// block's ore (<paramref name="blockOre"/>), or the layer's baseline ore for plain rock (null), instead of a draw
+        /// from the layer's mix, and each unit from an ore block has a chance of a bonus unit of it. Following veins pays.
+        /// </summary>
+        public int PlayerMine(int face, long ms, int dps, string blockOre, bool plainRock = false)
         {
             if (_c.Kind != SiteKind.Mine || face < 0 || face > _s.Tunnels.Count) return 0;
             var given = PlayerCollect(face);
             if (FaceExhausted(face) || ms <= 0 || dps <= 0) { Resolve(); return given; }
             _playerFace = face;
+            _playerOre = blockOre;
+            _playerPlainRock = plainRock;
             _carried = 0;
             SetFaceDone(face, Math.Min(FaceDurability(face), FaceDone(face) + dps * ms));
             Resolve();
             _playerFace = -1;
+            _playerOre = null;
+            _playerPlainRock = false;
             SaveRng();
             return given + _carried;
+        }
+
+        private string _playerOre;
+        private bool _playerPlainRock;
+
+        /// <summary>The layer's plain-rock ore for a face (its band's baseline, else its most common ore).</summary>
+        private string Baseline(int face)
+        {
+            var t = Tunnel(face);
+            var band = _c.Bands[Math.Max(1, Math.Min(t != null ? t.Depth : _s.Depth, _c.Bands.Count)) - 1];
+            if (!string.IsNullOrEmpty(band.BaselineResourceId)) return band.BaselineResourceId;
+            var comp = FaceComposition(face);
+            var best = comp.Weights.Count > 0 ? comp.Weights[0] : default;
+            foreach (var w in comp.Weights) if (w.Value > best.Value) best = w;
+            return best.Key;
         }
 
         /// <summary>The supplier chops tree <paramref name="tree"/> of the current clearing. Returns the units carried away.</summary>
@@ -596,6 +622,12 @@ namespace Ravenholm.Domain.Sites
                         else _s.Tunnels[f - 1].Emitted++;
                         // Primary and rare come from distinct draws: the rare roll is a bonus, never a primary share (GDD 6).
                         var primary = comp.Draw(_rng);
+                        if (f == _playerFace && (_playerOre != null || _playerPlainRock))
+                        {
+                            // Dug by hand from a known block (prospecting): the block decides; ore blocks may give more.
+                            primary = _playerOre ?? Baseline(f);
+                            if (_playerOre != null && _rng.NextDouble() < MineVeins.HandBonusChance) GiveMine(f, _playerOre);
+                        }
                         GiveMine(f, primary);
                         if (!string.IsNullOrEmpty(comp.RareResourceId) && _rng.NextDouble() < comp.RareChance)
                             GiveMine(f, comp.RareResourceId);

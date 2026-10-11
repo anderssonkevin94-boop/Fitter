@@ -80,6 +80,10 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Props/deco_flowers_0.png` | Ground flower decal |
 | `Props/deco_flowers_1.png` | Ground flower decal |
 | `Props/deco_flowers_2.png` | Ground flower decal |
+| `Props/fx_crack_1.png` | Block cracks, stage 1 |
+| `Props/fx_crack_2.png` | Block cracks, stage 2 |
+| `Props/fx_crack_3.png` | Block cracks, stage 3 |
+| `Props/fx_ring.png` | Prospector's tap echo ring |
 | `Props/pile_ingots.png` | Processed output pile (ingots) |
 | `Props/pile_logs.png` | Forest staging pile (logs) |
 | `Props/pile_lumber.png` | Processed output pile (lumber) |
@@ -148,6 +152,7 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `Tiles/tile_block_seam_1.png` | Mine ground block: one level of earth, tinted per layer (layer seam) |
 | `Tiles/tile_block_seam_2.png` | Mine ground block: one level of earth, tinted per layer (layer seam) |
 | `Tiles/tile_dirt.png` | Isometric ground tile (pebbles) |
+| `Tiles/tile_fleck.png` | Prospecting: ore flecks on a block's faces (tinted per ore) |
 | `Tiles/tile_forest_floor.png` | Isometric ground tile (tufts) |
 | `Tiles/tile_grass_a.png` | Isometric ground tile (tufts) |
 | `Tiles/tile_grass_b.png` | Isometric ground tile (tufts) |

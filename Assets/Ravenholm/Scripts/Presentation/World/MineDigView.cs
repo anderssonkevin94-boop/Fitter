@@ -138,6 +138,49 @@ namespace Ravenholm.Presentation
             return CellTop(_order[i], _partialLevel);
         }
 
+        private double _shaftBlocksExact;
+
+        /// <summary>
+        /// The block a face is digging now (prospecting): its cell, level and how far it is cracked (0..1). False when the
+        /// face has nothing to dig (the shaft is through its layer, or a tunnel stretch waits for you).
+        /// </summary>
+        public bool CurrentBlock(int face, out Vector3Int cell, out int level, out float progress)
+        {
+            cell = default;
+            level = 0;
+            progress = 0f;
+            EnsureGeometry();
+            if (face == 0)
+            {
+                if (_partialLevel <= 0 || _order.Count == 0) return false;
+                cell = _order[Mathf.Min(_removed.Count, Blocks - 1)];
+                level = _partialLevel;
+                progress = (float)(_shaftBlocksExact - System.Math.Floor(_shaftBlocksExact));
+                return true;
+            }
+            var t = _sim != null ? _sim.Tunnel(face) : null;
+            if (t == null || t.Status != SiteStatus.Working) return false;
+            var n = _sim.Config.TunnelStretchCells;
+            var p = t.DurabilityMicro > 0 ? (double)t.DoneMicro / t.DurabilityMicro : 0;
+            var exact = t.Stretches * n + p * n;
+            var index = (int)System.Math.Floor(exact);
+            if (index >= _path.Count) return false;
+            cell = _path[index];
+            level = t.Level;
+            progress = (float)(exact - index);
+            return true;
+        }
+
+        /// <summary>A block the camera can see now (prospecting signs show only on these).</summary>
+        public bool BlockVisible(Vector3Int c, int level) => level >= 1 && Solid(c, level) && Visible(c, level);
+
+        /// <summary>World position of a block's top centre (its sprite pivot).</summary>
+        public Vector3 BlockTop(Vector3Int c, int level) => CellTop(c, level);
+
+        public static int SortingOrderFor(int level) => -4 * level;
+
+        public Grid GridRef => grid;
+
         /// <summary>The top of the next shaft block to clear (null while the shaft is through its layer).</summary>
         public bool NextShaftBlock(out Vector3 top)
         {
@@ -410,7 +453,8 @@ namespace Ravenholm.Presentation
             var lo = s.Depth == 1 ? 1 : sim.FirstLevelOf(s.Depth);
             var hi = sim.FirstLevelOf(s.Depth) + sim.LevelsPerBand - 1;
             var progress = s.SectionDurabilityMicro > 0 ? (double)s.SectionDoneMicro / s.SectionDurabilityMicro : 0;
-            var blocks = Mathf.Clamp((int)(progress * Blocks * (hi - lo + 1)), 0, Blocks * (hi - lo + 1));
+            _shaftBlocksExact = progress * Blocks * (hi - lo + 1);
+            var blocks = Mathf.Clamp((int)_shaftBlocksExact, 0, Blocks * (hi - lo + 1));
             _fullLevels = lo - 1 + blocks / Blocks;
             _partialLevel = _fullLevels + 1;
             if (_partialLevel > hi) { _partialLevel = 0; return; }

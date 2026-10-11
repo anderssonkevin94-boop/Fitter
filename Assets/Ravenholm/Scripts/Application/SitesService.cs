@@ -188,6 +188,36 @@ namespace Ravenholm.Services
             return n;
         }
 
+        /// <summary>
+        /// The supplier swings at one known block of a Mine face (prospecting): its vein decides what comes out. Returns
+        /// units carried away.
+        /// </summary>
+        public int PlayerMineBlock(string siteId, int face, float seconds, int x, int y, int level)
+        {
+            var sim = Get(siteId);
+            if (sim == null) return 0;
+            var ore = OreAt(siteId, x, y, level, out _);
+            _mineMs += seconds * 1000.0 * SpeedMultiplier;
+            var ms = (long)Math.Floor(_mineMs);
+            _mineMs -= ms;
+            var n = sim.PlayerMine(face, ms, PlayerDamagePerSecond, ore, plainRock: ore == null);
+            _scheduler.MarkDirty();
+            return n;
+        }
+
+        /// <summary>The ore in a Mine block (null = plain rock), from the world seed and that level's layer.</summary>
+        public string OreAt(string siteId, int x, int y, int level, out double richness)
+        {
+            richness = 0;
+            var sim = Get(siteId);
+            if (sim == null || sim.Config.Kind != SiteKind.Mine || sim.Config.Bands.Count == 0) return null;
+            var band = Math.Min(sim.BandOfLevel(level), sim.Config.Bands.Count);
+            var template = sim.Config.Bands[band - 1];
+            var comp = sim.Record.Revealed.TryGetValue(band, out var known) && known != null
+                ? known : SiteMath.Generate(_scheduler.Coordinator.WorldSeed, siteId, template);
+            return MineVeins.OreAt(_scheduler.Coordinator.WorldSeed ^ (ulong)band * 0x9E3779B97F4A7C15UL, comp, template.BaselineResourceId, x, y, level, out richness);
+        }
+
         /// <summary>The supplier chops a tree of the current clearing. Returns units carried away.</summary>
         public int PlayerChop(string siteId, int tree, float seconds)
         {

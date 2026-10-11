@@ -398,7 +398,37 @@ namespace Ravenholm.Presentation
             _contextLabel.enableAutoSizing = true;
             _contextLabel.fontSizeMin = 20f;
             _contextLabel.fontSizeMax = _theme.smallSize - 2f;
+
+            // The prospector's tap (Mine only): above the context button, so the thumb finds it.
+            var tap = _ui.Panel("TapButton", safe, _theme.roundButton);
+            tap.type = Image.Type.Simple;
+            UiFactory.Place(tap.rectTransform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-100f, 400f), new Vector2(150f, 150f));
+            _tapButton = tap.gameObject.AddComponent<Button>();
+            _tapButton.onClick.AddListener(() => MineProspectView.Current?.Tap());
+            _tapLabel = _ui.Text("Text", tap.transform, "Tap", _theme.smallSize - 4f, _theme.ink, TextAlignmentOptions.Center, FontStyles.Bold);
+            UiFactory.Stretch(_tapLabel.rectTransform, 12f);
+            tap.gameObject.SetActive(false);
         }
+
+        private Button _tapButton;
+        private TextMeshProUGUI _tapLabel;
+
+        /// <summary>The prospector's tap shows near the Mine, greyed while it recovers.</summary>
+        private void UpdateTapButton()
+        {
+            var view = MineProspectView.Current;
+            var show = view != null && view.CanTap && !IsAnyPanelOpenForTap;
+            if (_tapButton.gameObject.activeSelf != show) _tapButton.gameObject.SetActive(show);
+            if (!show) return;
+            var wait = view.TapCooldownLeft;
+            _tapButton.interactable = wait <= 0f;
+            var text = wait > 0f ? Mathf.CeilToInt(wait).ToString() : "Tap";
+            if (_tapLabel.text != text) _tapLabel.text = text;
+        }
+
+        private bool IsAnyPanelOpenForTap => TouchInputRouter.IsBlocked;
+
+        public bool TapButtonShowing => _tapButton != null && _tapButton.gameObject.activeSelf;
 
         private void BuildInfoLayer(RectTransform safe)
         {
@@ -615,6 +645,7 @@ namespace Ravenholm.Presentation
             if (_banner != null && _banner.activeSelf != showBanner) _banner.SetActive(showBanner);
             UpdateContextButton();
             UpdateHold();
+            UpdateTapButton();
             UpdateJoystick();
             _toastGroup.alpha = Mathf.MoveTowards(_toastGroup.alpha, Time.unscaledTime < _toastUntil ? 1f : 0f, Time.unscaledDeltaTime * 6f);
             _carryPulse = Mathf.MoveTowards(_carryPulse, 0f, Time.unscaledDeltaTime * 3f);

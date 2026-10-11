@@ -246,6 +246,57 @@ def rock_slab(name, height, seed, desc):
     finish(name, img, (cx, cy), "Tiles", desc=desc, crop=False)
 
 
+def ore_flecks(name, seed, count):
+    """Prospecting overlay: specks of ore on a block's exposed faces (white, tinted by the ore's colour in game)."""
+    rnd = random.Random(seed)
+    depth = U
+    img = Image.new("RGBA", (U, int(U / 2 + depth) + 2 * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    cx, cy = U / 2, U / 4
+    Rr, Bt, Lf = (U, cy), (cx, U / 2), (0, cy)
+    for face in range(2):
+        a0, a1 = (Lf, Bt) if face == 0 else (Bt, Rr)
+        for _ in range(count):
+            t, z = rnd.uniform(0.12, 0.88), rnd.uniform(0.12, 0.88)
+            x = a0[0] + (a1[0] - a0[0]) * t
+            y = a0[1] + (a1[1] - a0[1]) * t + depth * z
+            r = rnd.uniform(2.5, 5.0) * S
+            pts = [(x + r * math.cos(k * 2.1 + rnd.uniform(-0.3, 0.3)), y + r * 0.7 * math.sin(k * 2.1 + rnd.uniform(-0.3, 0.3))) for k in range(3)]
+            d.polygon(pts, fill=(255, 255, 255, 255), outline=(40, 30, 26, 200))
+    finish(name, img, (cx, cy), "Tiles", desc="Prospecting: ore flecks on a block's faces (tinted per ore)", crop=False)
+
+
+def block_cracks(stage):
+    """A block being dug: cracks on its faces, more with each stage."""
+    rnd = random.Random(70 + stage)
+    depth = U
+    img = Image.new("RGBA", (U, int(U / 2 + depth) + 2 * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    cx, cy = U / 2, U / 4
+    Rr, Bt, Lf = (U, cy), (cx, U / 2), (0, cy)
+    for _ in range(stage * 2):
+        for a0, a1 in ((Lf, Bt), (Bt, Rr)):
+            t, z = rnd.uniform(0.2, 0.8), rnd.uniform(0.15, 0.6)
+            x = a0[0] + (a1[0] - a0[0]) * t
+            y = a0[1] + (a1[1] - a0[1]) * t + depth * z
+            pts = [(x, y)]
+            for _ in range(3):
+                x += rnd.uniform(-0.09, 0.09) * U
+                y += rnd.uniform(0.04, 0.12) * U
+                pts.append((x, y))
+            d.line(pts, fill=(40, 28, 24, 230), width=3 * S)
+    finish(f"fx_crack_{stage}", img, (cx, cy), "Props", desc=f"Block cracks, stage {stage}", crop=False)
+
+
+def tap_ring():
+    """The prospector's tap: an echo ring over a block that answers (tinted by what it holds)."""
+    img = Image.new("RGBA", (U, U // 2), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    for w, a in ((6, 90), (3, 255)):
+        d.ellipse([w * S, w * S / 2, U - w * S, U / 2 - w * S / 2], outline=(255, 255, 255, a), width=w * S)
+    finish("fx_ring", img, (U / 2, U / 4), "Props", desc="Prospector's tap echo ring")
+
+
 def timber_frame():
     """Tunnel timbering: a post and a cap beam running along the tunnel (the grid's left-up axis), drawn at a sill."""
     img = Image.new("RGBA", (int(U * 1.1), int(U * 1.3)), (0, 0, 0, 0))
@@ -1265,6 +1316,10 @@ def main():
     mine_lamp()
     rock_slab("tile_slab", 0.25, 60, "Mine floor slab: a thin block of the layer's rock")
     rock_slab("tile_sill", 0.5, 61, "Mine sill: the cliff-face block cut down to a lip in front of a tunnel")
+    ore_flecks("tile_fleck", 80, 4)
+    for stage in (1, 2, 3):
+        block_cracks(stage)
+    tap_ring()
     store(); smelter(); forge(); mill(); bench(); apothecary(); trader(); mine_mouth(); forest_gate()
     tree_cedar(); tree_maple(); tree_ironwood(); bush_herb()
     rock("rock_stone", None, 11, "Rock face: plain stone")

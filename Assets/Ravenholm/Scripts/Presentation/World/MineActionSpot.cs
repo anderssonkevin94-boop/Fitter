@@ -135,7 +135,14 @@ namespace Ravenholm.Presentation
         {
             var root = GameRoot.Instance;
             if (root == null || !Holdable || _face < 0) return;
-            root.Services.Sites.PlayerMine(MineDigView.SiteId, _face, deltaSeconds);
+            var mine = MineDigView.Current;
+            if (mine != null && mine.CurrentBlock(_face, out var cell, out var level, out _))
+            {
+                // Prospecting: the block being dug decides what comes out (its vein, or plain rock).
+                root.Services.Sites.PlayerMineBlock(MineDigView.SiteId, _face, deltaSeconds, cell.x, cell.y, level);
+                if (mine.CurrentBlock(_face, out cell, out level, out var progress)) MineProspectView.Current?.ShowCrack(cell, level, progress);
+            }
+            else root.Services.Sites.PlayerMine(MineDigView.SiteId, _face, deltaSeconds);
             if (root.Services.Logistics.System.IsFull && Time.unscaledTime > _fullToastAt + 4f)
             {
                 _fullToastAt = Time.unscaledTime;

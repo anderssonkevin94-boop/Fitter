@@ -433,6 +433,30 @@
     0.2143
    ]
   },
+  "Props/fx_crack_1.png": {
+   "pivot": [
+    0.5,
+    0.8351
+   ]
+  },
+  "Props/fx_crack_2.png": {
+   "pivot": [
+    0.5,
+    0.8351
+   ]
+  },
+  "Props/fx_crack_3.png": {
+   "pivot": [
+    0.5,
+    0.8351
+   ]
+  },
+  "Props/fx_ring.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Props/pile_ingots.png": {
    "pivot": [
     0.4982,
@@ -839,6 +863,12 @@
    "pivot": [
     0.5,
     0.6596
+   ]
+  },
+  "Tiles/tile_fleck.png": {
+   "pivot": [
+    0.5,
+    0.8351
    ]
   },
   "Tiles/tile_forest_floor.png": {

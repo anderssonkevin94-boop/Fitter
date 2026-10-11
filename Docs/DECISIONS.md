@@ -553,3 +553,21 @@ Direction from the user: the supplier is the only character working; they cut an
 - **Gear.** Tools and packs are the supplier's own (`playerGear` save field), bought with `EconomyService.BuyPlayerEquipment`. Site equipment levels unlock tiers, using the best level across sites. The tool's damage per second sets mining and chopping speed.
 - **Debug.** "Complete section" puts the finished section's units in staging when nobody works the site.
 - **Tutorial.** Wording updated to match.
+
+## Solo play, stage 2: prospecting (2026-10-12)
+
+- **Veins** (`Domain/Sites/MineVeins`). Every block of the Mine's grid has fixed contents from the world seed.
+  - Each non-baseline ore of a layer has a smooth noise field, stretched along the tunnel direction and across levels.
+  - A block holds the ore whose field clears that ore's threshold by the most, or else it is plain rock. Thresholds come from the layer mix × `Density` (0.85), so a layer still yields its mix overall, but in streaks: the next block along is usually the same ore.
+  - Pure and deterministic, and tested.
+- **Digging by hand reads the block** (`SiteSimulator.PlayerMine(face, ms, dps, blockOre, plainRock)`).
+  - The section rules are unchanged: same thresholds, same 24 units.
+  - Each unit released is the block's ore, or the layer's baseline ore for plain rock, instead of a draw from the mix.
+  - Each unit from an ore block has a `HandBonusChance` (0.5) of a bonus unit. Following a vein therefore pays about ×1.5 on those blocks; straight digging is about ×1.1–1.2.
+  - Routines keep the plain average draw, so active play beats being away without being required.
+  - The block being dug comes from the view (`MineDigView.CurrentBlock`), and its ore from `SitesService.OreAt` (world seed, plus the level's layer mix, revealed or generated).
+- **Signs** (`MineProspectView`).
+  - Flecks on exposed block faces within the lamp's light (`LampRadius` 2.6): strong in the ore's colour on ore blocks, faint beside a vein.
+  - The prospector's Tap button, shown near the Mine with a 5 s cooldown: ore blocks within 4 cells and ±1 level ring with echo rings in the ore's colour, even behind the face, and a toast names what answered.
+  - Blocks crack in three stages while dug.
+- **Not yet built.** Lamp upgrades, the survey sketch, branching (choosing which block to dig), hard pockets and rare finds come in stage 4.

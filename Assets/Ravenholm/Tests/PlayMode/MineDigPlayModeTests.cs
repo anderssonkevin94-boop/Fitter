@@ -303,6 +303,67 @@ namespace Ravenholm.Tests
             yield return Capture.Take("mine_dig_deep");
         }
 
+        // ------------------------------------------------------------------ prospecting
+
+        [UnityTest]
+        public IEnumerator ReadingTheRockFlecksTapAndCracks()
+        {
+            yield return Boot();
+            var s = GameRoot.Instance.Services;
+            var dig = Object.FindAnyObjectByType<MineDigView>();
+            var view = MineProspectView.Current;
+            Assert.NotNull(view);
+            FinishShaft(s);
+            Assert.AreEqual(1, s.Sites.StartTunnel("site.mine", 2));
+            yield return null;
+            Motor.Teleport(dig.LadderPlane + new Vector2(0.25f, 0.125f));
+            Motor.ClimbTo(2);
+            var deadline = Time.realtimeSinceStartup + 5f;
+            while ((Motor.OnLadder || Motor.MineLevel != 2) && Time.realtimeSinceStartup < deadline) yield return null;
+            yield return Hold(Vector2.left, () => SandboxSceneController.Current.ContextTarget is MineActionSpot sp && sp.ContextVerb == "Mine", 4f, "at the tunnel face");
+            yield return new WaitForSeconds(0.5f);
+
+            // Flecks show exactly where the hidden veins are (or beside them), within the lamp's light.
+            var shown = 0;
+            for (var l = 1; l <= 4; l++)
+            {
+                var map = Map($"MineFlecks{l}");
+                if (map == null) continue;
+                foreach (var pos in map.cellBounds.allPositionsWithin)
+                {
+                    if (!map.HasTile(pos)) continue;
+                    shown++;
+                    var strong = map.GetColor(pos).a > 0.9f;
+                    if (strong) Assert.IsNotNull(view.OreAt(pos, l), $"a strong fleck is ore at {pos} level {l}");
+                }
+            }
+            Assert.AreEqual(view.StrongFlecks + view.FaintFlecks, shown);
+
+            // The tap: blocks that hold ore ring, then it needs a moment to recover.
+            Assert.IsTrue(view.CanTap);
+            Assert.IsTrue(GameRoot.Instance.Hud.TapButtonShowing, "the Tap button shows in the Mine");
+            var rings = view.Tap();
+            Assert.AreEqual(rings, view.LastTapRings);
+            StringAssert.StartsWith("Tap", view.LastTapNote);
+            Assert.AreEqual(0, view.Tap(), "the tap recovers before it can be used again");
+            Assert.Greater(view.TapCooldownLeft, 0f);
+
+            // Digging by hand: the block cracks, and what comes out is what that block holds.
+            Assert.IsTrue(dig.CurrentBlock(1, out var cell, out var level, out _));
+            var expected = view.OreAt(cell, level) ?? "resource.iron_ore";
+            s.Logistics.System.DebugUnloadCarry();
+            GameRoot.Instance.Hud.ScriptedHold = true;
+            deadline = Time.realtimeSinceStartup + 8f;
+            var cracked = false;
+            while (s.Logistics.System.CarryCount == 0 && Time.realtimeSinceStartup < deadline) { cracked |= view.CrackShowing; yield return null; }
+            GameRoot.Instance.Hud.ScriptedHold = false;
+            Assert.IsTrue(cracked, "the block cracks as it is dug");
+            Assert.Greater(s.Logistics.System.CarryCount, 0);
+            Assert.AreEqual(expected, s.Logistics.System.State.Carry[0].Id, "the block's own ore (or plain rock's iron)");
+            CollectionAssert.IsEmpty(s.Logistics.System.Audit());
+            yield return Capture.Take("mine_prospecting");
+        }
+
         // ------------------------------------------------------------------ the frontier Forest
 
         [UnityTest]

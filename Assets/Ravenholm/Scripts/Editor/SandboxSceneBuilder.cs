@@ -386,6 +386,9 @@ namespace Ravenholm.EditorTools
                 new[] { tiles["block_0"], tiles["block_1"], tiles["block_2"] }, new[] { tiles["block_seam_0"], tiles["block_seam_1"], tiles["block_seam_2"] },
                 tiles["slab"], tiles["sill"], ProjectSetup.LoadSprite("Props/prop_ladder"), ProjectSetup.LoadSprite("Props/prop_timber"),
                 ProjectSetup.LoadSprite("Props/prop_lamp"), _unlit);
+            go.AddComponent<MineProspectView>().EditorSetup(tiles["fleck"],
+                new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") },
+                ProjectSetup.LoadSprite("Props/fx_ring"), _unlit);
             // Context actions in the mine: the ladder and the two tunnel ends of whichever level the player is on.
             foreach (var kind in new[] { MineActionSpot.Kind.Ladder, MineActionSpot.Kind.Tunnel, MineActionSpot.Kind.Shaft })
             {
