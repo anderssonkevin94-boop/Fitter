@@ -63,6 +63,7 @@ namespace Ravenholm.Presentation
         private float _fallTimer;
         private Vector3Int? _target;
         private Vector3Int? _selected;
+        private Vector3Int _aimFrom = new Vector3Int(-99, -99, -99);
         private float _progress;
         private SpriteRenderer _highlight, _crack;
         private HoldSensor _digButton;
@@ -95,6 +96,7 @@ namespace Ravenholm.Presentation
         public int Feet => _feet;
         public Vector3Int? Target => _target;
         public Vector3Int? Selected => _selected;
+        public Vector2Int Facing => _facing;   // (into the cliff, along the face)
         public int DugCount => _dug.Count;
         public bool ScriptedDig { get; set; }
         public IReadOnlyDictionary<string, int> Tally => _tally;
@@ -430,17 +432,27 @@ namespace Ravenholm.Presentation
             _feet += 1;
         }
 
-        /// <summary>The block to dig: the tapped one while it is in reach, else the one ahead at body height.</summary>
+        /// <summary>
+        /// The block to dig. A tapped or pressed block wins while the supplier stays in the same spot. Otherwise: walking
+        /// into (or standing against) a wall targets that wall, head height first, then leg height; with nothing in the
+        /// way, the block underfoot.
+        /// </summary>
         private void Aim()
         {
+            var here = new Vector3Int(Lane, Column, _feet);
+            if (here != _aimFrom) { _aimFrom = here; _selected = null; }   // a manual pick belongs to where it was made
             if (_selected.HasValue && (!Diggable(_selected.Value) || !InReach(_selected.Value))) _selected = null;
             Vector3Int? t = _selected;
             if (!t.HasValue)
             {
                 var ax = Lane + _facing.x;
                 var au = Column + _facing.y;
-                if (Diggable(new Vector3Int(ax, au, _feet - 1))) t = new Vector3Int(ax, au, _feet - 1);
-                else if (Diggable(new Vector3Int(ax, au, _feet - 2))) t = new Vector3Int(ax, au, _feet - 2);
+                var head = new Vector3Int(ax, au, _feet - 2);
+                var legs = new Vector3Int(ax, au, _feet - 1);
+                var under = new Vector3Int(Lane, Column, _feet);
+                if (Diggable(head)) t = head;
+                else if (Diggable(legs)) t = legs;
+                else if (Diggable(under)) t = under;
             }
             if (t != _target) _progress = 0f;
             _target = t;
@@ -725,7 +737,7 @@ namespace Ravenholm.Presentation
             var card = ui.Panel("Card", safe, theme.panel);
             UiFactory.Place(card.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(1100f, 300f));
             var title = ui.Text("Title", card.transform,
-                "<b>Mining prototype</b> (option A)\nWalk like in town: up goes into the cliff. Tap an outlined block to select it and hold Dig, or press and hold on it to dig. Nothing selected: Dig takes the block ahead.",
+                "<b>Mining prototype</b> (option A)\nWalk like in town: up goes into the cliff. Dig takes the wall you walk into (head first, then legs), else the block underfoot. Tap or press a block to pick it yourself.",
                 theme.smallSize - 6f, theme.ink, TextAlignmentOptions.TopLeft);
             UiFactory.Place(title.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -20f), new Vector2(1040f, 190f));
             _tallyText = ui.Text("Tally", card.transform, "", theme.smallSize - 4f, theme.ink, TextAlignmentOptions.BottomLeft, FontStyles.Bold);

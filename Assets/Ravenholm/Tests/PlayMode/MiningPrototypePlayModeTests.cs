@@ -85,6 +85,19 @@ namespace Ravenholm.Tests
             Assert.GreaterOrEqual(p.DugCount, 4 + 6, "the shaft down and a 2-high tunnel");
             Assert.Greater(p.Tally.Values.Sum(), 0);
             Assert.IsFalse(p.Solid(Mathf.RoundToInt(p.U), p.Feet - 1) || p.Solid(Mathf.RoundToInt(p.U), p.Feet - 2), "the supplier stands in open tunnel");
+            // Auto-target: the wall walked into (head height first, then legs), else the block underfoot.
+            yield return null;
+            {
+                var lane0 = Mathf.RoundToInt(p.X);
+                var col0 = Mathf.RoundToInt(p.U);
+                var head = new Vector3Int(lane0 + p.Facing.x, col0 + p.Facing.y, p.Feet - 2);
+                var legs = new Vector3Int(lane0 + p.Facing.x, col0 + p.Facing.y, p.Feet - 1);
+                var under = new Vector3Int(lane0, col0, p.Feet);
+                var expected = p.Diggable(head) ? head : p.Diggable(legs) ? legs : under;
+                Assert.IsNull(p.Selected);
+                Assert.AreEqual(expected, p.Target, "head height first, then legs, else the block underfoot");
+            }
+
             // Depth: the floor is drawn behind the supplier, the rock over their head (nearer the camera) in front.
             var col = Mathf.RoundToInt(p.U);
             yield return null;
