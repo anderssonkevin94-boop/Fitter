@@ -142,8 +142,10 @@ def main(src, art):
     for name, im in zip(ground_names, g):
         save(f"Painted/Ground/ground_{name}.png", ground_tile(im))
     # The tiles the game already uses.
-    for key, name in [("grass_a", "grass_plain"), ("grass_b", "grass_flowers"), ("forest_floor", "forest_grass"),
-                      ("path", "path_plain"), ("dirt", "dirt_dug"), ("plaza", "cobble")]:
+    for key, name in [("grass_a", "grass_plain"), ("grass_b", "grass_flowers"), ("grass_c", "grass_tufts"),
+                      ("forest_floor", "forest_grass"), ("forest_floor_b", "soil_mossy"),
+                      ("path", "path_plain"), ("path_b", "path_pebbles"), ("path_c", "path_footprints"),
+                      ("dirt", "dirt_dug"), ("plaza", "cobble")]:
         save(f"Tiles/tile_{key}.png", ground_tile(g[ground_names.index(name)]))
 
     # Cliff blocks: 4 x 4.

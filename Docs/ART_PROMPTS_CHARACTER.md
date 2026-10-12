@@ -1,0 +1,94 @@
+# Art prompts for Astra: the supplier (player character)
+
+Three steps:
+1. **Design.** Three options on one sheet; Kevin picks one.
+2. **Model sheet** of the picked design. This is the approval step, and it becomes the reference for every frame.
+3. **Animation strips.** Run these only after the model sheet is approved.
+
+Attach the style reference (the cozy isometric forest-and-mine screenshot) to every prompt. From step 2 on, also attach the approved model sheet. Save everything to `art-staging/ravenholm-character-v1/`, using the file names given below.
+
+## Who the character is
+
+The supplier runs a small supply company in a cozy fantasy frontier town. They mine ore and chop wood themselves, carry goods on their back, and supply the heroes and heroines who come asking. **They never fight**: no weapons, no armour. They are practical, friendly and hard-working.
+
+- **Look:**
+  - sturdy work clothes: a tunic or shirt with rolled sleeves, a leather vest or work apron, trousers and boots;
+  - a red neck scarf as the signature colour;
+  - a small leather backpack.
+
+  No hat, so the hair and face read at small size.
+- **Proportions:** chibi, like the boy in the reference, about 2.5 heads tall: big head and readable face, short sturdy body, big hands and boots.
+- **Size in game:** the character must read at only **128 px tall**. Use bold shapes, few small details, and a strong silhouette.
+
+## Rules to paste at the start of every prompt
+
+> Character art for a 2D isometric mobile game. Match the art style of the attached style reference exactly: cozy hand-painted cartoon, clean dark-brown outlines about 3 px thick, soft cel shading, warm earthy palette, light from the top-left. Chibi proportions, about 2.5 heads tall.
+>
+> Background: flat solid pure #FF00FF magenta everywhere, with no gradient, texture, ground, shadow or scenery. No text, labels, numbers or watermark. Every figure is complete and uncropped, with wide empty margins; nothing touches another figure or the image edge.
+
+## Step 1: three design options (`design-options.png`)
+
+> [rules above] One sheet, 3 columns × 1 row: three different design options for the same game character, each standing in a relaxed neutral pose, full body, facing three-quarter front toward the bottom-left of the image (the isometric camera angle). The character is a friendly young supplier/merchant who mines and chops wood: practical work clothes with rolled sleeves, a leather vest or apron, sturdy boots, a red neck scarf, and a small leather backpack. No weapons, no armour, no hat.
+>
+> Option 1: a young man with messy brown hair. Option 2: a young woman with a short ponytail. Option 3: an androgynous character with a bob haircut and freckles. Same height and scale for all three, feet on the same baseline.
+
+**Kevin picks one** (or a mix: "option 2's face with option 1's clothes"). Then go to step 2.
+
+## Step 2: model sheet of the chosen design (`model-sheet.png`), the approval step
+
+> [rules above] Attach design-options.png. A character model sheet of option [N] [plus any changes], 4 columns × 1 row, all the same height and scale, feet on one shared baseline:
+> 1. three-quarter FRONT view facing the bottom-left (toward the viewer, isometric angle);
+> 2. three-quarter BACK view facing the top-left (away from the viewer, isometric angle);
+> 3. full side view facing left;
+> 4. a large head close-up, three-quarter front, with a friendly expression.
+>
+> Below, as separate small objects with space between them: the pickaxe, the woodcutting axe and the backpack, each drawn alone.
+
+When Kevin approves the model sheet, it is the reference for every frame.
+
+## Step 3: animation strips (after approval)
+
+**One strip per file**: a single horizontal row of frames for one animation in one facing. A strip like this keeps the frames consistent with each other.
+
+> [rules above] Attach model-sheet.png and say: "This exact character, same design, colours, proportions and scale in every frame." An animation strip: [FRAMES] frames in ONE horizontal row of equal-width cells, left to right in playback order, showing [ANIMATION] in the [FACING] view.
+>
+> Critical for the game engine: every frame has the character at exactly the same scale, with the feet on exactly the same baseline, and the body centred on the same vertical line in every cell (only the limbs and tool move). Leave enough room in each cell for the full tool swing; nothing is cropped. No motion lines, no dust and no effects (the game adds those).
+
+Facings:
+- **FRONT** is three-quarter front, facing the bottom-left.
+- **BACK** is three-quarter back, facing the top-left.
+
+The game mirrors these for the right-hand directions, so never draw right-facing versions.
+
+| File | Animation (what to write for [ANIMATION]) | Facing | Frames |
+|---|---|---|---|
+| `idle_front.png` | standing idle, gentle breathing, a blink in frame 3 | FRONT | 4 |
+| `idle_back.png` | standing idle, gentle breathing | BACK | 4 |
+| `walk_front.png` | a full walk cycle (contact, down, passing, up, for each leg) | FRONT | 6 |
+| `walk_back.png` | a full walk cycle | BACK | 6 |
+| `mine_front.png` | swinging the pickaxe at a wall in front of them, at chest height: wind-up overhead, swing, impact, recoil, back to ready | FRONT | 5 |
+| `mine_back.png` | the same pickaxe swing at a wall in front of them | BACK | 5 |
+| `mine_down_front.png` | swinging the pickaxe straight down at the ground at their feet: wind-up, swing, impact, recover | FRONT | 4 |
+| `mine_up_back.png` | striking the pickaxe straight up at the rock above their head: crouch, strike up, impact, recover | BACK | 4 |
+| `chop_front.png` | chopping a tree beside them with the axe, a horizontal swing: wind-up, swing, impact, recoil, ready | FRONT | 5 |
+| `chop_back.png` | the same horizontal axe chop | BACK | 5 |
+| `climb_back.png` | climbing a ladder, seen from behind; hands and feet alternate on the rungs (no ladder drawn) | BACK | 4 |
+| `pickup_front.png` | bending to pick something up from the ground and straightening, as if loading their backpack | FRONT | 3 |
+| `fall_front.png` | frame 1: falling (arms up, legs bent); frame 2: landing crouch | FRONT | 2 |
+
+That is 57 frames in 13 strips.
+
+## Tips for Astra
+
+- Run each strip a few times and keep the most consistent one. Reject a strip if the character's size or face drifts between frames.
+- If the feet do not line up, ask: *"Same strip, but the feet stand on exactly the same horizontal line in every frame, and the character is the same size in every frame."*
+- If the tool is cropped, ask: *"Same strip with wider cells, so the whole pickaxe/axe swing fits inside every frame."*
+- Keep the strips' resolution consistent across files.
+
+## What happens with the results
+
+Claude will:
+- cut each strip into frames and key out the magenta;
+- line the frames up on a shared feet point, correcting any drift;
+- scale to the game's size and build the animations: the town walk, mining in the Mine, chopping, the ladder;
+- replace today's single bobbing sprite.

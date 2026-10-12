@@ -849,7 +849,7 @@ namespace Ravenholm.EditorTools
         public static Dictionary<string, TileBase> EnsureTiles()
         {
             var result = new Dictionary<string, TileBase>();
-            foreach (var key in new[] { "grass_a", "grass_b", "path", "plaza", "dirt", "forest_floor", "block_0", "block_1", "block_2", "block_seam_0", "block_seam_1", "block_seam_2", "slab", "sill", "fleck", "halfblock_0", "halfblock_1", "halfblock_2", "fleck_half", "halfblock_outline_0", "halfblock_outline_1", "halfblock_outline_2" })
+            foreach (var key in new[] { "grass_a", "grass_b", "grass_c", "path", "path_b", "path_c", "plaza", "dirt", "forest_floor", "forest_floor_b", "block_0", "block_1", "block_2", "block_seam_0", "block_seam_1", "block_seam_2", "slab", "sill", "fleck", "halfblock_0", "halfblock_1", "halfblock_2", "fleck_half", "halfblock_outline_0", "halfblock_outline_1", "halfblock_outline_2" })
             {
                 var path = TileDir + "tile_" + key + ".asset";
                 var tile = AssetDatabase.LoadAssetAtPath<Tile>(path);

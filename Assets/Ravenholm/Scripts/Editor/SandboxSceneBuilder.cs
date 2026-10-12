@@ -255,7 +255,7 @@ namespace Ravenholm.EditorTools
                 if (inFrontier)
                 {
                     // The Forest's ground (its trees are drawn by ForestGridView), with an open trail along the town.
-                    tm.SetTile(cell, tiles[y < frontierY + 2 ? "path" : "forest_floor"]);
+                    tm.SetTile(cell, tiles[y < frontierY + 2 ? PathKey(x, y) : Hash01(x + 911, y) < 0.12f ? "forest_floor_b" : "forest_floor"]);
                     continue;
                 }
                 if (!inTown) continue;
@@ -263,10 +263,10 @@ namespace Ravenholm.EditorTools
                 string key;
                 var plaza = Mathf.Abs(c.x) / 3.6f + Mathf.Abs(c.y - 2.4f) / 2.0f < 1f;
                 if (plaza) key = "plaza";
-                else if (NearAnyPath(c, paths, 0.55f)) key = "path";
+                else if (NearAnyPath(c, paths, 0.55f)) key = PathKey(x, y);
                 else if (Vector2.Distance(c, mineCentre) < 3.2f) key = "dirt";   // worked ground around the Mine
                 else if (c.x < -6.4f && c.y > 2.2f) key = "dirt";
-                else key = Hash01(x, y) < 0.22f ? "grass_b" : "grass_a";
+                else key = GrassKey(x, y);
                 tm.SetTile(cell, tiles[key]);
             }
         }
@@ -285,6 +285,38 @@ namespace Ravenholm.EditorTools
         }
 
         /// <summary>Deterministic per-cell noise (no visible diagonal banding).</summary>
+        /// <summary>
+        /// Grass broken up so the tile never repeats in a grid: mostly plain, tufts scattered on their own, and flowers
+        /// in loose patches (smooth noise), so a meadow reads as a meadow.
+        /// </summary>
+        private static string GrassKey(int x, int y)
+        {
+            var patch = SmoothNoise(x, y, 5f);
+            var r = Hash01(x, y);
+            if (patch > 0.74f && r < 0.4f) return "grass_b";    // a small flower patch
+            if (r < 0.14f) return "grass_c";                   // tufts
+            if (r > 0.99f) return "grass_b";                   // a stray flower
+            return "grass_a";
+        }
+
+        /// <summary>Paths mostly plain, with pebbles and the odd set of footprints.</summary>
+        private static string PathKey(int x, int y)
+        {
+            var r = Hash01(x + 4057, y + 77);
+            return r < 0.18f ? "path_b" : r < 0.26f ? "path_c" : "path";
+        }
+
+        /// <summary>Value noise in 0..1 on a grid of <paramref name="scale"/> cells, smoothly interpolated.</summary>
+        private static float SmoothNoise(int x, int y, float scale)
+        {
+            float fx = x / scale, fy = y / scale;
+            int x0 = Mathf.FloorToInt(fx), y0 = Mathf.FloorToInt(fy);
+            float tx = Mathf.SmoothStep(0f, 1f, fx - x0), ty = Mathf.SmoothStep(0f, 1f, fy - y0);
+            float a = Hash01(x0 * 31 + 7, y0 * 17 + 3), b = Hash01((x0 + 1) * 31 + 7, y0 * 17 + 3);
+            float c = Hash01(x0 * 31 + 7, (y0 + 1) * 17 + 3), d = Hash01((x0 + 1) * 31 + 7, (y0 + 1) * 17 + 3);
+            return Mathf.Lerp(Mathf.Lerp(a, b, tx), Mathf.Lerp(c, d, tx), ty);
+        }
+
         private static float Hash01(int x, int y)
         {
             unchecked

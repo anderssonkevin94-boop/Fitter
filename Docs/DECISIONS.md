@@ -651,3 +651,10 @@ Three painted sheets from Kevin (brief: `Docs/ART_PROMPTS_ASTRA.md`) are cut int
 - **Ore in the lamp's light** shows as that ore's painted block (`ResourceDefinition.mineBlock`: iron, copper, coal, moonsilver), sorted like the rock it replaces. Ore without a block (gem) keeps the flecks.
 - **Trees and props.** Cedar is the tall pine, maple the leafy tree, ironwood the bent pine; the stump, herb bush and stone rock are replaced too. The extra props (ferns, logs, flowers, small pines) are cut and ready but not used yet.
 - **Not yet.** Seamless joins between different ground tiles are not verified; repetition is visible on large grass areas.
+- **Ground variety (2026-10-12).** The scene builder mixes the painted variants so the tile never reads as a grid:
+  - grass is mostly plain, with 14% tufts and flowers in small patches (value noise, 5-cell scale);
+  - paths get pebbles (18%) and footprints (8%);
+  - the forest floor gets mossy soil (12%).
+
+  The new tile keys are `grass_c`, `path_b`, `path_c` and `forest_floor_b`.
+- **Character brief.** `Docs/ART_PROMPTS_CHARACTER.md` runs in three steps: design options, then a model sheet that needs Kevin's approval, then 13 animation strips (57 frames, left-facing only; the game mirrors them).

@@ -1153,6 +1153,12 @@
     0.5789
    ]
   },
+  "Tiles/tile_forest_floor_b.png": {
+   "pivot": [
+    0.5,
+    0.5844
+   ]
+  },
   "Tiles/tile_grass_a.png": {
    "pivot": [
     0.5,
@@ -1160,6 +1166,12 @@
    ]
   },
   "Tiles/tile_grass_b.png": {
+   "pivot": [
+    0.5,
+    0.5789
+   ]
+  },
+  "Tiles/tile_grass_c.png": {
    "pivot": [
     0.5,
     0.5789
@@ -1202,6 +1214,18 @@
    ]
   },
   "Tiles/tile_path.png": {
+   "pivot": [
+    0.5,
+    0.5789
+   ]
+  },
+  "Tiles/tile_path_b.png": {
+   "pivot": [
+    0.5,
+    0.5789
+   ]
+  },
+  "Tiles/tile_path_c.png": {
    "pivot": [
     0.5,
     0.5789
