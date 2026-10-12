@@ -155,6 +155,11 @@ namespace Ravenholm.Presentation
                 ? "Leave yourself on one job and it carries on while you're away (up to 8 hours), at the ordinary rate. Move to take over again."
                 : sites.RoutineSiteId == siteId ? "You're on a routine here. Move (or stop it below) to take over." : "You're on a routine at the other site.");
             if (sites.RoutineSiteId == siteId) FacilityButton(() => "Stop the routine", () => { sites.EndRoutine(); _facilitiesKey = ""; Refresh(); }, null);
+            else if (sim.GroveMode)
+            {
+                if (sim.Record.LastChop.HasValue) RoutineButton("Keep cutting near your last tree", 0);
+                else FacilityText(() => "Cut a tree first: a routine carries on with the trees nearest the one you last cut.");
+            }
             else if (sim.DigMode)
             {
                 if (sim.Record.LastDig != null) RoutineButton("Keep digging your last tunnel", 0);
@@ -472,6 +477,13 @@ namespace Ravenholm.Presentation
                     : $"<b>Shaft:</b> sinking through depth {s.Depth} · {s.SectionEmitted}/{sim.Config.UnitsPerSection} units · {pct:0}% · durability {sim.CurrentDurability}");
                 if (s.FacePending.Count > 0) sb.Append($" · {s.FacePending.Count} waiting at the face");
             }
+            else if (sim.GroveMode)
+            {
+                var felled = 0;
+                foreach (var kv in s.Chopped) if (sim.IsFelled(kv.Key.Area, kv.Key.Slot)) felled++;
+                sb.Append($"<b>Cut:</b> {felled} trees · areas reached {s.Revealed.Count}");
+                if (s.FacePending.Count > 0) sb.Append($" · {s.FacePending.Count} logs waiting where you cut");
+            }
             else
             {
                 var standing = s.Trees.FindAll(t => !t.Felled).Count;
@@ -480,7 +492,7 @@ namespace Ravenholm.Presentation
                 foreach (var t in s.Trees) pending += t.Pending.Count;
                 if (pending > 0) sb.Append($" · {pending} waiting at the trees");
             }
-            if (!mine) sb.Append($"\n<b>Effort:</b> ×{SiteMath.ContinuationMultiplier(sim.Config, SiteMath.EffectiveK(sim.Config, s.Depth, s.K)):0.00} (continuation {s.K}) · sections done {s.SectionsCompleted}");
+            if (!mine && !sim.GroveMode) sb.Append($"\n<b>Effort:</b> ×{SiteMath.ContinuationMultiplier(sim.Config, SiteMath.EffectiveK(sim.Config, s.Depth, s.K)):0.00} (continuation {s.K}) · sections done {s.SectionsCompleted}");
             sb.Append('\n');
             var staging = _root.Services.Logistics.System.State.Containers.TryGetValue(sim.Config.StagingContainerId, out var c) ? c.UnitCount : 0;
             sb.Append($"<b>Staging:</b> {staging}/{sim.Config.StagingCapacity}\n");
@@ -491,6 +503,14 @@ namespace Ravenholm.Presentation
 
             var awaiting = s.Status == SiteStatus.AwaitDecision;
             if (mine) RefreshMineDecision(sim);
+            else if (sim.GroveMode)
+            {
+                // Cutting is the choice: further left reaches new areas, further back stays in one.
+                _continue.gameObject.SetActive(false);
+                _deeper.gameObject.SetActive(false);
+                _decisionText.text = "<size=85%>Cut any tree you can reach. Further left along the cliff are new areas (new kinds of wood, " +
+                                     "tougher trees); further back from the cliff stays in an area and gets a little harder.</size>";
+            }
             else
             {
                 _decisionText.text = awaiting
@@ -606,7 +626,7 @@ namespace Ravenholm.Presentation
         private void RebuildDiagram(SiteSimulator sim)
         {
             var s = sim.Record;
-            var key = $"{s.Depth}:{s.K}:{s.SectionEmitted}:{s.Status}:{s.Trees.FindAll(t => t.Felled).Count}";
+            var key = $"{s.Depth}:{s.K}:{s.SectionEmitted}:{s.Status}:{s.Trees.FindAll(t => t.Felled).Count}:{s.Revealed.Count}";
             if (key == _diagramKey) return;
             _diagramKey = key;
             for (var i = _diagram.childCount - 1; i >= 0; i--) Destroy(_diagram.GetChild(i).gameObject);
@@ -668,9 +688,11 @@ namespace Ravenholm.Presentation
             var s = sim.Record;
             var slots = new List<(string text, Color color, bool current)>();
             foreach (var kv in s.Revealed)
-                if (kv.Key < s.Depth) slots.Add(($"Area {kv.Key}\ncleared", MixColor(kv.Value) * 0.7f, false));
+                if (kv.Key < s.Depth) slots.Add(($"Area {kv.Key}\n{(sim.GroveMode ? "reached" : "cleared")}", MixColor(kv.Value) * 0.7f, false));
             var standing = s.Trees.FindAll(t => !t.Felled).Count;
-            slots.Add(($"Area {s.Depth}\n{sim.Config.Bands[s.Depth - 1].Name}\n{standing}/{s.Trees.Count} trees", MixColor(s.Composition), true));
+            slots.Add(sim.GroveMode
+                ? ($"Area {s.Depth}\n{sim.Config.Bands[s.Depth - 1].Name}\nthe furthest you've cut", MixColor(s.Composition), true)
+                : ($"Area {s.Depth}\n{sim.Config.Bands[s.Depth - 1].Name}\n{standing}/{s.Trees.Count} trees", MixColor(s.Composition), true));
             slots.Add(sim.CanGoDeeper
                 ? ($"Area {s.Depth + 1}\nunknown\n{sim.Config.Bands[s.Depth].Discovery}", new Color32(60, 74, 62, 255), false)
                 : ("No further\nareas charted", new Color32(52, 56, 50, 255), false));

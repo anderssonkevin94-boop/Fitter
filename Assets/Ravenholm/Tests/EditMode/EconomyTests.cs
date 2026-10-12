@@ -371,20 +371,27 @@ namespace Ravenholm.Tests
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
             g.Logistics.System.DebugUnloadCarry();
 
-            // Chop a tree of the current clearing.
+            // Chop any tree in reach (the Forest's grid): its logs go straight into the carry.
             var forest = g.Sites.Get("site.forest");
-            for (var i = 0; i < 2000 && !forest.Record.Trees[0].Felled; i++) g.Sites.PlayerChop("site.forest", 0, 0.1f);
-            Assert.IsTrue(forest.Record.Trees[0].Felled);
+            Assert.IsTrue(forest.GroveMode);
+            for (var i = 0; i < 2000 && !forest.IsFelled(1, 0); i++) g.Sites.PlayerChopCell("site.forest", 1, 0, 0.1f);
+            Assert.IsTrue(forest.IsFelled(1, 0));
             Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 4, "a tree's four logs (herbs are a bonus roll)");
+            Assert.AreEqual(new GroveCell(1, 0), forest.Record.LastChop);
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
+            g.Logistics.System.DebugUnloadCarry();
 
-            // A routine: the supplier keeps cutting while away; taking over again brings back what they carried.
+            // A routine: the supplier keeps cutting the trees nearest the last one while away; taking over again brings back
+            // what they carried.
             Assert.IsTrue(g.Sites.StartRoutine("site.forest"));
             Assert.AreEqual("site.forest", g.Sites.RoutineSiteId);
             g.Simulation.Advance(10 * Minute, 10 * Minute);
             var routine = g.Sites.RoutineWorker;
             Assert.IsNotNull(routine);
-            Assert.Greater(forest.Record.Trees.Count(t => t.Felled) + routine.Pack.Count, 1, "the routine keeps cutting while away");
+            var felled = forest.Record.Chopped.Keys.Count(c => forest.IsFelled(c.Area, c.Slot));
+            Assert.Greater(felled, 1, "the routine keeps cutting while away");
+            Assert.Greater(forest.Record.DepositedTotal + routine.Pack.Count, 0, "and hauls to staging");
+            CollectionAssert.IsEmpty(g.Logistics.System.Audit());
             g.Scheduler.SaveNow("test");
             var reloaded = Boot(T0);
             Assert.AreEqual("site.forest", reloaded.Sites.RoutineSiteId, "a routine survives a restart");

@@ -135,6 +135,9 @@ namespace Ravenholm.Infrastructure.Save
         /// <summary>Mine dig slab: where the supplier last dug, and a routine's tunnel (x, u, feet, dx, du, doneMicro).</summary>
         [JsonProperty("lastDig")] public List<long> LastDig;
         [JsonProperty("routineFace")] public List<long> RoutineFace;
+        /// <summary>Forest grid: trees started, as area, slot, micro-damage triples (optional), and the tree last cut.</summary>
+        [JsonProperty("chopped")] public List<long> Chopped;
+        [JsonProperty("lastChop")] public List<int> LastChop;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

@@ -51,6 +51,9 @@ namespace Ravenholm.Domain.Sites
         /// <summary>Mine: the dig slab (dig any block). Null = the older section and tunnel model.</summary>
         public DigSlab Dig;
 
+        /// <summary>Forest: the grid of trees (cut any tree in reach). Null = the older clearings model.</summary>
+        public ForestGrove Grove;
+
         public int HopMs = 800;                 // Forest: walk between trees
         public int DepositMs = 600;
     }
@@ -148,6 +151,42 @@ namespace Ravenholm.Domain.Sites
         public int LayerOfRow(int row) => row < TopsoilRows ? 1 : (row - TopsoilRows) / RowsPerLayer + 1;
 
         public int FirstRowOf(int layer) => layer <= 1 ? 0 : TopsoilRows + (layer - 1) * RowsPerLayer;
+    }
+
+    /// <summary>
+    /// The Forest as a grid of trees (any tree in reach can be cut, 2026-10-12). Areas run left along the cliff
+    /// (each the next band: new species, tougher wood); within an area, slots count back from the cliff edge, row by
+    /// row (<see cref="AreaLength"/> trees per row). Effort rises every <see cref="TreesPerContinuation"/> slots back.
+    /// </summary>
+    public sealed class ForestGrove
+    {
+        public int AreaLength = 3;
+        public int Rows = 30;
+        public int Areas = 1000;
+        public int TreesPerContinuation = 6;
+        public int RoutineReach = 8;            // a routine looks this far (grid steps) from its last tree for the next
+
+        public bool InGrove(int area, int slot) => area >= 1 && area <= Areas && slot >= 0 && slot < Rows * AreaLength;
+        public int RowOf(int slot) => slot / AreaLength;
+        /// <summary>Position along the cliff, counted over all areas (for distances between trees).</summary>
+        public int AlongOf(int area, int slot) => (area - 1) * AreaLength + slot % AreaLength;
+    }
+
+    /// <summary>A tree of the Forest's grid.</summary>
+    public readonly struct GroveCell : IEquatable<GroveCell>
+    {
+        public readonly int Area, Slot;
+
+        public GroveCell(int area, int slot)
+        {
+            Area = area;
+            Slot = slot;
+        }
+
+        public bool Equals(GroveCell o) => Area == o.Area && Slot == o.Slot;
+        public override bool Equals(object obj) => obj is GroveCell o && Equals(o);
+        public override int GetHashCode() => unchecked(Area * 92821 ^ Slot * 68917);
+        public override string ToString() => $"({Area},{Slot})";
     }
 
     /// <summary>A block of the dig slab.</summary>
@@ -255,6 +294,10 @@ namespace Ravenholm.Domain.Sites
 
         // Forest
         public readonly List<TreeRecord> Trees = new List<TreeRecord>();
+        /// <summary>Forest grid: how far each tree started has been cut (micro-damage; felled at its durability).</summary>
+        public readonly Dictionary<GroveCell, long> Chopped = new Dictionary<GroveCell, long>();
+        /// <summary>Forest grid: the tree last cut (by hand or by a routine): a routine carries on nearest to it.</summary>
+        public GroveCell? LastChop;
 
         public readonly List<WorkerRecord> Workers = new List<WorkerRecord>();
 

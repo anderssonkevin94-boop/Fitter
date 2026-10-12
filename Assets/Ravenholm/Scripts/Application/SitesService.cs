@@ -154,6 +154,7 @@ namespace Ravenholm.Services
             var sim = Get(siteId);
             if (sim == null) return false;
             if (sim.DigMode && !sim.AimRoutineAtLastDig()) return false;   // nothing dug yet: no tunnel to carry on
+            if (sim.GroveMode && !sim.AimRoutineAtLastChop()) return false;   // nothing cut yet
             EndRoutine();
             sim.AddWorker(new WorkerRecord { Id = SiteSimulator.PlayerId, Name = "You", ToolId = PlayerToolId, PackId = PlayerPackId, Face = face });
             _scheduler.SaveNow("routine started");
@@ -240,6 +241,21 @@ namespace Ravenholm.Services
         }
 
         /// <summary>The supplier chops a tree of the current clearing. Returns units carried away.</summary>
+        /// <summary>The supplier cuts a tree of the Forest's grid for a moment. Returns the logs cut.</summary>
+        public int PlayerChopCell(string siteId, int area, int slot, float seconds)
+        {
+            var sim = Get(siteId);
+            if (sim == null || !sim.GroveMode) return 0;
+            _chopMs += seconds * 1000.0 * SpeedMultiplier;
+            var ms = (long)Math.Floor(_chopMs);
+            _chopMs -= ms;
+            var felledBefore = sim.FelledVersion;
+            var n = sim.PlayerChopCell(area, slot, ms, PlayerDamagePerSecond);
+            if (sim.FelledVersion != felledBefore) _scheduler.SaveNow("felled a tree");
+            else _scheduler.MarkDirty();
+            return n;
+        }
+
         public int PlayerChop(string siteId, int tree, float seconds)
         {
             var sim = Get(siteId);
@@ -349,6 +365,8 @@ namespace Ravenholm.Services
                 LevelsPerBand = Math.Max(1, def.LevelsPerBand),
                 // Solo play: the Mine is dug block by block (the dig slab); three levels of two blocks per layer.
                 Dig = def.SiteType == SiteType.Mine ? new DigSlab { RowsPerLayer = 2 * Math.Max(1, def.LevelsPerBand) } : null,
+                // Solo play: the Forest is a grid of trees, any of them cut where the supplier reaches (2026-10-12).
+                Grove = def.SiteType == SiteType.Forest ? new ForestGrove { TreesPerContinuation = Math.Max(1, def.TreesPerClearing) } : null,
                 HopMs = (int)Math.Round(def.HopSeconds * 1000),
                 DepositMs = (int)Math.Round(def.DepositSeconds * 1000),
             };
@@ -415,6 +433,7 @@ namespace Ravenholm.Services
                     var record = FromSave(saved);
                     if (def.SiteType == SiteType.Mine && saved.Layout < 2) ConvertOldMine(record);
                     if (def.SiteType == SiteType.Mine && saved.Layout < 4) ConvertToDigSlab(record);
+                    if (def.SiteType == SiteType.Forest && saved.Layout < ForestLayout) SiteSimulator.ConvertToGrove(record, def.TreesPerClearing);
                     var loaded = Create(def, record);
                     // Solo play: hired crews from older saves go home; what they carried stays on the site to collect.
                     foreach (var w in record.Workers.ToArray())
@@ -440,11 +459,15 @@ namespace Ravenholm.Services
             {
                 var d = ToSave(sim.Record);
                 if (sim.Config.Kind == SiteKind.Mine) d.Layout = MineLayout;
+                if (sim.Config.Kind == SiteKind.Forest) d.Layout = ForestLayout;
                 env.Sites.Add(d);
             }
         }
 
         public const int MineLayout = 4;
+
+        /// <summary>Forest layout: 2 = the grid of trees (absent = clearings).</summary>
+        public const int ForestLayout = 2;
 
         /// <summary>
         /// Saves from before the Mine had directions (every section dug a level down; tunnels ran both ways): keep the
@@ -512,6 +535,12 @@ namespace Ravenholm.Services
             d.DigDoneMicro = s.DigDoneMicro;
             d.LastDig = Face(s.LastDig);
             d.RoutineFace = Face(s.RoutineFace);
+            if (s.Chopped.Count > 0)
+            {
+                d.Chopped = new List<long>(s.Chopped.Count * 3);
+                foreach (var kv in s.Chopped) { d.Chopped.Add(kv.Key.Area); d.Chopped.Add(kv.Key.Slot); d.Chopped.Add(kv.Value); }
+            }
+            if (s.LastChop.HasValue) d.LastChop = new List<int> { s.LastChop.Value.Area, s.LastChop.Value.Slot };
             if (s.Tunnels.Count > 0)
             {
                 d.Tunnels = new List<TunnelSaveData>();
@@ -606,6 +635,9 @@ namespace Ravenholm.Services
             s.DigDoneMicro = d.DigDoneMicro;
             s.LastDig = Face(d.LastDig);
             s.RoutineFace = Face(d.RoutineFace);
+            if (d.Chopped != null)
+                for (var i = 0; i + 2 < d.Chopped.Count; i += 3) s.Chopped[new GroveCell((int)d.Chopped[i], (int)d.Chopped[i + 1])] = d.Chopped[i + 2];
+            if (d.LastChop != null && d.LastChop.Count == 2) s.LastChop = new GroveCell(d.LastChop[0], d.LastChop[1]);
             if (d.Tunnels != null)
                 foreach (var td in d.Tunnels)
                 {

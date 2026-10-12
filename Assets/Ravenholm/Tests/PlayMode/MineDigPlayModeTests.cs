@@ -242,7 +242,7 @@ namespace Ravenholm.Tests
         // ------------------------------------------------------------------ the frontier Forest
 
         [UnityTest]
-        public IEnumerator TheForestGrowsLeftAndUpAboveTheTunnels()
+        public IEnumerator TheForestIsAGridOfTreesAboveTheMine()
         {
             yield return Boot();
             var s = GameRoot.Instance.Services;
@@ -251,43 +251,35 @@ namespace Ravenholm.Tests
             var sim = s.Sites.Get("site.forest");
             var ground = Map("Ground");
             Assert.NotNull(forest);
-            var first = ground.GetCellCenterWorld(forest.TreeCell(0));
-            Assert.Greater(forest.TreeCell(0).y, GameRoot.Instance.Config.SandboxSettings.townCells.yMax, "the Forest stands on the frontier, beyond the town");
+            Assert.IsTrue(sim.GroveMode, "any tree can be cut");
+            Assert.IsTrue(forest.CellOf(1, 0, out var firstCell));
+            var first = ground.GetCellCenterWorld(firstCell);
+            Assert.Greater(firstCell.y, GameRoot.Instance.Config.SandboxSettings.townCells.yMax, "the Forest stands on the frontier, beyond the town");
             var under = slab.SlabCoords(first);
             Assert.IsFalse(s.Sites.Get("site.mine").CanDig(Mathf.RoundToInt(under.x), Mathf.RoundToInt(under.y), 0), "and the topsoil under trees cannot be dug");
 
             // Tightly grown: standing trees block the way; only cut tiles can be walked.
-            Assert.IsTrue(forest.HasStandingTree(forest.TreeCell(0)));
-
+            Assert.IsTrue(forest.HasStandingTree(firstCell));
             Assert.IsFalse(slab.SurfaceWalkable(first), "a standing tree blocks the supplier");
-
-            void Clear()
-            {
-                s.Logistics.System.State.Containers["container.forest_staging"].Materials.Clear();
-                s.Sites.DebugCompleteSection("site.forest");
-                s.Simulation.Advance(120_000, 120_000);
-                Assert.AreEqual(SiteStatus.AwaitDecision, sim.Record.Status);
-            }
-            var firstCell = forest.TreeCell(0);
-            Clear();
-            Assert.IsTrue(s.Sites.ChooseContinue("site.forest"));
+            for (var i = 0; i < 4000 && !sim.IsFelled(1, 0); i++) s.Sites.PlayerChopCell("site.forest", 1, 0, 0.5f);
             yield return null;
-            Assert.IsFalse(forest.HasStandingTree(firstCell), "felled trees leave open ground");
-            var up = ground.GetCellCenterWorld(forest.TreeCell(0));
-            Assert.Greater(up.y, first.y, "Continue Here cuts the next trees up the same area");
-            Assert.AreEqual(first.x, up.x, 1.5f);
-            Clear();
-            Assert.IsTrue(s.Sites.ChooseDeeper("site.forest"));
-            yield return null;
-            var left = ground.GetCellCenterWorld(forest.TreeCell(0));
-            Assert.Less(left.x, first.x - 0.9f, "Push Deeper moves one area further left");
+            Assert.IsFalse(forest.HasStandingTree(firstCell), "a felled tree leaves open ground");
+            Assert.IsTrue(slab.SurfaceWalkable(first));
 
-            // The woodcutter's trail runs through cut ground only.
+            // Further back in an area costs more; further left is the next area.
+            Assert.IsTrue(forest.CellOf(1, 9, out var back));
+            Assert.IsTrue(forest.CellOf(2, 0, out var left));
+            Assert.Greater(ground.GetCellCenterWorld(back).y, first.y, "slots count back from the cliff edge");
+            Assert.Less(ground.GetCellCenterWorld(left).x, first.x - 0.9f, "the next area is further left along the cliff");
+            Assert.Greater(sim.TreeDurabilityMicro(1, 9), sim.TreeDurabilityMicro(1, 0));
+            Assert.Greater(sim.TreeDurabilityMicro(2, 0), sim.TreeDurabilityMicro(1, 0));
+
+            // The woodcutter's way into the frontier is open ground until the tree.
             var route = new List<Vector3>();
-            forest.RouteTo(Phase1PlayModeTests.Spot("container.forest_staging"), 0, route);
+            forest.RouteToCell(Phase1PlayModeTests.Spot("container.forest_staging"), firstCell, route);
             for (var i = 1; i < route.Count - 1; i++)
                 Assert.IsFalse(forest.HasStandingTree(ground.WorldToCell(route[i])), $"trail point {i} is open ground");
-            Motor.Teleport(ground.GetCellCenterWorld(firstCell));   // on a stump among the standing trees
+            Motor.Teleport(first);   // on the stump, among the standing trees
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
             yield return new WaitForSeconds(1.5f);
             foreach (var tree in forest.GetComponentsInChildren<SpriteRenderer>())

@@ -4,9 +4,9 @@ using UnityEngine;
 namespace Ravenholm.Presentation
 {
     /// <summary>
-    /// The supplier's axe (solo play, GDD 7): the context button targets the nearest tree of the current clearing within
-    /// reach. Holding it chops; each felled share goes straight into the carry (or waits at the stump when full). Once
-    /// the clearing is cut, the button offers the next choice (continue up this area, or push deeper left).
+    /// The supplier's axe (solo play, GDD 7): the context button targets the nearest standing tree within reach, any
+    /// tree of the Forest's grid (2026-10-12). Holding it chops; the logs go straight into the carry (or wait at the
+    /// site when it is full). The older clearings model (no grid) offers its clearing's trees and then the next choice.
     /// </summary>
     public sealed class ForestChopSpot : Inspectable
     {
@@ -14,6 +14,11 @@ namespace Ravenholm.Presentation
         private const float Reach = 1.6f;
 
         private int _tree = -1;
+        private int _area = -1, _slot = -1;
+        private Vector3Int _cell;
+        public int Area => _area;
+        public int Slot => _slot;
+        public Vector3Int Cell => _cell;
         private string _verb = "";
         private Collider2D _collider;
         private float _fullToastAt = -10f;
@@ -24,7 +29,7 @@ namespace Ravenholm.Presentation
         public override string ContextVerb => _verb;
         public override bool IsContextAvailable => Available;
         public override bool OpensOwnPanel => true;
-        public override bool Holdable => Available && _tree >= 0;
+        public override bool Holdable => Available && (_tree >= 0 || _area >= 0);
         public override float ContextPriority => 1f;
 
         private void Awake() => _collider = GetComponent<Collider2D>();
@@ -33,6 +38,7 @@ namespace Ravenholm.Presentation
         {
             Available = false;
             _tree = -1;
+            _area = _slot = -1;
             var root = GameRoot.Instance;
             var forest = ForestGridView.Current;
             var player = SandboxSceneController.Current != null ? SandboxSceneController.Current.Player : null;
@@ -44,6 +50,16 @@ namespace Ravenholm.Presentation
 
         private void Refresh(ForestGridView forest, SiteSimulator sim, Vector2 me)
         {
+            if (sim.GroveMode)
+            {
+                if (!forest.NearestStanding(me, Reach, out _area, out _slot, out _cell)) return;
+                _verb = "Chop";
+                transform.position = forest.WorkSpotOf(_cell) + new Vector3(0f, 0.3f, 0f);
+                EditorSetup(UnitVisuals.DisplayName(sim.SpeciesAt(_area, _slot)).ToLowerInvariant(),
+                    "Hold to chop. Any tree you can reach can be cut; its logs go straight into your carry. Further left are new kinds of wood.", "");
+                Available = true;
+                return;
+            }
             var s = sim.Record;
             var best = -1;
             var bestDist = Reach;
@@ -81,8 +97,13 @@ namespace Ravenholm.Presentation
         public override void OnHold(float deltaSeconds)
         {
             var root = GameRoot.Instance;
-            if (root == null || _tree < 0) return;
-            root.Services.Sites.PlayerChop(SiteId, _tree, deltaSeconds);
+            if (root == null) return;
+            if (_area >= 0)
+            {
+                if (root.Services.Sites.PlayerChopCell(SiteId, _area, _slot, deltaSeconds) > 0) ForestGridView.Current?.Shake(_cell);
+            }
+            else if (_tree >= 0) root.Services.Sites.PlayerChop(SiteId, _tree, deltaSeconds);
+            else return;
             if (root.Services.Logistics.System.IsFull && Time.unscaledTime > _fullToastAt + 4f)
             {
                 _fullToastAt = Time.unscaledTime;

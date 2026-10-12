@@ -173,6 +173,15 @@ namespace Ravenholm.Presentation
                 }
                 SortUnderground(inShaft && s.RoutineFace != null ? MineSlabView.OrderFor(cutaway.CellOf(s.RoutineFace.X, s.RoutineFace.U), s.RoutineFace.Feet - 1) + 2 : (int?)null);
             }
+            else if (pocket != null && sim.GroveMode && sim.GroveRoutineNext(out var tree) && pocket.CellOf(tree.Area, tree.Slot, out var treeCell))
+            {
+                // The grid: out by the trail and along the cliff edge to the tree being cut, and back.
+                var staging = stagingPoint.position + new Vector3(0.55f, -0.1f, 0f);
+                pocket.RouteToCell(staging, treeCell, _route);
+                if (w.State == WorkerState.WalkToWork) pos = Along(_route, t);
+                else if (w.State == WorkerState.ReturnToStaging) pos = Along(_route, 1f - t);
+                else if (w.State == WorkerState.Working || w.State == WorkerState.Hop) pos = pocket.WorkSpotOf(treeCell);
+            }
             else if (pocket != null && sim.Config.Kind == SiteKind.Forest && (w.TargetTree >= 0 || _lastTree >= 0) &&
                      (w.State == WorkerState.WalkToWork || w.State == WorkerState.ReturnToStaging))
             {

@@ -199,6 +199,7 @@ namespace Ravenholm.Presentation
             treeIndex = -1;
             var sim = Sim;
             if (sim == null) return TreeState.Standing;
+            if (sim.GroveMode) return sim.IsFelled(area, slot) ? TreeState.Cut : TreeState.Standing;   // the grid: any tree
             var s = sim.Record;
             if (area > s.Depth) return TreeState.Standing;
             var per = sim.Config.TreesPerClearing;
@@ -223,7 +224,7 @@ namespace Ravenholm.Presentation
             var felled = 0;
             foreach (var t in s.Trees) if (t.Felled) felled++;
             var cam = _camera != null ? (Vector2)_camera.transform.position : Vector2.zero;
-            var key = $"{Mathf.Round(cam.x * 2f)}|{Mathf.Round(cam.y * 2f)}|{s.Depth}|{s.K}|{s.SectionDepths.Count}|{felled}|{s.Trees.Count}";
+            var key = $"{Mathf.Round(cam.x * 2f)}|{Mathf.Round(cam.y * 2f)}|{s.Depth}|{s.K}|{s.SectionDepths.Count}|{felled}|{s.Trees.Count}|{sim.FelledVersion}|{s.Revealed.Count}";
             if (key == _key) return;
             _key = key;
             Redraw(sim, cam);
@@ -245,7 +246,7 @@ namespace Ravenholm.Presentation
                     keep.Add(c);
                     if (!_shown.TryGetValue(c, out var sr)) _shown[c] = sr = Take(p);
                     var state = State(a, slot, out var tree);
-                    sr.sprite = state == TreeState.Cut ? stumpSprite : SpriteFor(SpeciesAt(sim, a, tree));
+                    sr.sprite = state == TreeState.Cut ? stumpSprite : SpriteFor(SpeciesAt(sim, a, tree, slot));
                     sr.color = AreaTint(sim, a);
                     sr.name = tree >= 0 ? $"Tree{tree}" : "ForestTree";
                 }
@@ -255,8 +256,9 @@ namespace Ravenholm.Presentation
             foreach (var c in drop) { Give(_shown[c]); _shown.Remove(c); }
         }
 
-        private string SpeciesAt(SiteSimulator sim, int area, int tree)
+        private string SpeciesAt(SiteSimulator sim, int area, int tree, int slot)
         {
+            if (sim.GroveMode) return sim.SpeciesAt(area, slot);   // each tree is what it is, before it is cut
             var s = sim.Record;
             if (tree >= 0 && tree < s.Trees.Count) return s.Trees[tree].Species;
             // Trees not yet in a clearing show the area's main species once known.
@@ -314,6 +316,79 @@ namespace Ravenholm.Presentation
             foreach (var r in broadleafSpecies) if (r != null && r.Id == resourceId) return mapleSprite;
             return cedarSprite;
         }
+
+        // ------------------------------------------------------------------ the grid of trees (cut any tree in reach)
+
+        /// <summary>The tile of the grid's tree (area, slot), or false past the frontier.</summary>
+        public bool CellOf(int area, int slot, out Vector3Int cell)
+        {
+            Build();
+            cell = default;
+            var col = area >= 1 && area < _columns.Count ? _columns[area] : null;
+            if (col == null || slot < 0 || slot >= col.Count) return false;
+            cell = col[slot];
+            return true;
+        }
+
+        /// <summary>The grid's tree on a tile, if the tile is in the Forest.</summary>
+        public bool TreeAt(Vector3Int c, out int area, out int slot)
+        {
+            Build();
+            var found = _slotOf.TryGetValue(c, out var at);
+            area = at.area;
+            slot = at.slot;
+            return found;
+        }
+
+        /// <summary>Where the supplier stands to cut the tree on a tile: just in front of it.</summary>
+        public Vector3 WorkSpotOf(Vector3Int c) => Centre(c) + new Vector3(0.1f, -0.32f, 0f);
+        public Vector3 TreeCentre(Vector3Int c) => Centre(c);
+
+        /// <summary>The standing tree nearest a point whose cutting spot is within <paramref name="reach"/>.</summary>
+        public bool NearestStanding(Vector2 me, float reach, out int area, out int slot, out Vector3Int cell)
+        {
+            Build();
+            area = slot = -1;
+            cell = default;
+            var sim = Sim;
+            if (sim == null) return false;
+            var at = grid.WorldToCell(me);
+            var best = reach;
+            for (var dx = -3; dx <= 3; dx++)
+            for (var dy = -3; dy <= 3; dy++)
+            {
+                var c = new Vector3Int(at.x + dx, at.y + dy, 0);
+                if (!_slotOf.TryGetValue(c, out var t) || State(t.area, t.slot, out _) == TreeState.Cut) continue;
+                var d = Vector2.Distance(me, WorkSpotOf(c));
+                if (d >= best) continue;
+                best = d;
+                area = t.area;
+                slot = t.slot;
+                cell = c;
+            }
+            return area >= 0;
+        }
+
+        /// <summary>The way from staging to a tree of the grid: into the frontier by the trail, along the cliff edge, in.</summary>
+        public void RouteToCell(Vector3 staging, Vector3Int c, List<Vector3> route)
+        {
+            route.Clear();
+            route.Add(staging);
+            route.Add(Centre((Vector3Int)trailCell));
+            route.Add(Centre(new Vector3Int(start.x, Mathf.Max(trailCell.y, c.y), 0)));
+            route.Add(WorkSpotOf(c));
+        }
+
+        /// <summary>The tree on a tile shakes (a swing landing).</summary>
+        public void Shake(Vector3Int c)
+        {
+            if (!_shown.TryGetValue(c, out var sr)) return;
+            var key = c.x * 100003 + c.y;
+            if (_shakes.TryGetValue(key, out var co) && co != null) StopCoroutine(co);
+            _shakes[key] = StartCoroutine(Shake(sr.transform));
+        }
+
+        public SpriteRenderer RendererAt(Vector3Int c) => _shown.TryGetValue(c, out var sr) ? sr : null;
 
         /// <summary>The drawn tree of the current clearing (tests), or null when off screen.</summary>
         public SpriteRenderer TreeRenderer(int index) => _shown.TryGetValue(TreeCell(index), out var sr) ? sr : null;

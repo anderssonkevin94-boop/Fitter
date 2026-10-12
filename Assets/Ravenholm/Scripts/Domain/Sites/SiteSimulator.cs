@@ -66,7 +66,7 @@ namespace Ravenholm.Domain.Sites
             _s.Status = SiteStatus.Working;
             _decisionAnnounced = false;
             var durability = SiteMath.Durability(_c, _s.Depth, _s.K);
-            if (_c.Kind == SiteKind.Mine)
+            if (FaceMode)
             {
                 _s.SectionDurabilityMicro = durability * 1000;
                 _s.SectionDoneMicro = 0;
@@ -100,7 +100,7 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public bool ChooseContinue()
         {
-            if (DigMode) return false;   // digging is the choice
+            if (BlockMode) return false;   // digging (or cutting) is the choice
             if (_c.Kind == SiteKind.Mine) return MineContinue();
             if (_s.Status != SiteStatus.AwaitDecision) return false;
             _s.SectionDepths.Add(_s.Depth);
@@ -116,7 +116,7 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public bool ChooseDeeper()
         {
-            if (DigMode) return false;   // digging is the choice
+            if (BlockMode) return false;   // digging (or cutting) is the choice
             if (_c.Kind == SiteKind.Mine)
             {
                 if (!ShaftDone || !CanGoDeeper) return false;
@@ -293,7 +293,7 @@ namespace Ravenholm.Domain.Sites
             {
                 if (!keepOnSite && _ledger.TryCarry(unit)) continue;
                 if (!keepOnSite && _ledger.StagingFree(_c.StagingContainerId, _c.StagingCapacity) > 0) { _ledger.Deposit(_c.StagingContainerId, unit); continue; }
-                if (_c.Kind == SiteKind.Mine) FacePending(FaceOf(w)).Add(unit);
+                if (FaceMode) FacePending(FaceOf(w)).Add(unit);
                 else
                 {
                     var tree = w.TargetTree >= 0 && w.TargetTree < _s.Trees.Count ? _s.Trees[w.TargetTree] : _s.Trees.Count > 0 ? _s.Trees[0] : null;
@@ -423,7 +423,8 @@ namespace Ravenholm.Domain.Sites
         private long FaceDone(int f) => f == 0 ? _s.SectionDoneMicro : _s.Tunnels[f - 1].DoneMicro;
         private long FaceDurability(int f) => f == 0 ? _s.SectionDurabilityMicro : _s.Tunnels[f - 1].DurabilityMicro;
         private List<string> FacePending(int f) => f == 0 ? _s.FacePending : _s.Tunnels[f - 1].Pending;
-        private bool FaceExhausted(int f) => DigMode ? f != 0 || !RoutineNext(out _) : FaceEmitted(f) >= FaceUnits(f);
+        private bool FaceExhausted(int f) =>
+            DigMode ? f != 0 || !RoutineNext(out _) : GroveMode ? f != 0 || !GroveRoutineNext(out _) : FaceEmitted(f) >= FaceUnits(f);
 
         private Composition FaceComposition(int f)
         {
@@ -497,7 +498,13 @@ namespace Ravenholm.Domain.Sites
         /// <summary>DEBUG: finish the current section or clearing instantly. Units are still extracted normally.</summary>
         public void DebugCompleteSection()
         {
-            if (_c.Kind == SiteKind.Mine) _s.SectionDoneMicro = _s.SectionDurabilityMicro;
+            if (GroveMode)
+            {
+                // The grid: fell the next tree near the last one cut (the first tree at the cliff edge to begin with).
+                if (!_s.LastChop.HasValue) _s.LastChop = new GroveCell(1, 0);
+                if (GroveRoutineNext(out var next)) Cut(next, ChopDone(next.Area, next.Slot), TreeDurabilityMicro(next.Area, next.Slot), byHand: false);
+            }
+            else if (_c.Kind == SiteKind.Mine) _s.SectionDoneMicro = _s.SectionDurabilityMicro;
             else foreach (var t in _s.Trees) t.DoneMicro = t.DurabilityMicro;
             Resolve();
             if (_s.Workers.Count > 0) return;
@@ -561,7 +568,7 @@ namespace Ravenholm.Domain.Sites
             foreach (var w in _s.Workers)
             {
                 if (IsTimed(w.State)) best = Math.Min(best, Math.Max(0, w.PhaseEndMs - _s.SimMs));
-                else if (w.State == WorkerState.Working && _c.Kind == SiteKind.Forest)
+                else if (w.State == WorkerState.Working && _c.Kind == SiteKind.Forest && !GroveMode)
                 {
                     var t = _s.Trees[w.TargetTree];
                     var dps = Dps(w);
@@ -570,6 +577,7 @@ namespace Ravenholm.Domain.Sites
                 }
             }
             if (DigMode) best = Math.Min(best, DigNextEventDelay());
+            else if (GroveMode) best = Math.Min(best, GroveNextEventDelay());
             else if (_c.Kind == SiteKind.Mine)
             {
                 for (var f = 0; f < FaceCount; f++)
@@ -586,6 +594,7 @@ namespace Ravenholm.Domain.Sites
         private void ApplyWork(long ms)
         {
             if (DigMode) { DigApplyWork(ms); return; }
+            if (GroveMode) { GroveApplyWork(ms); return; }
             if (_c.Kind == SiteKind.Mine)
             {
                 // Damage beyond the section's durability is clamped; it never spills into the next section.
@@ -617,6 +626,7 @@ namespace Ravenholm.Domain.Sites
         {
             var changed = false;
             if (DigMode) return DigEmitDue();
+            if (GroveMode) return false;   // the grid's logs are released as the routine cuts (GroveApplyWork)
             if (_c.Kind == SiteKind.Mine)
             {
                 for (var f = 0; f < FaceCount; f++)
@@ -716,7 +726,7 @@ namespace Ravenholm.Domain.Sites
 
                 case WorkerState.Working:
                     if (w.Pack.Count >= PackCap(w)) { StartReturn(w); return true; }   // full pack returns early
-                    if (_c.Kind == SiteKind.Mine)
+                    if (FaceMode)
                     {
                         if (!FaceExhausted(FaceOf(w))) return false;
                         StartReturn(w);
@@ -756,7 +766,7 @@ namespace Ravenholm.Domain.Sites
 
         private void ArriveAtWork(WorkerRecord w)
         {
-            if (_c.Kind == SiteKind.Mine)
+            if (FaceMode)
             {
                 var face = FaceOf(w);
                 TakePending(w, FacePending(face));
@@ -812,7 +822,7 @@ namespace Ravenholm.Domain.Sites
 
         private bool HasWork(WorkerRecord w)
         {
-            if (_c.Kind == SiteKind.Mine) return !FaceExhausted(FaceOf(w)) || FacePending(FaceOf(w)).Count > 0;
+            if (FaceMode) return !FaceExhausted(FaceOf(w)) || FacePending(FaceOf(w)).Count > 0;
             foreach (var t in _s.Trees)
             {
                 if (t.ClaimedBy == w.Id) return true;
@@ -836,7 +846,7 @@ namespace Ravenholm.Domain.Sites
 
         private void StartWalkToWork(WorkerRecord w)
         {
-            if (_c.Kind == SiteKind.Forest && !ClaimTree(w))
+            if (_c.Kind == SiteKind.Forest && !GroveMode && !ClaimTree(w))
             {
                 SetState(w, WorkerState.AwaitDepthChoice);
                 return;
@@ -862,7 +872,7 @@ namespace Ravenholm.Domain.Sites
 
         private void UpdateStatus()
         {
-            if (DigMode)
+            if (BlockMode)
             {
                 // Nothing to decide: the routine only waits when its tunnel is blocked (bedrock, the edge, a drop).
                 if (!_s.Workers.Exists(w => w.State == WorkerState.AwaitDepthChoice))
@@ -902,6 +912,7 @@ namespace Ravenholm.Domain.Sites
             var t = Tunnel(FaceOf(w));
             var depth = t != null ? t.Depth : _s.Depth;
             if (DigMode && _s.RoutineFace != null) depth = _c.Dig.LayerOfRow(_s.RoutineFace.Feet);
+            if (GroveMode && _s.LastChop.HasValue) depth = BandOfArea(_s.LastChop.Value.Area);
             return _c.Bands[Math.Max(1, Math.Min(depth, _c.Bands.Count)) - 1].LegMs;
         }
         private int Dps(WorkerRecord w) => _eq.ToolDamagePerSecond(w.ToolId);

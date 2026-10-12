@@ -699,3 +699,18 @@ The character Kevin approved (the older tailor in an apron, `ArtSource/character
     - climb: two alternating holds.
 
     A redo prompt for proper 4-pose walk cycles is in `Docs/ART_PROMPTS_CHARACTER.md`.
+
+## The Forest is a grid of trees: cut any tree in reach (2026-10-12)
+
+Kevin's call: every tree in reach can be cut with the main button. Cutting is the choice, as digging is in the Mine, so the clearings and the Continue / Push Deeper choices are gone. A routine keeps cutting near your last tree.
+
+- **Domain** (`SiteSimulator.Grove.cs`, `ForestGrove`, `GroveCell`).
+  - A tree is an (area, slot): areas run left along the cliff (`AreaLength` 3 tiles each), and slots count back from the cliff edge, row by row. This matches `ForestGridView`'s layout.
+  - Each tree's species comes from the area's mix, drawn once per tree from the world seed, so a tree is what it is before it is cut.
+  - Effort: a tree's durability is a clearing tree's. The continuation rises every `TreesPerContinuation` (6) slots back, plus one per area past the charted ones.
+  - Each tree gives `UnitsPerTree` logs as it is cut, each with the area's rare (herb) roll, also seeded per tree.
+  - The first tree cut in an area reveals it.
+- **By hand.** The logs go straight into the carry; overflow waits at the site and comes along with the next swing. The Chop button offers the nearest standing tree whose cutting spot is within reach (1.6). Standing trees still block walking, so you cut your way in.
+- **Routines.** A routine cuts the last tree if it still stands, else the nearest standing tree within 8 grid steps. Ties stay in the same area, so a routine never walks into a new area on its own; then the cliff edge, then toward the town. It hauls to the forest staging and works on face 0, like the Mine's routine.
+- **Saves.** `chopped` holds (area, slot, micro-damage) triples, plus `lastChop`; the Forest layout is now 2. Older saves convert: earlier clearings become stumps (six slots per clearing), the current clearing's trees keep their progress, and their waiting logs are kept.
+- **Old model kept for tests.** The clearings model is still in the domain when a config has no `Grove`.

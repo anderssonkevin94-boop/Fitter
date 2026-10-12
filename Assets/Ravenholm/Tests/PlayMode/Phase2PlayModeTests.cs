@@ -56,59 +56,42 @@ namespace Ravenholm.Tests
         private static int Staging(string id) => GameRoot.Instance.Services.Logistics.System.State.Containers[id].UnitCount;
 
         [UnityTest]
-        public IEnumerator ARoutineHaulsToStagingAndDecisionsAreThePlayers()
+        public IEnumerator ARoutineCutsNearTheLastTreeAndHaulsToStaging()
         {
             yield return Boot();
             var services = GameRoot.Instance.Services;
+            var forest = services.Sites.Get("site.forest");
             var player = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
             player.Teleport(new Vector2(1.5f, -5.5f));   // stand away from the piles so we do not pick them up
             services.Sites.SpeedMultiplier = 20f;
 
-            // Solo play: the supplier leaves themself on a woodcutting routine; their figure does the work. (The Mine's routine
-            // carries on a dug tunnel instead: MineDigPlayModeTests.)
+            // Solo play: the supplier leaves themself on a woodcutting routine; it carries on beside the last tree cut.
+            Assert.IsFalse(services.Sites.StartRoutine("site.forest"), "nothing cut yet");
+            for (var i = 0; i < 4000 && !forest.IsFelled(1, 0); i++) services.Sites.PlayerChopCell("site.forest", 1, 0, 0.1f);
+            services.Logistics.System.DebugUnloadCarry();
             Assert.IsTrue(services.Sites.StartRoutine("site.forest"));
             yield return null;
-            var miner = WorkerView.PlayerAvatar;
-            Assert.NotNull(miner, "the supplier's routine figure appears");
+            var cutter = WorkerView.PlayerAvatar;
+            Assert.NotNull(cutter, "the supplier's routine figure appears");
             Assert.IsTrue(player.HiddenForRoutine, "and the supplier is out working it");
-            var start = miner.transform.position;
+            var start = cutter.transform.position;
             var furthest = 0f;
             yield return WaitUntil(() =>
             {
-                furthest = Mathf.Max(furthest, Vector3.Distance(start, miner.transform.position));
+                furthest = Mathf.Max(furthest, Vector3.Distance(start, cutter.transform.position));
                 return Staging("container.forest_staging") > 0;
-            }, 6f, "first deposits");
+            }, 10f, "first deposits");
             Assert.Greater(furthest, 0.5f, "the routine visibly walks to the trees and back");
+            Assert.AreEqual(SiteStatus.Working, forest.Record.Status, "nothing waits for a choice: cutting is the choice");
             CollectionAssert.IsEmpty(services.Logistics.System.Audit());
             yield return Capture.Take("phase2_forest_working");
-
-            services.Sites.DebugCompleteSection("site.forest");
-            var forest = services.Sites.Get("site.forest");
-            yield return WaitUntil(() => forest.Record.Status == SiteStatus.AwaitDecision, 10f, "forest section exhausted");
-            var marker = GameObject.Find("Forest").GetComponentInChildren<SiteMarkerView>(true);
-            yield return null;
-            Assert.IsTrue(marker.Showing);
-            Assert.AreEqual("Choose next area", marker.Text);
-            yield return Capture.Take("phase2_choose_marker");
-
-            // Workers finish returning an already-earned pack (GDD 5), then wait.
-            yield return WaitUntil(() => forest.Record.Workers.TrueForAll(w => w.State == WorkerState.AwaitDepthChoice), 10f, "woodcutter waiting at staging");
-            var depositedBefore = forest.Record.DepositedTotal;
-            yield return new WaitForSeconds(1f);   // 20 s of sim time
-            Assert.AreEqual(depositedBefore, forest.Record.DepositedTotal, "nothing happens until the player decides");
-            Assert.AreEqual(1, forest.Record.Depth);
 
             GameRoot.Instance.Hud.ShowSite("site.forest");
             yield return null;
             Assert.IsTrue(GameRoot.Instance.Hud.SitePanel.IsOpen);
             Assert.IsTrue(TouchInputRouter.IsBlocked, "site panel is modal for movement");
+            StringAssert.Contains("Cut:", GameRoot.Instance.Hud.SitePanel.StatusText);
             yield return Capture.Take("phase2_forest_panel");
-
-            Assert.IsTrue(services.Sites.ChooseDeeper("site.forest"));
-            yield return new WaitForSeconds(0.3f);
-            Assert.AreEqual(2, forest.Record.Depth);
-            Assert.AreEqual(SiteStatus.Working, forest.Record.Status);
-            yield return Capture.Take("phase2_forest_panel_area2");
             GameRoot.Instance.Hud.SitePanel.Close();
             Assert.IsFalse(TouchInputRouter.IsBlocked);
 
@@ -123,30 +106,34 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
-        public IEnumerator TheSupplierChopsTheClearingByHand()
+        public IEnumerator TheSupplierCutsAnyTreeInReach()
         {
             yield return Boot();
             var services = GameRoot.Instance.Services;
             var forest = services.Sites.Get("site.forest");
             var view = Object.FindAnyObjectByType<ForestGridView>();
-            SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(view.WorkSpot(0));
+            // Beside a tree a few back from the cliff edge, not the first one: any tree can be cut.
+            Assert.IsTrue(view.CellOf(1, 1, out var edge));
+            SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(view.WorkSpotOf(edge));
             yield return null;
             yield return null;
-            var target = SandboxSceneController.Current.ContextTarget;
-            Assert.IsTrue(target is ForestChopSpot, "the context button targets the nearest tree");
+            var target = SandboxSceneController.Current.ContextTarget as ForestChopSpot;
+            Assert.NotNull(target, "the context button targets the nearest tree");
             Assert.AreEqual("Chop", target.ContextVerb);
+            Assert.AreEqual(1, target.Area);
+            var (area, slot, cell) = (target.Area, target.Slot, target.Cell);
             services.Sites.SpeedMultiplier = 20f;
             GameRoot.Instance.Hud.ScriptedHold = true;   // hold the button
-            yield return WaitUntil(() => forest.Record.Trees.Exists(t => t.Felled), 10f, "first tree felled");
+            yield return WaitUntil(() => forest.IsFelled(area, slot), 10f, "the tree is felled");
             GameRoot.Instance.Hud.ScriptedHold = false;
             Assert.GreaterOrEqual(services.Logistics.System.CarryCount, 4, "its logs went straight into the carry");
+            Assert.IsFalse(view.HasStandingTree(cell), "a stump: the tile can be walked now");
+            yield return null;
+            yield return null;
+            var next = SandboxSceneController.Current.ContextTarget as ForestChopSpot;
+            Assert.NotNull(next, "the next tree in reach is offered straight away");
+            Assert.IsFalse(next.Area == area && next.Slot == slot);
             yield return Capture.Take("phase2_forest_clearing");
-
-            GameRoot.Instance.Hud.ShowSite("site.forest");
-            yield return new WaitForSeconds(0.3f);
-            StringAssert.Contains("Clearing:", GameRoot.Instance.Hud.SitePanel.StatusText);
-            yield return Capture.Take("phase2_forest_panel");
-            GameRoot.Instance.Hud.SitePanel.Close();
             CollectionAssert.IsEmpty(services.Logistics.System.Audit());
         }
     }
