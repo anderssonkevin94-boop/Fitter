@@ -7,9 +7,8 @@ namespace Ravenholm.Presentation
     /// collide-and-slide against footprint colliders on the Blocker layer, clamped to the town and its ground tiles.
     /// Collision uses a small circle at the feet, independent of building roof art.
     ///
-    /// The Mine is walkable too (GDD 6): push down at the ladder to climb into the shaft, up and down along it like a
-    /// corridor, sideways at a level to step off onto its ledge or the pit floor, and walk its tunnels. Underground the
-    /// player moves on the same plane coordinates as the town, drawn one level lower per level.
+    /// The Mine is dug, not entered (dig slab): walking onto a hole dug in the ground drops the supplier into it, and
+    /// underground the slab moves them (<see cref="MineSlabView"/>) until they step back up onto the ground.
     /// </summary>
     public sealed class PlayerMotor : MonoBehaviour
     {
@@ -19,21 +18,11 @@ namespace Ravenholm.Presentation
         [Tooltip("Child holding the sprites; bobs and flips without moving the sort pivot.")]
         [SerializeField] private Transform visual;
 
-        private const float ClimbSpeed = 2.4f;   // levels per second
-
         private GameRoot _root;
         private int _blockerMask;
-        private Vector2 _plane;
-        private float _drop;
-        private float _climb;
-        private int _climbTarget = -1;
 
-        /// <summary>0 in town; otherwise the Mine level the player stands on (or last left from the ladder).</summary>
-        public int MineLevel { get; private set; }
-        public bool OnLadder { get; private set; }
-        /// <summary>Levels below the town while on the ladder.</summary>
-        public float ClimbHeight => _climb;
-        public bool Underground => OnLadder || MineLevel > 0;
+        /// <summary>Underground in the Mine (the slab moves the supplier there).</summary>
+        public bool Underground => MineSlabView.Current != null && MineSlabView.Current.PlayerInside;
         private float _bobPhase;
         private Vector3 _visualBase;
 
@@ -47,28 +36,25 @@ namespace Ravenholm.Presentation
             if (visual != null) _visualBase = visual.localPosition;
             var s = _root.Services.Sandbox.State;
             transform.position = new Vector3(s.PlayerX, s.PlayerY, 0f);
-            _plane = transform.position;
         }
 
         private void Update()
         {
             var move = _root.InputRouter.MoveVector;
-            var mine = MineDigView.Current;
+            var slab = MineSlabView.Current;
             // Solo play: on a routine the supplier is out working it (drawn by the routine's avatar); moving takes over.
             if (_root.Services.Sites.RoutineSiteId != null)
             {
-                if (move.sqrMagnitude > 0.01f) TakeOverFromRoutine(mine);
+                if (move.sqrMagnitude > 0.01f) TakeOverFromRoutine(slab);
                 else { SetHidden(true); return; }
             }
             SetHidden(false);
-            if (mine == null && Underground) { OnLadder = false; MineLevel = 0; }
-            if (OnLadder) Climb(move, mine);
-            else if (MineLevel > 0) WalkMine(move, mine);
-            else if (move.sqrMagnitude > 0.0001f) WalkTown(move, mine);
+            if (slab != null && slab.PlayerInside) slab.UpdatePlayer(move);
+            else if (move.sqrMagnitude > 0.0001f) WalkTown(move, slab);
 
             if (move.sqrMagnitude > 0.0001f)
             {
-                _bobPhase += Time.deltaTime * 14f * move.magnitude * (OnLadder ? 0.5f : 1f);
+                _bobPhase += Time.deltaTime * 14f * move.magnitude;
                 if (visual != null && Mathf.Abs(move.x) > 0.15f)
                 {
                     var sc = visual.localScale;
@@ -114,26 +100,22 @@ namespace Ravenholm.Presentation
 
         // ------------------------------------------------------------------ town
 
-        private void WalkTown(Vector2 move, MineDigView mine)
+        private void WalkTown(Vector2 move, MineSlabView mine)
         {
             var balance = _root.Config.Balance;
             Vector2 old = transform.position;
-            // The ladder is entered by pushing down at it (the shaft is a corridor below the town).
-            if (mine != null && mine.DeepestFloor >= 1 && IsVertical(move, -1) && Vector2.Distance(old, mine.LadderPlane) < 0.7f)
-            {
-                StartClimb(0f);
-                return;
-            }
             var delta = move * (balance.walkSpeed * Time.deltaTime);
             var p = Slide(old, delta, balance.playerFootprintRadius, _blockerMask);
             var b = _root.Config.SandboxSettings.WorldBounds;
             p.x = Mathf.Clamp(p.x, b.xMin + 0.4f, b.xMax - 0.4f);
             p.y = Mathf.Clamp(p.y, b.yMin + 0.4f, b.yMax - 0.4f);
-            // Only the town's ground tiles are walkable: not the open shaft or the notch in front of it.
-            if (mine != null && !mine.SurfaceWalkable(p) && mine.SurfaceWalkable(old))
-                p = SlideOnCells(old, p - old, mine.SurfaceWalkable);
+            // Only the ground's tiles are walkable; a hole dug into the ground is stepped into (the Mine).
+            if (mine != null && !mine.SurfaceWalkable(p))
+            {
+                if (mine.TryEnter(p)) return;
+                if (mine.SurfaceWalkable(old)) p = SlideOnCells(old, p - old, mine.SurfaceWalkable);
+            }
             transform.position = new Vector3(p.x, p.y, 0f);
-            _plane = p;
             _root.Services.Sandbox.ReportPlayerPosition(p.x, p.y);
         }
 
@@ -157,98 +139,6 @@ namespace Ravenholm.Presentation
             return best;
         }
 
-        private static bool IsVertical(Vector2 move, int sign) => move.y * sign > 0.5f && Mathf.Abs(move.y) > Mathf.Abs(move.x);
-
-        // ------------------------------------------------------------------ mine
-
-        /// <summary>Climbs (from wherever the player is at the ladder) to a level, then steps off there.</summary>
-        public void ClimbTo(int level)
-        {
-            var mine = MineDigView.Current;
-            if (mine == null || !mine.IsStop(level)) return;
-            if (!OnLadder) StartClimb(MineLevel);
-            _climbTarget = level;
-        }
-
-        private void StartClimb(float h)
-        {
-            OnLadder = true;
-            _climb = h;
-            _climbTarget = -1;
-        }
-
-        private void Climb(Vector2 move, MineDigView mine)
-        {
-            var deepest = Mathf.Max(0, mine.DeepestFloor);
-            var dt = Time.deltaTime;
-            if (Mathf.Abs(move.y) > 0.3f)
-            {
-                _climbTarget = -1;
-                _climb = Mathf.Clamp(_climb - move.y * ClimbSpeed * dt, 0f, deepest);
-            }
-            else if (_climbTarget >= 0)
-            {
-                _climb = Mathf.MoveTowards(_climb, Mathf.Min(_climbTarget, deepest), ClimbSpeed * dt);
-                if (Mathf.Approximately(_climb, Mathf.Min(_climbTarget, deepest))) { StepOff(Mathf.Min(_climbTarget, deepest), mine); return; }
-            }
-            else _climb = Mathf.MoveTowards(_climb, NearestStop(_climb, mine), ClimbSpeed * dt);   // settle on a level when let go
-
-            var stop = Mathf.RoundToInt(_climb);
-            if (Mathf.Abs(_climb - stop) < 0.05f && mine.IsStop(stop))
-            {
-                if (stop == 0 && IsVertical(move, 1)) { StepOff(0, mine); return; }
-                if (stop >= 1 && Mathf.Abs(move.x) > 0.5f && Mathf.Abs(move.x) > Mathf.Abs(move.y)) { StepOff(stop, mine); return; }
-            }
-            transform.position = mine.LadderWorld(_climb);
-        }
-
-        private static int NearestStop(float h, MineDigView mine)
-        {
-            var best = 0;
-            for (var l = 0; l <= Mathf.Max(0, mine.DeepestFloor); l++)
-                if (mine.IsStop(l) && Mathf.Abs(l - h) < Mathf.Abs(best - h)) best = l;
-            return best;
-        }
-
-        private void StepOff(int level, MineDigView mine)
-        {
-            OnLadder = false;
-            _climbTarget = -1;
-            MineLevel = level;
-            if (level == 0)
-            {
-                _plane = mine.LadderPlane + new Vector2(-0.25f, 0.125f);   // the ladder's top cell
-                transform.position = _plane;
-                _root.Services.Sandbox.ReportPlayerPosition(_plane.x, _plane.y);
-                return;
-            }
-            _plane = mine.LadderPlane + new Vector2(0.25f, -0.125f);       // the shaft cell at the ladder's foot
-            _drop = mine.FloorDrop(level, _plane);
-            transform.position = _plane - new Vector2(0f, _drop);
-        }
-
-        private void WalkMine(Vector2 move, MineDigView mine)
-        {
-            var level = MineLevel;
-            if (move.sqrMagnitude > 0.0001f)
-            {
-                var target = _plane + move * (_root.Config.Balance.walkSpeed * Time.deltaTime);
-                if (Vector2.Distance(_plane, mine.LadderPlane) < 0.7f && Mathf.Abs(move.y) > 0.5f && Mathf.Abs(move.y) > Mathf.Abs(move.x) &&
-                    !mine.Walkable(level, target))
-                {
-                    StartClimb(level);
-                    return;
-                }
-                // Standing where a block was just dug away: any step back into the shaft is allowed.
-                if (!mine.Walkable(level, _plane) && mine.IsPitCell(mine.CellAt(target))) _plane = target;
-                else _plane = SlideOnCells(_plane, target - _plane, p => mine.Walkable(level, p));
-            }
-            _drop = Mathf.MoveTowards(_drop, mine.FloorDrop(level, _plane), Time.deltaTime * 2f);
-            transform.position = _plane - new Vector2(0f, _drop);
-            // A reload puts the player back at the ladder top in town.
-            var top = mine.LadderPlane + new Vector2(-0.25f, 0.125f);
-            _root.Services.Sandbox.ReportPlayerPosition(top.x, top.y);
-        }
 
         /// <summary>A short reach toward what the player just used (context button or tap).</summary>
         public void PlayInteract() => _reach = 1f;
@@ -269,15 +159,14 @@ namespace Ravenholm.Presentation
 
         public bool HiddenForRoutine => _hidden;
 
-        /// <summary>The supplier steps back in: the routine ends where their avatar was (in town, or at the ladder top).</summary>
-        private void TakeOverFromRoutine(MineDigView mine)
+        /// <summary>The supplier steps back in: the routine ends where their avatar was (in town, or beside the Mine's entry).</summary>
+        private void TakeOverFromRoutine(MineSlabView mine)
         {
             var avatar = WorkerView.PlayerAvatar;
             var at = avatar != null ? (Vector2)avatar.transform.position : (Vector2)transform.position;
             var underground = avatar != null && avatar.InShaft;
             _root.Services.Sites.EndRoutine();
-            if (mine != null && (underground || !mine.SurfaceWalkable(at))) at = mine.LadderPlane + new Vector2(0.25f, 0.125f);
-            else if (mine == null && avatar == null) at = transform.position;
+            if (mine != null && (underground || mine.PlayerInside || !mine.SurfaceWalkable(at))) at = mine.BesideEntry;
             Teleport(at);
             SandboxSceneController.Current?.SnapPlayerToSavedPosition();
         }
@@ -286,10 +175,7 @@ namespace Ravenholm.Presentation
         /// <summary>Safe "unstuck": moves the player without touching what they carry.</summary>
         public void Teleport(Vector2 position)
         {
-            OnLadder = false;
-            MineLevel = 0;
-            _climbTarget = -1;
-            _plane = position;
+            MineSlabView.Current?.Leave();   // always onto the town's plane (out of the Mine)
             transform.position = new Vector3(position.x, position.y, 0f);
             if (_root != null) _root.Services.Sandbox.ReportPlayerPosition(position.x, position.y);
         }

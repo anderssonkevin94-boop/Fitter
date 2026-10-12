@@ -64,8 +64,9 @@ namespace Ravenholm.Tests
             player.Teleport(new Vector2(1.5f, -5.5f));   // stand away from the piles so we do not pick them up
             services.Sites.SpeedMultiplier = 20f;
 
-            // Solo play: the supplier leaves themself on a mining routine; their figure does the work.
-            Assert.IsTrue(services.Sites.StartRoutine("site.mine"));
+            // Solo play: the supplier leaves themself on a woodcutting routine; their figure does the work. (The Mine's routine
+            // carries on a dug tunnel instead: MineDigPlayModeTests.)
+            Assert.IsTrue(services.Sites.StartRoutine("site.forest"));
             yield return null;
             var miner = WorkerView.PlayerAvatar;
             Assert.NotNull(miner, "the supplier's routine figure appears");
@@ -75,39 +76,39 @@ namespace Ravenholm.Tests
             yield return WaitUntil(() =>
             {
                 furthest = Mathf.Max(furthest, Vector3.Distance(start, miner.transform.position));
-                return Staging("container.mine_staging") > 0;
+                return Staging("container.forest_staging") > 0;
             }, 6f, "first deposits");
-            Assert.Greater(furthest, 0.5f, "the routine visibly walks to the Mine and back");
+            Assert.Greater(furthest, 0.5f, "the routine visibly walks to the trees and back");
             CollectionAssert.IsEmpty(services.Logistics.System.Audit());
-            yield return Capture.Take("phase2_mine_working");
+            yield return Capture.Take("phase2_forest_working");
 
-            services.Sites.DebugCompleteSection("site.mine");
-            var mine = services.Sites.Get("site.mine");
-            yield return WaitUntil(() => mine.Record.Status == SiteStatus.AwaitDecision, 10f, "mine section exhausted");
-            var marker = GameObject.Find("Mine").GetComponentInChildren<SiteMarkerView>(true);
+            services.Sites.DebugCompleteSection("site.forest");
+            var forest = services.Sites.Get("site.forest");
+            yield return WaitUntil(() => forest.Record.Status == SiteStatus.AwaitDecision, 10f, "forest section exhausted");
+            var marker = GameObject.Find("Forest").GetComponentInChildren<SiteMarkerView>(true);
             yield return null;
             Assert.IsTrue(marker.Showing);
-            Assert.AreEqual("Choose next section", marker.Text);
+            Assert.AreEqual("Choose next area", marker.Text);
             yield return Capture.Take("phase2_choose_marker");
 
             // Workers finish returning an already-earned pack (GDD 5), then wait.
-            yield return WaitUntil(() => mine.Record.Workers.TrueForAll(w => w.State == WorkerState.AwaitDepthChoice), 10f, "miner waiting at staging");
-            var depositedBefore = mine.Record.DepositedTotal;
+            yield return WaitUntil(() => forest.Record.Workers.TrueForAll(w => w.State == WorkerState.AwaitDepthChoice), 10f, "woodcutter waiting at staging");
+            var depositedBefore = forest.Record.DepositedTotal;
             yield return new WaitForSeconds(1f);   // 20 s of sim time
-            Assert.AreEqual(depositedBefore, mine.Record.DepositedTotal, "nothing happens until the player decides");
-            Assert.AreEqual(1, mine.Record.Depth);
+            Assert.AreEqual(depositedBefore, forest.Record.DepositedTotal, "nothing happens until the player decides");
+            Assert.AreEqual(1, forest.Record.Depth);
 
-            GameRoot.Instance.Hud.ShowSite("site.mine");
+            GameRoot.Instance.Hud.ShowSite("site.forest");
             yield return null;
             Assert.IsTrue(GameRoot.Instance.Hud.SitePanel.IsOpen);
             Assert.IsTrue(TouchInputRouter.IsBlocked, "site panel is modal for movement");
-            yield return Capture.Take("phase2_mine_panel");
+            yield return Capture.Take("phase2_forest_panel");
 
-            Assert.IsTrue(services.Sites.ChooseDeeper("site.mine"));
+            Assert.IsTrue(services.Sites.ChooseDeeper("site.forest"));
             yield return new WaitForSeconds(0.3f);
-            Assert.AreEqual(2, mine.Record.Depth);
-            Assert.AreEqual(SiteStatus.Working, mine.Record.Status);
-            yield return Capture.Take("phase2_mine_panel_depth2");
+            Assert.AreEqual(2, forest.Record.Depth);
+            Assert.AreEqual(SiteStatus.Working, forest.Record.Status);
+            yield return Capture.Take("phase2_forest_panel_area2");
             GameRoot.Instance.Hud.SitePanel.Close();
             Assert.IsFalse(TouchInputRouter.IsBlocked);
 

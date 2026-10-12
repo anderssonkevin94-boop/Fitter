@@ -404,7 +404,7 @@ namespace Ravenholm.Presentation
             tap.type = Image.Type.Simple;
             UiFactory.Place(tap.rectTransform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-100f, 400f), new Vector2(150f, 150f));
             _tapButton = tap.gameObject.AddComponent<Button>();
-            _tapButton.onClick.AddListener(() => MineProspectView.Current?.Tap());
+            _tapButton.onClick.AddListener(() => MineSlabView.Current?.Tap());
             _tapLabel = _ui.Text("Text", tap.transform, "Tap", _theme.smallSize - 4f, _theme.ink, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(_tapLabel.rectTransform, 12f);
             tap.gameObject.SetActive(false);
@@ -416,7 +416,7 @@ namespace Ravenholm.Presentation
         /// <summary>The prospector's tap shows near the Mine, greyed while it recovers.</summary>
         private void UpdateTapButton()
         {
-            var view = MineProspectView.Current;
+            var view = MineSlabView.Current;
             var show = view != null && view.CanTap && !IsAnyPanelOpenForTap;
             if (_tapButton.gameObject.activeSelf != show) _tapButton.gameObject.SetActive(show);
             if (!show) return;
@@ -501,11 +501,6 @@ namespace Ravenholm.Presentation
             {
                 var n = _root.Services.Logistics.DebugUnloadCarry();
                 Report($"Unloaded {n} carried unit(s) into shared inventory / Store.");
-            }, out _);
-            _ui.Button("Prototype", content, "Try the mining prototype (option A)", () =>
-            {
-                CloseDebug();
-                UnityEngine.SceneManagement.SceneManager.LoadScene(MiningPrototype.SceneName);
             }, out _);
             _ui.Button("Unstuck", content, "Unstuck (keeps carried goods)", () =>
             {

@@ -46,13 +46,12 @@ namespace Ravenholm.Presentation
             var t = (Vector2)followed.position + new Vector2(0f, s.cameraLookAheadY);
             // The camera simply follows the player, into the Mine too (GDD 6); "Look down the shaft" frames the working
             // level until the player moves again. The view may reach below the town as deep as anyone can stand.
-            var mine = MineDigView.Current;
+            var mine = MineSlabView.Current;
             _extraBottom = 0f;
             if (mine != null)
             {
                 var halfH = _camera.orthographicSize;
-                if (mine.ViewingDig) t = mine.DigFocus;
-                var lowest = Mathf.Min(mine.DeepestFloorY, mine.DigFocus.y, target.position.y) - 1.5f;
+                var lowest = Mathf.Min(mine.LowestY, followed.position.y) - 1.5f;
                 _extraBottom = Mathf.Max(0f, s.WorldBounds.yMin - (lowest - halfH));
             }
             if (!_snapped)

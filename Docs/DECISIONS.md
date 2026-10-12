@@ -581,3 +581,27 @@ This is a self-contained prototype (`MinePrototype` scene, `MiningPrototype`), o
 - **Moving.** Single blocks are stepped up; holes are dropped into.
 - **Ore and signs.** The real veins (world seed and the Mine's layer mixes) and flecks within the lamp's light. A tally shows what was dug.
 - **Next.** If it is adopted, the real Mine moves to this model and stage 4 (branching) folds into it.
+
+## The Mine is a dig slab (2026-10-12)
+
+The option-A prototype is now the real Mine. The prototype scene, its signpost and the old shaft, ladder, tunnel and prospecting views are removed.
+
+- **Where.** A slab of ground under the Mine's corner and the frontier (`DigSlab`: 8 thick, 120 long, 600 rows; 6 rows = one layer, three levels of 2 blocks). Its front is the open cliff face.
+  - The ground's surface can be broken only at the 4×4 entry by the corner.
+  - Topsoil elsewhere, including under the Forest's trees, cannot be dug.
+- **Digging is the choice.** There are no Deeper or Continue buttons.
+  - Going down reaches the next layer, which is revealed the first time it is dug into. It has new ores and harder rock.
+  - Staying in a layer costs a little more every `BlocksPerContinuation` (8) blocks further along the cliff.
+  - Each block is one unit of a section's work at that layer and continuation, so the economy keeps the section curve. Ore blocks are 25% harder.
+- **By hand** (`MineSlabView`, `MineDigSpot`). The supplier digs into the entry, falls into holes and steps up single blocks. Stepping up onto the ground leaves the Mine; stairs are the way out, and ladders come later.
+  - Targeting: the wall walked into or stood against (head height first, then legs). Otherwise, while standing still, the block underfoot.
+  - Walking on with Dig held never digs the floor.
+  - A tap picks any reachable block, and pressing and holding on a block digs it.
+  - Units go straight into the carry.
+  - Flecks, the Tap button and cracks carry over from prospecting.
+- **Routines** carry on the tunnel last dug by hand (`DigFace`), two blocks high and straight ahead, hauling to staging.
+  - A routine stops at the slab's edge, at ground it cannot dig, or at a drop.
+  - With nothing dug yet, the routine button is not offered.
+- **Saves.** Mine layout 3: dug blocks, the block in progress, the last dig and the routine's face. Older Mines convert to an untouched slab.
+- **Drawing.** Every visible block is a pooled sprite sorted by x + y + row, and the supplier is sorted among them as the cube of their lower body. Marks on the surface's top blocks sort above the town's ground tiles.
+- **Known.** Inside a tunnel behind the cliff face the supplier is hidden by the rock in front, because nothing is cut away (by request). A silhouette is a candidate follow-up.

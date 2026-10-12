@@ -141,22 +141,16 @@ namespace Ravenholm.Presentation
             var timed = w.State == WorkerState.WalkToWork || w.State == WorkerState.Hop || w.State == WorkerState.ReturnToStaging;
             var pos = timed ? Vector3.Lerp(_from, target, t) : target;
             var inShaft = false;
-            var cutaway = sim.Config.Kind == SiteKind.Mine ? MineDigView.Current : null;
+            var cutaway = sim.Config.Kind == SiteKind.Mine ? MineSlabView.Current : null;
             if (cutaway != null)
             {
-                // GDD 6/20: miners stay visible: rim → down the ladder → the block they are clearing (shaft) or along the
-                // ledge into their tunnel, and back, in step with the phase timing.
-                var index = 0;
-                foreach (var o in s.Workers)
-                {
-                    if (o == w) break;
-                    if (o.Face == w.Face) index++;
-                }
-                cutaway.RouteTo(sim, w, index, _route);
+                // GDD 6/20 (dig slab): the routine walks to the Mine's entry, then down to the tunnel it carries on, and back.
+                _route.Clear();
+                _route.Add(cutaway.EntryTop);
+                _route.Add(cutaway.FacePoint(s.RoutineFace));
                 var staging = stagingPoint.position + new Vector3(0.55f, -0.1f, 0f);
                 var spot = _route[_route.Count - 1];
-                var tunnel = sim.Tunnel(w.Face);
-                var waiting = tunnel != null ? tunnel.Status == SiteStatus.AwaitDecision : s.Status == SiteStatus.AwaitDecision;
+                var waiting = s.Status == SiteStatus.AwaitDecision;
                 hidden = false;
                 switch (w.State)
                 {
@@ -176,6 +170,7 @@ namespace Ravenholm.Presentation
                         inShaft = !waiting;
                         break;
                 }
+                SortUnderground(inShaft && s.RoutineFace != null ? MineSlabView.OrderFor(cutaway.CellOf(s.RoutineFace.X, s.RoutineFace.U), s.RoutineFace.Feet - 1) + 2 : (int?)null);
             }
             else if (pocket != null && sim.Config.Kind == SiteKind.Forest && (w.TargetTree >= 0 || _lastTree >= 0) &&
                      (w.State == WorkerState.WalkToWork || w.State == WorkerState.ReturnToStaging))
@@ -212,6 +207,17 @@ namespace Ravenholm.Presentation
             }
 
             UpdateBubble(sim, w);
+        }
+
+        private UnityEngine.Rendering.SortingGroup _sorting;
+
+        /// <summary>Underground the figure is sorted among the Mine's blocks; in town, normally.</summary>
+        private void SortUnderground(int? order)
+        {
+            if (_sorting == null) _sorting = GetComponent<UnityEngine.Rendering.SortingGroup>();
+            if (_sorting == null) return;
+            _sorting.sortingLayerName = order.HasValue ? "Ground" : "Default";
+            _sorting.sortingOrder = order ?? 0;
         }
 
         /// <summary>True while the miner is down in the pit (tests).</summary>
@@ -302,6 +308,7 @@ namespace Ravenholm.Presentation
         /// <summary>Where a miner digs, in words ("the shaft", "the level 3 left tunnel").</summary>
         public static string FaceName(SiteSimulator sim, int face)
         {
+            if (sim.DigMode) return "your last tunnel";
             var t = sim.Tunnel(face);
             return t == null ? "the shaft" : $"the level {t.Level} tunnel";
         }
@@ -319,6 +326,8 @@ namespace Ravenholm.Presentation
                 case WorkerState.Depositing: return "Unloading at staging";
                 case WorkerState.StagingFull: return $"Paused: staging full ({w.Pack.Count} still in pack). Haul some away.";
                 case WorkerState.AwaitDepthChoice:
+                    if (mine && sim.DigMode)
+                        return sim.Record.Status == SiteStatus.AwaitDecision ? "Waiting: the tunnel is blocked. Dig a new one, then set the routine again" : "Waiting";
                     if (mine && sim.Tunnel(w.Face) != null)
                         return FaceWaiting(sim, w) ? $"Waiting: extend {FaceName(sim, w.Face)}" : "Waiting";
                     return sim.Record.Status == SiteStatus.AwaitDecision

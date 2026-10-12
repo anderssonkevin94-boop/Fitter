@@ -46,7 +46,7 @@ namespace Ravenholm.Presentation
             Sprite sprite = null;
             if (sim.Record.Status == SiteStatus.AwaitDecision)
             {
-                text = sim.Config.Kind == SiteKind.Mine ? "Choose next section" : "Choose next area";
+                text = sim.DigMode ? "Tunnel blocked" : sim.Config.Kind == SiteKind.Mine ? "Choose next section" : "Choose next area";
                 sprite = decisionIcon;
             }
             else if (sim.Record.Workers.Exists(w => w.State == WorkerState.StagingFull))

@@ -55,42 +55,6 @@ namespace Ravenholm.EditorTools
             EditorSceneManager.SaveScene(scene, path);
         }
 
-        /// <summary>PROTOTYPE scene: option-A digging in a cliff face (see <see cref="MiningPrototype"/>).</summary>
-        public static void BuildMinePrototype(string path)
-        {
-            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            _unlit = AssetDatabase.LoadAssetAtPath<Material>(UnlitMaterialPath);
-            var tiles = ProjectSetup.EnsureTiles();
-            new GameObject("SceneBootGuard").AddComponent<SceneBootGuard>();
-            var grid = new GameObject("Grid").AddComponent<Grid>();
-            grid.cellLayout = GridLayout.CellLayout.Isometric;
-            grid.cellSize = new Vector3(1f, 0.5f, 1f);
-
-            var player = new GameObject("Supplier").transform;
-            var visual = new GameObject("Visual").transform;
-            visual.SetParent(player, false);
-            player.gameObject.AddComponent<UnityEngine.Rendering.SortingGroup>();
-            Sprite(visual, "Base", "Characters/char_base_0", Vector2.zero, 0);
-            Sprite(visual, "Overlay", "Characters/ov_supplier", Vector2.zero, 1);
-
-            var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
-            var cam = camGo.AddComponent<Camera>();
-            cam.orthographic = true;
-            cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = Backdrop;
-            cam.nearClipPlane = 0.1f;
-            cam.farClipPlane = 50f;
-            camGo.transform.position = new Vector3(0f, 0f, -10f);
-            camGo.AddComponent<AudioListener>();
-            camGo.AddComponent<FeedbackAudio>();
-
-            new GameObject("MiningPrototype").AddComponent<MiningPrototype>().EditorSetup(grid, cam, player, visual,
-                new[] { tiles["halfblock_outline_0"], tiles["halfblock_outline_1"], tiles["halfblock_outline_2"] }, tiles["grass_a"], tiles["fleck_half"],
-                new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") },
-                ProjectSetup.LoadSprite("Tiles/tile_halfblock_0"), _unlit);
-            EditorSceneManager.SaveScene(scene, path);
-        }
-
         public static void BuildSandbox(string settingsPath, string path)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -188,8 +152,8 @@ namespace Ravenholm.EditorTools
             Receiver(logistics, "receiver.store", ReceiverKind.Store, new Vector2(-0.55f, 2.95f), 0.55f, store.transform, "icon_iron_sword", false);
 
             var mineStaging = Container(logistics, "container.mine_staging", "Mine Staging", ContainerKind.RawPile,
-                (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineDigView.Size + 2, 3, 0)),
-                "Ore lands here while you mine on a routine (capacity 96). Ore you mine by hand goes straight into your carry.", null, null, 96);
+                (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineEntry + 2, 3, 0)),
+                "Ore lands here while you dig on a routine (capacity 96). Ore you dig by hand goes straight into your carry.", null, null, 96);
             var forestStaging = Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(-17.6f, 2.0f),
                 "The woodcutter drops logs and herbs here (capacity 96). Logs go to the Lumbermill, herbs to the Apothecary.", null, null, 96);
             Container(logistics, "container.forge_pad", "Forge Output", ContainerKind.OutputPad, new Vector2(-4.3f, -4.55f),
@@ -209,17 +173,11 @@ namespace Ravenholm.EditorTools
             crowd.transform.SetParent(people, false);
             crowd.EditorSetup(new List<Vector2> { new Vector2(-1.9f, 1.75f), new Vector2(-1.15f, 1.35f), new Vector2(1.15f, 1.35f), new Vector2(1.9f, 1.75f) },
                 new List<Sprite> { ProjectSetup.LoadSprite("Characters/char_base_0"), ProjectSetup.LoadSprite("Characters/char_base_1"), ProjectSetup.LoadSprite("Characters/char_base_2") });
-            var mouth = mine.transform;   // miners follow the pit's ladder and blocks (MineDigView)
+            var mouth = mine.transform;   // the routine avatar walks from the entry to its tunnel (MineSlabView)
             // Solo play: the supplier is the only one working. While on a routine they are drawn by these figures instead.
             Worker(people, "You (mining)", "site.mine", "worker.player", 0, "ov_supplier", mineStaging, mouth, null);
             Worker(people, "You (woodcutting)", "site.forest", "worker.player", 0, "ov_supplier", forestStaging, null, pocket);
             SiteMarker(mine.transform, "site.mine", 2.4f);
-            // PROTOTYPE: a signpost by the Mine into the option-A digging prototype.
-            var sign = Prop(props, "Mining prototype", "Props/trail_marker",
-                (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineDigView.Size + 3, 0, 0)),
-                "Try Minecraft-style digging in the cliff face (prototype). Nothing you dig there touches your company.", "");
-            Object.DestroyImmediate(sign.GetComponent<Inspectable>());
-            sign.gameObject.AddComponent<PrototypeSign>().EditorSetup("mining prototype", "Try Minecraft-style digging in the cliff face (prototype).", "");
             SiteMarker(gate.transform, "site.forest", 2.0f);
 
             player.gameObject.AddComponent<PlayerMotor>().EditorSetup(player.Find("Visual"));
@@ -271,8 +229,8 @@ namespace Ravenholm.EditorTools
             _mineCell = new Vector3Int(settings.mineCell.x, settings.mineCell.y, 0);
             _mineCorner = (Vector2)grid.GetCellCenterWorld(_mineCell) - new Vector2(0f, 0.25f);
             bool InMine(Vector3Int cell) =>
-                cell.x >= _mineCell.x && cell.x < _mineCell.x + MineDigView.Size &&
-                cell.y >= _mineCell.y && cell.y < _mineCell.y + MineDigView.Size;
+                cell.x >= _mineCell.x && cell.x < _mineCell.x + MineEntry &&
+                cell.y >= _mineCell.y && cell.y < _mineCell.y + MineEntry;
             var frontierY = town.yMax;   // first frontier row
             var paths = new[]
             {
@@ -290,7 +248,7 @@ namespace Ravenholm.EditorTools
             {
                 var cell = new Vector3Int(x, y, 0);
                 Vector2 c = grid.GetCellCenterWorld(cell);
-                if (InMine(cell)) continue;   // the pit: its own ground blocks (MineDigView)
+                if (InMine(cell)) { tm.SetTile(cell, tiles["dirt"]); continue; }   // the Mine's entry: diggable ground
                 var inTown = x >= town.xMin && x < town.xMax && y >= town.yMin && y < town.yMax;
                 var inFrontier = y >= frontierY && y < frontierY + settings.frontierLengthCells &&
                                  x >= _mineCell.x && x < _mineCell.x + settings.frontierWidthCells;
@@ -420,44 +378,42 @@ namespace Ravenholm.EditorTools
         /// </summary>
         private static GameObject MineDig(Transform parent)
         {
-            var go = new GameObject("Mine");
-            go.transform.SetParent(parent, false);
-            go.transform.position = _mineCorner;
+            // The Mine is dug, block by block, into the ground at the town's left corner and under the frontier (dig slab).
+            var slabRoot = new GameObject("MineSlab");
+            slabRoot.transform.SetParent(parent, false);
             var tiles = ProjectSetup.EnsureTiles();
-            go.AddComponent<MineDigView>().EditorSetup(_grid, _groundMap, _mineCell,
-                new[] { tiles["block_0"], tiles["block_1"], tiles["block_2"] }, new[] { tiles["block_seam_0"], tiles["block_seam_1"], tiles["block_seam_2"] },
-                tiles["slab"], tiles["sill"], ProjectSetup.LoadSprite("Props/prop_ladder"), ProjectSetup.LoadSprite("Props/prop_timber"),
-                ProjectSetup.LoadSprite("Props/prop_lamp"), _unlit);
-            go.AddComponent<MineProspectView>().EditorSetup(tiles["fleck"],
+            slabRoot.AddComponent<MineSlabView>().EditorSetup(_grid, _groundMap, new Vector2Int(_mineCell.x, _mineCell.y),
+                new[] { tiles["halfblock_outline_0"], tiles["halfblock_outline_1"], tiles["halfblock_outline_2"] }, tiles["fleck_half"],
+                ProjectSetup.LoadSprite("Tiles/tile_halfblock_0"),
                 new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") },
                 ProjectSetup.LoadSprite("Props/fx_ring"), _unlit);
-            // Context actions in the mine: the ladder and the two tunnel ends of whichever level the player is on.
-            foreach (var kind in new[] { MineActionSpot.Kind.Ladder, MineActionSpot.Kind.Tunnel, MineActionSpot.Kind.Shaft })
-            {
-                var spot = new GameObject($"MineAction{kind}");
-                spot.transform.SetParent(go.transform, false);
-                var col = spot.AddComponent<CircleCollider2D>();
-                col.isTrigger = true;
-                col.radius = 0.35f;
-                spot.AddComponent<MineActionSpot>().EditorSetup(kind);
-            }
-            // Local corners of the pit's top diamond (front corner at the origin; +x right-up, +y left-up).
-            Vector2 P(float u, float v) => new Vector2((u - v) * 0.5f, (u + v) * 0.25f);
-            float n = MineDigView.Size;
-            var tap = go.AddComponent<PolygonCollider2D>();
+            var dig = new GameObject("DigSpot");
+            dig.transform.SetParent(slabRoot.transform, false);
+            var digCol = dig.AddComponent<CircleCollider2D>();
+            digCol.isTrigger = true;
+            digCol.radius = 0.3f;
+            dig.AddComponent<MineDigSpot>();
+
+            // The Mine's signpost (its panel and marker), beside the entry on town ground.
+            var go = new GameObject("Mine");
+            go.transform.SetParent(parent, false);
+            go.transform.position = _grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineEntry + 1, MineEntry, 0));
+            Sprite(go.transform, "Sign", "Props/trail_marker", Vector2.zero, 0);
+            var tap = go.AddComponent<CircleCollider2D>();
             tap.isTrigger = true;
-            tap.points = new[] { P(0, 0) + new Vector2(0, -2.5f), P(n, 0) + new Vector2(0, -2.5f), P(n, 0), P(n, n), P(0, n), P(0, n) + new Vector2(0, -2.5f) };
+            tap.radius = 0.5f;
+            tap.offset = new Vector2(0f, 0.4f);
             var site = go.AddComponent<SiteInspectable>();
-            site.EditorSetup("Mine", "The Mine is dug straight into the ground. Each level is one miner deep and shows the layer it was dug in; " +
-                                     "the levels below show darker. Miners clear a level block by block; then you choose to continue this layer or dig into the next. " +
-                                     "Down is progress: Dig Deeper sinks the shaft through the next layer, three levels deep. Left is staying in a layer: " +
-                                     "Continue Here digs that level's tunnel left, under the Forest. Climb down the ladder to walk the levels yourself.", "");
+            site.EditorSetup("Mine", "Dig your own Mine: walk onto the dirt at the town's corner and hold Dig. Blocks are half a level tall, so you are " +
+                                     "two blocks tall. Down reaches the next layer (new ores, harder rock); along the cliff stays in a layer. " +
+                                     "Flecks and the Tap button show where the ore is. Climb out by digging stairs.", "");
             site.EditorSetupSite("site.mine");
-            var hole = Blocker(go.transform, "PitBlocker");
-            hole.AddComponent<PolygonCollider2D>().points = new[] { P(0.1f, 0.1f), P(n - 0.1f, 0.1f), P(n - 0.1f, n - 0.1f), P(0.1f, n - 0.1f) };
-            AddLabel(go.transform, "Mine", 2.6f);
+            AddLabel(go.transform, "Mine", 1.6f);
             return go;
         }
+
+        /// <summary>Size of the Mine's entry (the ground that can be broken into), matching the dig slab's default.</summary>
+        private const int MineEntry = 4;
 
         private static GameObject Blocker(Transform parent, string name)
         {

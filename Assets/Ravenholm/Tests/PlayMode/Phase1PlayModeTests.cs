@@ -111,7 +111,6 @@ namespace Ravenholm.Tests
             var cases = new[]
             {
                 (from: (Vector2)GameObject.Find("Smelter").transform.position + new Vector2(0f, -1.7f), to: (Vector2)GameObject.Find("Smelter").transform.position, name: "Smelter"),
-                (from: (Vector2)Object.FindAnyObjectByType<MineDigView>().PitTopCentre + new Vector2(0f, 1.7f), to: (Vector2)Object.FindAnyObjectByType<MineDigView>().PitTopCentre, name: "Mine pit"),
                 (from: new Vector2(-3.5f, -5.6f), to: new Vector2(-5.4f, -3.8f), name: "Forge"),
                 (from: new Vector2(-2.9f, -3.2f), to: new Vector2(-2.9f, -1.7f), name: "Apothecary"),
                 (from: new Vector2(0.0f, 5.2f), to: new Vector2(0f, 3.2f), name: "Store back wall"),

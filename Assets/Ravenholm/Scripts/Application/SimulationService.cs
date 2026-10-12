@@ -180,7 +180,8 @@ namespace Ravenholm.Services
 
             foreach (var sim in _sites.Sites)
             {
-                if (sim.Record.Status == SiteStatus.AwaitDecision) report.SiteBlockers[sim.Config.SiteId] = "Waiting for you to choose: continue or go deeper";
+                if (sim.Record.Status == SiteStatus.AwaitDecision)
+                    report.SiteBlockers[sim.Config.SiteId] = sim.DigMode ? "Your tunnel was blocked: dig a new one" : "Waiting for you to choose: continue or go deeper";
                 else
                     foreach (var w in sim.Record.Workers)
                         if (w.State == WorkerState.StagingFull) { report.SiteBlockers[sim.Config.SiteId] = "Staging is full: haul it to the facilities"; break; }

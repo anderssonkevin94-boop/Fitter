@@ -15,8 +15,9 @@ using Object = UnityEngine.Object;
 namespace Ravenholm.Tests
 {
     /// <summary>
-    /// The Mine and the frontier Forest on one block grid (GDD 6/7): the shaft sinks layer by layer, tunnels run left
-    /// at every level recessed behind a sill, the Forest above grows left and up, and the supplier can walk it all.
+    /// The Mine as a dig slab (GDD 6/7, 2026-10-12): the supplier digs into the ground at the Mine's corner, two blocks
+    /// tall, tunnels along the cliff, picks blocks by walking into them or tapping them, climbs out on stairs they dig,
+    /// and leaves a routine carrying on their last tunnel. The frontier Forest grows over the slab.
     /// </summary>
     public sealed class MineDigPlayModeTests
     {
@@ -33,7 +34,12 @@ namespace Ravenholm.Tests
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            if (GameRoot.Instance != null && GameRoot.Instance.InputRouter != null) GameRoot.Instance.InputRouter.ScriptedMove = null;
+            if (GameRoot.Instance != null && GameRoot.Instance.InputRouter != null)
+            {
+                GameRoot.Instance.InputRouter.ScriptedMove = null;
+                GameRoot.Instance.InputRouter.ScriptedPress = null;
+            }
+            if (GameRoot.Instance != null && GameRoot.Instance.Hud != null) GameRoot.Instance.Hud.ScriptedHold = false;
             if (GameRoot.Instance != null) Object.Destroy(GameRoot.Instance.gameObject);
             yield return null;
             yield return null;
@@ -54,314 +60,191 @@ namespace Ravenholm.Tests
         }
 
         private static PlayerMotor Motor => SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
-        private static void Stick(Vector2? v) => GameRoot.Instance.InputRouter.ScriptedMove = v;
-
-        private static IEnumerator Hold(Vector2 v, Func<bool> until, float seconds, string what)
-        {
-            Stick(v);
-            var deadline = Time.realtimeSinceStartup + seconds;
-            while (!until() && Time.realtimeSinceStartup < deadline) yield return null;
-            Stick(null);
-            Assert.IsTrue(until(), what);
-        }
-
-        private static IEnumerator StandNearMine(MineDigView dig)
-        {
-            Motor.Teleport(dig.PitTopCentre + new Vector3(1.2f, 2.2f, 0f));
-            SandboxSceneController.Current.SnapPlayerToSavedPosition();
-            yield return new WaitForSeconds(1.5f);   // camera smoothing is real-time
-        }
-
+        private static Ravenholm.Services.GameServices S => GameRoot.Instance.Services;
+        private static SiteSimulator Mine => S.Sites.Get("site.mine");
         private static Tilemap Map(string name) => GameObject.Find(name)?.GetComponent<Tilemap>();
-        private static Tilemap Level(int level) => Map($"MineLevel{level}");
+        private static void Stick(Vector2? v) => GameRoot.Instance.InputRouter.ScriptedMove = v;
+        private static void HoldDig(bool held) => GameRoot.Instance.Hud.ScriptedHold = held;
 
-        private static int PitTiles(MineDigView dig, int level) => dig.DigOrder.Count(c => Level(level).HasTile(c));
+        /// <summary>Screen directions of the slab's axes: along the cliff (+u) and into it (+x).</summary>
+        private static readonly Vector2 Along = new Vector2(-2f, 1f).normalized;
+        private static readonly Vector2 Into = new Vector2(2f, 1f).normalized;
 
-        /// <summary>Finishes the shaft's current layer the ordinary way (fixture: the staging pile is emptied as if hauled).</summary>
-        private static void FinishShaft(Ravenholm.Services.GameServices s)
+        private static IEnumerator Until(Func<bool> done, float seconds, string what) => Until(done, seconds, () => what);
+
+        private static IEnumerator Until(Func<bool> done, float seconds, Func<string> what)
         {
-            s.Logistics.System.State.Containers["container.mine_staging"].Materials.Clear();
-            s.Sites.DebugCompleteSection("site.mine");
-            s.Simulation.Advance(120_000, 120_000);
-            Assert.IsTrue(s.Sites.Get("site.mine").ShaftDone);
+            var deadline = Time.realtimeSinceStartup + seconds;
+            while (!done() && Time.realtimeSinceStartup < deadline) yield return null;
+            Assert.IsTrue(done(), what());
         }
 
-        [UnityTest]
-        public IEnumerator MinersSinkTheShaftBlockByBlockInView()
+        /// <summary>Taps the screen over a block until it is the selection (overlapping blocks take turns).</summary>
+        private static void TapUntilSelected(MineSlabView slab, DigCell b, Vector3 offset)
         {
-            yield return Boot();
-            var s = GameRoot.Instance.Services;
-            var dig = Object.FindAnyObjectByType<MineDigView>();
-            Assert.NotNull(dig, "the Mine is dug into the ground");
-            yield return StandNearMine(dig);
-            Assert.AreEqual(1, dig.WorkingLevel, "the shaft starts at the town's own ground");
-            Assert.AreEqual(MineDigView.Blocks, PitTiles(dig, 1), "the pit starts as solid ground");
-
-            // Solo play: the supplier works the shaft from its rim, holding the button.
-            Motor.Teleport(dig.LadderPlane + new Vector2(0.25f, 0.125f));
-            yield return null;
-            yield return null;
-            var spot = MineActionSpot.Find(MineActionSpot.Kind.Shaft);
-            Assert.IsTrue(spot.Available && spot.Holdable, "the shaft can be mined from the rim");
-            Assert.AreSame(spot, SandboxSceneController.Current.ContextTarget);
-            s.Sites.SpeedMultiplier = 6f;
-            GameRoot.Instance.Hud.ScriptedHold = true;
-            var deadline = Time.realtimeSinceStartup + 25f;
-            while (dig.BlocksRemoved < 6 && Time.realtimeSinceStartup < deadline) yield return null;
-            GameRoot.Instance.Hud.ScriptedHold = false;
-            s.Sites.SpeedMultiplier = 1f;
-            yield return null;
-            Assert.IsTrue(Motor.Swinging || dig.BlocksRemoved >= 6, "the supplier swings");
-            Assert.Greater(s.Logistics.System.CarryCount, 0, "ore goes straight into the carry");
-            var level = dig.WorkingLevel;
-            Assert.AreEqual(MineDigView.Blocks - dig.BlocksRemoved, PitTiles(dig, level), "each block of work removes one ground block");
-            Assert.IsFalse(Level(level).HasTile(dig.DigOrder[0]), "the front block goes first, so the cut faces the camera");
-            yield return Capture.Take("mine_dig_working");
+            var spot = Camera.main.WorldToScreenPoint(slab.Top(b.X, b.U, b.Row) + offset);
+            for (var tap = 0; tap < 6 && !Equals(slab.Selected, b); tap++) slab.OnTapped(spot);
+            Assert.AreEqual(b, slab.Selected, $"tapping selects {b.X},{b.U},{b.Row} (reachable {slab.Reachable().Count}, shown {slab.Shown(b.X, b.U, b.Row)}, " +
+                                              $"diggable {Mine.CanDig(b.X, b.U, b.Row)}, near {slab.NearestReachable(slab.Top(b.X, b.U, b.Row) + offset).Count}, " +
+                                              $"player {SandboxSceneController.Current.Player.position}, aim {slab.Top(b.X, b.U, b.Row)}, spot {spot})");
         }
 
-        [UnityTest]
-        public IEnumerator EachLayerIsThreeLevelsWithItsOwnColour()
+        /// <summary>Digs a block straight through the service (fixture for stairs; the view's own digging is tested above).</summary>
+        private static void Carve(int x, int u, int row)
         {
-            yield return Boot();
-            var s = GameRoot.Instance.Services;
-            var dig = Object.FindAnyObjectByType<MineDigView>();
-            var mine = s.Sites.Get("site.mine");
-            yield return StandNearMine(dig);
-            var cameraAtTop = Camera.main.transform.position.y;
-
-            FinishShaft(s);
-            Assert.IsTrue(s.Sites.ChooseDeeper("site.mine"), "Dig Deeper: the shaft sinks through the next layer");
-            FinishShaft(s);
-            yield return new WaitForSeconds(1.5f);
-
-            Assert.AreEqual(7, dig.DeepestFloor, "two layers of three levels below the town's ground");
-            Assert.AreEqual(2, mine.Record.Depth);
-            var cam = Camera.main;
-            Assert.AreEqual(cameraAtTop, cam.transform.position.y, 0.05f, "digging alone never moves the view");
-            dig.ViewingDig = true;   // "Look down the shaft"
-            yield return new WaitForSeconds(2f);
-            Assert.Less(Mathf.Abs(cam.transform.position.y - dig.DigFocus.y), cam.orthographicSize * 0.5f, "looking down frames the working level");
-            Assert.AreEqual(0, PitTiles(dig, 7), "dug levels are open");
-            Assert.AreEqual(Level(5).color, Level(7).color, "a layer's three levels share its colour");
-            Assert.AreNotEqual(Level(4).color, Level(5).color, "the next layer has its own");
-            Assert.IsNotNull(Level(9), "the ground below shows");
-            Assert.AreEqual(MineDigView.Blocks, PitTiles(dig, 8), "the next layer is solid until you dig deeper");
-            Assert.Less(Level(9).color.grayscale, Level(7).color.grayscale, "undug ground is darker");
-            yield return Capture.Take("mine_dig_levels");
+            for (var i = 0; i < 4000 && !Mine.IsDug(x, u, row); i++) S.Sites.PlayerDig(x, u, row, 1f, null);
+            Assert.IsTrue(Mine.IsDug(x, u, row), $"carved {x},{u},{row}");
         }
 
-        [UnityTest]
-        public IEnumerator TheTownEdgeIsTheSameBlockGridAsTheMine()
+        /// <summary>Into the Mine through its entry: tap the block underfoot and hold Dig, down to <paramref name="feet"/>.</summary>
+        private static IEnumerator DigDown(MineSlabView slab, int feet)
         {
-            yield return Boot();
-            var dig = Object.FindAnyObjectByType<MineDigView>();
-            var ground = Map("Ground");
-            yield return StandNearMine(dig);
-            var edge = dig.TunnelPath[6] + Vector3Int.left;   // the cliff face beside the tunnel line
-            Assert.IsTrue(ground.HasTile(edge) && !ground.HasTile(edge + Vector3Int.left), "a cell on the frontier's straight cliff face");
-            Assert.IsTrue(Level(1).HasTile(edge), "the edge shows as a full ground block");
-            Assert.IsTrue(Level(2).HasTile(edge), "and the cliff of layers continues below it");
-            Assert.IsFalse(Level(2).HasTile(edge + new Vector3Int(3, 3, 0)), "hidden blocks inside the ground are never drawn");
-            Assert.AreEqual(ground.GetCellCenterWorld(edge).y - 1f, Level(2).GetCellCenterWorld(edge).y, 0.001f, "one level = one block down");
-            Assert.Greater(dig.TunnelCapacityCells, 80, "tunnels can run far left under the frontier");
-        }
-
-        [UnityTest]
-        public IEnumerator TheLadderTakesThePlayerDownTheShaftAndBack()
-        {
-            yield return Boot();
-            var s = GameRoot.Instance.Services;
-            var dig = Object.FindAnyObjectByType<MineDigView>();
-            FinishShaft(s);
-            yield return null;
-            Assert.AreEqual(4, dig.DeepestFloor);
-
-            // Walk up to the ladder from the town side: the camera follows smoothly, without jumps.
-            var top = dig.LadderPlane + new Vector2(0.25f, 0.125f);
-            Motor.Teleport(top + new Vector2(1.5f, 2.2f));
+            Motor.Teleport(slab.Top(1f, 1f, 0f));
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
-            yield return new WaitForSeconds(1.5f);
-            var cam = Camera.main.transform;
-            var maxStep = 0f;
-            var last = cam.position;
-            var prevDt = Time.unscaledDeltaTime;
-            Stick((top - (Vector2)Motor.transform.position).normalized);
-            var deadline = Time.realtimeSinceStartup + 6f;
-            while (Vector2.Distance(Motor.transform.position, top) > 0.15f && Time.realtimeSinceStartup < deadline)
+            yield return new WaitForSeconds(1.0f);   // camera smoothing is real-time
+            while (slab.Feet < feet || !slab.PlayerInside)
             {
+                yield return Until(() => !slab.PlayerInside || Mine.Solid(1, 1, slab.Feet), 3f, "lands on the floor of the hole");
+                var before = slab.PlayerInside ? slab.Feet : -1;
+                var under = new DigCell(1, 1, slab.PlayerInside ? slab.Feet : 0);
                 yield return null;
-                // Coroutines resume before LateUpdate: what moved since the last check moved in the previous frame.
-                maxStep = Mathf.Max(maxStep, Vector3.Distance(cam.position, last) / Mathf.Max(prevDt, 0.001f));
-                prevDt = Time.unscaledDeltaTime;
-                last = cam.position;
-                Stick((top - (Vector2)Motor.transform.position).normalized);
+                TapUntilSelected(slab, under, new Vector3(0f, -0.3f, 0f));
+                yield return null;
+                Assert.IsInstanceOf<MineDigSpot>(SandboxSceneController.Current.ContextTarget, "the context button offers Dig");
+                HoldDig(true);
+                yield return Until(() => Mine.IsDug(under.X, under.U, under.Row), 10f, "digs the block underfoot");
+                HoldDig(false);   // let go as it breaks (held on, Dig carries on into the wall ahead)
+                yield return Until(() => slab.PlayerInside && slab.Feet > before, 3f, "and drops into it");
             }
+        }
+
+        // ------------------------------------------------------------------ the dig slab
+
+        [UnityTest]
+        public IEnumerator DigInTunnelAlongTheCliffAndClimbOutOnStairs()
+        {
+            yield return Boot();
+            var slab = MineSlabView.Current;
+            Assert.NotNull(slab, "the Mine is a dig slab");
+            Assert.IsTrue(Mine.DigMode);
+            Assert.Greater(slab.DrawnBlocks, 0, "the town's cliff edges are drawn as blocks");
+            S.Sites.SpeedMultiplier = 20f;
+
+            // The topsoil outside the entry cannot be dug; the entry can.
+            Assert.IsFalse(Mine.CanDig(6, 10, 0));
+            Assert.IsTrue(Mine.CanDig(1, 1, 0));
+            yield return DigDown(slab, 3);
+            Assert.AreEqual(3, slab.Feet, "three blocks down: room to stand, two blocks tall");
+            Assert.Greater(S.Logistics.System.CarryCount, 0, "dug ore goes straight into the carry");
+            Assert.IsTrue(Mine.Record.Revealed.ContainsKey(1), "the first layer is revealed by digging into it");
+
+            // Tunnel along the cliff: walking into the wall with Dig held digs head height, then legs, then steps in.
+            var startU = slab.U;
+            Stick(Along);
+            HoldDig(true);
+            yield return Until(() => slab.U > startU + 3.5f, 40f, "tunnels along the cliff and walks into it");
+            HoldDig(false);
             Stick(null);
-            Assert.Less(maxStep, 6f, "the camera moves no faster than a calm follow near the Mine (no snapping)");
+            Assert.AreEqual(3, slab.Feet, "a level tunnel: no falling, no climbing");
+            var lane = Mathf.RoundToInt(slab.X);
+            var col = Mathf.RoundToInt(slab.U);
+            Assert.IsTrue(Mine.IsDug(lane, col, 2) && Mine.IsDug(lane, col, 1), "the supplier stands in a two-high tunnel");
+            Assert.IsNotNull(Mine.Record.LastDig, "the tunnel is remembered for routines");
 
-            yield return Hold(Vector2.down, () => Motor.OnLadder, 2f, "pushing down at the ladder climbs onto it");
-            yield return Hold(Vector2.down, () => Motor.ClimbHeight >= 1.99f, 4f, "down the shaft like a corridor");
-            yield return Hold(Vector2.left, () => !Motor.OnLadder, 2f, "sideways steps off at a level");
-            Assert.AreEqual(2, Motor.MineLevel);
-            yield return Hold(Vector2.left, () => Motor.transform.position.x < dig.LadderPlane.x - 0.9f, 3f, "walks along the ledge");
-            yield return new WaitForSeconds(1.5f);
-            Assert.Less(Mathf.Abs(cam.position.y - Motor.transform.position.y), Camera.main.orthographicSize * 0.6f, "the camera followed down");
-            yield return Capture.Take("mine_player_ledge");
-
-            yield return Hold(Vector2.right, () => Vector2.Distance(Motor.transform.position, dig.LadderWorld(2)) < 0.6f, 3f, "back to the ladder");
-            yield return Hold(Vector2.up, () => !Motor.OnLadder && Motor.MineLevel == 0, 5f, "up the ladder and off at the top");
-            Assert.IsTrue(dig.SurfaceWalkable(Motor.transform.position), "back on the town's ground");
-        }
-
-        [UnityTest]
-        public IEnumerator EachLevelDigsItsOwnRecessedTunnelLeft()
-        {
-            yield return Boot();
-            var s = GameRoot.Instance.Services;
-            var dig = Object.FindAnyObjectByType<MineDigView>();
-            var mine = s.Sites.Get("site.mine");
-            FinishShaft(s);
+            // Auto-target: the wall walked into (head height first, then legs), else the block underfoot.
             yield return null;
-
-            // Climb down to level 2 (the layer's next level without a tunnel) and walk to the left end of its ledge: the context button offers its tunnel there.
-            Motor.Teleport(dig.LadderPlane + new Vector2(0.25f, 0.125f));
-            Motor.ClimbTo(2);
-            var deadline = Time.realtimeSinceStartup + 5f;
-            while ((Motor.OnLadder || Motor.MineLevel != 2) && Time.realtimeSinceStartup < deadline) yield return null;
-            Assert.AreEqual(2, Motor.MineLevel, "the ladder's context action climbs to a level");
-            yield return Hold(Vector2.left, () => SandboxSceneController.Current.ContextTarget is MineActionSpot sp && sp.SpotKind == MineActionSpot.Kind.Tunnel,
-                4f, "walks the ledge to the tunnel end");
-            var spot = MineActionSpot.Find(MineActionSpot.Kind.Tunnel);
-            Assert.AreEqual("Dig", spot.ContextVerb);
-            SandboxSceneController.Current.Inspect(spot);
-            Assert.AreEqual(1, mine.Record.Tunnels.Count, "a tunnel is started at level 2");
-            var t = mine.Record.Tunnels[0];
-            Assert.AreEqual(2, t.Level);
-            Assert.AreEqual(1, t.Depth, "in the level's own layer");
-
-            // Hold Mine at its face: the supplier digs the tunnel themself.
-            yield return Hold(Vector2.left, () => SandboxSceneController.Current.ContextTarget is MineActionSpot sp3 && sp3.ContextVerb == "Mine", 3f,
-                "the tunnel face is in reach");
-            GameRoot.Instance.Hud.ScriptedHold = true;
-            yield return new WaitForSeconds(1.5f);
-            GameRoot.Instance.Hud.ScriptedHold = false;
-            Assert.Greater(t.DoneMicro, 0, "the supplier mined the tunnel face");
-
-            // The level below digs its own tunnel at the same time, separated by a slab of dirt.
-            Assert.AreEqual(2, s.Sites.StartTunnel("site.mine", 3));
-            s.Logistics.System.State.Containers["container.mine_staging"].Materials.Clear();
-            s.Logistics.System.DebugUnloadCarry();
-            mine.DebugCompleteTunnel(1, toStaging: true);
-            mine.DebugCompleteTunnel(2, toStaging: true);
-            s.Simulation.Advance(120_000, 120_000);
-            yield return new WaitForSeconds(0.5f);
-            var path = dig.TunnelPath;
-            Assert.AreEqual(4, dig.TunnelDug(2));
-            for (var i = 0; i < 4; i++)
             {
-                Assert.IsFalse(Level(2).HasTile(path[i]), "tunnel blocks are dug out");
-                Assert.IsTrue(Map("MineSlabs2").HasTile(path[i]), "and stand on a slab of dirt");
+                var f = slab.Facing;
+                var head = new DigCell(lane + f.x, col + f.y, slab.Feet - 2);
+                var legs = new DigCell(lane + f.x, col + f.y, slab.Feet - 1);
+                var under = new DigCell(lane, col, slab.Feet);
+                var expected = Mine.CanDig(head.X, head.U, head.Row) ? head : Mine.CanDig(legs.X, legs.U, legs.Row) ? legs : under;
+                Assert.IsNull(slab.Selected);
+                Assert.AreEqual(expected, slab.Target, "head height first, then legs, else the block underfoot");
             }
-            Assert.Less(dig.FloorPoint(path[3], 2).x, dig.PitTopCentre.x - 2f, "the tunnel runs left");
-            Assert.IsTrue(Level(2).HasTile(path[4]), "the next stretch is still ground");
-            Assert.Greater(Map("MineSills2").GetUsedTilesCount(), 0, "the blocks in front are cut down to a sill: the tunnel sits one row in");
-            Assert.IsFalse(Level(2).HasTile(path[1] + Vector3Int.left), "nothing full-height stands in front of the tunnel");
-            Assert.IsTrue(Map("MineSills2").HasTile(path[1] + Vector3Int.left), "the cliff-face block in front is a sill");
-            Assert.IsTrue(dig.Walkable(2, Level(1).GetCellCenterWorld(path[2])), "the player can walk into the tunnel");
-            Assert.IsTrue(Map("MineSlabs3").HasTile(path[0]), "the level below has its own tunnel");
 
-            yield return Hold(Vector2.left, () => SandboxSceneController.Current.ContextTarget is MineActionSpot sp2 && sp2.ContextVerb == "Extend", 5f,
-                "at the tunnel face, the cleared stretch can be continued");
-            SandboxSceneController.Current.Inspect(SandboxSceneController.Current.ContextTarget);
-            Assert.AreEqual(1, t.Stretches);
-            Assert.AreEqual(SiteStatus.Working, t.Status);
-            yield return Capture.Take("mine_tunnels");
-        }
-
-        [UnityTest]
-        public IEnumerator EveryChartedLayerAndOnlyNearbyLevelsAreBuilt()
-        {
-            yield return Boot();
-            var s = GameRoot.Instance.Services;
-            var dig = Object.FindAnyObjectByType<MineDigView>();
-            var mine = s.Sites.Get("site.mine");
-            FinishShaft(s);
-            while (mine.CanGoDeeper)
-            {
-                Assert.IsTrue(s.Sites.ChooseDeeper("site.mine"));
-                FinishShaft(s);
-            }
-            dig.ViewingDig = true;   // "Look down the shaft"
-            yield return new WaitForSeconds(2.5f);
-            var deepest = mine.OpenLevels;
-            Assert.AreEqual(1 + mine.LevelsPerBand * mine.Config.Bands.Count, deepest, "three levels per charted layer");
-            Assert.IsNotNull(Level(deepest), "the bottom is built where the camera looks");
-            Assert.IsNull(Level(3), "levels far from the camera are not kept");
-            Assert.Less(dig.LevelsBuilt, deepest, "bounded work at any depth");
-            var view = Camera.main;
-            Assert.Less(Mathf.Abs(view.transform.position.y - dig.DigFocus.y), view.orthographicSize, "the bottom is on screen");
-            yield return Capture.Take("mine_dig_deep");
-        }
-
-        // ------------------------------------------------------------------ prospecting
-
-        [UnityTest]
-        public IEnumerator ReadingTheRockFlecksTapAndCracks()
-        {
-            yield return Boot();
-            var s = GameRoot.Instance.Services;
-            var dig = Object.FindAnyObjectByType<MineDigView>();
-            var view = MineProspectView.Current;
-            Assert.NotNull(view);
-            FinishShaft(s);
-            Assert.AreEqual(1, s.Sites.StartTunnel("site.mine", 2));
+            // Depth: the floor is drawn behind the supplier, the rock over their head (nearer the camera) in front.
             yield return null;
-            Motor.Teleport(dig.LadderPlane + new Vector2(0.25f, 0.125f));
-            Motor.ClimbTo(2);
-            var deadline = Time.realtimeSinceStartup + 5f;
-            while ((Motor.OnLadder || Motor.MineLevel != 2) && Time.realtimeSinceStartup < deadline) yield return null;
-            yield return Hold(Vector2.left, () => SandboxSceneController.Current.ContextTarget is MineActionSpot sp && sp.ContextVerb == "Mine", 4f, "at the tunnel face");
-            yield return new WaitForSeconds(0.5f);
+            Assert.Less(slab.DrawnOrder(lane, col, slab.Feet), slab.PlayerOrder, "the floor block is behind the supplier");
+            Assert.AreEqual(1, lane, "the tunnel runs one block behind the cliff face");
+            Assert.Greater(slab.DrawnOrder(0, col, slab.Feet - 1), slab.PlayerOrder, "the cliff face in front covers them");
 
-            // Flecks show exactly where the hidden veins are (or beside them), within the lamp's light.
-            var shown = 0;
-            for (var l = 1; l <= 4; l++)
-            {
-                var map = Map($"MineFlecks{l}");
-                if (map == null) continue;
-                foreach (var pos in map.cellBounds.allPositionsWithin)
-                {
-                    if (!map.HasTile(pos)) continue;
-                    shown++;
-                    var strong = map.GetColor(pos).a > 0.9f;
-                    if (strong) Assert.IsNotNull(view.OreAt(pos, l), $"a strong fleck is ore at {pos} level {l}");
-                }
-            }
-            Assert.AreEqual(view.StrongFlecks + view.FaintFlecks, shown);
+            // What can be dug wears a faint outline; pressing and holding on one digs it without the button.
+            Assert.Greater(slab.OutlinedBlocks, 0, "reachable blocks are outlined");
+            var inward = new DigCell(lane + 1, col, slab.Feet - 1);
+            Assert.IsTrue(Mine.CanDig(inward.X, inward.U, inward.Row) && slab.Reachable().Contains(inward), "the wall behind is reachable");
+            GameRoot.Instance.InputRouter.ScriptedPress = Camera.main.WorldToScreenPoint(slab.Top(inward.X, inward.U, inward.Row) + new Vector3(-0.15f, -0.35f, 0f));
+            yield return Until(() => Mine.IsDug(inward.X, inward.U, inward.Row), 10f, "press and hold digs the block under the finger");
+            GameRoot.Instance.InputRouter.ScriptedPress = null;
+            Assert.IsFalse(slab.InReach(new DigCell(lane, col + 6, 2)), "blocks far away are out of reach");
 
-            // The tap: blocks that hold ore ring, then it needs a moment to recover.
-            Assert.IsTrue(view.CanTap);
-            Assert.IsTrue(GameRoot.Instance.Hud.TapButtonShowing, "the Tap button shows in the Mine");
-            var rings = view.Tap();
-            Assert.AreEqual(rings, view.LastTapRings);
-            StringAssert.StartsWith("Tap", view.LastTapNote);
-            Assert.AreEqual(0, view.Tap(), "the tap recovers before it can be used again");
-            Assert.Greater(view.TapCooldownLeft, 0f);
+            // Reading the rock: the Tap button rings for ore nearby; cracks show while a block is being dug.
+            var rings = slab.Tap();
+            Assert.Greater(slab.TapCooldownLeft, 0f, "the tap has a cooldown");
+            Assert.AreEqual(rings, slab.LastTapRings);
+            StringAssert.StartsWith("Tap…", slab.LastTapNote);
+            var wall = new DigCell(lane + 1, col, slab.Feet - 2);
+            TapUntilSelected(slab, wall, new Vector3(-0.15f, -0.35f, 0f));
+            yield return null;
+            Assert.AreEqual(wall, slab.Target, "a tapped block becomes the block to dig");
+            S.Sites.SpeedMultiplier = 1f;
+            HoldDig(true);
+            yield return Until(() => slab.CrackShowing, 5f, "the block cracks as it is dug");
+            HoldDig(false);
+            S.Sites.SpeedMultiplier = 20f;
 
-            // Digging by hand: the block cracks, and what comes out is what that block holds.
-            Assert.IsTrue(dig.CurrentBlock(1, out var cell, out var level, out _));
-            var expected = view.OreAt(cell, level) ?? "resource.iron_ore";
-            s.Logistics.System.DebugUnloadCarry();
-            GameRoot.Instance.Hud.ScriptedHold = true;
-            deadline = Time.realtimeSinceStartup + 8f;
-            var cracked = false;
-            while (s.Logistics.System.CarryCount == 0 && Time.realtimeSinceStartup < deadline) { cracked |= view.CrackShowing; yield return null; }
-            GameRoot.Instance.Hud.ScriptedHold = false;
-            Assert.IsTrue(cracked, "the block cracks as it is dug");
-            Assert.Greater(s.Logistics.System.CarryCount, 0);
-            Assert.AreEqual(expected, s.Logistics.System.State.Carry[0].Id, "the block's own ore (or plain rock's iron)");
-            CollectionAssert.IsEmpty(s.Logistics.System.Audit());
-            yield return Capture.Take("mine_prospecting");
+            yield return new WaitForSeconds(0.6f);
+            yield return Capture.Take("mine_dig_slab");
+
+            // Back to the shaft, then up the stairs dug into the cliff (one block per step) and out onto the ground.
+            Stick(-Along);
+            yield return Until(() => Mathf.RoundToInt(slab.U) == 1, 10f, "walks back to the shaft");
+            Stick(null);
+            Carve(2, 1, 0); Carve(2, 1, 1);   // a step to feet 2
+            Carve(3, 1, 0);                   // a step to feet 1
+            Stick(Into);
+            yield return Until(() => !slab.PlayerInside, 10f, () => $"climbs the stairs and steps out onto the ground (at {slab.X},{slab.U}, feet {slab.Feet}; " +
+                                                              $"dug {string.Join(" ", Mine.Record.Dug.Where(d => d.U <= 2).Select(d => $"{d.X}/{d.U}/{d.Row}"))})");
+            Stick(null);
+            Assert.IsTrue(slab.SurfaceWalkable(SandboxSceneController.Current.Player.position), "back on the town's ground");
+            S.Sites.SpeedMultiplier = 1f;
+        }
+
+        [UnityTest]
+        public IEnumerator ARoutineCarriesOnTheLastTunnel()
+        {
+            yield return Boot();
+            var slab = MineSlabView.Current;
+            Assert.IsFalse(S.Sites.StartRoutine("site.mine"), "nothing dug yet: no tunnel to carry on");
+            S.Sites.SpeedMultiplier = 20f;
+            yield return DigDown(slab, 3);
+            Stick(Along);
+            HoldDig(true);
+            var startU = slab.U;
+            yield return Until(() => slab.U > startU + 1.5f, 30f, "starts a tunnel along the cliff");
+            HoldDig(false);
+            Stick(null);
+            S.Sites.SpeedMultiplier = 1f;
+
+            Assert.IsTrue(S.Sites.StartRoutine("site.mine"));
+            yield return null;
+            yield return null;
+            Assert.IsTrue(Motor.HiddenForRoutine, "the supplier is out on the routine");
+            Assert.NotNull(WorkerView.PlayerAvatar, "drawn by the routine's figure");
+            var dug = Mine.Record.Dug.Count;
+            S.Simulation.Advance(600_000, 600_000);
+            Assert.Greater(Mine.Record.Dug.Count, dug, "the routine digs on along the tunnel");
+            var f = Mine.Record.RoutineFace;
+            Assert.AreEqual(3, f.Feet, "on the same level");
+            Assert.Greater(f.U, Mathf.RoundToInt(startU) + 1, "further along the cliff");
+
+            // Moving takes over: the routine ends and the supplier is back beside the Mine's entry.
+            Stick(Vector2.right);
+            yield return Until(() => S.Sites.RoutineSiteId == null, 5f, "moving ends the routine");
+            Stick(null);
+            yield return null;
+            Assert.IsFalse(Motor.HiddenForRoutine);
+            Assert.IsFalse(slab.PlayerInside);
         }
 
         // ------------------------------------------------------------------ the frontier Forest
@@ -372,18 +255,19 @@ namespace Ravenholm.Tests
             yield return Boot();
             var s = GameRoot.Instance.Services;
             var forest = Object.FindAnyObjectByType<ForestGridView>();
-            var dig = Object.FindAnyObjectByType<MineDigView>();
+            var slab = MineSlabView.Current;
             var sim = s.Sites.Get("site.forest");
             var ground = Map("Ground");
             Assert.NotNull(forest);
             var first = ground.GetCellCenterWorld(forest.TreeCell(0));
             Assert.Greater(forest.TreeCell(0).y, GameRoot.Instance.Config.SandboxSettings.townCells.yMax, "the Forest stands on the frontier, beyond the town");
-            Assert.AreEqual(dig.TunnelPath[0].x - 1, forest.TreeCell(0).x, "its first trees stand on the cliff edge, right above the tunnels");
-            Assert.Less(first.y, dig.PitTopCentre.y + 1.5f, "starting at the bottom edge, right above the tunnels");
+            var under = slab.SlabCoords(first);
+            Assert.IsTrue(slab.InSlabColumn(Mathf.RoundToInt(under.x), Mathf.RoundToInt(under.y)), "its first trees stand over the Mine's dig slab");
+            Assert.IsFalse(s.Sites.Get("site.mine").CanDig(Mathf.RoundToInt(under.x), Mathf.RoundToInt(under.y), 0), "and the topsoil under trees cannot be dug");
 
             // Tightly grown: standing trees block the way; only cut tiles can be walked.
             Assert.IsTrue(forest.HasStandingTree(forest.TreeCell(0)));
-            Assert.IsFalse(dig.SurfaceWalkable(first), "a standing tree blocks the supplier");
+            Assert.IsFalse(slab.SurfaceWalkable(first), "a standing tree blocks the supplier");
 
             void Clear()
             {

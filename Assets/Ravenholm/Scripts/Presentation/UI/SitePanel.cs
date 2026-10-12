@@ -98,7 +98,6 @@ namespace Ravenholm.Presentation
             _continueLabel.fontSizeMin = _deeperLabel.fontSizeMin = 20f;
             _continueLabel.fontSizeMax = _deeperLabel.fontSizeMax = _theme.smallSize;
 
-            _lookDown = _ui.Button("LookDown", content, "Look down the shaft", LookDown, out _);
             _tunnels = UiFactory.Rect("Tunnels", content);
             UiFactory.Column(_tunnels.gameObject, 14f, new RectOffset(0, 0, 8, 8));
             _facilities = UiFactory.Rect("Facilities", content);
@@ -156,6 +155,11 @@ namespace Ravenholm.Presentation
                 ? "Leave yourself on one job and it carries on while you're away (up to 8 hours), at the ordinary rate. Move to take over again."
                 : sites.RoutineSiteId == siteId ? "You're on a routine here. Move (or stop it below) to take over." : "You're on a routine at the other site.");
             if (sites.RoutineSiteId == siteId) FacilityButton(() => "Stop the routine", () => { sites.EndRoutine(); _facilitiesKey = ""; Refresh(); }, null);
+            else if (sim.DigMode)
+            {
+                if (sim.Record.LastDig != null) RoutineButton("Keep digging your last tunnel", 0);
+                else FacilityText(() => "Dig somewhere first: a routine carries on the tunnel you last dug.");
+            }
             else if (sim.Config.Kind == SiteKind.Mine)
             {
                 if (!sim.ShaftDone) RoutineButton("Keep mining the shaft", 0);
@@ -243,7 +247,6 @@ namespace Ravenholm.Presentation
             _facilityButtons.Add((b, label, text, enabled));
         }
 
-        private Button _lookDown;
 
         // ------------------------------------------------------------------ Mine tunnels and who digs where (GDD 6)
 
@@ -255,7 +258,7 @@ namespace Ravenholm.Presentation
 
         private void RefreshTunnels(SiteSimulator sim)
         {
-            var mine = sim.Config.Kind == SiteKind.Mine;
+            var mine = sim.Config.Kind == SiteKind.Mine && !sim.DigMode;   // the dig slab has no tunnels to manage
             _tunnels.gameObject.SetActive(mine);
             if (!mine) return;
             var key = $"{_siteId}|{sim.Record.Workers.Count}|{sim.Record.Tunnels.Count}";
@@ -327,7 +330,7 @@ namespace Ravenholm.Presentation
                    (t.Status == SiteStatus.AwaitDecision ? "stretch cleared" : $"{pct:0}% of this stretch") + $" · {who}";
         }
 
-        private int Capacity(TunnelRecord t) => MineDigView.Current != null ? MineDigView.Current.TunnelCapacityCells : int.MaxValue;
+        private int Capacity(TunnelRecord t) => int.MaxValue;
 
         private bool CanExtend(int face)
         {
@@ -362,13 +365,6 @@ namespace Ravenholm.Presentation
         {
             var b = _ui.RowButton(_tunnels, onClick, out var label);
             _tunnelButtons.Add((b, label, text, enabled));
-        }
-
-        /// <summary>Closes the panel and frames the Mine's working level until the player moves (GDD 6).</summary>
-        public void LookDown()
-        {
-            if (MineDigView.Current != null) MineDigView.Current.ViewingDig = true;
-            Close();
         }
 
         public void Show(string siteId)
@@ -460,7 +456,14 @@ namespace Ravenholm.Presentation
 
             var sb = new StringBuilder();
             sb.Append("<b>Current yield:</b> ").Append(CompositionText(s.Composition)).Append('\n');
-            if (mine)
+            if (mine && sim.DigMode)
+            {
+                var deepest = 0;
+                foreach (var d in s.Dug) deepest = Math.Max(deepest, d.Row);
+                sb.Append($"<b>Dug:</b> {s.Dug.Count} blocks · deepest row {deepest} (layer {sim.Slab.LayerOfRow(deepest)}) · layers reached {s.Revealed.Count}");
+                if (s.FacePending.Count > 0) sb.Append($" · {s.FacePending.Count} waiting where you dug");
+            }
+            else if (mine)
             {
                 var pct = s.SectionDurabilityMicro > 0 ? 100.0 * s.SectionDoneMicro / s.SectionDurabilityMicro : 0;
                 var top = s.Depth == 1 ? 2 : sim.FirstLevelOf(s.Depth);
@@ -520,7 +523,6 @@ namespace Ravenholm.Presentation
 
             RefreshFacilities(sim);
             RefreshTunnels(sim);
-            _lookDown.gameObject.SetActive(mine && MineDigView.Current != null);
 
             _toolLabel.transform.parent.gameObject.SetActive(Feel.DeveloperMode);   // free gear is a developer tool only
             _packLabel.transform.parent.gameObject.SetActive(Feel.DeveloperMode);
@@ -536,6 +538,15 @@ namespace Ravenholm.Presentation
         private void RefreshMineDecision(SiteSimulator sim)
         {
             var s = sim.Record;
+            if (sim.DigMode)
+            {
+                // Digging is the choice: down reaches the next layer, along the cliff stays in this one.
+                _continue.gameObject.SetActive(false);
+                _deeper.gameObject.SetActive(false);
+                _decisionText.text = "<size=85%>Dig down to reach the next layer (new ores, harder rock). Dig along the cliff to stay in a layer; " +
+                                     "it gets a little harder the further you go. Tap shows nearby ore; climb out by digging stairs.</size>";
+                return;
+            }
             var face = sim.WaitingFace();
             var canDeeper = sim.ShaftDone && sim.CanGoDeeper;
             _continue.gameObject.SetActive(face >= 0);
