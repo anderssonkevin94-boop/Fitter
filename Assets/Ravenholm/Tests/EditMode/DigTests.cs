@@ -41,16 +41,35 @@ namespace Ravenholm.Tests
         }
 
         [Test]
-        public void DiggingStraightDownTwoOrMoreLeavesALadder()
+        public void TheElevatorShaftIsOpenFromTheStartAndDiggingItsFloorExtendsIt()
         {
             var sim = Make(new FakeLedger());
-            DigFace On(int row) => new DigFace { X = 0, U = 0, Feet = row, DX = 0, DU = 1 };
-            Assert.IsTrue(DigOut(sim, 0, 0, 0, On(0)));
-            Assert.IsFalse(sim.Ladder(0, 0, 0), "a one-block dip is just stepped out of");
-            Assert.IsTrue(DigOut(sim, 0, 0, 1, On(1)));
-            Assert.IsTrue(sim.Ladder(0, 0, 0) && sim.Ladder(0, 0, 1), "two deep: the shaft has a ladder all the way");
-            Assert.IsTrue(DigOut(sim, 0, 1, 1, new DigFace { X = 0, U = 0, Feet = 2, DX = 0, DU = 1 }));
-            Assert.IsFalse(sim.Ladder(0, 1, 1), "a block dug from the side is not a ladder");
+            Assert.AreEqual(-1, sim.ElevatorBottom, "a bare slab has no shaft until it is opened");
+            sim.EnsureElevatorShaft();
+            var start = sim.Slab.ElevatorStartRows;
+            Assert.AreEqual(start - 1, sim.ElevatorBottom, "open through the first layer from the start");
+            Assert.IsTrue(sim.Elevator(0, sim.Slab.ElevatorU, 0) && sim.Elevator(0, sim.Slab.ElevatorU, start - 1));
+            Assert.IsFalse(sim.Elevator(0, sim.Slab.ElevatorU + 1, 0), "only its own column");
+            Assert.IsTrue(DigOut(sim, 0, sim.Slab.ElevatorU, start));
+            Assert.AreEqual(start, sim.ElevatorBottom, "digging the shaft's floor takes it deeper");
+            sim.EnsureElevatorShaft();
+            Assert.AreEqual(start, sim.ElevatorBottom, "opening it again changes nothing");
+        }
+
+        [Test]
+        public void ScaffoldsGoInOpenSpaceAndCanBeStoodOn()
+        {
+            var sim = Make(new FakeLedger());
+            sim.EnsureElevatorShaft();
+            Assert.IsFalse(sim.CanPlaceScaffold(0, 3, 2), "not in rock");
+            Assert.IsTrue(DigOut(sim, 0, 3, 2));
+            Assert.IsTrue(sim.CanPlaceScaffold(0, 3, 2), "in open space");
+            Assert.IsFalse(sim.CanPlaceScaffold(0, sim.Slab.ElevatorU, 2), "never in the elevator shaft");
+            Assert.IsTrue(sim.PlaceScaffold(0, 3, 2, "lumber"));
+            Assert.IsTrue(sim.Standable(0, 3, 2) && !sim.Solid(0, 3, 2), "something to stand on, not rock");
+            Assert.IsFalse(sim.CanDig(0, 3, 2), "and nothing to dig");
+            Assert.AreEqual("lumber", sim.RemoveScaffold(0, 3, 2), "taking it down gives its material back");
+            Assert.IsFalse(sim.Standable(0, 3, 2));
         }
 
         [Test]

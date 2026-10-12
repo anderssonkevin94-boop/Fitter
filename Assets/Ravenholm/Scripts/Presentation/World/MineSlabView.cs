@@ -230,7 +230,9 @@ namespace Ravenholm.Presentation
                 _playerSorting = _player.GetComponent<SortingGroup>();
             }
             Draw(sim);
+            Scaffolds(sim);
             if (_player == null) return;
+            DrawElevator(sim);
             PressAndHold();
             Aim();
             Outlines();
@@ -323,7 +325,6 @@ namespace Ravenholm.Presentation
             foreach (var k in new List<Vector3Int>(_blocks.Keys))
                 if (!keep.Contains(k)) Remove(_blocks, k);
             HoleSides(sim);
-            Ladders(sim);
             _outlineKey = "";
             _fleckKey = "";
         }
@@ -372,94 +373,103 @@ namespace Ravenholm.Presentation
                 if (!keep.Contains(k)) Remove(_sides, k);
         }
 
-        private readonly List<GameObject> _ladders = new List<GameObject>();
-        private string _ladderKey = "";
-        private static readonly Color LadderWood = new Color(0.55f, 0.36f, 0.2f);
-        private static readonly Color LadderShade = new Color(0.36f, 0.22f, 0.12f);
+        // ------------------------------------------------------------------ the elevator and scaffolds (drawing)
 
-        public int LadderCount => _ladders.Count;
+        [SerializeField] private Sprite scaffoldSprite;
+        [SerializeField] private Sprite pulleySprite;
+        [SerializeField] private Sprite platformSprite;
+        [Tooltip("Height of the pulley's wheel above the frame's feet (units).")]
+        [SerializeField] private float wheelHeight = 1.03f;
 
-        /// <summary>
-        /// One ladder per shaft: each unbroken run of ladder blocks is a single ladder, its rails running the whole run and
-        /// two rungs per block. It lies parallel to the cliff face (the blocks' lit left faces), in the shaft's opening.
-        /// </summary>
-        private void Ladders(SiteSimulator sim)
+        public void EditorSetupBuild(Sprite scaffold, Sprite pulley, Sprite platform)
         {
-            var key = $"{sim.Record.DugDown.Count}|{sim.Record.Dug.Count}";
-            if (key == _ladderKey) return;
-            _ladderKey = key;
-            foreach (var go in _ladders) Destroy(go);
-            _ladders.Clear();
-            var runs = new SortedDictionary<(int x, int u), List<int>>();
-            foreach (var c in sim.Record.DugDown)
-                if (sim.Ladder(c.X, c.U, c.Row))
-                {
-                    if (!runs.TryGetValue((c.X, c.U), out var rows)) runs[(c.X, c.U)] = rows = new List<int>();
-                    rows.Add(c.Row);
-                }
-            foreach (var kv in runs)
+            scaffoldSprite = scaffold;
+            pulleySprite = pulley;
+            platformSprite = platform;
+        }
+
+        private readonly Dictionary<DigCell, SpriteRenderer> _scaffolds = new Dictionary<DigCell, SpriteRenderer>();
+        private SpriteRenderer _pulley, _platform, _ropeTop, _ropeShaft;
+        private Sprite _pixel;
+        private float _platformRow;
+        private const float RopeInset = 0.22f;   // the rope hangs just inside the shaft's opening, where it can be seen
+
+        public int ScaffoldsDrawn => _scaffolds.Count;
+        public float PlatformRow => _platformRow;
+
+        private void Scaffolds(SiteSimulator sim)
+        {
+            foreach (var kv in sim.Record.Scaffolds)
             {
-                kv.Value.Sort();
-                var start = kv.Value[0];
-                for (var i = 1; i <= kv.Value.Count; i++)
-                {
-                    if (i < kv.Value.Count && kv.Value[i] == kv.Value[i - 1] + 1) continue;
-                    _ladders.Add(BuildLadder(kv.Key.x, kv.Key.u, start, kv.Value[i - 1]));
-                    if (i < kv.Value.Count) start = kv.Value[i];
-                }
+                if (_scaffolds.ContainsKey(kv.Key)) continue;
+                var sr = MakeRenderer("Scaffold", scaffoldSprite);
+                sr.enabled = true;
+                sr.transform.position = Top(kv.Key.X, kv.Key.U, kv.Key.Row);
+                sr.sortingOrder = OrderFor(kv.Key.X, kv.Key.U, kv.Key.Row) + 1;
+                _scaffolds[kv.Key] = sr;
+            }
+            foreach (var k in new List<DigCell>(_scaffolds.Keys))
+            {
+                if (sim.Record.Scaffolds.ContainsKey(k)) continue;
+                Destroy(_scaffolds[k].gameObject);
+                _scaffolds.Remove(k);
             }
         }
 
-        /// <summary>A point on the slice in continuous coordinates: x into the cliff, u along it, level (0 = the ground's top).</summary>
-        private Vector3 Point(float x, float u, float level)
+        /// <summary>The pulley over the elevator shaft, its rope, and the platform: under the supplier when they are in it.</summary>
+        private void DrawElevator(SiteSimulator sim)
         {
-            float cx = origin.x + x, cy = origin.y + u;
-            return new Vector3((cx - cy) * 0.5f, (cx + cy) * 0.25f + 0.25f - level * RowHeight, 0f);
+            var u = sim.Slab.ElevatorU;
+            var bottom = sim.ElevatorBottom;
+            if (bottom < 0) return;
+            if (_pulley == null)
+            {
+                _pixel = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 4, 4), new Vector2(0.5f, 1f), 4);
+                _pulley = MakeRenderer("Pulley", pulleySprite);
+                _pulley.sortingLayerName = "Default";
+                _pulley.spriteSortPoint = SpriteSortPoint.Pivot;
+                _platform = MakeRenderer("LiftPlatform", platformSprite);
+                _ropeTop = MakeRenderer("RopeTop", _pixel);
+                _ropeTop.sortingLayerName = "Default";
+                _ropeShaft = MakeRenderer("Rope", _pixel);
+                foreach (var r in new[] { _pulley, _platform, _ropeTop, _ropeShaft }) r.enabled = true;
+                _ropeTop.color = _ropeShaft.color = new Color(0.84f, 0.75f, 0.55f);
+                _platformRow = Mathf.Clamp(_platformRow, 0, bottom + 1);
+            }
+            // Always at your floor: under you in the shaft, else gliding to the floor you are on (the top when above ground).
+            var inShaft = _inside && Lane == 0 && Column == u;
+            if (inShaft) _platformRow = _drawFeet;
+            else _platformRow = Mathf.MoveTowards(_platformRow, _inside ? Mathf.Max(0, _feet) : 0f, RideSpeed * Time.deltaTime);
+            _platformRow = Mathf.Clamp(_platformRow, 0f, bottom + 1);
+            var top = Top(0, u, 0);
+            var inset = new Vector3(-RopeInset, 0f, 0f);
+            _pulley.transform.position = top + inset;
+            var wheel = top + inset + new Vector3(0f, wheelHeight, 0f);
+            var deck = Top(0, u, _platformRow) + inset;
+            _platform.transform.position = Top(0, u, _platformRow);
+            var row = Mathf.RoundToInt(_platformRow);
+            if (row <= 0)
+            {
+                _platform.sortingLayerName = "Default";   // at ground level: over the ground's tiles, under the supplier
+                _platform.sortingOrder = -1;
+            }
+            else
+            {
+                _platform.sortingLayerName = "Ground";
+                _platform.sortingOrder = OrderFor(0, u, row - 1) + 1;
+            }
+            // The rope: from the wheel down to the ground above the shaft, then down the shaft to the platform.
+            Rope(_ropeTop, wheel, top + inset);
+            _ropeTop.sortingOrder = -2;
+            Rope(_ropeShaft, top + inset, deck);
+            _ropeShaft.sortingOrder = OrderFor(0, u, Mathf.Max(0, row - 1)) + 1;
+            _ropeShaft.enabled = row > 0;
         }
 
-        private GameObject BuildLadder(int x, int u, int top, int bottom)
+        private static void Rope(SpriteRenderer sr, Vector3 from, Vector3 to)
         {
-            var go = new GameObject($"Ladder {u}:{top}-{bottom}");
-            go.transform.SetParent(transform, false);
-            var verts = new List<Vector3>();
-            var cols = new List<Color>();
-            var tris = new List<int>();
-            var plane = x - 0.45f;   // just inside the cliff face, so the whole ladder shows in the shaft's opening
-            void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color col)
-            {
-                var i = verts.Count;
-                verts.Add(a); verts.Add(b); verts.Add(c); verts.Add(d);
-                for (var k = 0; k < 4; k++) cols.Add(col);
-                tris.AddRange(new[] { i, i + 1, i + 2, i, i + 2, i + 3 });
-            }
-            // A bar on the ladder's plane from (u0, l0) to (u1, l1), thickness t in screen units (perpendicular on screen).
-            void Bar(float u0, float l0, float u1, float l1, float t, Color col)
-            {
-                var a = Point(plane, u0, l0);
-                var b = Point(plane, u1, l1);
-                var dir = (b - a).normalized;
-                var n = new Vector3(-dir.y, dir.x, 0f) * (t * 0.5f);
-                Quad(a - n, a + n, b + n, b - n, col);
-            }
-            float railA = u - 0.28f, railB = u + 0.28f;
-            float lTop = top - 0.35f, lBottom = bottom + 1f;   // the rails stand a little proud of the top
-            for (var l = top + 0.25f; l < lBottom - 0.05f; l += 0.5f) Bar(railA, l, railB, l, 0.045f, LadderWood);
-            Bar(railA, lTop, railA, lBottom, 0.06f, LadderShade);
-            Bar(railB, lTop, railB, lBottom, 0.06f, LadderShade);
-            var mesh = new Mesh { name = go.name };
-            mesh.SetVertices(verts);
-            mesh.SetColors(cols);
-            mesh.SetTriangles(tris, 0);
-            go.AddComponent<MeshFilter>().sharedMesh = mesh;
-            var mr = go.AddComponent<MeshRenderer>();
-            if (spriteMaterial != null) mr.sharedMaterial = spriteMaterial;
-            var block = new MaterialPropertyBlock();
-            block.SetTexture("_MainTex", Texture2D.whiteTexture);
-            mr.SetPropertyBlock(block);
-            mr.sortingLayerName = "Ground";
-            // In front of the shaft's walls and floor; the supplier in the shaft sorts in front of it.
-            mr.sortingOrder = OrderFor(x, u, bottom) + 1;
-            return go;
+            sr.transform.position = from;
+            sr.transform.localScale = new Vector3(0.05f, Mathf.Max(0.001f, from.y - to.y), 1f);
         }
 
         private SpriteRenderer Take()
@@ -562,27 +572,26 @@ namespace Ravenholm.Presentation
             }
         }
 
-        private bool Blocks(SiteSimulator sim, int x, int u, int row) => x < 0 ? row >= 0 : sim.Solid(x, u, row);
+        private bool Blocks(SiteSimulator sim, int x, int u, int row) => x < 0 ? row >= 0 : sim.Standable(x, u, row);
 
         /// <summary>The stick's up and down (climbing a ladder, or aiming up and down) rather than walking along the cliff.</summary>
         public static bool Vertical(Vector2 m) => Mathf.Abs(m.y) > 0.3f && Mathf.Abs(m.y) > Mathf.Abs(m.x);
 
-        /// <summary>On a ladder: standing on a rung, or with the body in a shaft beside one.</summary>
-        public bool OnLadder => _inside && Sim != null && (Sim.Ladder(Lane, Column, _feet) || Sim.Ladder(Lane, Column, _feet - 1));
+        /// <summary>In the elevator shaft: the platform is under the supplier wherever they are in it.</summary>
+        public bool InElevator => _inside && Sim != null && Sim.Elevator(Lane, Column, Mathf.Max(0, _feet - 1));
+
+        /// <summary>Riding: in the shaft with no floor of rock under them (the platform holds them).</summary>
+        public bool Riding => InElevator && Sim != null && !Sim.Standable(Lane, Column, _feet);
 
         private float _climb;
         private bool _descending;
 
-        /// <summary>Dropping through the air (not climbing): the supplier's fall pose.</summary>
-        public bool Falling => _inside && _drawFeet < _feet - 0.05f && !OnLadder;
-
-        /// <summary>Hanging on a ladder (not standing on a floor), and whether they are moving up or down it.</summary>
-        public bool OnLadderPose => OnLadder && Sim != null && !Sim.Solid(Lane, Column, _feet);
-        public bool ClimbMoving => OnLadderPose && Mathf.Abs(_drawFeet - _feet) > 0.02f;
+        /// <summary>Dropping through the air: the supplier's fall pose.</summary>
+        public bool Falling => _inside && _drawFeet < _feet - 0.05f && !InElevator;
 
         /// <summary>
         /// The Mine is one slice of the cliff face: left and right on the stick walk along it (screen left goes on along
-        /// the cliff), up and down climb a ladder. Single blocks are stepped up; holes are dropped into.
+        /// the cliff), up and down ride the elevator. Single blocks (and scaffolds) are stepped up; holes are dropped into.
         /// </summary>
         private void Walk(SiteSimulator sim, Vector2 move)
         {
@@ -590,14 +599,13 @@ namespace Ravenholm.Presentation
             if (Vertical(move))
             {
                 if (move.y > 0f && ClimbOut(sim)) return;
-                if (!OnLadder) return;   // up and down only aim, unless on a ladder
-                if (move.y > 0f) _descending = false;
+                if (!InElevator) return;   // up and down only aim, unless riding the elevator
                 _u = Mathf.MoveTowards(_u, Column, Time.deltaTime * 4f);
-                _climb += ClimbSpeed * Mathf.Min(1f, Mathf.Abs(move.y)) * Time.deltaTime;
+                _climb += RideSpeed * Mathf.Min(1f, Mathf.Abs(move.y)) * Time.deltaTime;
                 if (_climb < 1f) return;
                 _climb = 0f;
-                if (move.y > 0f && sim.Ladder(Lane, Column, _feet - 1) && !Blocks(sim, Lane, Column, _feet - 3)) _feet -= 1;
-                else if (move.y < 0f && sim.Ladder(Lane, Column, _feet)) _feet += 1;
+                if (move.y > 0f && _feet > 0) _feet -= 1;
+                else if (move.y < 0f && sim.Elevator(Lane, Column, _feet)) _feet += 1;
                 return;
             }
             _climb = 0f;
@@ -607,13 +615,13 @@ namespace Ravenholm.Presentation
         }
 
         /// <summary>
-        /// At the top of a ladder, or in a hole one block deep, up on the stick climbs out onto the ground: the ground
+        /// At the top of the elevator, or in a hole one block deep, up on the stick climbs out onto the ground: the ground
         /// right behind the shaft (the town or the frontier), else the ground beside it along the cliff.
         /// </summary>
         private bool ClimbOut(SiteSimulator sim)
         {
             if (_feet > 1) return false;
-            if (_feet == 1 && sim.Ladder(Lane, Column, 0)) return false;   // one more rung first
+            if (_feet == 1 && InElevator) return false;   // the elevator takes them up the last floor first
             var behind = (Vector2)Top(Lane + 1, Column, 0);
             Vector2? to = SurfaceWalkable(behind) ? behind : (Vector2?)null;
             for (var i = 0; !to.HasValue && i < 2; i++)
@@ -628,8 +636,8 @@ namespace Ravenholm.Presentation
             return true;
         }
 
-        /// <summary>Blocks per second up or down a ladder.</summary>
-        public const float ClimbSpeed = 5f;
+        /// <summary>Blocks per second up or down on the elevator.</summary>
+        public const float RideSpeed = 6f;
 
         /// <summary>Blocks per second along the cliff (as in the cliff-face prototype).</summary>
         public const float WalkSpeed = 3.2f;
@@ -652,9 +660,9 @@ namespace Ravenholm.Presentation
 
         private void Fall(SiteSimulator sim)
         {
-            // A rung holds the supplier, except straight after digging the block underfoot: then they go down to the new floor.
+            // Rock or a scaffold holds the supplier, and so does the elevator's platform anywhere in its shaft.
             if (Blocks(sim, Lane, Column, _feet)) { _fallTimer = 0f; _descending = false; return; }
-            if (sim.Ladder(Lane, Column, _feet) && !_descending) { _fallTimer = 0f; return; }
+            if (sim.Elevator(Lane, Column, Mathf.Max(0, _feet - 1))) { _fallTimer = 0f; _descending = false; return; }
             _fallTimer += Time.deltaTime;
             if (_fallTimer < 0.07f) return;
             _fallTimer = 0f;
@@ -665,7 +673,7 @@ namespace Ravenholm.Presentation
         private void UpdatePlayerSorting()
         {
             if (_playerSorting == null) return;
-            // Underground among the blocks; standing at ground level (the top of a ladder) they are above the ground's tiles.
+            // Underground among the blocks; standing at ground level (on the elevator at the top) they are above the ground's tiles.
             if (_inside && _feet > 0)
             {
                 _playerSorting.sortingLayerName = "Ground";
@@ -781,6 +789,7 @@ namespace Ravenholm.Presentation
         {
             if (_camera == null || _motor == null || _motor.HiddenForRoutine) return;
             var world = (Vector2)_camera.ScreenToWorldPoint(new Vector3(screen.x, screen.y, 10f));
+            if (BuildMode) { BuildAt(world); return; }
             var near = NearestReachable(world);
             if (near.Count == 0) return;
             var i = _selected.HasValue ? near.IndexOf(_selected.Value) : -1;
@@ -791,6 +800,7 @@ namespace Ravenholm.Presentation
         private void PressAndHold()
         {
             _pressDigging = false;
+            if (BuildMode) return;   // building is by taps
             if (_camera == null || !_root.InputRouter.StillPress(out var pixels, out var seconds) || seconds < 0.25f) return;
             var near = NearestReachable(_camera.ScreenToWorldPoint(new Vector3(pixels.x, pixels.y, 10f)));
             if (near.Count == 0) return;
@@ -825,17 +835,74 @@ namespace Ravenholm.Presentation
         {
             var sim = Sim;
             Standing(out var x, out var u, out var feet);
-            var key = $"{x}|{u}|{feet}|{sim.Record.Dug.Count}|{_inside}|{_motor != null && _motor.HiddenForRoutine}";
+            var key = $"{x}|{u}|{feet}|{sim.Record.Dug.Count}|{_inside}|{_motor != null && _motor.HiddenForRoutine}|{BuildMode}|{sim.Record.Scaffolds.Count}";
             if (key == _outlineKey) return;
             _outlineKey = key;
             foreach (var k in new List<Vector3Int>(_outlines.Keys)) Remove(_outlines, k);
             if (_motor != null && _motor.HiddenForRoutine) return;
+            if (BuildMode)
+            {
+                // Building: open spaces in reach glow green, scaffolds (which can be taken down) amber.
+                foreach (var b in Buildable())
+                    Put(_outlines, new Vector3Int(b.X, b.U, b.Row), highlightSprite, Top(b.X, b.U, b.Row), OrderFor(b.X, b.U, b.Row) + 3,
+                        sim.IsScaffold(b.X, b.U, b.Row) ? new Color(1f, 0.75f, 0.3f, 0.35f) : new Color(0.55f, 1f, 0.55f, 0.3f));
+                return;
+            }
             foreach (var b in Reachable())
                 Put(_outlines, new Vector3Int(b.X, b.U, b.Row), highlightSprite, Top(b.X, b.U, b.Row), OrderFor(b.X, b.U, b.Row) + 3,
                     new Color(1f, 1f, 0.85f, 0.16f));
         }
 
         public int OutlinedBlocks => _outlines.Count;
+
+        // ------------------------------------------------------------------ building scaffolds
+
+        /// <summary>Build mode (the Build button): taps place scaffolds in open space in reach, or take them down.</summary>
+        public bool BuildMode
+        {
+            get => _buildMode && _inside;
+            set { _buildMode = value; _outlineKey = ""; }
+        }
+
+        private bool _buildMode;
+
+        /// <summary>Open spaces (and scaffolds) in reach, not where the supplier stands.</summary>
+        public List<DigCell> Buildable()
+        {
+            var list = new List<DigCell>();
+            var sim = Sim;
+            if (sim == null || !_inside || !Standing(out var x, out var u, out var feet)) return list;
+            for (var row = Mathf.Max(0, feet - 3); row <= feet + 1; row++)
+            for (var du = -2; du <= 2; du++)
+            {
+                var c = new DigCell(x, u + du, row);
+                if (du == 0 && (row == feet - 1 || row == feet - 2)) continue;   // the supplier's own body
+                if (sim.IsScaffold(c.X, c.U, c.Row) || sim.CanPlaceScaffold(c.X, c.U, c.Row)) list.Add(c);
+            }
+            return list;
+        }
+
+        /// <summary>Places a scaffold in the open space nearest the tap, or takes down the scaffold there.</summary>
+        public void BuildAt(Vector2 world)
+        {
+            DigCell? best = null;
+            var bestD = TapRadius;
+            foreach (var c in Buildable())
+            {
+                var d = Vector2.Distance(world, (Vector2)Top(c.X, c.U, c.Row) + new Vector2(0f, -0.25f));
+                if (d < bestD) { bestD = d; best = c; }
+            }
+            if (!best.HasValue) return;
+            var b = best.Value;
+            var sites = _root.Services.Sites;
+            if (Sim.IsScaffold(b.X, b.U, b.Row))
+            {
+                if (sites.RemoveScaffold(SiteId, b.X, b.U, b.Row)) FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
+            }
+            else if (sites.PlaceScaffold(SiteId, b.X, b.U, b.Row, out var reason)) FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
+            else _root.Hud.ShowToast(reason);
+            _outlineKey = "";
+        }
 
         private void Crack(SiteSimulator sim)
         {

@@ -241,6 +241,65 @@ namespace Ravenholm.Services
         }
 
         /// <summary>The supplier chops a tree of the current clearing. Returns units carried away.</summary>
+        // ------------------------------------------------------------------ Mine scaffolds
+
+        /// <summary>The Mine's scaffold materials in the town's stock (what building one could use), and the cost of one.</summary>
+        public int ScaffoldMaterialInStock(string siteId)
+        {
+            var def = Definition(siteId);
+            if (def == null) return 0;
+            var n = 0;
+            foreach (var m in def.ScaffoldMaterials) if (m != null) n += _logistics.System.SharedAvailable(m.Id);
+            return n;
+        }
+
+        public int ScaffoldCost(string siteId) => Definition(siteId)?.ScaffoldCost ?? 0;
+
+        /// <summary>Builds a scaffold in open space, paying from the town's stock. False (with a reason) when it can't.</summary>
+        public bool PlaceScaffold(string siteId, int x, int u, int row, out string reason)
+        {
+            reason = null;
+            var sim = Get(siteId);
+            var def = Definition(siteId);
+            if (sim == null || def == null || !sim.CanPlaceScaffold(x, u, row)) { reason = "No room for a scaffold there."; return false; }
+            string used = null;
+            var cost = def.ScaffoldCost;
+            if (cost > 0)
+            {
+                foreach (var m in def.ScaffoldMaterials)
+                {
+                    if (m == null || _logistics.System.SharedAvailable(m.Id) < cost) continue;
+                    if (!_logistics.System.TryConsumeShared(new[] { new KeyValuePair<string, int>(m.Id, cost) }, "built a scaffold")) continue;
+                    used = m.Id;
+                    break;
+                }
+                if (used == null) { reason = "You need lumber in town to build a scaffold."; return false; }
+            }
+            sim.PlaceScaffold(x, u, row, used);
+            _scheduler.SaveNow("scaffold built");
+            return true;
+        }
+
+        /// <summary>Takes a scaffold down, giving its material back to the town's stock.</summary>
+        public bool RemoveScaffold(string siteId, int x, int u, int row)
+        {
+            var sim = Get(siteId);
+            var def = Definition(siteId);
+            var material = sim?.RemoveScaffold(x, u, row);
+            if (material == null) return false;
+            if (!string.IsNullOrEmpty(material) && def != null && def.ScaffoldCost > 0)
+                _logistics.System.ProduceShared(material, def.ScaffoldCost, "took down a scaffold");
+            _scheduler.SaveNow("scaffold removed");
+            return true;
+        }
+
+        private SiteDefinition Definition(string siteId)
+        {
+            if (_catalogue == null) return null;
+            foreach (var d in _catalogue.Sites) if (d != null && d.Id == siteId) return d;
+            return null;
+        }
+
         /// <summary>The supplier cuts a tree of the Forest's grid for a moment. Returns the logs cut.</summary>
         public int PlayerChopCell(string siteId, int area, int slot, float seconds)
         {
@@ -435,6 +494,7 @@ namespace Ravenholm.Services
                     if (def.SiteType == SiteType.Mine && saved.Layout < 4) ConvertToDigSlab(record);
                     if (def.SiteType == SiteType.Forest && saved.Layout < ForestLayout) SiteSimulator.ConvertToGrove(record, def.TreesPerClearing);
                     var loaded = Create(def, record);
+                    loaded.EnsureElevatorShaft();   // older saves get the elevator shaft too
                     // Solo play: hired crews from older saves go home; what they carried stays on the site to collect.
                     foreach (var w in record.Workers.ToArray())
                         if (w.Id != SiteSimulator.PlayerId) loaded.RemoveWorker(w.Id, keepOnSite: true);
@@ -446,6 +506,7 @@ namespace Ravenholm.Services
                 foreach (var w in def.Workers)
                     if (w != null) workers.Add(new WorkerRecord { Id = w.Id, Name = w.DisplayName, ToolId = w.StartingTool?.Id, PackId = w.StartingPack?.Id });
                 sim.InitializeFresh(workers);
+                sim.EnsureElevatorShaft();
                 _sims.Add(sim);
             }
             Reloaded?.Invoke();
@@ -541,6 +602,12 @@ namespace Ravenholm.Services
                 foreach (var kv in s.Chopped) { d.Chopped.Add(kv.Key.Area); d.Chopped.Add(kv.Key.Slot); d.Chopped.Add(kv.Value); }
             }
             if (s.LastChop.HasValue) d.LastChop = new List<int> { s.LastChop.Value.Area, s.LastChop.Value.Slot };
+            if (s.Scaffolds.Count > 0)
+            {
+                d.Scaffolds = new List<int>(s.Scaffolds.Count * 3);
+                d.ScaffoldMaterials = new List<string>(s.Scaffolds.Count);
+                foreach (var kv in s.Scaffolds) { d.Scaffolds.Add(kv.Key.X); d.Scaffolds.Add(kv.Key.U); d.Scaffolds.Add(kv.Key.Row); d.ScaffoldMaterials.Add(kv.Value); }
+            }
             if (s.Tunnels.Count > 0)
             {
                 d.Tunnels = new List<TunnelSaveData>();
@@ -638,6 +705,10 @@ namespace Ravenholm.Services
             if (d.Chopped != null)
                 for (var i = 0; i + 2 < d.Chopped.Count; i += 3) s.Chopped[new GroveCell((int)d.Chopped[i], (int)d.Chopped[i + 1])] = d.Chopped[i + 2];
             if (d.LastChop != null && d.LastChop.Count == 2) s.LastChop = new GroveCell(d.LastChop[0], d.LastChop[1]);
+            if (d.Scaffolds != null)
+                for (var i = 0; i + 2 < d.Scaffolds.Count; i += 3)
+                    s.Scaffolds[new DigCell(d.Scaffolds[i], d.Scaffolds[i + 1], d.Scaffolds[i + 2])] =
+                        d.ScaffoldMaterials != null && i / 3 < d.ScaffoldMaterials.Count ? d.ScaffoldMaterials[i / 3] : "";
             if (d.Tunnels != null)
                 foreach (var td in d.Tunnels)
                 {

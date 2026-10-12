@@ -126,10 +126,8 @@ namespace Ravenholm.Tests
             Assert.IsFalse(Mine.CanDig(6, 10, 0));
             Assert.IsTrue(Mine.CanDig(0, 1, 0));
             Assert.IsFalse(Mine.CanDig(1, 1, 1), "the Mine is one slice of the cliff face");
+            Assert.IsTrue(Mine.Elevator(0, 0, 0) && Mine.ElevatorBottom >= 7, "the elevator shaft is there from the start");
             yield return DigDown(slab, 3);
-            for (var r = 0; r < 3; r++) Assert.IsTrue(Mine.Ladder(0, 1, r), $"dug straight down: a ladder at row {r}");
-            yield return null;
-            Assert.AreEqual(1, slab.LadderCount, "one ladder for the whole shaft");
             Assert.AreEqual(3, slab.Feet, "three blocks down: room to stand, two blocks tall");
             Assert.Greater(S.Logistics.System.CarryCount, 0, "dug ore goes straight into the carry");
             Assert.IsTrue(Mine.Record.Revealed.ContainsKey(1), "the first layer is revealed by digging into it");
@@ -191,11 +189,41 @@ namespace Ravenholm.Tests
             yield return new WaitForSeconds(0.6f);
             yield return Capture.Take("mine_dig_slab");
 
-            // Back to the shaft, up its ladder, and off it onto the ground beside it.
+            // Build: a scaffold over the hole dug ahead (one lumber), stood on like rock. First open the way to it.
+            foreach (var row in new[] { inward.Row - 1, inward.Row - 2 })
+                for (var i = 0; i < 4000 && !Mine.IsDug(0, inward.U, row); i++) S.Sites.PlayerDig(0, inward.U, row, 1f, null);
+            Assert.IsTrue(Mine.IsDug(0, inward.U, inward.Row - 1) && Mine.IsDug(0, inward.U, inward.Row - 2));
+            S.Logistics.System.ProduceShared("resource.cedar_lumber", 3, "test");
+            slab.BuildMode = true;
+            yield return null;
+            Assert.IsTrue(slab.Buildable().Contains(inward), "the hole ahead can take a scaffold");
+            var lumber = S.Sites.ScaffoldMaterialInStock("site.mine");
+            slab.BuildAt(slab.Top(inward.X, inward.U, inward.Row) + new Vector3(0f, -0.25f, 0f));
+            Assert.IsTrue(Mine.IsScaffold(inward.X, inward.U, inward.Row), "a scaffold is built there");
+            Assert.AreEqual(lumber - 1, S.Sites.ScaffoldMaterialInStock("site.mine"), "for one lumber");
+            yield return null;
+            Assert.AreEqual(1, slab.ScaffoldsDrawn);
+            slab.BuildMode = false;
+            var feetBefore = slab.Feet;
+            Stick(Along);
+            yield return Until(() => Mathf.RoundToInt(slab.U) == inward.U, 5f, "walks onto the scaffold");
+            Stick(null);
+            yield return new WaitForSeconds(0.3f);
+            Assert.AreEqual(feetBefore, slab.Feet, "standing on the scaffold, not fallen into the hole");
+            yield return new WaitForSeconds(0.3f);
+            yield return Capture.Take("mine_scaffold");
+
+            // Back to the elevator at the corner, up it, and out onto the ground.
             Stick(-Along);
-            yield return Until(() => Mathf.RoundToInt(slab.U) == 1, 10f, "walks back to the shaft");
+            yield return Until(() => Mathf.RoundToInt(slab.U) == 0, 10f, "walks back to the elevator");
+            Stick(null);
+            yield return new WaitForSeconds(0.3f);
+            Assert.AreEqual(3, slab.Feet, "the platform is waiting at this floor");
+            Assert.IsTrue(slab.InElevator);
+            Assert.AreEqual(3f, slab.PlatformRow, 0.05f);
             Stick(Vector2.up);
-            yield return Until(() => !slab.PlayerInside, 10f, () => $"climbs the ladder and out onto the ground (feet {slab.Feet}, on ladder {slab.OnLadder})");
+            yield return Until(() => slab.Riding, 3f, () => "rides up");
+            yield return Until(() => !slab.PlayerInside, 10f, () => $"rides to the top and steps out onto the ground (feet {slab.Feet})");
             Stick(null);
             var at = (Vector2)SandboxSceneController.Current.Player.position;
             Assert.IsTrue(slab.SurfaceWalkable(at), $"back on the town's ground (at {at}, slab {slab.SlabCoords(at)}, ground {slab.OnGround(at)})");

@@ -137,6 +137,9 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("routineFace")] public List<long> RoutineFace;
         /// <summary>Forest grid: trees started, as area, slot, micro-damage triples (optional), and the tree last cut.</summary>
         [JsonProperty("chopped")] public List<long> Chopped;
+        /// <summary>Mine: scaffolds as x, u, row triples, and the material each used (optional).</summary>
+        [JsonProperty("scaffolds")] public List<int> Scaffolds;
+        [JsonProperty("scaffoldMaterials")] public List<string> ScaffoldMaterials;
         [JsonProperty("lastChop")] public List<int> LastChop;
     }
 

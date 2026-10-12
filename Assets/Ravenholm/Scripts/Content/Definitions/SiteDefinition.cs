@@ -54,6 +54,9 @@ namespace Ravenholm.Content
         [Min(0.1f)] [SerializeField] private float hopSeconds = 0.8f;
         [Tooltip("Seconds a worker spends unloading at staging.")]
         [Min(0.05f)] [SerializeField] private float depositSeconds = 0.6f;
+        [Tooltip("Mine: what a scaffold is built from (any one of these, from the town's stock), and how many each.")]
+        [SerializeField] private List<ResourceDefinition> scaffoldMaterials = new List<ResourceDefinition>();
+        [Min(0)] [SerializeField] private int scaffoldCost = 1;
 
         public override string IdKind => "site";
         public SiteType SiteType => siteType;
@@ -73,6 +76,8 @@ namespace Ravenholm.Content
         public int LevelsPerBand => levelsPerBand;
         public float HopSeconds => hopSeconds;
         public float DepositSeconds => depositSeconds;
+        public IReadOnlyList<ResourceDefinition> ScaffoldMaterials => scaffoldMaterials;
+        public int ScaffoldCost => scaffoldCost;
 
         public override void Validate(List<string> errors)
         {

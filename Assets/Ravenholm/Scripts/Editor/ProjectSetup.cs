@@ -88,6 +88,7 @@ namespace Ravenholm.EditorTools
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
             EnsureOreBlocks();
+            EnsureScaffoldMaterials();
             EnsureSupplierAnimations();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
             var boot = EnsureAsset<BootConfig>(ConfigDir + "BootConfig.asset");
@@ -841,6 +842,25 @@ namespace Ravenholm.EditorTools
             EditorUtility.SetDirty(set);
             AssetDatabase.SaveAssets();
             return set;
+        }
+
+        /// <summary>The Mine's scaffolds are built from lumber (any kind) from the town's stock; edited values are kept.</summary>
+        private static void EnsureScaffoldMaterials()
+        {
+            var mine = AssetDatabase.LoadAssetAtPath<SiteDefinition>(SiteDir + "site_mine.asset");
+            if (mine == null) { Debug.LogWarning("[Setup] Mine site definition not found for scaffold materials."); return; }
+            var so = new SerializedObject(mine);
+            var list = so.FindProperty("scaffoldMaterials");
+            if (list.arraySize > 0) return;
+            foreach (var id in new[] { "cedar_lumber", "maple_lumber", "ironwood_lumber" })
+            {
+                var res = AssetDatabase.LoadAssetAtPath<ResourceDefinition>(ResourceDir + "resource_" + id + ".asset");
+                if (res == null) continue;
+                list.InsertArrayElementAtIndex(list.arraySize);
+                list.GetArrayElementAtIndex(list.arraySize - 1).objectReferenceValue = res;
+            }
+            so.FindProperty("scaffoldCost").intValue = 1;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         /// <summary>The painted ore blocks (Art/Placeholder/Painted/Blocks) on the Mine's ores; edited values are kept.</summary>

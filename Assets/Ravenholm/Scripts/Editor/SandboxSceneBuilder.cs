@@ -421,6 +421,8 @@ namespace Ravenholm.EditorTools
                 new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") },
                 ProjectSetup.LoadSprite("Props/fx_ring"), _unlit);
             Sprite Block(string name) => ProjectSetup.LoadSprite("Painted/Blocks/block_" + name);
+            slabRoot.GetComponent<MineSlabView>().EditorSetupBuild(ProjectSetup.LoadSprite("Props/prop_scaffold"),
+                ProjectSetup.LoadSprite("Props/prop_pulley"), ProjectSetup.LoadSprite("Props/prop_lift_platform"));
             slabRoot.GetComponent<MineSlabView>().EditorSetupBlocks(Block("grass"), new[] { Block("topsoil"), Block("topsoil_pebbles") },
                 new[] { Block("sandstone"), Block("red_clay"), Block("slate"), Block("mossy"), Block("purple"), Block("ochre"), Block("basalt"), Block("limestone") });
             var dig = new GameObject("DigSpot");
@@ -442,8 +444,8 @@ namespace Ravenholm.EditorTools
             var site = go.AddComponent<SiteInspectable>();
             site.EditorSetup("Mine", "Dig your own Mine into the cliff face: stand on the dirt at the cliff's edge and hold Dig. Blocks are half a level " +
                                      "tall, so you are two blocks tall. Left and right walk along the cliff; down on the stick digs underfoot and up " +
-                                     "overhead. Down reaches the next layer (new ores, harder rock); along the cliff stays in a layer. A shaft two or " +
-                                     "more blocks deep gets a ladder: climb it with up and down.", "");
+                                     "overhead. Down reaches the next layer (new ores, harder rock); along the cliff stays in a layer. The elevator at the " +
+                                     "corner rides up and down to any floor (up and down on the stick); build scaffolds with lumber to climb anywhere else.", "");
             site.EditorSetupSite("site.mine");
             AddLabel(go.transform, "Mine", 1.6f);
             return go;

@@ -19,13 +19,58 @@ namespace Ravenholm.Domain.Sites
 
         public bool IsDug(int x, int u, int row) => _s.Dug.Contains(new DigCell(x, u, row));
 
+        // ------------------------------------------------------------------ the elevator and scaffolds
+
         /// <summary>
-        /// A ladder: a block dug straight down, in a shaft at least two blocks deep (a single dip is just stepped out of).
-        /// The supplier stands on its rungs and climbs it.
+        /// The elevator: a shaft at the cliff corner, open from the start through the first layer, with a pulley on top.
+        /// Its platform is always at the supplier's floor. Digging its floor deeper extends it. True for every open block
+        /// of the shaft (rows 0 down to the first rock).
         /// </summary>
-        public bool Ladder(int x, int u, int row) =>
-            _s.DugDown.Contains(new DigCell(x, u, row)) &&
-            (_s.DugDown.Contains(new DigCell(x, u, row - 1)) || _s.DugDown.Contains(new DigCell(x, u, row + 1)));
+        public bool Elevator(int x, int u, int row) => DigMode && x == 0 && u == _c.Dig.ElevatorU && row >= 0 && row <= ElevatorBottom;
+
+        /// <summary>The deepest open row of the elevator shaft (−1 before it is opened).</summary>
+        public int ElevatorBottom
+        {
+            get
+            {
+                var r = -1;
+                while (r + 1 < _c.Dig.Depth && IsDug(0, _c.Dig.ElevatorU, r + 1)) r++;
+                return r;
+            }
+        }
+
+        /// <summary>Opens the elevator shaft (new games, and older saves). Opening it gives no ore.</summary>
+        public void EnsureElevatorShaft()
+        {
+            if (!DigMode) return;
+            for (var r = 0; r < _c.Dig.ElevatorStartRows; r++) _s.Dug.Add(new DigCell(0, _c.Dig.ElevatorU, r));
+            LayerMix(BandOfRow(_c.Dig.ElevatorStartRows - 1), true);
+        }
+
+        public bool IsScaffold(int x, int u, int row) => _s.Scaffolds.ContainsKey(new DigCell(x, u, row));
+
+        /// <summary>Something to stand on or bump into: rock, or a scaffold.</summary>
+        public bool Standable(int x, int u, int row) => Solid(x, u, row) || IsScaffold(x, u, row);
+
+        /// <summary>Open space in the Mine where a scaffold can go (not the elevator shaft).</summary>
+        public bool CanPlaceScaffold(int x, int u, int row) =>
+            DigMode && _c.Dig.InSlab(x, u, row) && IsDug(x, u, row) && !IsScaffold(x, u, row) && !(x == 0 && u == _c.Dig.ElevatorU);
+
+        public bool PlaceScaffold(int x, int u, int row, string material)
+        {
+            if (!CanPlaceScaffold(x, u, row)) return false;
+            _s.Scaffolds[new DigCell(x, u, row)] = material ?? "";
+            return true;
+        }
+
+        /// <summary>Takes a scaffold down; returns the material it used (null if there was none).</summary>
+        public string RemoveScaffold(int x, int u, int row)
+        {
+            var c = new DigCell(x, u, row);
+            if (!_s.Scaffolds.TryGetValue(c, out var m)) return null;
+            _s.Scaffolds.Remove(c);
+            return m;
+        }
 
         /// <summary>Solid rock at a block: air above the surface and in front of the cliff; bedrock past the slab.</summary>
         public bool Solid(int x, int u, int row)
@@ -183,8 +228,8 @@ namespace Ravenholm.Domain.Sites
                 if (!_c.Dig.InSlab(Math.Max(0, ax), au, Math.Max(0, f.Feet))) return false;
                 if (CanDig(ax, au, f.Feet - 2)) { cell = new DigCell(ax, au, f.Feet - 2); return true; }
                 if (CanDig(ax, au, f.Feet - 1)) { cell = new DigCell(ax, au, f.Feet - 1); return true; }
-                if (Solid(ax, au, f.Feet - 2) || Solid(ax, au, f.Feet - 1)) return false;   // rock that cannot be dug
-                if (!Solid(ax, au, f.Feet)) return false;                                   // a drop ahead: stop
+                if (Standable(ax, au, f.Feet - 2) || Standable(ax, au, f.Feet - 1)) return false;   // rock that cannot be dug, or a scaffold
+                if (!Standable(ax, au, f.Feet)) return false;                               // a drop ahead: stop
                 if (step == 1) return false;
                 f.X = ax;   // the way ahead is open: step forward
                 f.U = au;

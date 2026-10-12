@@ -204,7 +204,12 @@ namespace Ravenholm.Tests
         public void TheDigSlabAndARoutineSurviveRestart()
         {
             var a = Boot();
-            DigTestKit.DigShaft(a, 0, 3);
+            DigTestKit.DigShaft(a, 3, 3);
+            Assert.IsTrue(a.Sites.Get("site.mine").Elevator(0, 0, 0), "the elevator shaft is there from the start");
+            a.Logistics.System.ProduceShared("resource.cedar_lumber", 2, "test");
+            var lumber = a.Sites.ScaffoldMaterialInStock("site.mine");
+            Assert.IsTrue(a.Sites.PlaceScaffold("site.mine", 0, 3, 1, out var why), why);
+            Assert.AreEqual(lumber - 1, a.Sites.ScaffoldMaterialInStock("site.mine"), "a scaffold costs one lumber");
             DigTestKit.StartMiningRoutine(a);
             for (var i = 0; i < 40; i++) a.Sites.Tick(1f);
             a.Scheduler.SaveNow("test");
@@ -216,8 +221,8 @@ namespace Ravenholm.Tests
             Assert.Greater(rb.Dug.Count, 1);
             Assert.AreEqual(ra.Dug.Count, rb.Dug.Count, "every dug block is kept");
             Assert.IsTrue(rb.Dug.SetEquals(ra.Dug));
-            Assert.IsTrue(b.Sites.Get("site.mine").Ladder(0, 0, 1), "and so are the ladders");
-            Assert.IsTrue(rb.DugDown.SetEquals(ra.DugDown));
+            Assert.IsTrue(b.Sites.Get("site.mine").IsScaffold(0, 3, 1), "and so are the scaffolds");
+            Assert.IsTrue(b.Sites.Get("site.mine").Elevator(0, 0, 7), "and the elevator shaft");
             Assert.AreEqual(ra.RoutineFace.U, rb.RoutineFace.U);
             Assert.AreEqual(ra.RoutineFace.DoneMicro, rb.RoutineFace.DoneMicro);
             Assert.AreEqual("site.mine", b.Sites.RoutineSiteId);

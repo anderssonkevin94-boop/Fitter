@@ -408,7 +408,47 @@ namespace Ravenholm.Presentation
             _tapLabel = _ui.Text("Text", tap.transform, "Tap", _theme.smallSize - 4f, _theme.ink, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(_tapLabel.rectTransform, 12f);
             tap.gameObject.SetActive(false);
+
+            // Build (Mine only): toggles building scaffolds; taps then place or take down scaffolds.
+            var build = _ui.Panel("BuildButton", safe, _theme.roundButton);
+            build.type = Image.Type.Simple;
+            UiFactory.Place(build.rectTransform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-100f, 570f), new Vector2(150f, 150f));
+            _buildButton = build.gameObject.AddComponent<Button>();
+            _buildButton.onClick.AddListener(() =>
+            {
+                var view = MineSlabView.Current;
+                if (view == null) return;
+                view.BuildMode = !view.BuildMode;
+                if (view.BuildMode)
+                    ShowToast(_root.Services.Sites.ScaffoldMaterialInStock(MineSlabView.SiteId) > 0
+                        ? "Building: tap an open space to place a scaffold (1 lumber), or a scaffold to take it down."
+                        : "Building: you need lumber in town for scaffolds. The Lumbermill makes it from logs.");
+            });
+            _buildImage = build;
+            _buildLabel = _ui.Text("Text", build.transform, "Build", _theme.smallSize - 6f, _theme.ink, TextAlignmentOptions.Center, FontStyles.Bold);
+            UiFactory.Stretch(_buildLabel.rectTransform, 10f);
+            build.gameObject.SetActive(false);
         }
+
+        private Button _buildButton;
+        private Image _buildImage;
+        private TextMeshProUGUI _buildLabel;
+
+        /// <summary>The Build toggle shows in the Mine; lit while building, with the lumber in stock.</summary>
+        private void UpdateBuildButton()
+        {
+            var view = MineSlabView.Current;
+            var show = view != null && view.PlayerInside && !IsAnyPanelOpenForTap;
+            if (_buildButton.gameObject.activeSelf != show) _buildButton.gameObject.SetActive(show);
+            if (!show) return;
+            var on = view.BuildMode;
+            var stock = _root.Services.Sites.ScaffoldMaterialInStock(MineSlabView.SiteId);
+            var text = on ? $"Done\n<size=70%>{stock} lumber</size>" : "Build";
+            if (_buildLabel.text != text) _buildLabel.text = text;
+            _buildImage.color = on ? new Color(0.75f, 1f, 0.75f) : Color.white;
+        }
+
+        public bool BuildButtonShowing => _buildButton != null && _buildButton.gameObject.activeSelf;
 
         private Button _tapButton;
         private TextMeshProUGUI _tapLabel;
@@ -646,6 +686,7 @@ namespace Ravenholm.Presentation
             UpdateContextButton();
             UpdateHold();
             UpdateTapButton();
+            UpdateBuildButton();
             UpdateJoystick();
             _toastGroup.alpha = Mathf.MoveTowards(_toastGroup.alpha, Time.unscaledTime < _toastUntil ? 1f : 0f, Time.unscaledDeltaTime * 6f);
             _carryPulse = Mathf.MoveTowards(_carryPulse, 0f, Time.unscaledDeltaTime * 3f);

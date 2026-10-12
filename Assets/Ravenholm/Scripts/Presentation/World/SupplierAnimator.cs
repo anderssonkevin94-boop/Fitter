@@ -83,6 +83,7 @@ namespace Ravenholm.Presentation
             Back = _heading.y > 0.02f;
             Mirrored = _heading.x > 0f;
 
+            if (_motor != null && MineSlabView.Current != null && MineSlabView.Current.Riding) moving = false;   // riding is not walking
             var name = _motor != null ? PlayerClip(moving, out var advance) : FigureClip(moving, out advance);
             Play(name, advance ? dt : 0f);
         }
@@ -105,12 +106,11 @@ namespace Ravenholm.Presentation
             if (inside && !moving) FaceAlongCliff(slab.Facing.y);
             _pickup = Mathf.Max(0f, _pickup - Time.deltaTime);
 
-            if (inside && slab.OnLadderPose)
+            if (inside && slab.Riding)
             {
-                Back = true;
-                Mirrored = false;
-                advance = slab.ClimbMoving;
-                return "climb_back";
+                // On the elevator's platform: standing, facing along the cliff, carried up or down.
+                FaceAlongCliff(slab.Facing.y);
+                return View(carrying ? "carry_idle" : "idle");
             }
             if (inside && slab.Falling) { Mirrored = false; return "fall_front"; }
             if (_motor.Swinging)

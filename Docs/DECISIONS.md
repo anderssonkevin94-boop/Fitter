@@ -714,3 +714,21 @@ Kevin's call: every tree in reach can be cut with the main button. Cutting is th
 - **Routines.** A routine cuts the last tree if it still stands, else the nearest standing tree within 8 grid steps. Ties stay in the same area, so a routine never walks into a new area on its own; then the cliff edge, then toward the town. It hauls to the forest staging and works on face 0, like the Mine's routine.
 - **Saves.** `chopped` holds (area, slot, micro-damage) triples, plus `lastChop`; the Forest layout is now 2. Older saves convert: earlier clearings become stumps (six slots per clearing), the current clearing's trees keep their progress, and their waiting logs are kept.
 - **Old model kept for tests.** The clearings model is still in the domain when a config has no `Grove`.
+
+## The elevator and scaffolding replace ladders (2026-10-13)
+
+Kevin's calls: no more ladders. The Mine has an elevator shaft from the start, its platform always at your floor; scaffolding (1 lumber each, from a Build button) lets you climb and bridge anywhere else.
+
+- **Elevator.**
+  - The shaft is `DigSlab.ElevatorU` (0, the cliff corner by the town), opened by `SiteSimulator.EnsureElevatorShaft` on new games and older saves. It runs down through the topsoil and the first layer (`ElevatorStartRows` 8), and opening it gives no ore.
+  - Digging the shaft's floor extends it (`ElevatorBottom`).
+  - In the shaft the platform holds the supplier at any floor, and up and down ride it (6 floors/s). Up at the top steps out onto the ground. While riding, the supplier stands; there is no climb pose.
+  - The platform is drawn under the supplier in the shaft. Otherwise it glides to the floor they are on, or to the top when they are above ground. A pulley frame stands over the shaft with its rope.
+- **Scaffolding.**
+  - `SiteRecord.Scaffolds` maps each scaffold to the material it used. A scaffold goes only in open space, never in the elevator shaft, and not where the supplier's body is.
+  - It is stood on and stepped up like rock (`Standable`), but it is not dug and does not hide what is behind it.
+  - It costs `SiteDefinition.scaffoldCost` (1) of any of `scaffoldMaterials` (cedar, maple or ironwood lumber) from the town's stock. Taking one down refunds it.
+  - Controls: the Build toggle (above Tap, in the Mine) outlines open spaces in reach in green and scaffolds in amber; a tap places or takes down.
+  - A routine treats scaffolds as blocking, and as floor to walk on.
+- **Ladders removed.** `DugDown` is still recorded and saved, but unused. Shafts dug elsewhere have no ladder: build scaffolds to climb out.
+- **Art.** The scaffold, pulley and platform are procedural placeholders (`Props/prop_scaffold`, `prop_pulley`, `prop_lift_platform`).

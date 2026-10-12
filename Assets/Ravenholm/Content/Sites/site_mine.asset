@@ -38,3 +38,8 @@ MonoBehaviour:
   levelsPerBand: 3
   hopSeconds: 0.8
   depositSeconds: 0.6
+  scaffoldMaterials:
+  - {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
+  - {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+  - {fileID: 11400000, guid: f2308962299684f249002d4e000bc0d4, type: 2}
+  scaffoldCost: 1

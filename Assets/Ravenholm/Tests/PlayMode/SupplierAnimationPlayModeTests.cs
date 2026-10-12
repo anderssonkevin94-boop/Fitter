@@ -94,7 +94,7 @@ namespace Ravenholm.Tests
             yield return Capture.Take("supplier_carry_back");
             sys.DebugUnloadCarry();
 
-            // In the Mine: digging the entry plays the pick swung down, climbing a ladder the climb.
+            // In the Mine: digging the entry plays the pick swung down; riding the elevator, he stands.
             var slab = MineSlabView.Current;
             var motor = player.GetComponent<PlayerMotor>();
             motor.Teleport(slab.Top(0f, 1f, 0f));
@@ -106,10 +106,12 @@ namespace Ravenholm.Tests
             yield return Until(() => slab.PlayerInside && slab.Feet >= 3, 20f, () => $"digs down ({Now()}, feet {slab.Feet})");
             GameRoot.Instance.Hud.ScriptedHold = false;
             yield return Until(() => !slab.Falling, 3f, () => "lands");
-            Assert.IsTrue(GameRoot.Instance.Services.Sites.Get("site.mine").Ladder(0, 1, 1), "a ladder in the shaft");
+            Stick(new Vector2(1f, -0.5f));   // back toward the town: into the elevator shaft at the corner
+            yield return Until(() => slab.InElevator, 5f, () => "walks into the elevator shaft");
             Stick(Vector2.up);
-            yield return Until(() => anim.Clip == "climb_back", 3f, Now);
-            yield return Until(() => !slab.PlayerInside, 10f, () => "up at the top of the ladder climbs out onto the ground");
+            yield return Until(() => slab.Riding, 3f, () => "rides up");
+            Assert.IsTrue(anim.Clip.Contains("idle"), Now());
+            yield return Until(() => !slab.PlayerInside, 10f, () => "up at the top of the elevator steps out onto the ground");
             Assert.IsTrue(slab.SurfaceWalkable(player.position));
             Stick(null);
             GameRoot.Instance.Services.Sites.SpeedMultiplier = 1f;
