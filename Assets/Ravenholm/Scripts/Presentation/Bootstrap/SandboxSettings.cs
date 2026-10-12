@@ -15,9 +15,9 @@ namespace Ravenholm.Presentation
         [Header("World grid (cells: x runs right-up, y runs left-up)")]
         [Tooltip("The town plot as a rectangle of grid cells, so every edge is a straight cliff face along the grid.")]
         public RectInt townCells = new RectInt(-20, -16, 48, 37);
-        [Tooltip("Front cell (lowest x and y) of the Mine's 4×4 shaft. It sits out from the town's left corner, so its left face " +
-                 "continues the cliff that the tunnels and the frontier run along.")]
-        public Vector2Int mineCell = new Vector2Int(-24, 17);
+        [Tooltip("The Mine's corner: the first cell of the cliff-face slice the supplier digs. It sits on the town's left edge, so " +
+                 "the cliff is one flush face from the town along the frontier.")]
+        public Vector2Int mineCell = new Vector2Int(-20, 17);
         [Tooltip("The frontier beyond the town's upper-left edge: how far it runs left (cells along y) and back (cells along x). " +
                  "Tunnels run along its front edge and the Forest grows on it; raise these as more is charted.")]
         [Min(4)] public int frontierLengthCells = 100;

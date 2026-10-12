@@ -658,3 +658,8 @@ Three painted sheets from Kevin (brief: `Docs/ART_PROMPTS_ASTRA.md`) are cut int
 
   The new tile keys are `grass_c`, `path_b`, `path_c` and `forest_floor_b`.
 - **Character brief.** `Docs/ART_PROMPTS_CHARACTER.md` runs in three steps: design options, then a model sheet that needs Kevin's approval, then 13 animation strips (57 frames, left-facing only; the game mirrors them).
+- **A flush cliff (2026-10-12, Kevin).**
+  - The Mine's corner moved to the town's left edge (`SandboxSettings.mineCell` is now -20, 17, was -24), so the cliff is one straight face from the town along the frontier. Previously a 1-thick entry strip stood out with a gap behind it, and the player could get stuck there.
+  - The entry is the dirt strip on that edge; dug blocks keep their slab coordinates.
+  - Ladders now lie parallel to the cliff face (the blocks' lit left faces), in the shaft's opening.
+  - Standing over air (an old save) puts the supplier back beside the entry when they move.

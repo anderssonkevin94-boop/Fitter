@@ -141,6 +141,15 @@ namespace Ravenholm.Presentation
             !SolidCell(cell + Vector3Int.left, row) || !SolidCell(cell + Vector3Int.down, row) ||
             (row > 0 ? !SolidCell(cell, row - 1) : ground == null || !ground.HasTile(cell));
 
+        /// <summary>There is ground at all under this point (town, frontier or the Mine's undug top), as opposed to air.</summary>
+        public bool OnGround(Vector2 plane) => ground == null || ground.HasTile(grid.WorldToCell(plane)) || TryHole(plane);
+
+        private bool TryHole(Vector2 plane)
+        {
+            var s = SlabCoords(plane);
+            return InSlabColumn(Mathf.RoundToInt(s.x), Mathf.RoundToInt(s.y));
+        }
+
         /// <summary>True where the town's own ground can be walked on (not a dug hole, not a standing tree).</summary>
         public bool SurfaceWalkable(Vector2 plane)
         {
@@ -371,8 +380,8 @@ namespace Ravenholm.Presentation
         public int LadderCount => _ladders.Count;
 
         /// <summary>
-        /// One ladder per shaft: each unbroken run of ladder blocks is a single ladder lying flat on the shaft's visible wall
-        /// (the side of the next block along), its rails running the whole run and two rungs per block.
+        /// One ladder per shaft: each unbroken run of ladder blocks is a single ladder, its rails running the whole run and
+        /// two rungs per block. It lies parallel to the cliff face (the blocks' lit left faces), in the shaft's opening.
         /// </summary>
         private void Ladders(SiteSimulator sim)
         {
@@ -415,7 +424,7 @@ namespace Ravenholm.Presentation
             var verts = new List<Vector3>();
             var cols = new List<Color>();
             var tris = new List<int>();
-            var plane = u + 0.5f;   // the face between the shaft and the next block along
+            var plane = x - 0.45f;   // just inside the cliff face, so the whole ladder shows in the shaft's opening
             void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color col)
             {
                 var i = verts.Count;
@@ -423,16 +432,16 @@ namespace Ravenholm.Presentation
                 for (var k = 0; k < 4; k++) cols.Add(col);
                 tris.AddRange(new[] { i, i + 1, i + 2, i, i + 2, i + 3 });
             }
-            // A bar along the face from (x0, l0) to (x1, l1), thickness t in screen units (perpendicular on screen).
-            void Bar(float x0, float l0, float x1, float l1, float t, Color col)
+            // A bar on the ladder's plane from (u0, l0) to (u1, l1), thickness t in screen units (perpendicular on screen).
+            void Bar(float u0, float l0, float u1, float l1, float t, Color col)
             {
-                var a = Point(x0, plane, l0);
-                var b = Point(x1, plane, l1);
+                var a = Point(plane, u0, l0);
+                var b = Point(plane, u1, l1);
                 var dir = (b - a).normalized;
                 var n = new Vector3(-dir.y, dir.x, 0f) * (t * 0.5f);
                 Quad(a - n, a + n, b + n, b - n, col);
             }
-            float railA = x - 0.28f, railB = x + 0.28f;
+            float railA = u - 0.28f, railB = u + 0.28f;
             float lTop = top - 0.35f, lBottom = bottom + 1f;   // the rails stand a little proud of the top
             for (var l = top + 0.25f; l < lBottom - 0.05f; l += 0.5f) Bar(railA, l, railB, l, 0.045f, LadderWood);
             Bar(railA, lTop, railA, lBottom, 0.06f, LadderShade);
@@ -448,8 +457,8 @@ namespace Ravenholm.Presentation
             block.SetTexture("_MainTex", Texture2D.whiteTexture);
             mr.SetPropertyBlock(block);
             mr.sortingLayerName = "Ground";
-            // On the wall of the next block along, above its side-wall shadow; the supplier in the shaft sorts in front.
-            mr.sortingOrder = OrderFor(x, u + 1, bottom) + 2;
+            // In front of the shaft's walls and floor; the supplier in the shaft sorts in front of it.
+            mr.sortingOrder = OrderFor(x, u, bottom) + 1;
             return go;
         }
 

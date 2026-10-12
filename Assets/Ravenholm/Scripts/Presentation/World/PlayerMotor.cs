@@ -108,6 +108,8 @@ namespace Ravenholm.Presentation
         {
             var balance = _root.Config.Balance;
             Vector2 old = transform.position;
+            // Standing over thin air (an old save, or ground that moved): back to the Mine's entry rather than stuck.
+            if (mine != null && !mine.OnGround(old)) { Teleport(mine.BesideEntry); return; }
             var delta = move * (balance.walkSpeed * Time.deltaTime);
             var p = Slide(old, delta, balance.playerFootprintRadius, _blockerMask);
             var b = _root.Config.SandboxSettings.WorldBounds;

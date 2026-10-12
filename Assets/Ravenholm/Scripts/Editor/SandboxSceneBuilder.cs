@@ -432,7 +432,7 @@ namespace Ravenholm.EditorTools
             // The Mine's signpost (its panel and marker), beside the entry on town ground.
             var go = new GameObject("Mine");
             go.transform.SetParent(parent, false);
-            go.transform.position = _grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineEntry + 1, MineEntry, 0));
+            go.transform.position = _grid.GetCellCenterWorld(_mineCell + new Vector3Int(2, 1, 0));
             Sprite(go.transform, "Sign", "Props/trail_marker", Vector2.zero, 0);
             var tap = go.AddComponent<CircleCollider2D>();
             tap.isTrigger = true;
