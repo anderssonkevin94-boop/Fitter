@@ -638,3 +638,16 @@ Kevin preferred the cliff-face prototype, so the real Mine now works that way, a
 - **Ladders.** Each unbroken run of ladder blocks is drawn as one ladder: a mesh of two rails and two rungs per block, lying flat on the shaft's visible wall (the side of the next block along).
 - **Drawing.** The rock right behind the slice is drawn as the tunnels' back wall, in shadow. The side wall seen inside a hole gets a dark overlay. Floors and the face stay lit.
 - **Later: the ore elevator.** When it is built it is a single track in its shaft, not ladder-like (Kevin, 2026-10-12).
+
+## Painted art v1: ground, cliff blocks, trees (2026-10-12)
+
+Three painted sheets from Kevin (brief: `Docs/ART_PROMPTS_ASTRA.md`) are cut into sprites by `Tools/ArtImport/import_painted_sheets.py`. To rerun it, use a Python environment with numpy, scipy and Pillow: `python Tools/ArtImport/import_painted_sheets.py ArtSource/painted-sheets-v1 Assets/Ravenholm/Art/Placeholder`.
+
+- **Ground tiles.** The top diamond is masked to exactly 128 × 64, with the outline cropped so neighbouring tiles join; the earthy edge shows only at drops. They replace grass, flowered grass, forest floor, path, dug dirt and the plaza.
+- **The Mine.** Painted blocks per row, untinted (`MineSlabView.EditorSetupBlocks`):
+  - the grass-topped block for the top row and topsoil for row 1;
+  - then one rock per layer: sandstone, red clay, slate, mossy, purple, ochre, basalt, limestone. The cycle repeats 15% darker each time past the eighth layer.
+  - Unrevealed layers stay dimmed, and back walls stay in shadow.
+- **Ore in the lamp's light** shows as that ore's painted block (`ResourceDefinition.mineBlock`: iron, copper, coal, moonsilver), sorted like the rock it replaces. Ore without a block (gem) keeps the flecks.
+- **Trees and props.** Cedar is the tall pine, maple the leafy tree, ironwood the bent pine; the stump, herb bush and stone rock are replaced too. The extra props (ferns, logs, flowers, small pines) are cut and ready but not used yet.
+- **Not yet.** Seamless joins between different ground tiles are not verified; repetition is visible on large grass areas.

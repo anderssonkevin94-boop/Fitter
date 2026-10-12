@@ -1,0 +1,38 @@
+Generated with built-in image_gen, using style-reference.png attached to every call.
+Source brief: /Users/kevinandersson/Desktop/RavenholmSupplyCo/Docs/ART_PROMPTS_ASTRA.md
+Final sheets use magenta backgrounds. Contents follow brief row order.
+Visual QA: 12 ground tiles, 16 cliff blocks, 16 nature objects; separate and uncropped, no labels or scenery.
+Remaining preparation: generated geometry and prop anchors are approximate rather than pixel-exact. Normalize diamond proportions, cell positions, scale and pivots during slicing; seamless texture joins are not verified.
+
+GROUND PROMPT
+Sprite sheet for a 2D isometric mobile game. Match the art style of the attached reference exactly: cozy hand-painted cartoon, clean dark-brown outlines about 3 px thick, soft cel shading, warm earthy palette, light coming from the top-left. True 2:1 isometric angle (every diamond top is exactly twice as wide as it is tall).
+Layout: a strict grid of equal cells, one object per cell, centred, with wide empty margins. Nothing touches or overlaps a cell edge. No text, numbers, labels, watermark or UI. No drop shadows on the background, and no scenery or ground around objects unless asked. Background: flat solid pure #FF00FF magenta across all empty pixels. Absolutely no gradient, glow, vignette, texture, or shadows on background. Every object is complete and uncropped. High resolution.
+
+Use case: stylized-concept. Reference image is for art style only, not composition or text. Generate ONE sheet, 4 columns × 3 rows. Each cell holds ONE flat isometric ground tile: a diamond with exact width:height ratio 2:1, with a thin earthy edge underneath just a few pixels, like the edge of a board game tile. All diamonds identical dimensions. Textures must tile seamlessly edge to edge, no prominent perimeter border disrupting the texture. Keep at least 15% of each cell empty on each side. No visible grid lines.
+Row 1: lush short grass (plain); grass with a few small white and yellow flowers; grass with darker tufts; slightly darker forest-floor grass with fallen needles.
+Row 2: packed sandy dirt path (plain); dirt path with small pebbles; dirt path with faint footprints; dry brown dirt (freshly dug ground).
+Row 3: grey cobblestone paving; worn cobblestone with grass between stones; wooden plank floor; dark mossy soil.
+Exactly 12 separate flat tiles, no cubes.
+Precision correction: diamond top vertices relative to centre must be (-150,0), (0,-75), (150,0), (0,75), scaled uniformly. No steeper diagonals. Use generous margins: each tile maximum 70% cell width. Flat magenta everywhere outside tile silhouettes.
+
+CLIFF PROMPT
+Sprite sheet for a 2D isometric mobile game. Match the art style of the attached reference exactly: cozy hand-painted cartoon, clean dark-brown outlines about 3 px thick, soft cel shading, warm earthy palette, light coming from the top-left. True 2:1 isometric angle (every diamond top is exactly twice as wide as it is tall).
+Layout: a strict grid of equal cells, one object per cell, centred, with wide empty margins. Nothing touches or overlaps a cell edge. No text, numbers, labels, watermark or UI. No drop shadows on the background, and no scenery or ground around objects unless asked. Background: flat solid pure #FF00FF magenta across all empty pixels. Absolutely no gradient, glow, vignette, texture, or shadows on background. Every object is complete and uncropped. High resolution.
+
+Use case: stylized-concept. Reference image is for art style only, not composition or text. Generate ONE sheet, 4 columns × 4 rows. Each cell holds ONE isometric cube block with diamond top plus left and right side faces, all three visible. Exact geometry: top diamond width W and height W/2, vertical edges W/2, total block bounding box W by W. Top diagonals slope +/- 0.5. All blocks identical geometry and size, left face slightly lighter than right. Chunky and readable like reference cliff edge, subtle rounded bevels. Side faces show layered earth or rock. At least 15% empty margin each cell each side; no grid lines. Exactly 16 separate blocks.
+Row 1: grass-topped dirt block (green grass top slight grass overhang, brown soil sides small roots); plain brown topsoil block; topsoil block small pebbles; sandy dirt block.
+Row 2: warm sandstone with horizontal strata; red clay; cool grey slate with cracks; mossy green-grey stone.
+Row 3: dusky purple rock; ochre/amber rock; dark basalt; pale limestone.
+Row 4: grey stone with rusty orange iron streaks; stone with green-blue copper veins; stone with black coal chunks; stone with small sparkling gold flecks.
+
+TREES AND PROPS PROMPT
+Sprite sheet for a 2D isometric mobile game. Match the art style of the attached reference exactly: cozy hand-painted cartoon, clean dark-brown outlines about 3 px thick, soft cel shading, warm earthy palette, light coming from the top-left. True 2:1 isometric angle (every diamond top is exactly twice as wide as it is tall).
+Layout: a strict grid of equal cells, one object per cell, centred, with wide empty margins. Nothing touches or overlaps a cell edge. No text, numbers, labels, watermark or UI. No drop shadows on the background, and no scenery or ground around objects unless asked. Background: flat solid pure #FF00FF magenta across all empty pixels. Absolutely no gradient, glow, vignette, texture, or shadows on background. Every object is complete and uncropped. High resolution.
+
+Use case: stylized-concept. Reference image is for art style only, not composition or text. Generate ONE square sheet, 4 columns × 4 rows. Each cell holds ONE object standing on nothing, no ground tile, soil patch, scenery or background shadow. Same isometric angle as reference, consistent scale across whole sheet. Base at bottom-centre of each cell with 15% empty margin below; all objects complete, 15% empty margin on all sides. Smaller props remain small relative to trees, do not enlarge props to fill cells. No visible grid lines. Exactly 16 objects (a rock pair and log stack each count as one grouped object).
+Row 1: tall pine tree like reference big pines; medium pine tree; small young pine; round leafy deciduous tree.
+Row 2: pine tree slightly bent; dense round bush; small bush; fern clump.
+Row 3: cut tree stump with rings; fallen log; stack of three cut logs; a single chopped log piece.
+Row 4: grey boulder; small rock pair; grass tuft; cluster of small white flowers.
+Scale: tall pine about three times person height; bushes knee to waist height; stump knee height. Person only a conceptual scale measure, do not render people. Keep same scale across whole sheet.
+LAYOUT CORRECTION IS ESSENTIAL: exact equal square cells, not variable-height rows. On a 2048x2048 sheet each cell is 512x512. Column centre x values: 256,768,1280,1792. Row base y values: 435,947,1459,1971. Tall pine height 330px; medium pine 260px; young pine 170px; leafy tree 270px; bent pine 300px. Large bush height 95px; small bush 60px; fern 65px; stump 55px; fallen log 60px tall and 140px wide; stack 90px tall and 130px wide; chopped log 45px tall; boulder 90px; rock pair 45px; tuft 35px; white flowers 40px. These numbers are invisible layout instructions, do not render labels. Preserve these proportions and wide empty space even if small props leave most of their cell blank. All bases precisely on row base anchor, all cell columns centred. Same sheet, but strictly gridded with more empty space around every object.

@@ -387,6 +387,9 @@ namespace Ravenholm.EditorTools
                 ProjectSetup.LoadSprite("Tiles/tile_halfblock_0"),
                 new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") },
                 ProjectSetup.LoadSprite("Props/fx_ring"), _unlit);
+            Sprite Block(string name) => ProjectSetup.LoadSprite("Painted/Blocks/block_" + name);
+            slabRoot.GetComponent<MineSlabView>().EditorSetupBlocks(Block("grass"), new[] { Block("topsoil"), Block("topsoil_pebbles") },
+                new[] { Block("sandstone"), Block("red_clay"), Block("slate"), Block("mossy"), Block("purple"), Block("ochre"), Block("basalt"), Block("limestone") });
             var dig = new GameObject("DigSpot");
             dig.transform.SetParent(slabRoot.transform, false);
             var digCol = dig.AddComponent<CircleCollider2D>();

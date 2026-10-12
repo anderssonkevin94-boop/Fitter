@@ -40,6 +40,9 @@ namespace Ravenholm.Content
         [Tooltip("World piece used in carry stacks and piles.")]
         [SerializeField] private Sprite stackSprite;
 
+        [Tooltip("Mine ore: the painted block shown where this ore sits in the rock, within the lamp's light (optional).")]
+        [SerializeField] private Sprite mineBlock;
+
         [Tooltip("Colour used when this resource appears in site diagrams (strata, trail).")]
         [SerializeField] private Color mapTint = new Color(0.6f, 0.6f, 0.6f, 1f);
 
@@ -49,6 +52,7 @@ namespace Ravenholm.Content
         public Sprite Icon => icon;
         public Sprite StackSprite => stackSprite;
         public Color MapTint => mapTint;
+        public Sprite MineBlock => mineBlock;
 
         public override void Validate(List<string> errors)
         {

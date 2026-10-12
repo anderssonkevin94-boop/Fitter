@@ -87,6 +87,7 @@ namespace Ravenholm.EditorTools
             ApplyBalanceRevisions(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
+            EnsureOreBlocks();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
             var boot = EnsureAsset<BootConfig>(ConfigDir + "BootConfig.asset");
             if (boot.Catalogue == null || boot.SandboxSettings == null || boot.UiTheme == null || boot.Balance == null)
@@ -798,6 +799,21 @@ namespace Ravenholm.EditorTools
                 EditorUtility.SetDirty(catalogue);
             }
             AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>The painted ore blocks (Art/Placeholder/Painted/Blocks) on the Mine's ores; edited values are kept.</summary>
+        private static void EnsureOreBlocks()
+        {
+            foreach (var (id, sprite) in new[] { ("iron_ore", "ore_iron"), ("copper_ore", "ore_copper"), ("coal", "ore_coal"), ("moonsilver_ore", "ore_moonsilver") })
+            {
+                var res = AssetDatabase.LoadAssetAtPath<ResourceDefinition>(ResourceDir + "resource_" + id + ".asset");
+                if (res == null) continue;
+                var so = new SerializedObject(res);
+                var p = so.FindProperty("mineBlock");
+                if (p.objectReferenceValue != null) continue;
+                p.objectReferenceValue = LoadSprite("Painted/Blocks/block_" + sprite);
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
         }
 
         private static UiTheme EnsureUiTheme()

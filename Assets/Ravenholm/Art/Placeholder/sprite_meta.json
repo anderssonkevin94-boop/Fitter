@@ -364,7 +364,7 @@
   "Nature/bush_herb.png": {
    "pivot": [
     0.5,
-    0.2072
+    0.075
    ]
   },
   "Nature/rock_copper.png": {
@@ -381,32 +381,302 @@
   },
   "Nature/rock_stone.png": {
    "pivot": [
-    0.4985,
-    0.2041
+    0.5,
+    0.05
    ]
   },
   "Nature/tree_cedar.png": {
    "pivot": [
-    0.4985,
-    0.0892
+    0.5,
+    0.0182
    ]
   },
   "Nature/tree_ironwood.png": {
    "pivot": [
-    0.4985,
-    0.0811
+    0.5,
+    0.0194
    ]
   },
   "Nature/tree_maple.png": {
    "pivot": [
     0.5,
-    0.1027
+    0.02
    ]
   },
   "Nature/tree_stump.png": {
    "pivot": [
     0.5,
-    0.297
+    0.0833
+   ]
+  },
+  "Painted/Blocks/block_basalt.png": {
+   "pivot": [
+    0.5,
+    0.7594
+   ]
+  },
+  "Painted/Blocks/block_grass.png": {
+   "pivot": [
+    0.5,
+    0.7538
+   ]
+  },
+  "Painted/Blocks/block_limestone.png": {
+   "pivot": [
+    0.5,
+    0.7576
+   ]
+  },
+  "Painted/Blocks/block_mossy.png": {
+   "pivot": [
+    0.5,
+    0.7557
+   ]
+  },
+  "Painted/Blocks/block_ochre.png": {
+   "pivot": [
+    0.5,
+    0.7594
+   ]
+  },
+  "Painted/Blocks/block_ore_coal.png": {
+   "pivot": [
+    0.5,
+    0.7594
+   ]
+  },
+  "Painted/Blocks/block_ore_copper.png": {
+   "pivot": [
+    0.5,
+    0.7576
+   ]
+  },
+  "Painted/Blocks/block_ore_gold.png": {
+   "pivot": [
+    0.5,
+    0.7576
+   ]
+  },
+  "Painted/Blocks/block_ore_iron.png": {
+   "pivot": [
+    0.5,
+    0.7576
+   ]
+  },
+  "Painted/Blocks/block_ore_moonsilver.png": {
+   "pivot": [
+    0.5,
+    0.7576
+   ]
+  },
+  "Painted/Blocks/block_purple.png": {
+   "pivot": [
+    0.5,
+    0.7594
+   ]
+  },
+  "Painted/Blocks/block_red_clay.png": {
+   "pivot": [
+    0.5,
+    0.7576
+   ]
+  },
+  "Painted/Blocks/block_sandstone.png": {
+   "pivot": [
+    0.5,
+    0.7557
+   ]
+  },
+  "Painted/Blocks/block_sandy.png": {
+   "pivot": [
+    0.5,
+    0.7557
+   ]
+  },
+  "Painted/Blocks/block_slate.png": {
+   "pivot": [
+    0.5,
+    0.7557
+   ]
+  },
+  "Painted/Blocks/block_topsoil.png": {
+   "pivot": [
+    0.5,
+    0.7576
+   ]
+  },
+  "Painted/Blocks/block_topsoil_pebbles.png": {
+   "pivot": [
+    0.5,
+    0.7576
+   ]
+  },
+  "Painted/Ground/ground_cobble.png": {
+   "pivot": [
+    0.5,
+    0.5844
+   ]
+  },
+  "Painted/Ground/ground_cobble_grass.png": {
+   "pivot": [
+    0.5,
+    0.5844
+   ]
+  },
+  "Painted/Ground/ground_dirt_dug.png": {
+   "pivot": [
+    0.5,
+    0.5789
+   ]
+  },
+  "Painted/Ground/ground_forest_grass.png": {
+   "pivot": [
+    0.5,
+    0.5789
+   ]
+  },
+  "Painted/Ground/ground_grass_flowers.png": {
+   "pivot": [
+    0.5,
+    0.5789
+   ]
+  },
+  "Painted/Ground/ground_grass_plain.png": {
+   "pivot": [
+    0.5,
+    0.5789
+   ]
+  },
+  "Painted/Ground/ground_grass_tufts.png": {
+   "pivot": [
+    0.5,
+    0.5789
+   ]
+  },
+  "Painted/Ground/ground_path_footprints.png": {
+   "pivot": [
+    0.5,
+    0.5789
+   ]
+  },
+  "Painted/Ground/ground_path_pebbles.png": {
+   "pivot": [
+    0.5,
+    0.5789
+   ]
+  },
+  "Painted/Ground/ground_path_plain.png": {
+   "pivot": [
+    0.5,
+    0.5789
+   ]
+  },
+  "Painted/Ground/ground_planks.png": {
+   "pivot": [
+    0.5,
+    0.5844
+   ]
+  },
+  "Painted/Ground/ground_soil_mossy.png": {
+   "pivot": [
+    0.5,
+    0.5844
+   ]
+  },
+  "Painted/Nature/boulder.png": {
+   "pivot": [
+    0.5,
+    0.05
+   ]
+  },
+  "Painted/Nature/bush_big.png": {
+   "pivot": [
+    0.5,
+    0.05
+   ]
+  },
+  "Painted/Nature/bush_small.png": {
+   "pivot": [
+    0.5,
+    0.075
+   ]
+  },
+  "Painted/Nature/fern.png": {
+   "pivot": [
+    0.5,
+    0.0667
+   ]
+  },
+  "Painted/Nature/flowers.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Painted/Nature/grass_tuft.png": {
+   "pivot": [
+    0.5,
+    0.0909
+   ]
+  },
+  "Painted/Nature/leafy_tree.png": {
+   "pivot": [
+    0.5,
+    0.02
+   ]
+  },
+  "Painted/Nature/log_fallen.png": {
+   "pivot": [
+    0.5,
+    0.0857
+   ]
+  },
+  "Painted/Nature/log_piece.png": {
+   "pivot": [
+    0.5,
+    0.0833
+   ]
+  },
+  "Painted/Nature/log_stack.png": {
+   "pivot": [
+    0.5,
+    0.0667
+   ]
+  },
+  "Painted/Nature/pine_bent.png": {
+   "pivot": [
+    0.5,
+    0.0194
+   ]
+  },
+  "Painted/Nature/pine_medium.png": {
+   "pivot": [
+    0.5,
+    0.0222
+   ]
+  },
+  "Painted/Nature/pine_small.png": {
+   "pivot": [
+    0.5,
+    0.03
+   ]
+  },
+  "Painted/Nature/pine_tall.png": {
+   "pivot": [
+    0.5,
+    0.0182
+   ]
+  },
+  "Painted/Nature/rocks_small.png": {
+   "pivot": [
+    0.5,
+    0.0893
+   ]
+  },
+  "Painted/Nature/stump.png": {
+   "pivot": [
+    0.5,
+    0.0833
    ]
   },
   "Props/blob_shadow.png": {
@@ -862,7 +1132,7 @@
   "Tiles/tile_dirt.png": {
    "pivot": [
     0.5,
-    0.6596
+    0.5789
    ]
   },
   "Tiles/tile_fleck.png": {
@@ -880,19 +1150,19 @@
   "Tiles/tile_forest_floor.png": {
    "pivot": [
     0.5,
-    0.6596
+    0.5789
    ]
   },
   "Tiles/tile_grass_a.png": {
    "pivot": [
     0.5,
-    0.6596
+    0.5789
    ]
   },
   "Tiles/tile_grass_b.png": {
    "pivot": [
     0.5,
-    0.6596
+    0.5789
    ]
   },
   "Tiles/tile_halfblock_0.png": {
@@ -934,13 +1204,13 @@
   "Tiles/tile_path.png": {
    "pivot": [
     0.5,
-    0.6596
+    0.5789
    ]
   },
   "Tiles/tile_plaza.png": {
    "pivot": [
     0.5,
-    0.6596
+    0.5844
    ]
   },
   "Tiles/tile_sill.png": {

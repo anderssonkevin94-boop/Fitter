@@ -185,3 +185,13 @@ They are temporary Phase 0 placeholders to be replaced after the progression che
 | `UI/ui_panel.png` | 9-slice parchment panel |
 | `UI/ui_panel_dark.png` | 9-slice dark translucent panel |
 | `UI/ui_round_button.png` | Round context button background |
+
+## Painted sheets v1 (2026-10-12)
+
+`Painted/Ground`, `Painted/Blocks` and `Painted/Nature` come from three AI-generated sprite sheets, made for this project by Kevin with an image generator from the brief in `Docs/ART_PROMPTS_ASTRA.md`. The sheets and prompts are in `ArtSource/painted-sheets-v1/`.
+
+The sheets were cut by `Tools/ArtImport/import_painted_sheets.py`, which keys out the magenta, scales to 128 px per tile width and sets the pivots in `sprite_meta.json`. The same script overwrote these placeholders:
+- tiles: `tile_grass_a`, `tile_grass_b`, `tile_forest_floor`, `tile_path`, `tile_dirt`, `tile_plaza`;
+- nature: `tree_cedar` (tall pine), `tree_maple` (leafy tree), `tree_ironwood` (bent pine), `tree_stump`, `bush_herb`, `rock_stone`.
+
+`block_ore_moonsilver` is the gold-ore block recoloured by the script.

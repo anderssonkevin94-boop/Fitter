@@ -40,6 +40,10 @@ namespace Ravenholm.Presentation
         [SerializeField] private Sprite[] crackSprites = new Sprite[0];
         [SerializeField] private Sprite ringSprite;
         [SerializeField] private Material spriteMaterial;
+        [Tooltip("Painted blocks: the ground's top row, then the topsoil row, then one per layer (repeating, darker, past the last).")]
+        [SerializeField] private Sprite surfaceBlock;
+        [SerializeField] private Sprite[] topsoilBlocks = new Sprite[0];
+        [SerializeField] private Sprite[] layerBlocks = new Sprite[0];
 
         public static MineSlabView Current { get; private set; }
 
@@ -71,6 +75,13 @@ namespace Ravenholm.Presentation
             crackSprites = cracks;
             ringSprite = ring;
             spriteMaterial = mat;
+        }
+
+        public void EditorSetupBlocks(Sprite surface, Sprite[] topsoil, Sprite[] layers)
+        {
+            surfaceBlock = surface;
+            topsoilBlocks = topsoil;
+            layerBlocks = layers;
         }
 
         private SiteSimulator Sim => _root != null ? _root.Services.Sites.Get(SiteId) : null;
@@ -231,14 +242,33 @@ namespace Ravenholm.Presentation
             new Color(0.58f, 0.67f, 0.47f), new Color(0.62f, 0.49f, 0.60f), new Color(0.82f, 0.63f, 0.31f),
         };
 
+        private bool Painted => layerBlocks != null && layerBlocks.Length > 0;
+
+        /// <summary>A row's colour: with painted blocks only a shade (deeper repeats darker; unrevealed layers dimmer).</summary>
         private Color RowColour(SiteSimulator sim, int row)
         {
-            if (row < sim.Slab.TopsoilRows) return Topsoil;
             var layer = sim.Slab.LayerOfRow(row);
-            var col = Bands[(layer - 1) % Bands.Length] * Mathf.Pow(0.9f, (layer - 1) / Bands.Length);
-            if (!sim.Record.Revealed.ContainsKey(Mathf.Min(layer, sim.Config.Bands.Count))) col = Color.Lerp(col, new Color(0.35f, 0.3f, 0.32f), 0.45f);
+            Color col;
+            if (Painted)
+                col = row < sim.Slab.TopsoilRows ? Color.white : Color.white * Mathf.Pow(0.85f, (layer - 1) / layerBlocks.Length);
+            else
+            {
+                if (row < sim.Slab.TopsoilRows) return Topsoil;
+                col = Bands[(layer - 1) % Bands.Length] * Mathf.Pow(0.9f, (layer - 1) / Bands.Length);
+            }
+            if (row >= sim.Slab.TopsoilRows && !sim.Record.Revealed.ContainsKey(Mathf.Min(layer, sim.Config.Bands.Count)))
+                col = Color.Lerp(col, new Color(0.35f, 0.3f, 0.32f), 0.45f);
             col.a = 1f;
             return col;
+        }
+
+        /// <summary>A block's sprite: painted per row (grass-topped at the top, then topsoil, then the layer's rock).</summary>
+        private Sprite BlockSprite(SiteSimulator sim, Vector3Int cell, int row, int hash)
+        {
+            if (!Painted) return blockTiles[Mathf.Abs(hash) % blockTiles.Length] is Tile t ? t.sprite : null;
+            if (row == 0 && surfaceBlock != null) return surfaceBlock;
+            if (row < sim.Slab.TopsoilRows && topsoilBlocks.Length > 0) return topsoilBlocks[Mathf.Abs(hash) % topsoilBlocks.Length];
+            return layerBlocks[(sim.Slab.LayerOfRow(row) - 1) % layerBlocks.Length];
         }
 
         private void Draw(SiteSimulator sim)
@@ -265,12 +295,12 @@ namespace Ravenholm.Presentation
                     var k = new Vector3Int(cell.x, cell.y, row);
                     keep.Add(k);
                     var h = (cell.x * 73856093) ^ (row * 19349663) ^ (cell.y * 83492791);
-                    var tile = blockTiles[Mathf.Abs(h) % blockTiles.Length] as Tile;
+                    var sprite = BlockSprite(sim, cell, row, h);
                     // The back wall of a tunnel or shaft (the rock behind a dug block) is in shadow; floors and the face stay lit.
                     var back = !SlabCell(cell, out _, out _) && SlabCell(cell + Vector3Int.left, out var fx, out var fu) && sim.IsDug(fx, fu, row);
                     var colour = RowColour(sim, row) * (back ? InsideShade : Color.white);
                     colour.a = 1f;
-                    Put(_blocks, k, tile != null ? tile.sprite : null, TopOfCell(cell, row), OrderFor(cell, row), colour);
+                    Put(_blocks, k, sprite, TopOfCell(cell, row), OrderFor(cell, row), colour);
                 }
             }
             foreach (var c in _edgeColumns) Column(c);
@@ -758,7 +788,7 @@ namespace Ravenholm.Presentation
             foreach (var k in new List<Vector3Int>(_outlines.Keys)) Remove(_outlines, k);
             if (_motor != null && _motor.HiddenForRoutine) return;
             foreach (var b in Reachable())
-                Put(_outlines, new Vector3Int(b.X, b.U, b.Row), highlightSprite, Top(b.X, b.U, b.Row), MarkOrder(b.X, b.U, b.Row, 3),
+                Put(_outlines, new Vector3Int(b.X, b.U, b.Row), highlightSprite, Top(b.X, b.U, b.Row), OrderFor(b.X, b.U, b.Row) + 3,
                     new Color(1f, 1f, 0.85f, 0.16f));
         }
 
@@ -818,7 +848,16 @@ namespace Ravenholm.Presentation
                 if (ore == null) continue;
                 var col = OreColour(ore);
                 col.a = strong ? 1f : 0.4f;
-                Put(_flecks, new Vector3Int(x, u, row), fleck, Top(x, u, row), MarkOrder(x, u, row, 1), col);
+                var sprite = fleck;
+                var order = MarkOrder(x, u, row, 1);
+                // A painted ore block where the ore itself sits (shaded like its rock, sorted like it), flecks beside it.
+                if (strong && _root.Services.Catalogue.TryGet<ResourceDefinition>(ore, out var res) && res.MineBlock != null)
+                {
+                    sprite = res.MineBlock;
+                    col = RowColour(sim, row);
+                    order = OrderFor(x, u, row) + 1;
+                }
+                Put(_flecks, new Vector3Int(x, u, row), sprite, Top(x, u, row), order, col);
                 if (strong) StrongFlecks++;
             }
         }
