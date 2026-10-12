@@ -108,6 +108,15 @@ namespace Ravenholm.Tests
             }
             Assert.AreEqual(4, p.Feet, "still on the same level");
             Assert.Greater(p.FadedBlocks, 0, "the rock in front turns see-through");
+            // The walls right beside the supplier stay visible as ghosts and can be tapped: they are what is in the way.
+            var lane2 = Mathf.RoundToInt(p.X);
+            var wall = new Vector3Int(lane2, col - 1, p.Feet - 1);   // the side wall towards the camera, at body height
+            Assert.IsTrue(p.Diggable(wall));
+            Assert.IsTrue(p.Ghost(wall.x, wall.y, wall.z), "a cut-away wall touching the supplier is ghosted, not hidden");
+            Assert.Greater(p.GhostBlocks, 0);
+            var spot = Camera.main.WorldToScreenPoint(p.Top(wall.x, wall.y, wall.z) + new Vector3(-0.15f, -0.35f, 0f));
+            for (var tap = 0; tap < 5 && p.Selected != wall; tap++) p.OnTapped(spot);   // tapping again steps through what is there
+            Assert.AreEqual(wall, p.Selected, "a ghosted wall can be selected (tapping the spot again steps to it) and dug");
             Assert.IsFalse(p.InReach(new Vector3Int(0, col + 6, 2)), "blocks far away are out of reach");
 
             yield return new WaitForSeconds(0.6f);

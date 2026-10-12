@@ -205,6 +205,22 @@ namespace Ravenholm.Presentation
 
         private static readonly Color InsideShade = new Color(0.5f, 0.48f, 0.5f);
         private static readonly Color CutShade = new Color(0.74f, 0.72f, 0.72f);   // rock shown by the cutaway: a cross-section
+        private static readonly Color GhostShade = new Color(1f, 1f, 1f, 0.38f);    // cut away but touching the supplier
+
+        public int GhostBlocks { get; private set; }
+
+        /// <summary>
+        /// Blocks the cutaway would hide but the supplier is up against: beside them at body or head height, the step at
+        /// their feet, and the block over their head. These stay visible (ghosted) and can be tapped and dug.
+        /// </summary>
+        public bool Ghost(int x, int u, int row)
+        {
+            var px = Mathf.RoundToInt(_x);
+            var pu = Mathf.RoundToInt(_u);
+            var flat = Mathf.Abs(x - px) + Mathf.Abs(u - pu);
+            if (flat == 0) return row == _feet - 3;
+            return flat == 1 && row >= _feet - 2 && row <= _feet;
+        }
 
         /// <summary>Open to the camera: dug, air, or cut away for the moment so the supplier can be seen.</summary>
         private bool Open(int x, int u, int row) => !Solid(x, u, row) || Hides(x, u, row);
@@ -223,7 +239,19 @@ namespace Ravenholm.Presentation
             for (var x = 0; x <= Thickness; x++)
             {
                 if (!Solid(x, u, row)) continue;
-                if (Hides(x, u, row)) { FadedBlocks++; continue; }   // cut away: the rock behind it shows instead
+                if (Hides(x, u, row))
+                {
+                    FadedBlocks++;
+                    if (!Ghost(x, u, row)) continue;   // cut away: the rock behind it shows instead
+                    // Touching the supplier: kept as a see-through ghost, because it is in the way and can be dug.
+                    var gc = Cell(x, u);
+                    var gh = (u * 73856093) ^ (row * 19349663) ^ (x * 83492791);
+                    tm.SetTile(gc, blockTiles[Mathf.Abs(gh) % blockTiles.Length]);
+                    tm.SetTileFlags(gc, TileFlags.None);
+                    tm.SetColor(gc, GhostShade);
+                    GhostBlocks++;
+                    continue;
+                }
                 if (!Visible(x, u, row)) continue;
                 var cell = Cell(x, u);
                 var h = (u * 73856093) ^ (row * 19349663) ^ (x * 83492791);
@@ -266,6 +294,7 @@ namespace Ravenholm.Presentation
         private void RedrawAround(int row)
         {
             FadedBlocks = 0;
+            GhostBlocks = 0;
             for (var r = row - 4; r <= row + 2; r++) DrawRow(r);
             DrawSurface();
         }
@@ -419,38 +448,62 @@ namespace Ravenholm.Presentation
         public bool InReach(Vector3Int b) =>
             Mathf.Abs(b.x - Lane) <= 2 && Mathf.Abs(b.y - Column) <= 2 && b.z >= _feet - 3 && b.z <= _feet + 1;
 
-        /// <summary>A tap on the screen selects the block drawn there (the frontmost solid one), if it is in reach.</summary>
+        /// <summary>
+        /// A tap selects the block drawn there, if it is in reach. On an isometric grid some blocks sit exactly behind
+        /// others on screen, so tapping the same spot again steps to the next block there (solid rock first, then the
+        /// ghosted walls beside the supplier), and then back to nothing.
+        /// </summary>
         public void OnTapped(Vector2 screen)
         {
             var world = (Vector2)worldCamera.ScreenToWorldPoint(new Vector3(screen.x, screen.y, 10f));
-            if (!BlockAt(world, out var b)) return;
-            if (!InReach(b))
+            var hits = BlocksAt(world);
+            hits.RemoveAll(b => !InReach(b));
+            if (hits.Count == 0)
             {
-                _hint = "Too far: walk closer to dig that block.";
-                _hintUntil = Time.time + 2f;
+                if (BlocksAt(world).Count > 0)
+                {
+                    _hint = "Too far: walk closer to dig that block.";
+                    _hintUntil = Time.time + 2f;
+                }
                 return;
             }
-            _selected = _selected == b ? (Vector3Int?)null : b;   // tapping it again deselects
+            var i = _selected.HasValue ? hits.IndexOf(_selected.Value) : -1;
+            _selected = i < 0 ? hits[0] : i + 1 < hits.Count ? hits[i + 1] : (Vector3Int?)null;
             _progress = 0f;
         }
 
-        /// <summary>The frontmost drawn, solid block (not faded by the cutaway) whose sprite covers this world point.</summary>
+        /// <summary>The frontmost drawn block under this world point (tests and the first tap).</summary>
         public bool BlockAt(Vector2 world, out Vector3Int block)
         {
-            block = default;
-            var found = false;
-            var bestKey = 0;
+            var hits = BlocksAt(world);
+            block = hits.Count > 0 ? hits[0] : default;
+            return hits.Count > 0;
+        }
+
+        /// <summary>
+        /// Every drawn block whose sprite covers this world point: solid rock in front-to-back draw order, then ghosted
+        /// walls (they are see-through, so the rock behind them is what the eye picks first).
+        /// </summary>
+        public List<Vector3Int> BlocksAt(Vector2 world)
+        {
+            var solid = new List<(int key, Vector3Int b)>();
+            var ghosts = new List<(int key, Vector3Int b)>();
             for (var row = Mathf.Max(0, _feet - 8); row <= Mathf.Min(Depth - 1, _feet + 6); row++)
             for (var u = Mathf.Max(0, Column - 6); u <= Mathf.Min(Width - 1, Column + 6); u++)
             for (var x = 0; x < Thickness; x++)
             {
-                if (!Solid(x, u, row) || !Visible(x, u, row) || Hides(x, u, row) || !InSilhouette(world, Top(x, u, row))) continue;
+                if (!Solid(x, u, row) || !InSilhouette(world, Top(x, u, row))) continue;
                 // Upper rows are drawn over lower ones; within a row, the cell lower on screen (smaller x + u) is in front.
                 var key = row * 1000 + (x + u);
-                if (!found || key < bestKey) { bestKey = key; block = new Vector3Int(x, u, row); }
-                found = true;
+                if (Hides(x, u, row)) { if (Ghost(x, u, row)) ghosts.Add((key, new Vector3Int(x, u, row))); }
+                else if (Visible(x, u, row)) solid.Add((key, new Vector3Int(x, u, row)));
             }
-            return found;
+            solid.Sort((a, b) => a.key.CompareTo(b.key));
+            ghosts.Sort((a, b) => a.key.CompareTo(b.key));
+            var list = new List<Vector3Int>();
+            foreach (var h in solid) list.Add(h.b);
+            foreach (var h in ghosts) list.Add(h.b);
+            return list;
         }
 
         /// <summary>Point inside a half-block's silhouette (top diamond plus its two faces), given its top centre.</summary>
