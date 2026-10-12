@@ -605,3 +605,19 @@ The option-A prototype is now the real Mine. The prototype scene, its signpost a
 - **Saves.** Mine layout 3: dug blocks, the block in progress, the last dig and the routine's face. Older Mines convert to an untouched slab.
 - **Drawing.** Every visible block is a pooled sprite sorted by x + y + row, and the supplier is sorted among them as the cube of their lower body. Marks on the surface's top blocks sort above the town's ground tiles.
 - **Known.** Inside a tunnel behind the cliff face the supplier is hidden by the rock in front, because nothing is cut away (by request). A silhouette is a candidate follow-up.
+
+## Prototype: the Mine as one slice of the cliff face (2026-10-12)
+
+This is an experiment for Kevin to try; the real Mine (the dig slab) is unchanged. It is a self-contained `MinePrototype` scene (`CliffPrototype`), opened from the signpost by the Mine, and it never touches the save.
+
+- **Why.** In the isometric view, one block down looks the same as one block back and one sideways, so the 8-thick slab hid depth and position. On a single slice, down on screen is always deeper, and nothing is ever in front of the supplier.
+- **Controls.**
+  - Left and right walk along the cliff; screen left goes on along it, as the real Mine does.
+  - Down aims at the block underfoot and up at the block overhead.
+  - Dig takes the wall walked into (head height, then legs), or, standing still, the block underfoot. Taps and presses still pick a block.
+- **Ladders.** Digging straight down two or more blocks leaves a ladder in the shaft; a one-block dip is just stepped up. Up and down climb it, and its top holds the supplier, who walks off it sideways.
+- **Readability.**
+  - The tunnel's back wall is in shadow.
+  - The side wall seen inside a hole gets a dark overlay (a runtime parallelogram sprite), and the ladder hangs on that wall.
+  - A depth line reads "Depth N blocks · layer K".
+  - The supplier is drawn at 0.85 scale so their head stays under the rock overhead.

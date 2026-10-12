@@ -28,6 +28,7 @@ namespace Ravenholm.EditorTools
         public const string SceneDir = Root + "Scenes/";
         public const string BootstrapScene = SceneDir + "Bootstrap.unity";
         public const string SandboxScene = SceneDir + "DebugSandbox.unity";
+        public const string MinePrototypeScene = SceneDir + "MinePrototype.unity";
         public const int BlockerLayerIndex = 8;
         public const string BundleId = "com.kevinandersson.ravenholmsupplyco";
         public const string MinIosVersion = "15.0";
@@ -102,10 +103,12 @@ namespace Ravenholm.EditorTools
 
             if (rebuildScenes || !File.Exists(BootstrapScene)) SandboxSceneBuilder.BuildBootstrap(ConfigDir + "BootConfig.asset", BootstrapScene);
             if (rebuildScenes || !File.Exists(SandboxScene)) SandboxSceneBuilder.BuildSandbox(ConfigDir + "SandboxSettings.asset", SandboxScene);
+            if (rebuildScenes || !File.Exists(MinePrototypeScene)) SandboxSceneBuilder.BuildMinePrototype(MinePrototypeScene);
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene(BootstrapScene, true),
                 new EditorBuildSettingsScene(SandboxScene, true),
+                new EditorBuildSettingsScene(MinePrototypeScene, true),
             };
             AssetDatabase.SaveAssets();
 
