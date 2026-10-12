@@ -64,7 +64,9 @@ namespace Ravenholm.Tests
             for (var i = 0; i < 4; i++)
             {
                 var under = new Vector3Int(0, Mathf.RoundToInt(p.U), p.Feet);
-                p.OnTapped(Camera.main.WorldToScreenPoint(p.Top(under.x, under.y, under.z) + new Vector3(0f, -0.3f, 0f)));
+                yield return null;
+                var spotDown = Camera.main.WorldToScreenPoint(p.Top(under.x, under.y, under.z) + new Vector3(0f, -0.3f, 0f));
+                for (var tap = 0; tap < 4 && p.Selected != under; tap++) p.OnTapped(spotDown);
                 Assert.AreEqual(under, p.Selected, "tapping the block underfoot selects it");
                 p.ScriptedDig = true;
                 var before = p.Feet;
@@ -88,6 +90,14 @@ namespace Ravenholm.Tests
             yield return null;
             Assert.Less(p.DrawnOrder(new Vector3Int(0, col, p.Feet)), p.PlayerOrder, "the floor block is behind the supplier");
             Assert.Greater(p.DrawnOrder(new Vector3Int(0, col, p.Feet - 3)), p.PlayerOrder, "the block over the head covers them");
+
+            // What can be dug wears a faint outline; pressing and holding on one digs it without the Dig button.
+            Assert.Greater(p.OutlinedBlocks, 0, "reachable blocks are outlined");
+            var ahead = new Vector3Int(0, col + 1, p.Feet - 1);
+            Assert.IsTrue(p.Diggable(ahead) && p.Reachable().Contains(ahead), "the block ahead in the tunnel is reachable");
+            router.ScriptedPress = Camera.main.WorldToScreenPoint(p.Top(ahead.x, ahead.y, ahead.z) + new Vector3(0f, -0.25f, 0f));
+            yield return Until(() => !p.Diggable(ahead), 5f, "press and hold digs the block under the finger");
+            router.ScriptedPress = null;
 
             // Dig inwards: tap the blocks behind the tunnel (body and head height), dig them, and walk into the cliff.
             for (var lane = 1; lane <= 2; lane++)

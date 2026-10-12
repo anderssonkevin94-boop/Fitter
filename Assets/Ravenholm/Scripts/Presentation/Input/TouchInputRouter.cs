@@ -38,6 +38,39 @@ namespace Ravenholm.Presentation
         /// <summary>Normalized movement, magnitude 0..1, screen-up = +y.</summary>
         public Vector2 MoveVector { get; private set; }
 
+        /// <summary>
+        /// A finger (or mouse button) held down without moving: where it went down and for how long. Used for
+        /// press-and-hold on things in the world (the mining prototype digs the pressed block).
+        /// </summary>
+        public bool StillPress(out Vector2 pixels, out float seconds)
+        {
+            if (ScriptedPress.HasValue)
+            {
+                pixels = ScriptedPress.Value;
+                seconds = Time.realtimeSinceStartup - _scriptedPressSince;
+                return true;
+            }
+            pixels = _pressStart;
+            seconds = 0f;
+            if ((_trackedTouchId < 0 && !_mouseTracking) || _movedBeyondTap) return false;
+            seconds = (float)(Time.realtimeSinceStartupAsDouble - _startTime);
+            return true;
+        }
+
+        /// <summary>Tests: a finger held still at these screen pixels while set.</summary>
+        public Vector2? ScriptedPress
+        {
+            get => _scriptedPress;
+            set
+            {
+                if (value.HasValue && !_scriptedPress.HasValue) _scriptedPressSince = Time.realtimeSinceStartup;
+                _scriptedPress = value;
+            }
+        }
+
+        private Vector2? _scriptedPress;
+        private float _scriptedPressSince;
+
         /// <summary>Tests: a held stick direction that replaces touch, mouse and keyboard input while set.</summary>
         public Vector2? ScriptedMove { get; set; }
 

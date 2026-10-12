@@ -366,10 +366,12 @@ namespace Ravenholm.Presentation
             var move = _root.InputRouter.MoveVector;
             Walk(move);
             Fall();
+            PressAndHold();
             Aim();
             Dig();
             PlacePlayer();
             Cutaway();
+            Outlines();
             Flecks();
             TrackCamera();
             _tallyText.text = Time.time < _hintUntil ? _hint : TallyText();
@@ -453,7 +455,7 @@ namespace Ravenholm.Presentation
 
         private void Dig()
         {
-            var holding = (_digButton != null && _digButton.Held) || ScriptedDig;
+            var holding = (_digButton != null && _digButton.Held) || ScriptedDig || _pressDigging;
             _crack.enabled = false;
             if (!holding || !_target.HasValue) return;
             var b = _target.Value;
@@ -484,7 +486,7 @@ namespace Ravenholm.Presentation
             // Sorted as the cube of the lower body: blocks in front of the supplier cover them, blocks behind do not.
             if (_playerSorting != null) _playerSorting.sortingOrder = OrderFor(Lane, Column, _feet - 1) + 2;
             if (playerVisual == null) return;
-            var swing = (_digButton != null && _digButton.Held) || ScriptedDig;
+            var swing = (_digButton != null && _digButton.Held) || ScriptedDig || _pressDigging;
             var screenLeft = _facing.y > 0 || _facing.x < 0;
             var sc = playerVisual.localScale;
             sc.x = Mathf.Abs(sc.x) * (screenLeft ? -1f : 1f);
@@ -510,16 +512,15 @@ namespace Ravenholm.Presentation
             Mathf.Abs(b.x - Lane) <= 2 && Mathf.Abs(b.y - Column) <= 2 && b.z >= _feet - 3 && b.z <= _feet + 1;
 
         /// <summary>
-        /// A tap selects the block drawn there, if it is in reach. On an isometric grid some blocks sit exactly behind
-        /// others on screen, so tapping the same spot again steps to the next block there (solid rock first, then the
-        /// ghosted walls beside the supplier), and then back to nothing.
+        /// A tap selects the reachable block nearest the finger (reachable blocks wear a faint outline), so no exact aim is
+        /// needed. Where two reachable blocks sit exactly on top of each other on screen, tapping again switches between
+        /// them; tapping the selected block again clears the selection.
         /// </summary>
         public void OnTapped(Vector2 screen)
         {
             var world = (Vector2)worldCamera.ScreenToWorldPoint(new Vector3(screen.x, screen.y, 10f));
-            var hits = BlocksAt(world);
-            hits.RemoveAll(b => !InReach(b));
-            if (hits.Count == 0)
+            var near = NearestReachable(world);
+            if (near.Count == 0)
             {
                 if (BlocksAt(world).Count > 0)
                 {
@@ -528,10 +529,76 @@ namespace Ravenholm.Presentation
                 }
                 return;
             }
-            var i = _selected.HasValue ? hits.IndexOf(_selected.Value) : -1;
-            _selected = i < 0 ? hits[0] : i + 1 < hits.Count ? hits[i + 1] : (Vector3Int?)null;
+            var i = _selected.HasValue ? near.IndexOf(_selected.Value) : -1;
+            _selected = i < 0 ? near[0] : i + 1 < near.Count ? near[i + 1] : (Vector3Int?)null;
             _progress = 0f;
         }
+
+        private const float TapRadius = 0.9f;
+
+        /// <summary>The blocks the supplier can dig now: in reach, solid and drawn (not cut away).</summary>
+        public List<Vector3Int> Reachable()
+        {
+            var list = new List<Vector3Int>();
+            for (var row = _feet - 3; row <= _feet + 1; row++)
+            for (var u = Column - 2; u <= Column + 2; u++)
+            for (var x = Lane - 2; x <= Lane + 2; x++)
+            {
+                var b = new Vector3Int(x, u, row);
+                if (Diggable(b) && _blocks.ContainsKey(b) && (!Hides(x, u, row) || Ghost(x, u, row))) list.Add(b);
+            }
+            return list;
+        }
+
+        /// <summary>Reachable blocks whose face centre is nearest this point (ties first, nearest first), within reach of a thumb.</summary>
+        public List<Vector3Int> NearestReachable(Vector2 world)
+        {
+            var scored = new List<(float d, int key, Vector3Int b)>();
+            foreach (var b in Reachable())
+            {
+                var d = Vector2.Distance(world, (Vector2)Top(b.x, b.y, b.z) + new Vector2(0f, -0.25f));
+                if (d <= TapRadius) scored.Add((d, b.z * 1000 + b.x + b.y, b));
+            }
+            scored.Sort((a, c) => Mathf.Abs(a.d - c.d) < 0.05f ? a.key.CompareTo(c.key) : a.d.CompareTo(c.d));
+            var list = new List<Vector3Int>();
+            if (scored.Count == 0) return list;
+            foreach (var s in scored)
+                if (s.d - scored[0].d < 0.05f) list.Add(s.b);   // exact overlaps take turns; others are not candidates
+            return list;
+        }
+
+        // ------------------------------------------------------------------ press and hold to dig
+
+        private bool _pressDigging;
+
+        /// <summary>A finger held still on a reachable block selects it and digs it, without the Dig button.</summary>
+        private void PressAndHold()
+        {
+            _pressDigging = false;
+            if (!_root.InputRouter.StillPress(out var pixels, out var seconds) || seconds < 0.25f) return;
+            var world = (Vector2)worldCamera.ScreenToWorldPoint(new Vector3(pixels.x, pixels.y, 10f));
+            var near = NearestReachable(world);
+            if (near.Count == 0) return;
+            if (!_selected.HasValue || !near.Contains(_selected.Value)) { _selected = near[0]; _progress = 0f; }
+            _pressDigging = true;
+        }
+
+        // ------------------------------------------------------------------ outlines on what can be dug
+
+        private readonly Dictionary<Vector3Int, SpriteRenderer> _outlines = new Dictionary<Vector3Int, SpriteRenderer>();
+        private string _outlineKey = "";
+
+        private void Outlines()
+        {
+            var key = $"{Lane}|{Column}|{_feet}|{_dug.Count}|{_cutawayOn}";
+            if (key == _outlineKey) return;
+            _outlineKey = key;
+            foreach (var k in new List<Vector3Int>(_outlines.Keys)) Remove(_outlines, k);
+            foreach (var b in Reachable())
+                Put(_outlines, b, highlightSprite, Top(b.x, b.y, b.z), OrderFor(b.x, b.y, b.z) + 3, new Color(1f, 1f, 0.85f, 0.16f));
+        }
+
+        public int OutlinedBlocks => _outlines.Count;
 
         /// <summary>The frontmost drawn block under this world point (tests and the first tap).</summary>
         public bool BlockAt(Vector2 world, out Vector3Int block)
@@ -658,7 +725,7 @@ namespace Ravenholm.Presentation
             var card = ui.Panel("Card", safe, theme.panel);
             UiFactory.Place(card.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(1100f, 300f));
             var title = ui.Text("Title", card.transform,
-                "<b>Mining prototype</b> (option A)\nWalk like in town: up goes into the cliff. Tap a block near you to select it (tap again for the one behind), then hold Dig.",
+                "<b>Mining prototype</b> (option A)\nWalk like in town: up goes into the cliff. Tap an outlined block to select it and hold Dig, or press and hold on it to dig. Nothing selected: Dig takes the block ahead.",
                 theme.smallSize - 6f, theme.ink, TextAlignmentOptions.TopLeft);
             UiFactory.Place(title.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -20f), new Vector2(1040f, 190f));
             _tallyText = ui.Text("Tally", card.transform, "", theme.smallSize - 4f, theme.ink, TextAlignmentOptions.BottomLeft, FontStyles.Bold);
