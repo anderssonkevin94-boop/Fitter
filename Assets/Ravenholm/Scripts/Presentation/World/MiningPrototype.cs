@@ -269,8 +269,25 @@ namespace Ravenholm.Presentation
         /// The see-through cutaway: underground, a block in front of the supplier (nearer the camera, or above their head)
         /// that covers the space around them on screen is faded, so tunnels along and into the cliff stay readable.
         /// </summary>
+        /// <summary>The see-through cutaway (off by default: every block stays drawn; overlapping ones are tapped in turn).</summary>
+        public bool CutawayOn
+        {
+            get => _cutawayOn;
+            set
+            {
+                if (_cutawayOn == value) return;
+                _cutawayOn = value;
+                for (var r = 0; r < Depth; r++) DrawRow(r);
+                DrawSurface();
+                _fleckKey = "";
+            }
+        }
+
+        private bool _cutawayOn;
+
         private bool Hides(int x, int u, int row)
         {
+            if (!_cutawayOn) return false;
             if (row > _feet || _feet < 2) return false;   // the floor, and out on the surface, stay solid
             var px = Mathf.RoundToInt(_x);
             var pu = Mathf.RoundToInt(_u);
@@ -600,7 +617,7 @@ namespace Ravenholm.Presentation
             var card = ui.Panel("Card", safe, theme.panel);
             UiFactory.Place(card.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(1100f, 300f));
             var title = ui.Text("Title", card.transform,
-                "<b>Mining prototype</b> (option A)\nWalk like in town: up goes into the cliff. Tap a block near you to select it, then hold Dig. Rock in front of you turns see-through.",
+                "<b>Mining prototype</b> (option A)\nWalk like in town: up goes into the cliff. Tap a block near you to select it (tap again for the one behind), then hold Dig.",
                 theme.smallSize - 6f, theme.ink, TextAlignmentOptions.TopLeft);
             UiFactory.Place(title.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -20f), new Vector2(1040f, 190f));
             _tallyText = ui.Text("Tally", card.transform, "", theme.smallSize - 4f, theme.ink, TextAlignmentOptions.BottomLeft, FontStyles.Bold);
@@ -608,6 +625,13 @@ namespace Ravenholm.Presentation
 
             var back = ui.Button("Back", safe, "Back to town", BackToTown, out _);
             UiFactory.Place((RectTransform)back.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(40f, 60f), new Vector2(380f, 130f));
+            TextMeshProUGUI seeLabel = null;
+            var see = ui.Button("SeeThrough", safe, "See-through: off", () =>
+            {
+                CutawayOn = !CutawayOn;
+                seeLabel.text = CutawayOn ? "See-through: on" : "See-through: off";
+            }, out seeLabel);
+            UiFactory.Place((RectTransform)see.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(40f, 210f), new Vector2(380f, 130f));
 
             var dig = ui.Panel("Dig", safe, theme.roundButton);
             dig.type = Image.Type.Simple;

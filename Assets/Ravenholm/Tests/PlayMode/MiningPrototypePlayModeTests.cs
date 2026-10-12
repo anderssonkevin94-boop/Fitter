@@ -91,8 +91,10 @@ namespace Ravenholm.Tests
                 {
                     var pick = new Vector3Int(lane, col, row);
                     Assert.IsTrue(p.Diggable(pick), $"rock at {pick}");
-                    p.OnTapped(Camera.main.WorldToScreenPoint(p.Top(lane, col, row) + new Vector3(-0.15f, -0.35f, 0f)));   // its left face
-                    Assert.AreEqual(pick, p.Selected, $"a tap selects the block drawn there ({pick})");
+                    var spotIn = Camera.main.WorldToScreenPoint(p.Top(lane, col, row) + new Vector3(-0.15f, -0.35f, 0f));   // its left face
+                    // Nothing is hidden: where blocks overlap on screen, tapping again steps to the one behind.
+                    for (var tap = 0; tap < 5 && p.Selected != pick; tap++) p.OnTapped(spotIn);
+                    Assert.AreEqual(pick, p.Selected, $"tapping selects the block there ({pick})");
                     yield return null;
                     Assert.AreEqual(pick, p.Target, "and it becomes the block to dig");
                     p.ScriptedDig = true;
@@ -107,7 +109,10 @@ namespace Ravenholm.Tests
                 yield return null;
             }
             Assert.AreEqual(4, p.Feet, "still on the same level");
-            Assert.Greater(p.FadedBlocks, 0, "the rock in front turns see-through");
+            Assert.AreEqual(0, p.FadedBlocks, "see-through is off by default: nothing is hidden");
+            p.CutawayOn = true;
+            yield return null;
+            Assert.Greater(p.FadedBlocks, 0, "switched on, the rock in front turns see-through");
             // The walls right beside the supplier stay visible as ghosts and can be tapped: they are what is in the way.
             var lane2 = Mathf.RoundToInt(p.X);
             var wall = new Vector3Int(lane2, col - 1, p.Feet - 1);   // the side wall towards the camera, at body height
