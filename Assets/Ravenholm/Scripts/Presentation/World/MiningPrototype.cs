@@ -44,11 +44,15 @@ namespace Ravenholm.Presentation
 
         private GameRoot _root;
         private readonly HashSet<Vector3Int> _dug = new HashSet<Vector3Int>();   // (x, u, row)
-        private readonly Dictionary<int, Tilemap> _rows = new Dictionary<int, Tilemap>();
-        private readonly Dictionary<int, Tilemap> _fleckRows = new Dictionary<int, Tilemap>();
+        // Blocks are drawn as sprites, each sorted front to back with the supplier (half-blocks are true isometric cubes).
+        private readonly Dictionary<Vector3Int, SpriteRenderer> _blocks = new Dictionary<Vector3Int, SpriteRenderer>();
+        private readonly Dictionary<Vector3Int, SpriteRenderer> _grass = new Dictionary<Vector3Int, SpriteRenderer>();
+        private readonly Dictionary<Vector3Int, SpriteRenderer> _flecks = new Dictionary<Vector3Int, SpriteRenderer>();
+        private readonly List<SpriteRenderer> _pool = new List<SpriteRenderer>();
+        private Transform _blockRoot;
+        private UnityEngine.Rendering.SortingGroup _playerSorting;
         private readonly Dictionary<Vector3Int, string> _ore = new Dictionary<Vector3Int, string>();
         private readonly SortedDictionary<string, int> _tally = new SortedDictionary<string, int>();
-        private Tilemap _surface;
         private List<BandTemplate> _bands;
         private ulong _seed;
         private float _u = Width * 0.5f;        // along the face
@@ -156,7 +160,10 @@ namespace Ravenholm.Presentation
             _seed = _root != null ? _root.Services.Scheduler.Coordinator.WorldSeed : 1UL;
             if (_root != null) _root.Hud.gameObject.SetActive(false);   // the prototype has its own controls
 
-            _surface = Map("Surface", 0f, 1);
+            _blockRoot = new GameObject("Blocks").transform;
+            _blockRoot.SetParent(transform, false);
+            _playerSorting = player.GetComponent<UnityEngine.Rendering.SortingGroup>();
+            if (_playerSorting != null) _playerSorting.sortingLayerName = "Ground";
             for (var row = 0; row < Depth; row++) DrawRow(row);
             DrawSurface();
             _highlight = MakeRenderer("Target", highlightSprite, new Color(1f, 0.92f, 0.45f, 0.45f));
@@ -168,19 +175,55 @@ namespace Ravenholm.Presentation
             SnapCamera();
         }
 
-        private Tilemap Map(string name, float y, int order)
+        /// <summary>
+        /// Front-to-back draw order of a block: nearer the camera means a smaller x + u (along and into the cliff) and a
+        /// higher block (smaller row). Half-blocks are cubes on the 2:1 grid, so x + u + row orders them exactly. Each
+        /// block has four slots: the block, its grass or flecks, the supplier, and the highlight.
+        /// </summary>
+        public static int OrderFor(int x, int u, int row) => -4 * (x + u + row);
+
+        private static Sprite SpriteOf(TileBase tile) => tile is Tile t ? t.sprite : null;
+
+        private SpriteRenderer Take(string name)
         {
-            var go = new GameObject(name);
-            go.transform.SetParent(grid.transform, false);
-            go.transform.localPosition = new Vector3(0f, y, 0f);
-            var tm = go.AddComponent<Tilemap>();
-            var tr = go.AddComponent<TilemapRenderer>();
-            tr.mode = TilemapRenderer.Mode.Individual;
-            tr.sortingLayerName = "Ground";
-            tr.sortingOrder = order;
-            if (spriteMaterial != null) tr.sharedMaterial = spriteMaterial;
-            return tm;
+            SpriteRenderer sr;
+            if (_pool.Count > 0)
+            {
+                sr = _pool[_pool.Count - 1];
+                _pool.RemoveAt(_pool.Count - 1);
+                sr.gameObject.SetActive(true);
+            }
+            else
+            {
+                var go = new GameObject(name);
+                go.transform.SetParent(_blockRoot, false);
+                sr = go.AddComponent<SpriteRenderer>();
+                sr.sortingLayerName = "Ground";
+                if (spriteMaterial != null) sr.sharedMaterial = spriteMaterial;
+            }
+            return sr;
         }
+
+        private void Put(Dictionary<Vector3Int, SpriteRenderer> map, Vector3Int key, Sprite sprite, Vector3 at, int order, Color colour)
+        {
+            if (!map.TryGetValue(key, out var sr)) map[key] = sr = Take("Block");
+            sr.sprite = sprite;
+            sr.transform.position = at;
+            sr.sortingOrder = order;
+            sr.color = colour;
+        }
+
+        private void Remove(Dictionary<Vector3Int, SpriteRenderer> map, Vector3Int key)
+        {
+            if (!map.TryGetValue(key, out var sr)) return;
+            sr.gameObject.SetActive(false);
+            _pool.Add(sr);
+            map.Remove(key);
+        }
+
+        /// <summary>The block whose sprites are drawn at a key (tests: a block drawn in front of the supplier sorts after them).</summary>
+        public int DrawnOrder(Vector3Int b) => _blocks.TryGetValue(b, out var sr) ? sr.sortingOrder : int.MinValue;
+        public int PlayerOrder => _playerSorting != null ? _playerSorting.sortingOrder : 0;
 
         private SpriteRenderer MakeRenderer(string name, Sprite sprite, Color colour)
         {
@@ -232,36 +275,33 @@ namespace Ravenholm.Presentation
         private void DrawRow(int row)
         {
             if (row < 0 || row >= Depth) return;
-            if (!_rows.TryGetValue(row, out var tm)) _rows[row] = tm = Map($"Row{row}", -row * RowHeight, -2 * row);
-            tm.ClearAllTiles();
-            tm.color = Bands[(Layer(row) - 1) % Bands.Length];
+            var band = Bands[(Layer(row) - 1) % Bands.Length];
             for (var u = -Margin; u < Width + Margin; u++)
             for (var x = 0; x <= Thickness; x++)
             {
-                if (!Solid(x, u, row)) continue;
+                var key = new Vector3Int(x, u, row);
+                var h = (u * 73856093) ^ (row * 19349663) ^ (x * 83492791);
+                var sprite = SpriteOf(blockTiles[Mathf.Abs(h) % blockTiles.Length]);
+                if (!Solid(x, u, row)) { Remove(_blocks, key); continue; }
                 if (Hides(x, u, row))
                 {
                     FadedBlocks++;
-                    if (!Ghost(x, u, row)) continue;   // cut away: the rock behind it shows instead
+                    if (!Ghost(x, u, row)) { Remove(_blocks, key); continue; }   // cut away: the rock behind it shows instead
                     // Touching the supplier: kept as a see-through ghost, because it is in the way and can be dug.
-                    var gc = Cell(x, u);
-                    var gh = (u * 73856093) ^ (row * 19349663) ^ (x * 83492791);
-                    tm.SetTile(gc, blockTiles[Mathf.Abs(gh) % blockTiles.Length]);
-                    tm.SetTileFlags(gc, TileFlags.None);
-                    tm.SetColor(gc, GhostShade);
+                    var ghost = band * GhostShade;
+                    ghost.a = GhostShade.a;
+                    Put(_blocks, key, sprite, Top(x, u, row), OrderFor(x, u, row), ghost);
                     GhostBlocks++;
                     continue;
                 }
-                if (!Visible(x, u, row)) continue;
-                var cell = Cell(x, u);
-                var h = (u * 73856093) ^ (row * 19349663) ^ (x * 83492791);
-                tm.SetTile(cell, blockTiles[Mathf.Abs(h) % blockTiles.Length]);
-                tm.SetTileFlags(cell, TileFlags.None);
+                if (!Visible(x, u, row)) { Remove(_blocks, key); continue; }
                 // Inside the dig (a front or the ground above dug away) the rock is in shadow; the outside face stays lit.
                 var inside = _dug.Contains(new Vector3Int(x - 1, u, row)) || _dug.Contains(new Vector3Int(x, u - 1, row)) ||
                              _dug.Contains(new Vector3Int(x, u, row - 1)) && x > 0;
                 var cut = !inside && (Hides(x - 1, u, row) || Hides(x, u - 1, row) || Hides(x, u, row - 1));
-                tm.SetColor(cell, inside ? InsideShade : cut ? CutShade : Color.white);
+                var colour = band * (inside ? InsideShade : cut ? CutShade : Color.white);
+                colour.a = 1f;
+                Put(_blocks, key, sprite, Top(x, u, row), OrderFor(x, u, row), colour);
             }
         }
 
@@ -297,14 +337,16 @@ namespace Ravenholm.Presentation
             return Vector2.Distance((Vector2)Top(x, u, row) + new Vector2(0f, -RowHeight * 0.5f), body) < CutawayRadius;
         }
 
+        /// <summary>Grass on the top row of blocks (just above each block in the draw order).</summary>
         private void DrawSurface()
         {
-            _surface.ClearAllTiles();
+            var grass = SpriteOf(surfaceTile);
             for (var u = -Margin; u < Width + Margin; u++)
             for (var x = 0; x < Thickness + 6; x++)
             {
-                if (!Solid(x, u, 0) || Hides(x, u, 0)) continue;
-                _surface.SetTile(Cell(x, u), surfaceTile);
+                var key = new Vector3Int(x, u, 0);
+                if (!Solid(x, u, 0) || Hides(x, u, 0)) { Remove(_grass, key); continue; }
+                Put(_grass, key, grass, Top(x, u, 0), OrderFor(x, u, 0) + 1, Color.white);
             }
         }
 
@@ -403,7 +445,7 @@ namespace Ravenholm.Presentation
             _highlight.enabled = t.HasValue;
             if (!t.HasValue) return;
             _highlight.transform.position = Top(t.Value.x, t.Value.y, t.Value.z);
-            _highlight.sortingOrder = -2 * t.Value.z + 1;
+            _highlight.sortingOrder = OrderFor(t.Value.x, t.Value.y, t.Value.z) + 3;
             _highlight.color = _selected.HasValue ? new Color(1f, 0.86f, 0.3f, 0.7f) : new Color(1f, 0.92f, 0.45f, 0.4f);
         }
 
@@ -422,7 +464,7 @@ namespace Ravenholm.Presentation
                 _crack.enabled = true;
                 _crack.sprite = crackSprites[Mathf.Clamp((int)(_progress * crackSprites.Length), 0, crackSprites.Length - 1)];
                 _crack.transform.position = Top(b.x, b.y, b.z);
-                _crack.sortingOrder = -2 * b.z + 1;
+                _crack.sortingOrder = OrderFor(b.x, b.y, b.z) + 3;
             }
             if (_progress < 1f) return;
             _progress = 0f;
@@ -439,6 +481,8 @@ namespace Ravenholm.Presentation
         {
             _drawFeet = Mathf.MoveTowards(_drawFeet, _feet, Time.deltaTime * 10f);
             player.position = Top(_x, _u, _drawFeet);
+            // Sorted as the cube of the lower body: blocks in front of the supplier cover them, blocks behind do not.
+            if (_playerSorting != null) _playerSorting.sortingOrder = OrderFor(Lane, Column, _feet - 1) + 2;
             if (playerVisual == null) return;
             var swing = (_digButton != null && _digButton.Held) || ScriptedDig;
             var screenLeft = _facing.y > 0 || _facing.x < 0;
@@ -550,7 +594,8 @@ namespace Ravenholm.Presentation
             var key = $"{Lane}|{Column}|{_feet}";
             if (key == _fleckKey) return;
             _fleckKey = key;
-            foreach (var tm in _fleckRows.Values) tm.ClearAllTiles();
+            foreach (var k in new List<Vector3Int>(_flecks.Keys)) Remove(_flecks, k);
+            var fleck = SpriteOf(fleckTile);
             var me = (Vector2)Top(_x, _u, _feet - 1);
             for (var row = Mathf.Max(0, _feet - 7); row <= Mathf.Min(Depth - 1, _feet + 5); row++)
             for (var u = Column - 7; u <= Column + 7; u++)
@@ -564,13 +609,9 @@ namespace Ravenholm.Presentation
                     foreach (var (dx, du, dr) in new[] { (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1) })
                         if ((ore = OreAt(x + dx, u + du, row + dr)) != null) break;
                 if (ore == null) continue;
-                if (!_fleckRows.TryGetValue(row, out var tm)) _fleckRows[row] = tm = Map($"Flecks{row}", -row * RowHeight, -2 * row + 1);
-                var c = Cell(x, u);
-                tm.SetTile(c, fleckTile);
-                tm.SetTileFlags(c, TileFlags.None);
                 var col = _root.Services.Catalogue.TryGet<ResourceDefinition>(ore, out var res) ? res.MapTint : Color.white;
                 col.a = strong ? 1f : 0.4f;
-                tm.SetColor(c, col);
+                Put(_flecks, new Vector3Int(x, u, row), fleck, Top(x, u, row), OrderFor(x, u, row) + 1, col);
             }
         }
 

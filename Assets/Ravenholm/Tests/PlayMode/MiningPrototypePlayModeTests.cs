@@ -83,8 +83,13 @@ namespace Ravenholm.Tests
             Assert.GreaterOrEqual(p.DugCount, 4 + 6, "the shaft down and a 2-high tunnel");
             Assert.Greater(p.Tally.Values.Sum(), 0);
             Assert.IsFalse(p.Solid(Mathf.RoundToInt(p.U), p.Feet - 1) || p.Solid(Mathf.RoundToInt(p.U), p.Feet - 2), "the supplier stands in open tunnel");
-            // Dig inwards: tap the blocks behind the tunnel (body and head height), dig them, and walk into the cliff.
+            // Depth: the floor is drawn behind the supplier, the rock over their head (nearer the camera) in front.
             var col = Mathf.RoundToInt(p.U);
+            yield return null;
+            Assert.Less(p.DrawnOrder(new Vector3Int(0, col, p.Feet)), p.PlayerOrder, "the floor block is behind the supplier");
+            Assert.Greater(p.DrawnOrder(new Vector3Int(0, col, p.Feet - 3)), p.PlayerOrder, "the block over the head covers them");
+
+            // Dig inwards: tap the blocks behind the tunnel (body and head height), dig them, and walk into the cliff.
             for (var lane = 1; lane <= 2; lane++)
             {
                 foreach (var row in new[] { p.Feet - 1, p.Feet - 2 })
