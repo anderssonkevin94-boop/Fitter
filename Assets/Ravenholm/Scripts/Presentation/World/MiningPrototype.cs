@@ -10,10 +10,13 @@ using UnityEngine.UI;
 namespace Ravenholm.Presentation
 {
     /// <summary>
-    /// PROTOTYPE (option A, 2026-10-12): Minecraft-style digging in the cliff face, on the same isometric grid and camera.
-    /// Blocks are half a level tall, so the supplier is two blocks tall and a tunnel is 2 high × 1 deep: the face row is
-    /// dug, the row behind is its back wall. Dig any block next to you (left, right, up, down, diagonally down), walk the
-    /// tunnels you make, step up single blocks and drop into holes. Ore uses the real veins (world seed, the Mine's layer
+    /// PROTOTYPE (option A, 2026-10-12): Minecraft-style digging into a cliff, on the same isometric grid and camera.
+    ///
+    /// The ground is a slab of blocks: along the face (u), into the cliff (x, 0 = the face) and down (row). Blocks are
+    /// half a level tall, so the supplier is two blocks tall and a tunnel is 2 high × 1 wide. Walk like in town (left and
+    /// right along the face, up into the cliff, down back out), tap a block in reach to select it, hold Dig to mine it.
+    /// Single blocks are stepped up, holes are dropped into. A see-through cutaway fades the blocks between the camera and
+    /// the supplier, so tunnels dug into the cliff stay readable. Ore uses the real veins (world seed, the Mine's layer
     /// mixes) and shows as flecks within the lamp's light. Self-contained: nothing here touches the company save.
     /// </summary>
     public sealed class MiningPrototype : MonoBehaviour
@@ -22,9 +25,11 @@ namespace Ravenholm.Presentation
         public const string TownSceneName = "DebugSandbox";
         public const int Width = 48;            // blocks along the face
         public const int Depth = 36;            // block rows below the surface
+        public const int Thickness = 8;         // blocks into the cliff that can be dug
         public const int RowsPerLayer = 6;      // 3 levels × 2 blocks
         public const float RowHeight = 0.5f;    // half a level: the supplier is two blocks tall
         private const int Margin = 8;
+        private const float CutawayRadius = 1.7f;
 
         [SerializeField] private Grid grid;
         [SerializeField] private Camera worldCamera;
@@ -38,25 +43,30 @@ namespace Ravenholm.Presentation
         [SerializeField] private Material spriteMaterial;
 
         private GameRoot _root;
-        private readonly HashSet<Vector2Int> _dug = new HashSet<Vector2Int>();
+        private readonly HashSet<Vector3Int> _dug = new HashSet<Vector3Int>();   // (x, u, row)
         private readonly Dictionary<int, Tilemap> _rows = new Dictionary<int, Tilemap>();
         private readonly Dictionary<int, Tilemap> _fleckRows = new Dictionary<int, Tilemap>();
-        private readonly Dictionary<Vector2Int, string> _ore = new Dictionary<Vector2Int, string>();
+        private readonly Dictionary<Vector3Int, string> _ore = new Dictionary<Vector3Int, string>();
         private readonly SortedDictionary<string, int> _tally = new SortedDictionary<string, int>();
         private Tilemap _surface;
         private List<BandTemplate> _bands;
         private ulong _seed;
-        private float _u = Width * 0.5f;        // position along the face (cells)
+        private float _u = Width * 0.5f;        // along the face
+        private float _x;                       // into the cliff (0 = the face row)
         private int _feet;                      // the block row the supplier stands on (its top is the floor)
         private float _drawFeet;
-        private int _facing = 1;
+        private Vector2Int _facing = new Vector2Int(0, 1);   // (dx, du)
         private float _fallTimer;
-        private Vector2Int? _target;
+        private Vector3Int? _target;
+        private Vector3Int? _selected;
         private float _progress;
         private SpriteRenderer _highlight, _crack;
         private HoldSensor _digButton;
         private TextMeshProUGUI _tallyText;
         private float _bob;
+        private string _hint = "";
+        private float _hintUntil;
+        private Vector3Int _cutawayAt = new Vector3Int(-99, -99, -99);
 
         public void EditorSetup(Grid g, Camera cam, Transform playerRoot, Transform visual, TileBase[] blocks, TileBase surface, TileBase fleck,
             Sprite[] cracks, Sprite highlight, Material mat)
@@ -77,37 +87,52 @@ namespace Ravenholm.Presentation
 
         public static MiningPrototype Current { get; private set; }
         public float U => _u;
+        public float X => _x;
         public int Feet => _feet;
-        public Vector2Int? Target => _target;
+        public Vector3Int? Target => _target;
+        public Vector3Int? Selected => _selected;
         public int DugCount => _dug.Count;
         public bool ScriptedDig { get; set; }
         public IReadOnlyDictionary<string, int> Tally => _tally;
+        public int FadedBlocks { get; private set; }
 
-        // ------------------------------------------------------------------ the grid
+        // ------------------------------------------------------------------ the slab
 
-        /// <summary>Solid ground at (u, row). Above the surface is air; the sides and the bottom are bedrock.</summary>
-        public bool Solid(int u, int row)
+        /// <summary>
+        /// Solid ground at (x, u, row). Above the surface is air, and so is everything in front of the face (x &lt; 0);
+        /// past the diggable slab (sides, back, bottom) is bedrock.
+        /// </summary>
+        public bool Solid(int x, int u, int row)
         {
-            if (row < 0) return false;
-            if (u < 0 || u >= Width || row >= Depth) return true;
-            return !_dug.Contains(new Vector2Int(u, row));
+            if (row < 0 || x < 0) return false;
+            if (u < 0 || u >= Width || row >= Depth || x >= Thickness) return true;
+            return !_dug.Contains(new Vector3Int(x, u, row));
         }
 
-        private Vector3Int Cell(int x, int u) => new Vector3Int(x, u, 0);
+        /// <summary>The face row (prototype tests from the first version).</summary>
+        public bool Solid(int u, int row) => Solid(0, u, row);
 
-        /// <summary>World point on the face row at (u, row): the top of that block.</summary>
-        public Vector3 Top(float u, float row) => new Vector3(-u * 0.5f, u * 0.25f + 0.25f - row * RowHeight, 0f);
+        /// <summary>Where the supplier can stand or walk: in front of the face is a drop, so it blocks like a wall.</summary>
+        private bool Blocks(int x, int u, int row) => x < 0 ? row >= 0 : Solid(x, u, row);
+
+        public bool Diggable(Vector3Int b) => b.x >= 0 && b.x < Thickness && b.y >= 0 && b.y < Width && b.z >= 0 && b.z < Depth && Solid(b.x, b.y, b.z);
+
+        private static Vector3Int Cell(int x, int u) => new Vector3Int(x, u, 0);
+
+        /// <summary>World point of the top of block (x, u, row) (its sprite pivot).</summary>
+        public Vector3 Top(float x, float u, float row) => new Vector3((x - u) * 0.5f, (x + u) * 0.25f + 0.25f - row * RowHeight, 0f);
+        public Vector3 Top(float u, float row) => Top(0f, u, row);
 
         private int Layer(int row) => Mathf.Clamp(row / RowsPerLayer + 1, 1, _bands.Count);
 
         /// <summary>What a block holds (null = plain rock): the real veins, from the world seed and the layer's mix.</summary>
-        public string OreAt(int u, int row)
+        public string OreAt(int x, int u, int row)
         {
-            var key = new Vector2Int(u, row);
+            var key = new Vector3Int(x, u, row);
             if (_ore.TryGetValue(key, out var ore)) return ore;
             var band = _bands[Layer(row) - 1];
             var comp = SiteMath.Generate(_seed, MineDigView.SiteId, band);
-            ore = MineVeins.OreAt(_seed ^ (ulong)band.Index * 0x9E3779B97F4A7C15UL, comp, band.BaselineResourceId, 0, u, row, out _);
+            ore = MineVeins.OreAt(_seed ^ (ulong)band.Index * 0x9E3779B97F4A7C15UL, comp, band.BaselineResourceId, x, u, row, out _);
             _ore[key] = ore;
             return ore;
         }
@@ -170,15 +195,24 @@ namespace Ravenholm.Presentation
             return sr;
         }
 
+        // ------------------------------------------------------------------ drawing
+
         private static readonly Color[] Bands =
         {
             new Color(0.86f, 0.71f, 0.50f), new Color(0.76f, 0.48f, 0.37f), new Color(0.53f, 0.56f, 0.65f),
             new Color(0.58f, 0.67f, 0.47f), new Color(0.62f, 0.49f, 0.60f), new Color(0.82f, 0.63f, 0.31f),
         };
 
-        private static readonly Color Inside = new Color(0.5f, 0.48f, 0.5f);
+        private static readonly Color InsideShade = new Color(0.5f, 0.48f, 0.5f);
+        private static readonly Color CutShade = new Color(0.74f, 0.72f, 0.72f);   // rock shown by the cutaway: a cross-section
 
-        /// <summary>One row of the face: solid face blocks, and the back wall wherever the face is dug.</summary>
+        /// <summary>Open to the camera: dug, air, or cut away for the moment so the supplier can be seen.</summary>
+        private bool Open(int x, int u, int row) => !Solid(x, u, row) || Hides(x, u, row);
+
+        /// <summary>A block is drawn when the camera can see it: an open neighbour in front, or open ground above.</summary>
+        private bool Visible(int x, int u, int row) => Open(x - 1, u, row) || Open(x, u - 1, row) || row > 0 && Open(x, u, row - 1);
+
+        /// <summary>One row of the slab: every visible block, shaded inside the dig, faded where it hides the supplier.</summary>
         private void DrawRow(int row)
         {
             if (row < 0 || row >= Depth) return;
@@ -186,31 +220,54 @@ namespace Ravenholm.Presentation
             tm.ClearAllTiles();
             tm.color = Bands[(Layer(row) - 1) % Bands.Length];
             for (var u = -Margin; u < Width + Margin; u++)
+            for (var x = 0; x <= Thickness; x++)
             {
-                var front = Cell(0, u);
-                if (Solid(u, row)) { Set(tm, front, u, row, Color.white); continue; }
-                // Dug: the back wall shows, in shadow, so the tunnel reads at a glance.
-                Set(tm, Cell(1, u), u, row, Inside);
+                if (!Solid(x, u, row)) continue;
+                if (Hides(x, u, row)) { FadedBlocks++; continue; }   // cut away: the rock behind it shows instead
+                if (!Visible(x, u, row)) continue;
+                var cell = Cell(x, u);
+                var h = (u * 73856093) ^ (row * 19349663) ^ (x * 83492791);
+                tm.SetTile(cell, blockTiles[Mathf.Abs(h) % blockTiles.Length]);
+                tm.SetTileFlags(cell, TileFlags.None);
+                // Inside the dig (a front or the ground above dug away) the rock is in shadow; the outside face stays lit.
+                var inside = _dug.Contains(new Vector3Int(x - 1, u, row)) || _dug.Contains(new Vector3Int(x, u - 1, row)) ||
+                             _dug.Contains(new Vector3Int(x, u, row - 1)) && x > 0;
+                var cut = !inside && (Hides(x - 1, u, row) || Hides(x, u - 1, row) || Hides(x, u, row - 1));
+                tm.SetColor(cell, inside ? InsideShade : cut ? CutShade : Color.white);
             }
         }
 
-        private void Set(Tilemap tm, Vector3Int cell, int u, int row, Color shade)
+        /// <summary>
+        /// The see-through cutaway: underground, a block in front of the supplier (nearer the camera, or above their head)
+        /// that covers the space around them on screen is faded, so tunnels along and into the cliff stay readable.
+        /// </summary>
+        private bool Hides(int x, int u, int row)
         {
-            var h = (u * 73856093) ^ (row * 19349663) ^ (cell.x * 83492791);
-            tm.SetTile(cell, blockTiles[Mathf.Abs(h) % blockTiles.Length]);
-            tm.SetTileFlags(cell, TileFlags.None);
-            tm.SetColor(cell, shade);
+            if (row > _feet || _feet < 2) return false;   // the floor, and out on the surface, stay solid
+            var px = Mathf.RoundToInt(_x);
+            var pu = Mathf.RoundToInt(_u);
+            if (x + u >= px + pu && row >= _feet - 2) return false;   // beside or behind the supplier's own cell
+            if (x > px) return false;
+            var body = (Vector2)Top(_x, _u, _feet - 1);
+            return Vector2.Distance((Vector2)Top(x, u, row) + new Vector2(0f, -RowHeight * 0.5f), body) < CutawayRadius;
         }
 
         private void DrawSurface()
         {
             _surface.ClearAllTiles();
             for (var u = -Margin; u < Width + Margin; u++)
-            for (var x = 0; x < 7; x++)
+            for (var x = 0; x < Thickness + 6; x++)
             {
-                if (x == 0 && !Solid(u, 0)) continue;
+                if (!Solid(x, u, 0) || Hides(x, u, 0)) continue;
                 _surface.SetTile(Cell(x, u), surfaceTile);
             }
+        }
+
+        private void RedrawAround(int row)
+        {
+            FadedBlocks = 0;
+            for (var r = row - 4; r <= row + 2; r++) DrawRow(r);
+            DrawSurface();
         }
 
         // ------------------------------------------------------------------ the supplier
@@ -221,99 +278,146 @@ namespace Ravenholm.Presentation
             var move = _root.InputRouter.MoveVector;
             Walk(move);
             Fall();
-            Aim(move);
+            Aim();
             Dig();
             PlacePlayer();
+            Cutaway();
             Flecks();
             TrackCamera();
             _tallyText.text = Time.time < _hintUntil ? _hint : TallyText();
         }
 
         private int Column => Mathf.RoundToInt(_u);
+        private int Lane => Mathf.RoundToInt(_x);
 
-        /// <summary>Left/right walks along the face (left on screen = further along); single blocks are stepped up.</summary>
+        /// <summary>
+        /// The stick walks on the grid like in town: screen left/right is along the face (and in/out), up goes into the
+        /// cliff, down comes back out. A single block in the way is stepped up when there is headroom.
+        /// </summary>
         private void Walk(Vector2 move)
         {
-            if (Mathf.Abs(move.x) < 0.2f) return;
-            var dir = move.x < 0 ? 1 : -1;   // the face runs up-left: screen-left is +u
-            _facing = dir;
-            var next = Mathf.Clamp(_u + dir * 3.2f * Mathf.Abs(move.x) * Time.deltaTime, -Margin + 1, Width + Margin - 2);
-            var col = Mathf.RoundToInt(next + dir * 0.3f);
-            if (col == Column) { _u = next; return; }
-            if (!Solid(col, _feet - 1) && !Solid(col, _feet - 2)) { _u = next; return; }
+            if (move.sqrMagnitude < 0.04f) return;
+            // Screen = du·(−0.5, 0.25) + dx·(0.5, 0.25)  ⇒  du = −m.x + 2·m.y, dx = m.x + 2·m.y.
+            var du = -move.x + 2f * move.y;
+            var dx = move.x + 2f * move.y;
+            var len = Mathf.Sqrt(du * du + dx * dx);
+            if (len < 0.01f) return;
+            var speed = 3.2f * Mathf.Min(1f, move.magnitude) * Time.deltaTime / len;
+            du *= speed;
+            dx *= speed;
+            _facing = Mathf.Abs(du) >= Mathf.Abs(dx) ? new Vector2Int(0, du > 0 ? 1 : -1) : new Vector2Int(dx > 0 ? 1 : -1, 0);
+            TryStep(_u + du, _x);
+            TryStep(_u, _x + dx);
+        }
+
+        private void TryStep(float u, float x)
+        {
+            u = Mathf.Clamp(u, -Margin + 1, Width + Margin - 2);
+            x = Mathf.Clamp(x, 0f, Thickness + 4);
+            var cu = Mathf.RoundToInt(u + Mathf.Sign(u - _u) * 0.3f * (Mathf.Abs(u - _u) > 0.0001f ? 1f : 0f));
+            var cx = Mathf.RoundToInt(x + Mathf.Sign(x - _x) * 0.3f * (Mathf.Abs(x - _x) > 0.0001f ? 1f : 0f));
+            if (cu == Column && cx == Lane) { _u = u; _x = x; return; }
+            if (!Blocks(cx, cu, _feet - 1) && !Blocks(cx, cu, _feet - 2)) { _u = u; _x = x; return; }
             // A single block in the way, with headroom above it and above the supplier: step up onto it.
-            if (Solid(col, _feet - 1) && !Solid(col, _feet - 2) && !Solid(col, _feet - 3) && !Solid(Column, _feet - 3))
+            if (Blocks(cx, cu, _feet - 1) && !Blocks(cx, cu, _feet - 2) && !Blocks(cx, cu, _feet - 3) && !Blocks(Lane, Column, _feet - 3))
             {
                 _feet -= 1;
-                _u = next;
+                _u = u;
+                _x = x;
                 return;
             }
             _u = Mathf.Clamp(_u, Column - 0.3f, Column + 0.3f);
+            _x = Mathf.Clamp(_x, Lane - 0.3f, Lane + 0.3f);
         }
 
         /// <summary>No ground underfoot: drop a block at a time.</summary>
         private void Fall()
         {
-            if (Solid(Column, _feet)) { _fallTimer = 0f; return; }
+            if (Blocks(Lane, Column, _feet)) { _fallTimer = 0f; return; }
             _fallTimer += Time.deltaTime;
             if (_fallTimer < 0.07f) return;
             _fallTimer = 0f;
             _feet += 1;
         }
 
-        /// <summary>
-        /// The block to dig, from the stick: sideways at body height (lower block first), diagonally down when leaning
-        /// down, above the head when pushing up, under the feet when pushing down.
-        /// </summary>
-        private void Aim(Vector2 move)
+        /// <summary>The block to dig: the tapped one while it is in reach, else the one ahead at body height.</summary>
+        private void Aim()
         {
-            // A tapped block stays selected while it is in reach and still there.
-            if (_selected.HasValue && (!Solid(_selected.Value.x, _selected.Value.y) || !InReach(_selected.Value))) _selected = null;
-            if (_selected.HasValue)
+            if (_selected.HasValue && (!Diggable(_selected.Value) || !InReach(_selected.Value))) _selected = null;
+            Vector3Int? t = _selected;
+            if (!t.HasValue)
             {
-                SetTarget(_selected);
-                return;
+                var ax = Lane + _facing.x;
+                var au = Column + _facing.y;
+                if (Diggable(new Vector3Int(ax, au, _feet - 1))) t = new Vector3Int(ax, au, _feet - 1);
+                else if (Diggable(new Vector3Int(ax, au, _feet - 2))) t = new Vector3Int(ax, au, _feet - 2);
             }
-            var col = Column;
-            Vector2Int? t = null;
-            if (move.y < -0.5f && Mathf.Abs(move.x) < 0.5f) t = new Vector2Int(col, _feet);
-            else if (move.y > 0.5f && Mathf.Abs(move.x) < 0.5f) t = new Vector2Int(col, _feet - 3);
-            else
-            {
-                var side = col + _facing;
-                if (move.y < -0.3f) t = new Vector2Int(side, _feet);
-                else if (move.y > 0.3f) t = new Vector2Int(side, _feet - 2);
-                else if (Solid(side, _feet - 1)) t = new Vector2Int(side, _feet - 1);
-                else if (Solid(side, _feet - 2)) t = new Vector2Int(side, _feet - 2);
-                else t = new Vector2Int(side, _feet);
-            }
-            if (t.HasValue && !Diggable(t.Value)) t = null;
-            SetTarget(t);
-        }
-
-        private bool Diggable(Vector2Int b) => b.y >= 0 && b.x >= 0 && b.x < Width && b.y < Depth && Solid(b.x, b.y);
-
-        private void SetTarget(Vector2Int? t)
-        {
             if (t != _target) _progress = 0f;
             _target = t;
             _highlight.enabled = t.HasValue;
             if (!t.HasValue) return;
-            _highlight.transform.position = Top(t.Value.x, t.Value.y);
-            _highlight.sortingOrder = -2 * t.Value.y + 1;
+            _highlight.transform.position = Top(t.Value.x, t.Value.y, t.Value.z);
+            _highlight.sortingOrder = -2 * t.Value.z + 1;
             _highlight.color = _selected.HasValue ? new Color(1f, 0.86f, 0.3f, 0.7f) : new Color(1f, 0.92f, 0.45f, 0.4f);
+        }
+
+        private float Hardness(Vector3Int b) => 0.55f + 0.02f * b.z + (OreAt(b.x, b.y, b.z) != null ? 0.25f : 0f);
+
+        private void Dig()
+        {
+            var holding = (_digButton != null && _digButton.Held) || ScriptedDig;
+            _crack.enabled = false;
+            if (!holding || !_target.HasValue) return;
+            var b = _target.Value;
+            _progress += Time.deltaTime / Hardness(b);
+            _bob += Time.deltaTime * 14f;
+            if (crackSprites.Length > 0 && _progress > 0.05f)
+            {
+                _crack.enabled = true;
+                _crack.sprite = crackSprites[Mathf.Clamp((int)(_progress * crackSprites.Length), 0, crackSprites.Length - 1)];
+                _crack.transform.position = Top(b.x, b.y, b.z);
+                _crack.sortingOrder = -2 * b.z + 1;
+            }
+            if (_progress < 1f) return;
+            _progress = 0f;
+            _dug.Add(b);
+            if (_selected == b) _selected = null;
+            var ore = OreAt(b.x, b.y, b.z) ?? _bands[Layer(b.z) - 1].BaselineResourceId ?? "rock";
+            _tally[ore] = _tally.TryGetValue(ore, out var n) ? n + 1 : 1;
+            RedrawAround(Mathf.Max(b.z, _feet));
+            _fleckKey = "";
+            FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
+        }
+
+        private void PlacePlayer()
+        {
+            _drawFeet = Mathf.MoveTowards(_drawFeet, _feet, Time.deltaTime * 10f);
+            player.position = Top(_x, _u, _drawFeet);
+            if (playerVisual == null) return;
+            var swing = (_digButton != null && _digButton.Held) || ScriptedDig;
+            var screenLeft = _facing.y > 0 || _facing.x < 0;
+            var sc = playerVisual.localScale;
+            sc.x = Mathf.Abs(sc.x) * (screenLeft ? -1f : 1f);
+            playerVisual.localScale = sc;
+            playerVisual.localRotation = Quaternion.Euler(0f, 0f, swing && !Feel.ReducedMotion ? Mathf.Sin(_bob) * 12f : 0f);
+        }
+
+        /// <summary>Moving to another cell refreshes the see-through cutaway around the supplier.</summary>
+        private void Cutaway()
+        {
+            var at = new Vector3Int(Lane, Column, _feet);
+            if (at == _cutawayAt) return;
+            var previous = _cutawayAt;
+            _cutawayAt = at;
+            if (previous.z >= 0 && previous.z != at.z) RedrawAround(previous.z);   // restore what was faded around the last spot
+            RedrawAround(_feet);
         }
 
         // ------------------------------------------------------------------ tap to select
 
-        private Vector2Int? _selected;
-        private string _hint = "";
-        private float _hintUntil;
-
-        public Vector2Int? Selected => _selected;
-
-        /// <summary>Within reach: up to two blocks to either side, from one under the feet to one above the head.</summary>
-        public bool InReach(Vector2Int b) => Mathf.Abs(b.x - Column) <= 2 && b.y >= _feet - 3 && b.y <= _feet + 1;
+        /// <summary>Within reach: up to two blocks around, from one under the feet to one above the head.</summary>
+        public bool InReach(Vector3Int b) =>
+            Mathf.Abs(b.x - Lane) <= 2 && Mathf.Abs(b.y - Column) <= 2 && b.z >= _feet - 3 && b.z <= _feet + 1;
 
         /// <summary>A tap on the screen selects the block drawn there (the frontmost solid one), if it is in reach.</summary>
         public void OnTapped(Vector2 screen)
@@ -326,21 +430,24 @@ namespace Ravenholm.Presentation
                 _hintUntil = Time.time + 2f;
                 return;
             }
-            _selected = _selected == b ? (Vector2Int?)null : b;   // tapping it again deselects
+            _selected = _selected == b ? (Vector3Int?)null : b;   // tapping it again deselects
             _progress = 0f;
         }
 
-        /// <summary>The frontmost solid face block whose sprite covers this world point.</summary>
-        public bool BlockAt(Vector2 world, out Vector2Int block)
+        /// <summary>The frontmost drawn, solid block (not faded by the cutaway) whose sprite covers this world point.</summary>
+        public bool BlockAt(Vector2 world, out Vector3Int block)
         {
             block = default;
             var found = false;
+            var bestKey = 0;
             for (var row = Mathf.Max(0, _feet - 8); row <= Mathf.Min(Depth - 1, _feet + 6); row++)
             for (var u = Mathf.Max(0, Column - 6); u <= Mathf.Min(Width - 1, Column + 6); u++)
+            for (var x = 0; x < Thickness; x++)
             {
-                if (!Solid(u, row) || !InSilhouette(world, Top(u, row))) continue;
-                // Upper rows and nearer columns are drawn over the others.
-                if (!found || row < block.y || row == block.y && u < block.x) block = new Vector2Int(u, row);
+                if (!Solid(x, u, row) || !Visible(x, u, row) || Hides(x, u, row) || !InSilhouette(world, Top(x, u, row))) continue;
+                // Upper rows are drawn over lower ones; within a row, the cell lower on screen (smaller x + u) is in front.
+                var key = row * 1000 + (x + u);
+                if (!found || key < bestKey) { bestKey = key; block = new Vector3Int(x, u, row); }
                 found = true;
             }
             return found;
@@ -364,71 +471,31 @@ namespace Ravenholm.Presentation
             return true;
         }
 
-        private float Hardness(Vector2Int b) => 0.55f + 0.02f * b.y + (OreAt(b.x, b.y) != null ? 0.25f : 0f);
-
-        private void Dig()
-        {
-            var holding = (_digButton != null && _digButton.Held) || ScriptedDig;
-            _crack.enabled = false;
-            if (!holding || !_target.HasValue) return;
-            var b = _target.Value;
-            _progress += Time.deltaTime / Hardness(b);
-            _bob += Time.deltaTime * 14f;
-            if (crackSprites.Length > 0 && _progress > 0.05f)
-            {
-                _crack.enabled = true;
-                _crack.sprite = crackSprites[Mathf.Clamp((int)(_progress * crackSprites.Length), 0, crackSprites.Length - 1)];
-                _crack.transform.position = Top(b.x, b.y);
-                _crack.sortingOrder = -2 * b.y + 1;
-            }
-            if (_progress < 1f) return;
-            _progress = 0f;
-            _dug.Add(b);
-            if (_selected == b) _selected = null;
-            var ore = OreAt(b.x, b.y) ?? _bands[Layer(b.y) - 1].BaselineResourceId ?? "rock";
-            _tally[ore] = _tally.TryGetValue(ore, out var n) ? n + 1 : 1;
-            for (var r = b.y - 1; r <= b.y + 1; r++) DrawRow(r);
-            if (b.y == 0) DrawSurface();
-            _fleckKey = "";
-            FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
-        }
-
-        private void PlacePlayer()
-        {
-            _drawFeet = Mathf.MoveTowards(_drawFeet, _feet, Time.deltaTime * 10f);
-            player.position = Top(_u, _drawFeet);
-            if (playerVisual == null) return;
-            var swing = (_digButton != null && _digButton.Held) || ScriptedDig;
-            var sc = playerVisual.localScale;
-            sc.x = Mathf.Abs(sc.x) * (_facing > 0 ? -1f : 1f);
-            playerVisual.localScale = sc;
-            playerVisual.localRotation = Quaternion.Euler(0f, 0f, swing && !Feel.ReducedMotion ? Mathf.Sin(_bob) * 12f : 0f);
-        }
-
         // ------------------------------------------------------------------ flecks within the lamp's light
 
         private string _fleckKey = "";
 
         private void Flecks()
         {
-            var key = $"{Column}|{_feet}";
+            var key = $"{Lane}|{Column}|{_feet}";
             if (key == _fleckKey) return;
             _fleckKey = key;
             foreach (var tm in _fleckRows.Values) tm.ClearAllTiles();
-            var me = (Vector2)Top(_u, _feet - 1);
+            var me = (Vector2)Top(_x, _u, _feet - 1);
             for (var row = Mathf.Max(0, _feet - 7); row <= Mathf.Min(Depth - 1, _feet + 5); row++)
             for (var u = Column - 7; u <= Column + 7; u++)
+            for (var x = 0; x < Thickness; x++)
             {
-                if (u < 0 || u >= Width || !Solid(u, row)) continue;
-                if (Vector2.Distance(Top(u, row) + new Vector3(0f, -RowHeight * 0.5f, 0f), me) > MineProspectView.LampRadius) continue;
-                var ore = OreAt(u, row);
+                if (u < 0 || u >= Width || !Solid(x, u, row) || !Visible(x, u, row) || Hides(x, u, row)) continue;
+                if (Vector2.Distance(Top(x, u, row) + new Vector3(0f, -RowHeight * 0.5f, 0f), me) > MineProspectView.LampRadius) continue;
+                var ore = OreAt(x, u, row);
                 var strong = ore != null;
                 if (!strong)
-                    foreach (var (du, dr) in new[] { (1, 0), (-1, 0), (0, 1), (0, -1) })
-                        if ((ore = OreAt(u + du, row + dr)) != null) break;
+                    foreach (var (dx, du, dr) in new[] { (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1) })
+                        if ((ore = OreAt(x + dx, u + du, row + dr)) != null) break;
                 if (ore == null) continue;
                 if (!_fleckRows.TryGetValue(row, out var tm)) _fleckRows[row] = tm = Map($"Flecks{row}", -row * RowHeight, -2 * row + 1);
-                var c = Cell(0, u);
+                var c = Cell(x, u);
                 tm.SetTile(c, fleckTile);
                 tm.SetTileFlags(c, TileFlags.None);
                 var col = _root.Services.Catalogue.TryGet<ResourceDefinition>(ore, out var res) ? res.MapTint : Color.white;
@@ -480,7 +547,7 @@ namespace Ravenholm.Presentation
             var card = ui.Panel("Card", safe, theme.panel);
             UiFactory.Place(card.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(1100f, 300f));
             var title = ui.Text("Title", card.transform,
-                "<b>Mining prototype</b> (option A)\nDrag left/right to walk. Tap a block near you to select it (or lean the stick to aim), then hold Dig. Dig a 2-high tunnel, step up, drop down, chase the flecks.",
+                "<b>Mining prototype</b> (option A)\nWalk like in town: up goes into the cliff. Tap a block near you to select it, then hold Dig. Rock in front of you turns see-through.",
                 theme.smallSize - 6f, theme.ink, TextAlignmentOptions.TopLeft);
             UiFactory.Place(title.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -20f), new Vector2(1040f, 190f));
             _tallyText = ui.Text("Tally", card.transform, "", theme.smallSize - 4f, theme.ink, TextAlignmentOptions.BottomLeft, FontStyles.Bold);

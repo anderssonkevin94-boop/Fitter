@@ -60,10 +60,19 @@ namespace Ravenholm.Tests
             Assert.IsFalse(GameRoot.Instance.Hud.gameObject.activeSelf, "the prototype has its own controls");
             Assert.AreEqual(0, p.Feet, "starts on the surface");
 
-            // Dig straight down four blocks: the supplier drops with each one.
-            router.ScriptedMove = Vector2.down;
+            // Dig straight down four blocks by tapping the one underfoot: the supplier drops with each one.
+            for (var i = 0; i < 4; i++)
+            {
+                var under = new Vector3Int(0, Mathf.RoundToInt(p.U), p.Feet);
+                p.OnTapped(Camera.main.WorldToScreenPoint(p.Top(under.x, under.y, under.z) + new Vector3(0f, -0.3f, 0f)));
+                Assert.AreEqual(under, p.Selected, "tapping the block underfoot selects it");
+                p.ScriptedDig = true;
+                var before = p.Feet;
+                yield return Until(() => p.Feet > before, 5f, "digs down and drops");
+                p.ScriptedDig = false;
+            }
+            Assert.AreEqual(4, p.Feet);
             p.ScriptedDig = true;
-            yield return Until(() => p.Feet >= 4, 12f, "digs down and drops");
             // Then tunnel sideways (left on screen): two blocks high, so the supplier walks in.
             var startU = p.U;
             router.ScriptedMove = Vector2.left;
@@ -74,22 +83,32 @@ namespace Ravenholm.Tests
             Assert.GreaterOrEqual(p.DugCount, 4 + 6, "the shaft down and a 2-high tunnel");
             Assert.Greater(p.Tally.Values.Sum(), 0);
             Assert.IsFalse(p.Solid(Mathf.RoundToInt(p.U), p.Feet - 1) || p.Solid(Mathf.RoundToInt(p.U), p.Feet - 2), "the supplier stands in open tunnel");
-            // Tap a block to select it, then hold Dig: that block (not the stick's aim) is mined.
+            // Dig inwards: tap the blocks behind the tunnel (body and head height), dig them, and walk into the cliff.
             var col = Mathf.RoundToInt(p.U);
-            var pick = new Vector2Int(col - 1, p.Feet - 1);   // the block beside the body, the other way along the tunnel
-            if (!p.Solid(pick.x, pick.y)) pick = new Vector2Int(col, p.Feet);   // else the floor under the feet
-            Assert.IsTrue(p.Solid(pick.x, pick.y));
-            var face = p.Top(pick.x, pick.y) + new Vector3(0f, -0.3f, 0f);
-            p.OnTapped(Camera.main.WorldToScreenPoint(face));
-            Assert.AreEqual(pick, p.Selected, "a tap selects the block drawn there");
-            yield return null;
-            Assert.AreEqual(pick, p.Target, "and it becomes the block to dig");
-            p.ScriptedDig = true;
-            yield return Until(() => !p.Solid(pick.x, pick.y), 5f, "the selected block is dug");
-            p.ScriptedDig = false;
-            Assert.IsNull(p.Selected, "the selection clears once dug");
-            var far = new Vector2Int(col + 6, 2);
-            Assert.IsFalse(p.InReach(far), "blocks far away are out of reach");
+            for (var lane = 1; lane <= 2; lane++)
+            {
+                foreach (var row in new[] { p.Feet - 1, p.Feet - 2 })
+                {
+                    var pick = new Vector3Int(lane, col, row);
+                    Assert.IsTrue(p.Diggable(pick), $"rock at {pick}");
+                    p.OnTapped(Camera.main.WorldToScreenPoint(p.Top(lane, col, row) + new Vector3(-0.15f, -0.35f, 0f)));   // its left face
+                    Assert.AreEqual(pick, p.Selected, $"a tap selects the block drawn there ({pick})");
+                    yield return null;
+                    Assert.AreEqual(pick, p.Target, "and it becomes the block to dig");
+                    p.ScriptedDig = true;
+                    yield return Until(() => !p.Diggable(pick), 5f, "the selected block is dug");
+                    p.ScriptedDig = false;
+                    Assert.IsNull(p.Selected, "the selection clears once dug");
+                }
+                router.ScriptedMove = new Vector2(2f, 1f).normalized;   // screen up-right: straight into the cliff
+                var into = lane;
+                yield return Until(() => p.X > into - 0.25f, 5f, $"walks into the cliff (lane {lane})");
+                router.ScriptedMove = null;
+                yield return null;
+            }
+            Assert.AreEqual(4, p.Feet, "still on the same level");
+            Assert.Greater(p.FadedBlocks, 0, "the rock in front turns see-through");
+            Assert.IsFalse(p.InReach(new Vector3Int(0, col + 6, 2)), "blocks far away are out of reach");
 
             yield return new WaitForSeconds(0.6f);
             yield return Capture.Take("mining_prototype");
