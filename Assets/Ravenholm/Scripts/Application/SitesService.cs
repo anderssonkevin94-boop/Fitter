@@ -153,6 +153,7 @@ namespace Ravenholm.Services
         {
             var sim = Get(siteId);
             if (sim == null) return false;
+            if (sim.DigMode && !sim.AimRoutineAtLastDig()) return false;   // nothing dug yet: no tunnel to carry on
             EndRoutine();
             sim.AddWorker(new WorkerRecord { Id = SiteSimulator.PlayerId, Name = "You", ToolId = PlayerToolId, PackId = PlayerPackId, Face = face });
             _scheduler.SaveNow("routine started");
@@ -205,12 +206,32 @@ namespace Ravenholm.Services
             return n;
         }
 
+        private double _digMs;
+
+        /// <summary>
+        /// The supplier digs a block of the Mine's dig slab for <paramref name="seconds"/>, standing at
+        /// <paramref name="from"/> (remembered for routines). Returns true when the block breaks.
+        /// </summary>
+        public bool PlayerDig(int x, int u, int row, float seconds, DigFace from)
+        {
+            var sim = Get("site.mine");
+            if (sim == null || !sim.DigMode) return false;
+            _digMs += seconds * 1000.0 * SpeedMultiplier;
+            var ms = (long)Math.Floor(_digMs);
+            _digMs -= ms;
+            var broke = sim.PlayerDig(x, u, row, ms, PlayerDamagePerSecond, from);
+            if (broke) _scheduler.SaveNow("dug a block");
+            else _scheduler.MarkDirty();
+            return broke;
+        }
+
         /// <summary>The ore in a Mine block (null = plain rock), from the world seed and that level's layer.</summary>
         public string OreAt(string siteId, int x, int y, int level, out double richness)
         {
             richness = 0;
             var sim = Get(siteId);
             if (sim == null || sim.Config.Kind != SiteKind.Mine || sim.Config.Bands.Count == 0) return null;
+            if (sim.DigMode) return sim.OreAt(x, y, level, out richness);   // the dig slab: (x, u, row)
             var band = Math.Min(sim.BandOfLevel(level), sim.Config.Bands.Count);
             var template = sim.Config.Bands[band - 1];
             var comp = sim.Record.Revealed.TryGetValue(band, out var known) && known != null
@@ -326,6 +347,8 @@ namespace Ravenholm.Services
                 KQuad = def.ContinuationQuadratic,
                 TerminalKCap = def.TerminalContinuationCap,
                 LevelsPerBand = Math.Max(1, def.LevelsPerBand),
+                // Solo play: the Mine is dug block by block (the dig slab); three levels of two blocks per layer.
+                Dig = def.SiteType == SiteType.Mine ? new DigSlab { RowsPerLayer = 2 * Math.Max(1, def.LevelsPerBand) } : null,
                 HopMs = (int)Math.Round(def.HopSeconds * 1000),
                 DepositMs = (int)Math.Round(def.DepositSeconds * 1000),
             };
@@ -390,7 +413,8 @@ namespace Ravenholm.Services
                 if (saved != null)
                 {
                     var record = FromSave(saved);
-                    if (def.SiteType == SiteType.Mine && saved.Layout < MineLayout) ConvertOldMine(record);
+                    if (def.SiteType == SiteType.Mine && saved.Layout < 2) ConvertOldMine(record);
+                    if (def.SiteType == SiteType.Mine && saved.Layout < 3) ConvertToDigSlab(record);
                     var loaded = Create(def, record);
                     // Solo play: hired crews from older saves go home; what they carried stays on the site to collect.
                     foreach (var w in record.Workers.ToArray())
@@ -420,7 +444,7 @@ namespace Ravenholm.Services
             }
         }
 
-        public const int MineLayout = 2;
+        public const int MineLayout = 3;
 
         /// <summary>
         /// Saves from before the Mine had directions (every section dug a level down; tunnels ran both ways): keep the
@@ -428,6 +452,19 @@ namespace Ravenholm.Services
         /// current layer (layers above count as dug), old tunnels close, and their waiting units go to the shaft face so
         /// nothing owned is lost. Every miner returns to the shaft.
         /// </summary>
+        /// <summary>
+        /// Saves from before the dig slab: the shaft-and-tunnel Mine gives way to untouched ground. Everything earned
+        /// (packs, units waiting at faces) is kept, and the layers already revealed stay revealed.
+        /// </summary>
+        public static void ConvertToDigSlab(SiteRecord s)
+        {
+            foreach (var t in s.Tunnels) s.FacePending.AddRange(t.Pending);
+            s.Tunnels.Clear();
+            foreach (var w in s.Workers) w.Face = 0;
+            s.Status = SiteStatus.Working;
+            s.K = 0;
+        }
+
         public static void ConvertOldMine(SiteRecord s)
         {
             s.SectionsCompleted = s.Status == SiteStatus.AwaitDecision ? s.Depth : s.Depth - 1;
@@ -454,6 +491,15 @@ namespace Ravenholm.Services
             foreach (var kv in s.Revealed) d.Revealed[kv.Key] = ToSave(kv.Value);
             d.SectionDepths = new List<int>(s.SectionDepths);
             d.FacePending.AddRange(s.FacePending);
+            if (s.Dug.Count > 0)
+            {
+                d.Dug = new List<int>(s.Dug.Count * 3);
+                foreach (var c in s.Dug) { d.Dug.Add(c.X); d.Dug.Add(c.U); d.Dug.Add(c.Row); }
+            }
+            if (s.DigTarget.HasValue) d.DigTarget = new List<int> { s.DigTarget.Value.X, s.DigTarget.Value.U, s.DigTarget.Value.Row };
+            d.DigDoneMicro = s.DigDoneMicro;
+            d.LastDig = Face(s.LastDig);
+            d.RoutineFace = Face(s.RoutineFace);
             if (s.Tunnels.Count > 0)
             {
                 d.Tunnels = new List<TunnelSaveData>();
@@ -492,6 +538,11 @@ namespace Ravenholm.Services
             }
             return d;
         }
+
+        private static List<long> Face(DigFace f) => f == null ? null : new List<long> { f.X, f.U, f.Feet, f.DX, f.DU, f.DoneMicro };
+
+        private static DigFace Face(List<long> d) => d == null || d.Count < 6 ? null
+            : new DigFace { X = (int)d[0], U = (int)d[1], Feet = (int)d[2], DX = (int)d[3], DU = (int)d[4], DoneMicro = d[5] };
 
         private static CompositionData ToSave(Composition c)
         {
@@ -535,6 +586,12 @@ namespace Ravenholm.Services
             while (s.SectionDepths.Count < s.SectionsCompleted) s.SectionDepths.Insert(0, 1);
             while (s.SectionDepths.Count > s.SectionsCompleted) s.SectionDepths.RemoveAt(0);
             s.FacePending.AddRange(d.FacePending);
+            if (d.Dug != null)
+                for (var i = 0; i + 2 < d.Dug.Count; i += 3) s.Dug.Add(new DigCell(d.Dug[i], d.Dug[i + 1], d.Dug[i + 2]));
+            if (d.DigTarget != null && d.DigTarget.Count == 3) s.DigTarget = new DigCell(d.DigTarget[0], d.DigTarget[1], d.DigTarget[2]);
+            s.DigDoneMicro = d.DigDoneMicro;
+            s.LastDig = Face(d.LastDig);
+            s.RoutineFace = Face(d.RoutineFace);
             if (d.Tunnels != null)
                 foreach (var td in d.Tunnels)
                 {

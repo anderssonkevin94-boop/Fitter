@@ -48,6 +48,9 @@ namespace Ravenholm.Domain.Sites
         public int LevelsPerBand = 3;           // Mine: shaft levels per layer (one tunnel per level)
         public int TunnelStretchCells = 4;      // Mine: blocks dug left per tunnel stretch (presentation and reach)
 
+        /// <summary>Mine: the dig slab (dig any block). Null = the older section and tunnel model.</summary>
+        public DigSlab Dig;
+
         public int HopMs = 800;                 // Forest: walk between trees
         public int DepositMs = 600;
     }
@@ -122,6 +125,58 @@ namespace Ravenholm.Domain.Sites
         public readonly List<string> Pack = new List<string>();
     }
 
+    /// <summary>
+    /// The Mine as a slab of half-level blocks (dig anywhere, 2026-10-12): x runs into the cliff from its face (0), u along
+    /// the cliff from the Mine's corner, row downwards from the surface (0). Row 0 is the town's and the frontier's own
+    /// ground: it can only be dug at the Mine's entry. Layers are a fixed number of rows deep below a band of topsoil.
+    /// </summary>
+    public sealed class DigSlab
+    {
+        public int Thickness = 8;
+        public int Length = 120;
+        public int Depth = 600;
+        public int TopsoilRows = 2;
+        public int RowsPerLayer = 6;            // three levels, two blocks each
+        public int EntryThickness = 4;          // the Mine's corner: where the ground itself can be broken into
+        public int EntryLength = 4;
+        public int RowsPerContinuation = 0;     // reserved
+        public int BlocksPerContinuation = 8;   // staying in a layer: effort rises every this many blocks along the cliff
+
+        public bool InSlab(int x, int u, int row) => x >= 0 && x < Thickness && u >= 0 && u < Length && row >= 0 && row < Depth;
+
+        /// <summary>Layer (band) of a row: topsoil counts as the first layer.</summary>
+        public int LayerOfRow(int row) => row < TopsoilRows ? 1 : (row - TopsoilRows) / RowsPerLayer + 1;
+
+        public int FirstRowOf(int layer) => layer <= 1 ? 0 : TopsoilRows + (layer - 1) * RowsPerLayer;
+    }
+
+    /// <summary>A block of the dig slab.</summary>
+    public readonly struct DigCell : IEquatable<DigCell>
+    {
+        public readonly int X, U, Row;
+
+        public DigCell(int x, int u, int row)
+        {
+            X = x;
+            U = u;
+            Row = row;
+        }
+
+        public bool Equals(DigCell o) => X == o.X && U == o.U && Row == o.Row;
+        public override bool Equals(object obj) => obj is DigCell o && Equals(o);
+        public override int GetHashCode() => unchecked((X * 73856093) ^ (U * 19349663) ^ (Row * 83492791));
+        public override string ToString() => $"({X},{U},{Row})";
+    }
+
+    /// <summary>A place and heading in the slab: where the supplier last dug (and so where a routine carries on).</summary>
+    public sealed class DigFace
+    {
+        public int X, U, Feet, DX, DU;
+        public long DoneMicro;   // a routine's progress on its current block
+
+        public DigFace Copy() => new DigFace { X = X, U = U, Feet = Feet, DX = DX, DU = DU };
+    }
+
     public enum TunnelSide
     {
         Left,
@@ -177,6 +232,15 @@ namespace Ravenholm.Domain.Sites
         public readonly SortedDictionary<int, Composition> Revealed = new SortedDictionary<int, Composition>();
         /// <summary>Depth band of each completed section, in order (one dug level each; drives the Mine's layered view).</summary>
         public readonly List<int> SectionDepths = new List<int>();
+        /// <summary>Mine (dig slab): every block dug so far.</summary>
+        public readonly HashSet<DigCell> Dug = new HashSet<DigCell>();
+        /// <summary>Mine (dig slab): the block the supplier is breaking by hand, and how far.</summary>
+        public DigCell? DigTarget;
+        public long DigDoneMicro;
+        /// <summary>Mine (dig slab): where the supplier last dug, and the tunnel a routine carries on.</summary>
+        public DigFace LastDig;
+        public DigFace RoutineFace;
+
         /// <summary>Mine: sideways tunnels, at most one per (level, side), each its own face.</summary>
         public readonly List<TunnelRecord> Tunnels = new List<TunnelRecord>();
 

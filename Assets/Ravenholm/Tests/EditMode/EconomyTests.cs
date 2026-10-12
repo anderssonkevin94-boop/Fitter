@@ -106,7 +106,7 @@ namespace Ravenholm.Tests
         public void CatchUpCapsResourcesAtEightHoursAndMakesNoDecisions()
         {
             var g = Boot(T0);
-            Assert.IsTrue(g.Sites.StartRoutine("site.mine"), "solo play: the supplier leaves themself mining");
+            DigTestKit.StartMiningRoutine(g);   // solo play: the supplier leaves themself mining
             var oreBefore = g.Logistics.System.SharedAvailable("resource.iron_ore");
             var sitesMs = g.Sites.Get("site.mine").Record.SimMs;
             var jobsMs = g.Jobs.State.SimMs;
@@ -358,15 +358,14 @@ namespace Ravenholm.Tests
             Assert.AreEqual(0, g.Sites.Get("site.mine").Record.Workers.Count, "solo play: no hired crew");
             Assert.AreEqual(0, g.Sites.Get("site.forest").Record.Workers.Count);
 
-            // Hold to mine: the shaft's units go straight into the carry, at the same thresholds as any miner.
-            var got = 0;
-            for (var i = 0; i < 600 && g.Logistics.System.CarryCount < 4; i++) got += g.Sites.PlayerMine("site.mine", 0, 0.1f);
+            // Dig by hand: each block's units go straight into the carry.
+            var u = 2;
+            for (; u < 40 && g.Logistics.System.CarryCount < 4; u++) Assert.IsTrue(DigTestKit.Dig(g, 1, u, 2));
             Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 4);
-            Assert.AreEqual(got, g.Logistics.System.CarryCount);
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
 
             // A full carry leaves the rest waiting at the face; nothing is lost.
-            for (var i = 0; i < 4000 && g.Sites.Get("site.mine").Record.FacePending.Count == 0; i++) g.Sites.PlayerMine("site.mine", 0, 0.1f);
+            for (; u < 80 && g.Sites.Get("site.mine").Record.FacePending.Count == 0; u++) Assert.IsTrue(DigTestKit.Dig(g, 1, u, 2));
             Assert.IsTrue(g.Logistics.System.IsFull);
             Assert.Greater(g.Sites.Get("site.mine").Record.FacePending.Count, 0);
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());

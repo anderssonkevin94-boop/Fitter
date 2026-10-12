@@ -10,7 +10,7 @@ namespace Ravenholm.Domain.Sites
     /// duration into different frame sizes gives identical results, and the same code can later
     /// run offline catch-up. It never makes depth decisions and never hauls for the player.
     /// </summary>
-    public sealed class SiteSimulator
+    public sealed partial class SiteSimulator
     {
         private const int MaxEventsPerAdvance = 200000;
 
@@ -100,6 +100,7 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public bool ChooseContinue()
         {
+            if (DigMode) return false;   // digging is the choice
             if (_c.Kind == SiteKind.Mine) return MineContinue();
             if (_s.Status != SiteStatus.AwaitDecision) return false;
             _s.SectionDepths.Add(_s.Depth);
@@ -115,6 +116,7 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public bool ChooseDeeper()
         {
+            if (DigMode) return false;   // digging is the choice
             if (_c.Kind == SiteKind.Mine)
             {
                 if (!ShaftDone || !CanGoDeeper) return false;
@@ -178,6 +180,7 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public int WaitingFace()
         {
+            if (DigMode) return -1;
             if (_s.Workers.Count == 0)
             {
                 if (_s.Tunnels.Exists(t => t.Status == SiteStatus.Working)) return -1;
@@ -420,7 +423,7 @@ namespace Ravenholm.Domain.Sites
         private long FaceDone(int f) => f == 0 ? _s.SectionDoneMicro : _s.Tunnels[f - 1].DoneMicro;
         private long FaceDurability(int f) => f == 0 ? _s.SectionDurabilityMicro : _s.Tunnels[f - 1].DurabilityMicro;
         private List<string> FacePending(int f) => f == 0 ? _s.FacePending : _s.Tunnels[f - 1].Pending;
-        private bool FaceExhausted(int f) => FaceEmitted(f) >= FaceUnits(f);
+        private bool FaceExhausted(int f) => DigMode ? f != 0 || !RoutineNext(out _) : FaceEmitted(f) >= FaceUnits(f);
 
         private Composition FaceComposition(int f)
         {
@@ -566,7 +569,8 @@ namespace Ravenholm.Domain.Sites
                         best = Math.Min(best, CeilDiv(SiteMath.Threshold(t.DurabilityMicro, t.Emitted + 1, t.Primary.Count) - t.DoneMicro, dps));
                 }
             }
-            if (_c.Kind == SiteKind.Mine)
+            if (DigMode) best = Math.Min(best, DigNextEventDelay());
+            else if (_c.Kind == SiteKind.Mine)
             {
                 for (var f = 0; f < FaceCount; f++)
                 {
@@ -581,6 +585,7 @@ namespace Ravenholm.Domain.Sites
 
         private void ApplyWork(long ms)
         {
+            if (DigMode) { DigApplyWork(ms); return; }
             if (_c.Kind == SiteKind.Mine)
             {
                 // Damage beyond the section's durability is clamped; it never spills into the next section.
@@ -611,6 +616,7 @@ namespace Ravenholm.Domain.Sites
         private bool EmitDueUnits()
         {
             var changed = false;
+            if (DigMode) return DigEmitDue();
             if (_c.Kind == SiteKind.Mine)
             {
                 for (var f = 0; f < FaceCount; f++)
@@ -856,7 +862,17 @@ namespace Ravenholm.Domain.Sites
 
         private void UpdateStatus()
         {
-            if (_c.Kind == SiteKind.Mine)
+            if (DigMode)
+            {
+                // Nothing to decide: the routine only waits when its tunnel is blocked (bedrock, the edge, a drop).
+                if (!_s.Workers.Exists(w => w.State == WorkerState.AwaitDepthChoice))
+                {
+                    _s.Status = SiteStatus.Working;
+                    _decisionAnnounced = false;
+                    return;
+                }
+            }
+            else if (_c.Kind == SiteKind.Mine)
             {
                 foreach (var t in _s.Tunnels)
                     if (t.Status == SiteStatus.Working && t.Emitted >= SiteMath.TunnelUnits(_c) && t.Pending.Count == 0)
@@ -885,6 +901,7 @@ namespace Ravenholm.Domain.Sites
         {
             var t = Tunnel(FaceOf(w));
             var depth = t != null ? t.Depth : _s.Depth;
+            if (DigMode && _s.RoutineFace != null) depth = _c.Dig.LayerOfRow(_s.RoutineFace.Feet);
             return _c.Bands[Math.Max(1, Math.Min(depth, _c.Bands.Count)) - 1].LegMs;
         }
         private int Dps(WorkerRecord w) => _eq.ToolDamagePerSecond(w.ToolId);

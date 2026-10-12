@@ -363,9 +363,9 @@ namespace Ravenholm.Tests
         public void DeeperRevealPersistsThroughReload()
         {
             var a = Boot();
-            a.Sites.DebugCompleteSection("site.mine");
-            for (var i = 0; i < 600 && a.Sites.Get("site.mine").Record.Status != SiteStatus.AwaitDecision; i++) a.Sites.Tick(1f);
-            Assert.IsTrue(a.Sites.ChooseDeeper("site.mine"));
+            // The dig slab: digging down into the second layer reveals it.
+            var row = a.Sites.Get("site.mine").Slab.FirstRowOf(2);
+            Assert.IsTrue(DigTestKit.Dig(a, 1, 5, row));
             var comp = a.Sites.Get("site.mine").Record.Composition.Weights.ToList();
 
             var b = Boot();

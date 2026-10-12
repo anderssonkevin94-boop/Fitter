@@ -201,15 +201,10 @@ namespace Ravenholm.Tests
         }
 
         [Test]
-        public void TunnelsAndMinerFacesSurviveRestart()
+        public void TheDigSlabAndARoutineSurviveRestart()
         {
             var a = Boot();
-            a.Sites.DebugCompleteSection("site.mine");
-            for (var i = 0; i < 900 && !a.Sites.Get("site.mine").ShaftDone; i++) a.Sites.Tick(1f);
-            var face = a.Sites.StartTunnel("site.mine", 3);
-            Assert.AreEqual(1, face);
-            Assert.IsTrue(a.Sites.StartRoutine("site.mine", face), "the supplier mines it on a routine");
-            var miner = SiteSimulator.PlayerId;
+            DigTestKit.StartMiningRoutine(a);
             for (var i = 0; i < 40; i++) a.Sites.Tick(1f);
             a.Scheduler.SaveNow("test");
 
@@ -217,11 +212,12 @@ namespace Ravenholm.Tests
             for (var i = 0; i < 40; i++) { a.Sites.Tick(1f); b.Sites.Tick(1f); }
             var ra = a.Sites.Get("site.mine").Record;
             var rb = b.Sites.Get("site.mine").Record;
-            Assert.AreEqual(1, rb.Tunnels.Count, "a current-layout save is not converted again");
-            Assert.AreEqual(3, rb.Tunnels[0].Level);
-            Assert.AreEqual(1, rb.Workers[0].Face);
-            Assert.AreEqual(1, rb.SectionsCompleted);
-            Assert.AreEqual(ra.Tunnels[0].DoneMicro, rb.Tunnels[0].DoneMicro);
+            Assert.Greater(rb.Dug.Count, 1);
+            Assert.AreEqual(ra.Dug.Count, rb.Dug.Count, "every dug block is kept");
+            Assert.IsTrue(rb.Dug.SetEquals(ra.Dug));
+            Assert.AreEqual(ra.RoutineFace.U, rb.RoutineFace.U);
+            Assert.AreEqual(ra.RoutineFace.DoneMicro, rb.RoutineFace.DoneMicro);
+            Assert.AreEqual("site.mine", b.Sites.RoutineSiteId);
             Assert.AreEqual(ra.Rng.State, rb.Rng.State);
             CollectionAssert.IsEmpty(b.Logistics.System.Audit());
         }
