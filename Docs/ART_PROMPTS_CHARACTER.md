@@ -120,3 +120,7 @@ The first walk strips did not alternate legs (the same foot led in most frames),
 Files:
 - `walk_front.png` (FRONT) and `walk_back.png` (BACK);
 - `carry_walk_front.png` and `carry_walk_back.png`: the same four poses, but both forearms stay held straight out in front, level and empty (forklift), with a slight lean back.
+
+### Pose guides for the walk redo
+
+`ArtSource/guides/walk_cycle_guide.png` and `ArtSource/guides/carry_walk_cycle_guide.png` are stick-figure guides, made for this project, of the four walk poses. They use the same 4 equal cells, a green ground line, a blue head-top line and a red body-centre line. Blue limbs are his LEFT and orange his RIGHT. Attach the right guide together with `model-sheet.png` to each walk strip.
