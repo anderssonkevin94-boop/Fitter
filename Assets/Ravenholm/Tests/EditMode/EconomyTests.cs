@@ -360,12 +360,12 @@ namespace Ravenholm.Tests
 
             // Dig by hand: each block's units go straight into the carry.
             var u = 2;
-            for (; u < 40 && g.Logistics.System.CarryCount < 4; u++) Assert.IsTrue(DigTestKit.Dig(g, 1, u, 2));
+            for (; u < 40 && g.Logistics.System.CarryCount < 4; u++) Assert.IsTrue(DigTestKit.Dig(g, 0, u, 2));
             Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 4);
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
 
             // A full carry leaves the rest waiting at the face; nothing is lost.
-            for (; u < 80 && g.Sites.Get("site.mine").Record.FacePending.Count == 0; u++) Assert.IsTrue(DigTestKit.Dig(g, 1, u, 2));
+            for (; u < 80 && g.Sites.Get("site.mine").Record.FacePending.Count == 0; u++) Assert.IsTrue(DigTestKit.Dig(g, 0, u, 2));
             Assert.IsTrue(g.Logistics.System.IsFull);
             Assert.Greater(g.Sites.Get("site.mine").Record.FacePending.Count, 0);
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());

@@ -123,10 +123,12 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("depositedSinceMeasure")] public long DepositedSinceMeasure;
         /// <summary>Mine sideways tunnels (optional; absent in older saves).</summary>
         [JsonProperty("tunnels")] public List<TunnelSaveData> Tunnels;
-        /// <summary>Mine layout version: 2 = layers of levels, Continue digs left; 3 = the dig slab (optional; absent = older).</summary>
+        /// <summary>Mine layout version: 2 = layers of levels, Continue digs left; 3 = the dig slab; 4 = the cliff-face slice (optional; absent = older).</summary>
         [JsonProperty("layout")] public int Layout;
         /// <summary>Mine dig slab: dug blocks as x, u, row triples (optional).</summary>
         [JsonProperty("dug")] public List<int> Dug;
+        /// <summary>Mine dig slab: blocks dug straight down (ladders), as x, u, row triples (optional).</summary>
+        [JsonProperty("dugDown")] public List<int> DugDown;
         /// <summary>Mine dig slab: the block being broken by hand (x, u, row) and its progress.</summary>
         [JsonProperty("digTarget")] public List<int> DigTarget;
         [JsonProperty("digDoneMicro")] public long DigDoneMicro;

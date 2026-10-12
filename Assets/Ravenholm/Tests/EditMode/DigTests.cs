@@ -41,6 +41,19 @@ namespace Ravenholm.Tests
         }
 
         [Test]
+        public void DiggingStraightDownTwoOrMoreLeavesALadder()
+        {
+            var sim = Make(new FakeLedger());
+            DigFace On(int row) => new DigFace { X = 0, U = 0, Feet = row, DX = 0, DU = 1 };
+            Assert.IsTrue(DigOut(sim, 0, 0, 0, On(0)));
+            Assert.IsFalse(sim.Ladder(0, 0, 0), "a one-block dip is just stepped out of");
+            Assert.IsTrue(DigOut(sim, 0, 0, 1, On(1)));
+            Assert.IsTrue(sim.Ladder(0, 0, 0) && sim.Ladder(0, 0, 1), "two deep: the shaft has a ladder all the way");
+            Assert.IsTrue(DigOut(sim, 0, 1, 1, new DigFace { X = 0, U = 0, Feet = 2, DX = 0, DU = 1 }));
+            Assert.IsFalse(sim.Ladder(0, 1, 1), "a block dug from the side is not a ladder");
+        }
+
+        [Test]
         public void EffortFollowsTheSectionCurveBlockByBlock()
         {
             var sim = Make(new FakeLedger());

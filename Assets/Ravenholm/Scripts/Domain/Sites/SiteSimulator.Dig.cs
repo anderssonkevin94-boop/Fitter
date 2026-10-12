@@ -19,6 +19,14 @@ namespace Ravenholm.Domain.Sites
 
         public bool IsDug(int x, int u, int row) => _s.Dug.Contains(new DigCell(x, u, row));
 
+        /// <summary>
+        /// A ladder: a block dug straight down, in a shaft at least two blocks deep (a single dip is just stepped out of).
+        /// The supplier stands on its rungs and climbs it.
+        /// </summary>
+        public bool Ladder(int x, int u, int row) =>
+            _s.DugDown.Contains(new DigCell(x, u, row)) &&
+            (_s.DugDown.Contains(new DigCell(x, u, row - 1)) || _s.DugDown.Contains(new DigCell(x, u, row + 1)));
+
         /// <summary>Solid rock at a block: air above the surface and in front of the cliff; bedrock past the slab.</summary>
         public bool Solid(int x, int u, int row)
         {
@@ -89,6 +97,7 @@ namespace Ravenholm.Domain.Sites
                 _s.DigDoneMicro = 0;
             }
             if (from != null) _s.LastDig = from.Copy();
+            var straightDown = from != null && from.X == x && from.U == u && from.Feet == row;
             _s.DigDoneMicro += Math.Max(0, dps) * Math.Max(0, ms);
             var broke = _s.DigDoneMicro >= BlockDurabilityMicro(x, u, row);
             if (broke)
@@ -96,6 +105,7 @@ namespace Ravenholm.Domain.Sites
                 _s.DigTarget = null;
                 _s.DigDoneMicro = 0;
                 Break(cell, byHand: true);
+                if (straightDown) _s.DugDown.Add(cell);
             }
             Resolve();
             SaveRng();

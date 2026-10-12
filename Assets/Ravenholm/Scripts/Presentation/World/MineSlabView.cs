@@ -266,9 +266,9 @@ namespace Ravenholm.Presentation
                     keep.Add(k);
                     var h = (cell.x * 73856093) ^ (row * 19349663) ^ (cell.y * 83492791);
                     var tile = blockTiles[Mathf.Abs(h) % blockTiles.Length] as Tile;
-                    var inside = SlabCell(cell, out var x, out var u) &&
-                                 (sim.IsDug(x - 1, u, row) || sim.IsDug(x, u - 1, row) || row > 0 && sim.IsDug(x, u, row - 1));
-                    var colour = RowColour(sim, row) * (inside ? InsideShade : Color.white);
+                    // The back wall of a tunnel or shaft (the rock behind a dug block) is in shadow; floors and the face stay lit.
+                    var back = !SlabCell(cell, out _, out _) && SlabCell(cell + Vector3Int.left, out var fx, out var fu) && sim.IsDug(fx, fu, row);
+                    var colour = RowColour(sim, row) * (back ? InsideShade : Color.white);
                     colour.a = 1f;
                     Put(_blocks, k, tile != null ? tile.sprite : null, TopOfCell(cell, row), OrderFor(cell, row), colour);
                 }
@@ -279,12 +279,148 @@ namespace Ravenholm.Presentation
             var centre = SlabCoords(cam);
             var reachU = Mathf.CeilToInt(halfW * 2f + halfH * 4f);
             for (var u = Mathf.Max(0, Mathf.FloorToInt(centre.y) - reachU); u <= Mathf.Min(slab.Length - 1, Mathf.CeilToInt(centre.y) + reachU); u++)
-            for (var x = 0; x < slab.Thickness; x++)
+            for (var x = 0; x <= slab.Thickness; x++)   // and the rock right behind the slice: the tunnels' back wall
                 Column(CellOf(x, u));
             foreach (var k in new List<Vector3Int>(_blocks.Keys))
                 if (!keep.Contains(k)) Remove(_blocks, k);
+            HoleSides(sim);
+            Ladders(sim);
             _outlineKey = "";
             _fleckKey = "";
+        }
+
+        // ------------------------------------------------------------------ hole sides and ladders
+
+        private readonly Dictionary<Vector3Int, SpriteRenderer> _sides = new Dictionary<Vector3Int, SpriteRenderer>();
+        private static readonly Color HoleSide = new Color(0.18f, 0.13f, 0.12f, 0.62f);
+        private Sprite _sideFace;
+
+        /// <summary>
+        /// The −u face of a half block (its right-hand side on screen): a white parallelogram whose pivot is the block's
+        /// top centre. Tinted dark, it is the side wall seen inside a hole in the cliff face.
+        /// </summary>
+        private static Sprite MakeSideFace()
+        {
+            const int ppu = 128;
+            int w = ppu / 2, h = ppu * 3 / 4;
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+            var px = new Color32[w * h];
+            for (var y = 0; y < h; y++)
+            for (var x = 0; x < w; x++)
+            {
+                float lx = (x + 0.5f) / ppu, ly = (y + 0.5f) / ppu - 0.75f;
+                var inside = ly <= -0.25f + 0.5f * lx && ly >= -0.75f + 0.5f * lx;
+                px[y * w + x] = inside ? new Color32(255, 255, 255, 255) : new Color32(0, 0, 0, 0);
+            }
+            tex.SetPixels32(px);
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0f, 1f), ppu);
+        }
+
+        /// <summary>Shadows the side wall of every hole: a block whose neighbour toward the town (u − 1) is dug.</summary>
+        private void HoleSides(SiteSimulator sim)
+        {
+            if (_sideFace == null) _sideFace = MakeSideFace();
+            var keep = new HashSet<Vector3Int>();
+            foreach (var d in sim.Record.Dug)
+            {
+                if (!sim.Solid(d.X, d.U + 1, d.Row) || !IsDrawn(d.X, d.U + 1, d.Row)) continue;
+                var k = new Vector3Int(d.X, d.U + 1, d.Row);
+                keep.Add(k);
+                Put(_sides, k, _sideFace, Top(d.X, d.U + 1, d.Row), OrderFor(d.X, d.U + 1, d.Row) + 1, HoleSide);
+            }
+            foreach (var k in new List<Vector3Int>(_sides.Keys))
+                if (!keep.Contains(k)) Remove(_sides, k);
+        }
+
+        private readonly List<GameObject> _ladders = new List<GameObject>();
+        private string _ladderKey = "";
+        private static readonly Color LadderWood = new Color(0.55f, 0.36f, 0.2f);
+        private static readonly Color LadderShade = new Color(0.36f, 0.22f, 0.12f);
+
+        public int LadderCount => _ladders.Count;
+
+        /// <summary>
+        /// One ladder per shaft: each unbroken run of ladder blocks is a single ladder lying flat on the shaft's visible wall
+        /// (the side of the next block along), its rails running the whole run and two rungs per block.
+        /// </summary>
+        private void Ladders(SiteSimulator sim)
+        {
+            var key = $"{sim.Record.DugDown.Count}|{sim.Record.Dug.Count}";
+            if (key == _ladderKey) return;
+            _ladderKey = key;
+            foreach (var go in _ladders) Destroy(go);
+            _ladders.Clear();
+            var runs = new SortedDictionary<(int x, int u), List<int>>();
+            foreach (var c in sim.Record.DugDown)
+                if (sim.Ladder(c.X, c.U, c.Row))
+                {
+                    if (!runs.TryGetValue((c.X, c.U), out var rows)) runs[(c.X, c.U)] = rows = new List<int>();
+                    rows.Add(c.Row);
+                }
+            foreach (var kv in runs)
+            {
+                kv.Value.Sort();
+                var start = kv.Value[0];
+                for (var i = 1; i <= kv.Value.Count; i++)
+                {
+                    if (i < kv.Value.Count && kv.Value[i] == kv.Value[i - 1] + 1) continue;
+                    _ladders.Add(BuildLadder(kv.Key.x, kv.Key.u, start, kv.Value[i - 1]));
+                    if (i < kv.Value.Count) start = kv.Value[i];
+                }
+            }
+        }
+
+        /// <summary>A point on the slice in continuous coordinates: x into the cliff, u along it, level (0 = the ground's top).</summary>
+        private Vector3 Point(float x, float u, float level)
+        {
+            float cx = origin.x + x, cy = origin.y + u;
+            return new Vector3((cx - cy) * 0.5f, (cx + cy) * 0.25f + 0.25f - level * RowHeight, 0f);
+        }
+
+        private GameObject BuildLadder(int x, int u, int top, int bottom)
+        {
+            var go = new GameObject($"Ladder {u}:{top}-{bottom}");
+            go.transform.SetParent(transform, false);
+            var verts = new List<Vector3>();
+            var cols = new List<Color>();
+            var tris = new List<int>();
+            var plane = u + 0.5f;   // the face between the shaft and the next block along
+            void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color col)
+            {
+                var i = verts.Count;
+                verts.Add(a); verts.Add(b); verts.Add(c); verts.Add(d);
+                for (var k = 0; k < 4; k++) cols.Add(col);
+                tris.AddRange(new[] { i, i + 1, i + 2, i, i + 2, i + 3 });
+            }
+            // A bar along the face from (x0, l0) to (x1, l1), thickness t in screen units (perpendicular on screen).
+            void Bar(float x0, float l0, float x1, float l1, float t, Color col)
+            {
+                var a = Point(x0, plane, l0);
+                var b = Point(x1, plane, l1);
+                var dir = (b - a).normalized;
+                var n = new Vector3(-dir.y, dir.x, 0f) * (t * 0.5f);
+                Quad(a - n, a + n, b + n, b - n, col);
+            }
+            float railA = x - 0.28f, railB = x + 0.28f;
+            float lTop = top - 0.35f, lBottom = bottom + 1f;   // the rails stand a little proud of the top
+            for (var l = top + 0.25f; l < lBottom - 0.05f; l += 0.5f) Bar(railA, l, railB, l, 0.045f, LadderWood);
+            Bar(railA, lTop, railA, lBottom, 0.06f, LadderShade);
+            Bar(railB, lTop, railB, lBottom, 0.06f, LadderShade);
+            var mesh = new Mesh { name = go.name };
+            mesh.SetVertices(verts);
+            mesh.SetColors(cols);
+            mesh.SetTriangles(tris, 0);
+            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            var mr = go.AddComponent<MeshRenderer>();
+            if (spriteMaterial != null) mr.sharedMaterial = spriteMaterial;
+            var block = new MaterialPropertyBlock();
+            block.SetTexture("_MainTex", Texture2D.whiteTexture);
+            mr.SetPropertyBlock(block);
+            mr.sortingLayerName = "Ground";
+            // On the wall of the next block along, above its side-wall shadow; the supplier in the shaft sorts in front.
+            mr.sortingOrder = OrderFor(x, u + 1, bottom) + 2;
+            return go;
         }
 
         private SpriteRenderer Take()
@@ -359,7 +495,7 @@ namespace Ravenholm.Presentation
             var u = Mathf.RoundToInt(s.y);
             if (!InSlabColumn(x, u) || sim.Solid(x, u, 0)) return false;
             _inside = true;
-            _x = Mathf.Clamp(s.x, 0f, sim.Slab.Thickness - 1);
+            _x = 0f;   // the slice
             _u = s.y;
             _feet = 0;
             _drawFeet = 0;
@@ -388,44 +524,67 @@ namespace Ravenholm.Presentation
 
         private bool Blocks(SiteSimulator sim, int x, int u, int row) => x < 0 ? row >= 0 : sim.Solid(x, u, row);
 
+        /// <summary>The stick's up and down (climbing a ladder, or aiming up and down) rather than walking along the cliff.</summary>
+        public static bool Vertical(Vector2 m) => Mathf.Abs(m.y) > 0.3f && Mathf.Abs(m.y) > Mathf.Abs(m.x);
+
+        /// <summary>On a ladder: standing on a rung, or with the body in a shaft beside one.</summary>
+        public bool OnLadder => _inside && Sim != null && (Sim.Ladder(Lane, Column, _feet) || Sim.Ladder(Lane, Column, _feet - 1));
+
+        private float _climb;
+        private bool _descending;
+
+        /// <summary>
+        /// The Mine is one slice of the cliff face: left and right on the stick walk along it (screen left goes on along
+        /// the cliff), up and down climb a ladder. Single blocks are stepped up; holes are dropped into.
+        /// </summary>
         private void Walk(SiteSimulator sim, Vector2 move)
         {
-            if (move.sqrMagnitude < 0.04f) return;
-            // Screen = du·(−0.5, 0.25) + dx·(0.5, 0.25)  ⇒  du = −m.x + 2·m.y, dx = m.x + 2·m.y.
-            var du = -move.x + 2f * move.y;
-            var dx = move.x + 2f * move.y;
-            var len = Mathf.Sqrt(du * du + dx * dx);
-            if (len < 0.01f) return;
-            var speed = _root.Config.Balance.walkSpeed * Mathf.Min(1f, move.magnitude) * Time.deltaTime / len;
-            du *= speed;
-            dx *= speed;
-            _facing = Mathf.Abs(du) >= Mathf.Abs(dx) ? new Vector2Int(0, du > 0 ? 1 : -1) : new Vector2Int(dx > 0 ? 1 : -1, 0);
-            TryStep(sim, _u + du, _x);
-            TryStep(sim, _u, _x + dx);
+            if (move.sqrMagnitude < 0.04f) { _climb = 0f; return; }
+            if (Vertical(move))
+            {
+                if (!OnLadder) return;   // up and down only aim, unless on a ladder
+                if (move.y > 0f) _descending = false;
+                _u = Mathf.MoveTowards(_u, Column, Time.deltaTime * 4f);
+                _climb += ClimbSpeed * Mathf.Min(1f, Mathf.Abs(move.y)) * Time.deltaTime;
+                if (_climb < 1f) return;
+                _climb = 0f;
+                if (move.y > 0f && sim.Ladder(Lane, Column, _feet - 1) && !Blocks(sim, Lane, Column, _feet - 3)) _feet -= 1;
+                else if (move.y < 0f && sim.Ladder(Lane, Column, _feet)) _feet += 1;
+                return;
+            }
+            _climb = 0f;
+            var du = -Mathf.Sign(move.x) * WalkSpeed * Mathf.Min(1f, Mathf.Abs(move.x) * 1.4f) * Time.deltaTime;
+            _facing = new Vector2Int(0, du > 0f ? 1 : -1);
+            TryStep(sim, _u + du);
         }
 
-        private void TryStep(SiteSimulator sim, float u, float x)
+        /// <summary>Blocks per second up or down a ladder.</summary>
+        public const float ClimbSpeed = 5f;
+
+        /// <summary>Blocks per second along the cliff (as in the cliff-face prototype).</summary>
+        public const float WalkSpeed = 3.2f;
+
+        private void TryStep(SiteSimulator sim, float u)
         {
-            x = Mathf.Max(0f, x);
-            var cu = Mathf.RoundToInt(u + Mathf.Sign(u - _u) * 0.3f * (Mathf.Abs(u - _u) > 0.0001f ? 1f : 0f));
-            var cx = Mathf.RoundToInt(x + Mathf.Sign(x - _x) * 0.3f * (Mathf.Abs(x - _x) > 0.0001f ? 1f : 0f));
-            if (cu == Column && cx == Lane) { _u = u; _x = x; return; }
-            if (!Blocks(sim, cx, cu, _feet - 1) && !Blocks(sim, cx, cu, _feet - 2)) { _u = u; _x = x; return; }
+            u = Mathf.Clamp(u, 0f, sim.Slab.Length - 1);
+            var cu = Mathf.RoundToInt(u + Mathf.Sign(u - _u) * 0.3f);
+            if (cu == Column) { _u = u; return; }
+            if (!Blocks(sim, Lane, cu, _feet - 1) && !Blocks(sim, Lane, cu, _feet - 2)) { _u = u; return; }
             // A single block in the way, with headroom above it and above the supplier: step up onto it.
-            if (Blocks(sim, cx, cu, _feet - 1) && !Blocks(sim, cx, cu, _feet - 2) && !Blocks(sim, cx, cu, _feet - 3) && !Blocks(sim, Lane, Column, _feet - 3))
+            if (Blocks(sim, Lane, cu, _feet - 1) && !Blocks(sim, Lane, cu, _feet - 2) && !Blocks(sim, Lane, cu, _feet - 3) && !Blocks(sim, Lane, Column, _feet - 3))
             {
                 _feet -= 1;
                 _u = u;
-                _x = x;
                 return;
             }
             _u = Mathf.Clamp(_u, Column - 0.3f, Column + 0.3f);
-            _x = Mathf.Clamp(_x, Lane - 0.3f, Lane + 0.3f);
         }
 
         private void Fall(SiteSimulator sim)
         {
-            if (Blocks(sim, Lane, Column, _feet)) { _fallTimer = 0f; return; }
+            // A rung holds the supplier, except straight after digging the block underfoot: then they go down to the new floor.
+            if (Blocks(sim, Lane, Column, _feet)) { _fallTimer = 0f; _descending = false; return; }
+            if (sim.Ladder(Lane, Column, _feet) && !_descending) { _fallTimer = 0f; return; }
             _fallTimer += Time.deltaTime;
             if (_fallTimer < 0.07f) return;
             _fallTimer = 0f;
@@ -457,12 +616,7 @@ namespace Ravenholm.Presentation
             x = Mathf.RoundToInt(s.x);
             u = Mathf.RoundToInt(s.y);
             var move = _root.InputRouter.MoveVector;
-            if (move.sqrMagnitude > 0.04f)
-            {
-                var du = -move.x + 2f * move.y;
-                var dx = move.x + 2f * move.y;
-                _facing = Mathf.Abs(du) >= Mathf.Abs(dx) ? new Vector2Int(0, du > 0 ? 1 : -1) : new Vector2Int(dx > 0 ? 1 : -1, 0);
-            }
+            if (move.sqrMagnitude > 0.04f && Mathf.Abs(move.x) > 0.1f) _facing = new Vector2Int(0, move.x < 0f ? 1 : -1);
             return x >= -1 && x <= Slab.Thickness && u >= -1 && u <= Slab.Length;
         }
 
@@ -491,11 +645,19 @@ namespace Ravenholm.Presentation
             _target = _selected;
             if (!_target.HasValue)
             {
+                var move = _root.InputRouter.MoveVector;
+                var still = move.sqrMagnitude < 0.04f;
                 int ax = x + _facing.x, au = u + _facing.y;
-                if (sim.CanDig(ax, au, feet - 2)) _target = new DigCell(ax, au, feet - 2);
+                // Down on the stick: the block underfoot; up: the block overhead.
+                if (!still && Vertical(move))
+                {
+                    if (move.y < 0f && sim.CanDig(x, u, feet)) _target = new DigCell(x, u, feet);
+                    else if (move.y > 0f && sim.CanDig(x, u, feet - 3)) _target = new DigCell(x, u, feet - 3);
+                }
+                else if (sim.CanDig(ax, au, feet - 2)) _target = new DigCell(ax, au, feet - 2);
                 else if (sim.CanDig(ax, au, feet - 1)) _target = new DigCell(ax, au, feet - 1);
                 // The block underfoot only while standing still: walking on through an open tunnel never digs the floor.
-                else if (_root.InputRouter.MoveVector.sqrMagnitude < 0.04f && sim.CanDig(x, u, feet)) _target = new DigCell(x, u, feet);
+                else if (still && sim.CanDig(x, u, feet)) _target = new DigCell(x, u, feet);
             }
             _highlight.enabled = _target.HasValue;
             if (!_target.HasValue) return;
@@ -508,7 +670,7 @@ namespace Ravenholm.Presentation
 
         /// <summary>Within reach: up to two blocks around, from one under the feet to one above the head.</summary>
         public bool InReach(DigCell b) =>
-            Standing(out var x, out var u, out var feet) && Mathf.Abs(b.X - x) <= 2 && Mathf.Abs(b.U - u) <= 2 && b.Row >= feet - 3 && b.Row <= feet + 1;
+            Standing(out var x, out var u, out var feet) && b.X == x && Mathf.Abs(b.U - u) <= 2 && b.Row >= feet - 3 && b.Row <= feet + 1;
 
         /// <summary>The blocks the supplier can dig now: in reach, diggable and drawn.</summary>
         public List<DigCell> Reachable()
@@ -518,10 +680,9 @@ namespace Ravenholm.Presentation
             if (sim == null || !Standing(out var x, out var u, out var feet)) return list;
             for (var row = feet - 3; row <= feet + 1; row++)
             for (var du = -2; du <= 2; du++)
-            for (var dx = -2; dx <= 2; dx++)
             {
-                if (!sim.CanDig(x + dx, u + du, row) || !Shown(x + dx, u + du, row)) continue;
-                list.Add(new DigCell(x + dx, u + du, row));
+                if (!sim.CanDig(x, u + du, row) || !Shown(x, u + du, row)) continue;
+                list.Add(new DigCell(x, u + du, row));
             }
             return list;
         }
@@ -577,6 +738,7 @@ namespace Ravenholm.Presentation
             _motor?.PlaySwing();
             if (!broke) return;
             if (t.Row == 0) ground.SetTile(CellOf(t.X, t.U), null);   // a hole in the ground
+            if (_inside && t.X == x && t.U == u && t.Row == feet) _descending = true;   // dug underfoot: down to the new floor
             if (!_inside && t.Row == 0 && t.X == x && t.U == u) TryEnter(_player.position);
             _drawKey = "";
             FeedbackAudio.Play(FeedbackAudio.Cue.Craft);

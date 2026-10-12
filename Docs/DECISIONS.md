@@ -621,3 +621,20 @@ This is an experiment for Kevin to try; the real Mine (the dig slab) is unchange
   - The side wall seen inside a hole gets a dark overlay (a runtime parallelogram sprite), and the ladder hangs on that wall.
   - A depth line reads "Depth N blocks · layer K".
   - The supplier is drawn at 0.85 scale so their head stays under the rock overhead.
+
+## The Mine is the cliff-face slice (2026-10-12)
+
+Kevin preferred the cliff-face prototype, so the real Mine now works that way, and the prototype scene, signpost and test are removed.
+
+- **Domain.** `DigSlab.Thickness` is 1 and `EntryThickness` is 1, so the entry is the strip of dirt along the cliff edge (u 0..3).
+  - Blocks dug straight down, from standing on them, are recorded in `SiteRecord.DugDown`.
+  - `SiteSimulator.Ladder` holds where a shaft is two or more deep; a single dip is stepped out of.
+  - Saves: `dugDown` triples, and Mine layout 4. Layout-3 slabs reset to untouched ground; revealed layers and earnings are kept.
+- **Moving** (`MineSlabView`).
+  - Left and right on the stick walk along the cliff at 3.2 blocks/s; up and down climb a ladder at 5 blocks/s, otherwise they aim.
+  - A rung holds the supplier, except right after digging the block underfoot, when they go down to the new floor.
+  - Stepping off a ladder's top onto the ground leaves the Mine.
+  - The supplier is drawn at 0.85 scale underground.
+- **Ladders.** Each unbroken run of ladder blocks is drawn as one ladder: a mesh of two rails and two rungs per block, lying flat on the shaft's visible wall (the side of the next block along).
+- **Drawing.** The rock right behind the slice is drawn as the tunnels' back wall, in shadow. The side wall seen inside a hole gets a dark overlay. Floors and the face stay lit.
+- **Later: the ore elevator.** When it is built it is a single track in its shaft, not ladder-like (Kevin, 2026-10-12).

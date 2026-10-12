@@ -132,12 +132,12 @@ namespace Ravenholm.Domain.Sites
     /// </summary>
     public sealed class DigSlab
     {
-        public int Thickness = 8;
+        public int Thickness = 1;               // the cliff face: one slice (2026-10-12; was 8 blocks into the cliff)
         public int Length = 120;
         public int Depth = 600;
         public int TopsoilRows = 2;
         public int RowsPerLayer = 6;            // three levels, two blocks each
-        public int EntryThickness = 4;          // the Mine's corner: where the ground itself can be broken into
+        public int EntryThickness = 1;          // the Mine's corner: where the ground itself can be broken into
         public int EntryLength = 4;
         public int RowsPerContinuation = 0;     // reserved
         public int BlocksPerContinuation = 8;   // staying in a layer: effort rises every this many blocks along the cliff
@@ -234,6 +234,8 @@ namespace Ravenholm.Domain.Sites
         public readonly List<int> SectionDepths = new List<int>();
         /// <summary>Mine (dig slab): every block dug so far.</summary>
         public readonly HashSet<DigCell> Dug = new HashSet<DigCell>();
+        /// <summary>Blocks dug straight down from on top of them: a shaft two or more deep has a ladder in these.</summary>
+        public readonly HashSet<DigCell> DugDown = new HashSet<DigCell>();
         /// <summary>Mine (dig slab): the block the supplier is breaking by hand, and how far.</summary>
         public DigCell? DigTarget;
         public long DigDoneMicro;

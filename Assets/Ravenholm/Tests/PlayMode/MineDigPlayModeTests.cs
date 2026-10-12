@@ -66,9 +66,8 @@ namespace Ravenholm.Tests
         private static void Stick(Vector2? v) => GameRoot.Instance.InputRouter.ScriptedMove = v;
         private static void HoldDig(bool held) => GameRoot.Instance.Hud.ScriptedHold = held;
 
-        /// <summary>Screen directions of the slab's axes: along the cliff (+u) and into it (+x).</summary>
+        /// <summary>Screen direction of walking along the cliff (+u).</summary>
         private static readonly Vector2 Along = new Vector2(-2f, 1f).normalized;
-        private static readonly Vector2 Into = new Vector2(2f, 1f).normalized;
 
         private static IEnumerator Until(Func<bool> done, float seconds, string what) => Until(done, seconds, () => what);
 
@@ -89,24 +88,17 @@ namespace Ravenholm.Tests
                                               $"player {SandboxSceneController.Current.Player.position}, aim {slab.Top(b.X, b.U, b.Row)}, spot {spot})");
         }
 
-        /// <summary>Digs a block straight through the service (fixture for stairs; the view's own digging is tested above).</summary>
-        private static void Carve(int x, int u, int row)
-        {
-            for (var i = 0; i < 4000 && !Mine.IsDug(x, u, row); i++) S.Sites.PlayerDig(x, u, row, 1f, null);
-            Assert.IsTrue(Mine.IsDug(x, u, row), $"carved {x},{u},{row}");
-        }
-
         /// <summary>Into the Mine through its entry: tap the block underfoot and hold Dig, down to <paramref name="feet"/>.</summary>
         private static IEnumerator DigDown(MineSlabView slab, int feet)
         {
-            Motor.Teleport(slab.Top(1f, 1f, 0f));
+            Motor.Teleport(slab.Top(0f, 1f, 0f));
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
             yield return new WaitForSeconds(1.0f);   // camera smoothing is real-time
             while (slab.Feet < feet || !slab.PlayerInside)
             {
-                yield return Until(() => !slab.PlayerInside || Mine.Solid(1, 1, slab.Feet), 3f, "lands on the floor of the hole");
+                yield return Until(() => !slab.PlayerInside || Mine.Solid(0, 1, slab.Feet), 3f, "lands on the floor of the hole");
                 var before = slab.PlayerInside ? slab.Feet : -1;
-                var under = new DigCell(1, 1, slab.PlayerInside ? slab.Feet : 0);
+                var under = new DigCell(0, 1, slab.PlayerInside ? slab.Feet : 0);
                 yield return null;
                 TapUntilSelected(slab, under, new Vector3(0f, -0.3f, 0f));
                 yield return null;
@@ -121,7 +113,7 @@ namespace Ravenholm.Tests
         // ------------------------------------------------------------------ the dig slab
 
         [UnityTest]
-        public IEnumerator DigInTunnelAlongTheCliffAndClimbOutOnStairs()
+        public IEnumerator DigDownTunnelAlongTheCliffAndClimbOutOnTheLadder()
         {
             yield return Boot();
             var slab = MineSlabView.Current;
@@ -132,8 +124,12 @@ namespace Ravenholm.Tests
 
             // The topsoil outside the entry cannot be dug; the entry can.
             Assert.IsFalse(Mine.CanDig(6, 10, 0));
-            Assert.IsTrue(Mine.CanDig(1, 1, 0));
+            Assert.IsTrue(Mine.CanDig(0, 1, 0));
+            Assert.IsFalse(Mine.CanDig(1, 1, 1), "the Mine is one slice of the cliff face");
             yield return DigDown(slab, 3);
+            for (var r = 0; r < 3; r++) Assert.IsTrue(Mine.Ladder(0, 1, r), $"dug straight down: a ladder at row {r}");
+            yield return null;
+            Assert.AreEqual(1, slab.LadderCount, "one ladder for the whole shaft");
             Assert.AreEqual(3, slab.Feet, "three blocks down: room to stand, two blocks tall");
             Assert.Greater(S.Logistics.System.CarryCount, 0, "dug ore goes straight into the carry");
             Assert.IsTrue(Mine.Record.Revealed.ContainsKey(1), "the first layer is revealed by digging into it");
@@ -163,16 +159,15 @@ namespace Ravenholm.Tests
                 Assert.AreEqual(expected, slab.Target, "head height first, then legs, else the block underfoot");
             }
 
-            // Depth: the floor is drawn behind the supplier, the rock over their head (nearer the camera) in front.
+            // Depth: nothing is in front of the supplier; the floor and the wall ahead are drawn behind them.
             yield return null;
+            Assert.AreEqual(0, lane, "the tunnel is in the cliff face itself");
             Assert.Less(slab.DrawnOrder(lane, col, slab.Feet), slab.PlayerOrder, "the floor block is behind the supplier");
-            Assert.AreEqual(1, lane, "the tunnel runs one block behind the cliff face");
-            Assert.Greater(slab.DrawnOrder(0, col, slab.Feet - 1), slab.PlayerOrder, "the cliff face in front covers them");
 
             // What can be dug wears a faint outline; pressing and holding on one digs it without the button.
             Assert.Greater(slab.OutlinedBlocks, 0, "reachable blocks are outlined");
-            var inward = new DigCell(lane + 1, col, slab.Feet - 1);
-            Assert.IsTrue(Mine.CanDig(inward.X, inward.U, inward.Row) && slab.Reachable().Contains(inward), "the wall behind is reachable");
+            var inward = new DigCell(0, col + 1, slab.Feet);   // the floor one ahead
+            Assert.IsTrue(Mine.CanDig(inward.X, inward.U, inward.Row) && slab.Reachable().Contains(inward), "the floor ahead is reachable");
             GameRoot.Instance.InputRouter.ScriptedPress = Camera.main.WorldToScreenPoint(slab.Top(inward.X, inward.U, inward.Row) + new Vector3(-0.15f, -0.35f, 0f));
             yield return Until(() => Mine.IsDug(inward.X, inward.U, inward.Row), 10f, "press and hold digs the block under the finger");
             GameRoot.Instance.InputRouter.ScriptedPress = null;
@@ -183,7 +178,7 @@ namespace Ravenholm.Tests
             Assert.Greater(slab.TapCooldownLeft, 0f, "the tap has a cooldown");
             Assert.AreEqual(rings, slab.LastTapRings);
             StringAssert.StartsWith("Tap…", slab.LastTapNote);
-            var wall = new DigCell(lane + 1, col, slab.Feet - 2);
+            var wall = Mine.CanDig(0, col + 2, slab.Feet - 1) ? new DigCell(0, col + 2, slab.Feet - 1) : new DigCell(0, col + 2, slab.Feet - 2);
             TapUntilSelected(slab, wall, new Vector3(-0.15f, -0.35f, 0f));
             yield return null;
             Assert.AreEqual(wall, slab.Target, "a tapped block becomes the block to dig");
@@ -196,15 +191,14 @@ namespace Ravenholm.Tests
             yield return new WaitForSeconds(0.6f);
             yield return Capture.Take("mine_dig_slab");
 
-            // Back to the shaft, then up the stairs dug into the cliff (one block per step) and out onto the ground.
+            // Back to the shaft, up its ladder, and off it onto the ground beside it.
             Stick(-Along);
             yield return Until(() => Mathf.RoundToInt(slab.U) == 1, 10f, "walks back to the shaft");
-            Stick(null);
-            Carve(2, 1, 0); Carve(2, 1, 1);   // a step to feet 2
-            Carve(3, 1, 0);                   // a step to feet 1
-            Stick(Into);
-            yield return Until(() => !slab.PlayerInside, 10f, () => $"climbs the stairs and steps out onto the ground (at {slab.X},{slab.U}, feet {slab.Feet}; " +
-                                                              $"dug {string.Join(" ", Mine.Record.Dug.Where(d => d.U <= 2).Select(d => $"{d.X}/{d.U}/{d.Row}"))})");
+            Stick(Vector2.up);
+            yield return Until(() => slab.Feet == 0, 10f, () => $"climbs the ladder (feet {slab.Feet}, on ladder {slab.OnLadder})");
+            Assert.IsTrue(slab.PlayerInside, "at the top of the ladder");
+            Stick(-Along);
+            yield return Until(() => !slab.PlayerInside, 10f, () => $"steps off the ladder onto the ground (u {slab.U}, feet {slab.Feet})");
             Stick(null);
             Assert.IsTrue(slab.SurfaceWalkable(SandboxSceneController.Current.Player.position), "back on the town's ground");
             S.Sites.SpeedMultiplier = 1f;
@@ -262,7 +256,6 @@ namespace Ravenholm.Tests
             var first = ground.GetCellCenterWorld(forest.TreeCell(0));
             Assert.Greater(forest.TreeCell(0).y, GameRoot.Instance.Config.SandboxSettings.townCells.yMax, "the Forest stands on the frontier, beyond the town");
             var under = slab.SlabCoords(first);
-            Assert.IsTrue(slab.InSlabColumn(Mathf.RoundToInt(under.x), Mathf.RoundToInt(under.y)), "its first trees stand over the Mine's dig slab");
             Assert.IsFalse(s.Sites.Get("site.mine").CanDig(Mathf.RoundToInt(under.x), Mathf.RoundToInt(under.y), 0), "and the topsoil under trees cannot be dug");
 
             // Tightly grown: standing trees block the way; only cut tiles can be walked.

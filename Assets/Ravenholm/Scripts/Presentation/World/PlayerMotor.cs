@@ -92,10 +92,14 @@ namespace Ravenholm.Presentation
             }
             visual.localPosition = _visualBase + new Vector3(0f, bob, 0f);
             visual.localRotation = Quaternion.Euler(0f, 0f, lean);
-            visual.localScale = new Vector3(facing * (2f - breath), breath, 1f);   // unit scale; the sign is the facing
+            // Underground the supplier is drawn a little smaller, so two blocks of tunnel fit them, head and all.
+            _size = Mathf.MoveTowards(_size, Underground ? UndergroundScale : 1f, Time.deltaTime * 2f);
+            visual.localScale = new Vector3(facing * (2f - breath) * _size, breath * _size, 1f);   // the sign is the facing
         }
 
         private float _idlePhase;
+        private float _size = 1f;
+        public const float UndergroundScale = 0.85f;
         private float _reach;
 
         // ------------------------------------------------------------------ town

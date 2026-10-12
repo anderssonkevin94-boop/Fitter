@@ -544,7 +544,7 @@ namespace Ravenholm.Presentation
                 _continue.gameObject.SetActive(false);
                 _deeper.gameObject.SetActive(false);
                 _decisionText.text = "<size=85%>Dig down to reach the next layer (new ores, harder rock). Dig along the cliff to stay in a layer; " +
-                                     "it gets a little harder the further you go. Tap shows nearby ore; climb out by digging stairs.</size>";
+                                     "it gets a little harder the further you go. Tap shows nearby ore. A shaft two or more blocks deep gets a ladder: climb it with up and down.</size>";
                 return;
             }
             var face = sim.WaitingFace();

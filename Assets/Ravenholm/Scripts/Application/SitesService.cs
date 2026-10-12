@@ -414,7 +414,7 @@ namespace Ravenholm.Services
                 {
                     var record = FromSave(saved);
                     if (def.SiteType == SiteType.Mine && saved.Layout < 2) ConvertOldMine(record);
-                    if (def.SiteType == SiteType.Mine && saved.Layout < 3) ConvertToDigSlab(record);
+                    if (def.SiteType == SiteType.Mine && saved.Layout < 4) ConvertToDigSlab(record);
                     var loaded = Create(def, record);
                     // Solo play: hired crews from older saves go home; what they carried stays on the site to collect.
                     foreach (var w in record.Workers.ToArray())
@@ -444,7 +444,7 @@ namespace Ravenholm.Services
             }
         }
 
-        public const int MineLayout = 3;
+        public const int MineLayout = 4;
 
         /// <summary>
         /// Saves from before the Mine had directions (every section dug a level down; tunnels ran both ways): keep the
@@ -458,6 +458,13 @@ namespace Ravenholm.Services
         /// </summary>
         public static void ConvertToDigSlab(SiteRecord s)
         {
+            // From the 8-deep slab (layout 3) to the cliff-face slice: the ground is untouched again.
+            s.Dug.Clear();
+            s.DugDown.Clear();
+            s.DigTarget = null;
+            s.DigDoneMicro = 0;
+            s.LastDig = null;
+            s.RoutineFace = null;
             foreach (var t in s.Tunnels) s.FacePending.AddRange(t.Pending);
             s.Tunnels.Clear();
             foreach (var w in s.Workers) w.Face = 0;
@@ -495,6 +502,11 @@ namespace Ravenholm.Services
             {
                 d.Dug = new List<int>(s.Dug.Count * 3);
                 foreach (var c in s.Dug) { d.Dug.Add(c.X); d.Dug.Add(c.U); d.Dug.Add(c.Row); }
+            }
+            if (s.DugDown.Count > 0)
+            {
+                d.DugDown = new List<int>(s.DugDown.Count * 3);
+                foreach (var c in s.DugDown) { d.DugDown.Add(c.X); d.DugDown.Add(c.U); d.DugDown.Add(c.Row); }
             }
             if (s.DigTarget.HasValue) d.DigTarget = new List<int> { s.DigTarget.Value.X, s.DigTarget.Value.U, s.DigTarget.Value.Row };
             d.DigDoneMicro = s.DigDoneMicro;
@@ -588,6 +600,8 @@ namespace Ravenholm.Services
             s.FacePending.AddRange(d.FacePending);
             if (d.Dug != null)
                 for (var i = 0; i + 2 < d.Dug.Count; i += 3) s.Dug.Add(new DigCell(d.Dug[i], d.Dug[i + 1], d.Dug[i + 2]));
+            if (d.DugDown != null)
+                for (var i = 0; i + 2 < d.DugDown.Count; i += 3) s.DugDown.Add(new DigCell(d.DugDown[i], d.DugDown[i + 1], d.DugDown[i + 2]));
             if (d.DigTarget != null && d.DigTarget.Count == 3) s.DigTarget = new DigCell(d.DigTarget[0], d.DigTarget[1], d.DigTarget[2]);
             s.DigDoneMicro = d.DigDoneMicro;
             s.LastDig = Face(d.LastDig);
