@@ -46,6 +46,13 @@ The supplier runs a small supply company in a cozy fantasy frontier town. They m
 
 When Kevin approves the model sheet, it is the reference for every frame.
 
+**Approved by Kevin (2026-10-12): `model-sheet.png`.** The design is the older tailor:
+- swept-back brown hair with grey temples and a short beard;
+- a terracotta coat with cream cuffs, an oatmeal bib apron and sheathed scissors at the hip;
+- dark trousers and tan shoes.
+
+It replaces the young-supplier description above. **No backpack in any animation.**
+
 ## Step 3: animation strips (after approval)
 
 **One strip per file**: a single horizontal row of frames for one animation in one facing. A strip like this keeps the frames consistent with each other.
@@ -73,10 +80,16 @@ The game mirrors these for the right-hand directions, so never draw right-facing
 | `chop_front.png` | chopping a tree beside them with the axe, a horizontal swing: wind-up, swing, impact, recoil, ready | FRONT | 5 |
 | `chop_back.png` | the same horizontal axe chop | BACK | 5 |
 | `climb_back.png` | climbing a ladder, seen from behind; hands and feet alternate on the rungs (no ladder drawn) | BACK | 4 |
-| `pickup_front.png` | bending to pick something up from the ground and straightening, as if loading their backpack | FRONT | 3 |
+| `pickup_front.png` | bending to scoop something up from the ground with both hands and straightening into the carry pose (arms out in front, forklift-style) | FRONT | 3 |
+| `carry_idle_front.png` | the carry pose standing: both forearms held straight out in front at waist height, palms up, like a forklift, leaning back slightly as if under a heavy load; breathing | FRONT | 4 |
+| `carry_idle_back.png` | the same carry pose standing | BACK | 4 |
+| `carry_walk_front.png` | a walk cycle in the carry pose: arms locked out in front like a forklift, leaning back slightly, short heavy steps | FRONT | 6 |
+| `carry_walk_back.png` | the same carry walk | BACK | 6 |
 | `fall_front.png` | frame 1: falling (arms up, legs bent); frame 2: landing crouch | FRONT | 2 |
 
-That is 57 frames in 13 strips.
+That is 77 frames in 17 strips.
+
+**Carrying.** In the carry strips the hands stay **empty**: the game draws the pile of goods resting on his forearms, and the pile grows with what he carries (up to a huge stack). So keep the forearms level and clearly visible, at the same height in every frame. Do not draw anything on them.
 
 ## Tips for Astra
 
@@ -90,5 +103,6 @@ That is 57 frames in 13 strips.
 Claude will:
 - cut each strip into frames and key out the magenta;
 - line the frames up on a shared feet point, correcting any drift;
+- move the game's carry pile from on top of his head onto his outstretched forearms;
 - scale to the game's size and build the animations: the town walk, mining in the Mine, chopping, the ladder;
 - replace today's single bobbing sprite.
