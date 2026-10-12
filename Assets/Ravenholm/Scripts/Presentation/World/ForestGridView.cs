@@ -293,6 +293,7 @@ namespace Ravenholm.Presentation
                 var go = new GameObject("ForestTree");
                 go.transform.SetParent(transform, false);
                 sr = go.AddComponent<SpriteRenderer>();
+                sr.spriteSortPoint = SpriteSortPoint.Pivot;   // sorted by the trunk's foot, like everything standing in the world
                 if (spriteMaterial != null) sr.sharedMaterial = spriteMaterial;
                 go.transform.localScale = Vector3.one * treeScale;
             }

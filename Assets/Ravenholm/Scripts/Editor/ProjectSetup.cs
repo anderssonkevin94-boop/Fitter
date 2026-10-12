@@ -821,17 +821,21 @@ namespace Ravenholm.EditorTools
                 var frames = (Newtonsoft.Json.Linq.JArray)p.Value["frames"];
                 clip.frames = new Sprite[frames.Count];
                 var carry = new List<Vector2>();
+                var durations = new List<float>();
                 var anyCarry = false;
                 for (var i = 0; i < frames.Count; i++)
                 {
                     var rel = (string)frames[i]["sprite"];
                     clip.frames[i] = LoadSprite(rel.Substring(0, rel.Length - 4));
+                    var d = frames[i]["dur"];
+                    durations.Add(d != null ? (float)d : 1f / Mathf.Max(0.01f, clip.fps));
                     var c = frames[i]["carry"];
                     anyCarry |= c != null;
                     carry.Add(c != null ? new Vector2((float)c[0], (float)c[1]) : Vector2.zero);
                 }
                 // Only frames up to the last one with a carry point carry one (pick-up gets it on its last frame).
                 clip.carry = anyCarry ? carry.ToArray() : new Vector2[0];
+                clip.durations = durations.ToArray();
                 set.clips.Add(clip);
             }
             EditorUtility.SetDirty(set);

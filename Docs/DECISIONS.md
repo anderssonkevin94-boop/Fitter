@@ -686,3 +686,16 @@ The character Kevin approved (the older tailor in an apron, `ArtSource/character
 - **The routine figure** for the supplier uses the same animations: walking when it moves, mining or chopping at its work spot.
 - **Sorting.** At ground level (the top of a ladder) the supplier sorts above the ground tiles, so he is no longer hidden by them.
 - **Known.** The generator's walk cycles repeat some leg poses (see the handoff notes); they read fine at game speed, and a cleanup pass could redo them later.
+- **Fixes after the first playtest (2026-10-12).**
+  - **Forest layering.** Trees are made at runtime, and their renderers now sort by their pivot (the trunk's foot). Taller painted trees used to sort by their centre, so stumps and the supplier drew over trees in front of them.
+  - **Leaving the Mine.**
+    - Up on the stick at the top of a ladder (or in a dip one block deep) climbs out onto the ground behind the shaft, else beside it.
+    - A bug placed the supplier back at their underground spot in the same frame they left, which could strand them in front of the cliff.
+    - From the ground, only the Mine's entry blocks can be targeted.
+  - **Animations.** The generated strips are not clean cycles (the legs do not alternate, and the tools jump sides between frames), so each clip plays key poses with timing:
+    - idle: one pose that breathes;
+    - walk: two steps with a bounce, aligned on the head;
+    - mining and chopping: a held wind-up, then a fast strike;
+    - climb: two alternating holds.
+
+    A redo prompt for proper 4-pose walk cycles is in `Docs/ART_PROMPTS_CHARACTER.md`.

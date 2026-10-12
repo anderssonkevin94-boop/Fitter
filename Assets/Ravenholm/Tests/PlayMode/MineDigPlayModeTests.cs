@@ -195,12 +195,10 @@ namespace Ravenholm.Tests
             Stick(-Along);
             yield return Until(() => Mathf.RoundToInt(slab.U) == 1, 10f, "walks back to the shaft");
             Stick(Vector2.up);
-            yield return Until(() => slab.Feet == 0, 10f, () => $"climbs the ladder (feet {slab.Feet}, on ladder {slab.OnLadder})");
-            Assert.IsTrue(slab.PlayerInside, "at the top of the ladder");
-            Stick(-Along);
-            yield return Until(() => !slab.PlayerInside, 10f, () => $"steps off the ladder onto the ground (u {slab.U}, feet {slab.Feet})");
+            yield return Until(() => !slab.PlayerInside, 10f, () => $"climbs the ladder and out onto the ground (feet {slab.Feet}, on ladder {slab.OnLadder})");
             Stick(null);
-            Assert.IsTrue(slab.SurfaceWalkable(SandboxSceneController.Current.Player.position), "back on the town's ground");
+            var at = (Vector2)SandboxSceneController.Current.Player.position;
+            Assert.IsTrue(slab.SurfaceWalkable(at), $"back on the town's ground (at {at}, slab {slab.SlabCoords(at)}, ground {slab.OnGround(at)})");
             S.Sites.SpeedMultiplier = 1f;
         }
 
@@ -260,6 +258,7 @@ namespace Ravenholm.Tests
 
             // Tightly grown: standing trees block the way; only cut tiles can be walked.
             Assert.IsTrue(forest.HasStandingTree(forest.TreeCell(0)));
+
             Assert.IsFalse(slab.SurfaceWalkable(first), "a standing tree blocks the supplier");
 
             void Clear()
@@ -288,9 +287,11 @@ namespace Ravenholm.Tests
             forest.RouteTo(Phase1PlayModeTests.Spot("container.forest_staging"), 0, route);
             for (var i = 1; i < route.Count - 1; i++)
                 Assert.IsFalse(forest.HasStandingTree(ground.WorldToCell(route[i])), $"trail point {i} is open ground");
-            Motor.Teleport(new Vector2(-12.8f, -1.5f));
+            Motor.Teleport(ground.GetCellCenterWorld(firstCell));   // on a stump among the standing trees
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
             yield return new WaitForSeconds(1.5f);
+            foreach (var tree in forest.GetComponentsInChildren<SpriteRenderer>())
+                Assert.AreEqual(SpriteSortPoint.Pivot, tree.spriteSortPoint, "trees sort by their foot, so whoever stands behind is hidden");
             yield return Capture.Take("forest_frontier");
         }
     }

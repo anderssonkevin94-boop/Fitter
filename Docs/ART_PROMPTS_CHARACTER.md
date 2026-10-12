@@ -106,3 +106,17 @@ Claude will:
 - move the game's carry pile from on top of his head onto his outstretched forearms;
 - scale to the game's size and build the animations: the town walk, mining in the Mine, chopping, the ladder;
 - replace today's single bobbing sprite.
+
+## Redo: the four walk strips (2026-10-12)
+
+The first walk strips did not alternate legs (the same foot led in most frames), so the game plays only two of their poses with a bounce for now. To redo them, use one strip per file, **4 frames**, with every pose spelled out. Attach `model-sheet.png` and paste the rules block.
+
+> [rules above] This exact character from the attached model sheet, same scale in every frame, feet on one baseline, head at the same height and over the same spot in every frame (only the legs and arms move). One horizontal strip of 4 equal cells, a classic 4-pose walk cycle, [FACING] view:
+> 1. CONTACT: LEFT foot forward, heel touching the ground; RIGHT foot behind on its toes; RIGHT arm forward, LEFT arm back.
+> 2. PASSING: LEFT foot flat under the body taking the weight; RIGHT knee lifted, passing beside it; arms by the sides.
+> 3. CONTACT: RIGHT foot forward, heel touching the ground; LEFT foot behind on its toes; LEFT arm forward, RIGHT arm back (the mirror of pose 1 in the legs).
+> 4. PASSING: RIGHT foot flat under the body; LEFT knee lifted, passing beside it; arms by the sides.
+
+Files:
+- `walk_front.png` (FRONT) and `walk_back.png` (BACK);
+- `carry_walk_front.png` and `carry_walk_back.png`: the same four poses, but both forearms stay held straight out in front, level and empty (forklift), with a slight lean back.

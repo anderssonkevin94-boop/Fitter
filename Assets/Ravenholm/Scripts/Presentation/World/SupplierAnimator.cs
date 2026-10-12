@@ -172,11 +172,35 @@ namespace Ravenholm.Presentation
             }
             _time += dt;
             var n = clip.frames.Length;
-            var i = Mathf.FloorToInt(_time * clip.fps);
-            Frame = clip.loop ? i % n : Mathf.Min(i, n - 1);
-            if (Feel.ReducedMotion && clip.name.StartsWith("idle")) Frame = 0;   // no idle breathing with reduced motion
+            float progress;   // 0..1 through the current frame
+            if (clip.durations.Length == n)
+            {
+                var total = 0f;
+                foreach (var d in clip.durations) total += d;
+                var t = clip.loop ? Mathf.Repeat(_time, total) : Mathf.Min(_time, total - 0.0001f);
+                Frame = 0;
+                while (Frame < n - 1 && t >= clip.durations[Frame]) { t -= clip.durations[Frame]; Frame++; }
+                progress = Mathf.Clamp01(t / Mathf.Max(0.0001f, clip.durations[Frame]));
+            }
+            else
+            {
+                var f = _time * clip.fps;
+                var i = Mathf.FloorToInt(f);
+                Frame = clip.loop ? i % n : Mathf.Min(i, n - 1);
+                progress = f - i;
+            }
             body.sprite = clip.frames[Frame];
             body.flipX = Mirrored;
+            // A little life on top of the painted poses: each step lifts him, and standing he breathes.
+            var bob = 0f;
+            var breath = 1f;
+            if (!Feel.ReducedMotion)
+            {
+                if (clip.name.Contains("walk")) bob = Mathf.Sin(progress * Mathf.PI) * (clip.name.StartsWith("carry") ? 0.02f : 0.035f);
+                else if (clip.name.Contains("idle")) breath = 1f + Mathf.Sin(Time.time * 2.2f) * 0.012f;
+            }
+            body.transform.localPosition = new Vector3(0f, bob, 0f);
+            body.transform.localScale = new Vector3(2f - breath, breath, 1f);
             if (Frame < clip.carry.Length)
             {
                 var a = clip.carry[Frame];

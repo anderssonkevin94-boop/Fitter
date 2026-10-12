@@ -27,18 +27,20 @@ from scipy import ndimage
 PPU = 256                 # 2x resolution: sharp on retina screens
 BODY_UNITS = 1.0          # the idle character is one unit tall (two Mine blocks)
 
-# clip: (frames, fps, loop, anchor mode)
+# clip: (frames in the strip, key poses as (frame, seconds), loop, anchor mode)
+# The generated strips are not clean cycles (legs repeat, tools jump sides between frames), so each clip plays a few
+# key poses with timing instead: a wind-up held, then a fast strike; two opposite steps; one breathing pose.
 CLIPS = {
-    "idle_front": (4, 4, True, "feet"), "idle_back": (4, 4, True, "feet"),
-    "walk_front": (6, 10, True, "feet"), "walk_back": (6, 10, True, "feet"),
-    "carry_idle_front": (4, 4, True, "feet"), "carry_idle_back": (4, 4, True, "feet"),
-    "carry_walk_front": (6, 8, True, "feet"), "carry_walk_back": (6, 8, True, "feet"),
-    "mine_front": (5, 10, True, "feet"), "mine_back": (5, 10, True, "feet"),
-    "mine_down_front": (4, 8, True, "feet"), "mine_up_back": (4, 8, True, "feet"),
-    "chop_front": (5, 10, True, "feet"), "chop_back": (5, 10, True, "feet"),
-    "climb_back": (4, 8, True, "torso"),
-    "pickup_front": (3, 10, False, "feet"),
-    "fall_front": (2, 1, False, "feet"),
+    "idle_front": (4, [(0, 1.0)], True, "head"), "idle_back": (4, [(0, 1.0)], True, "head"),
+    "walk_front": (6, [(2, 0.16), (1, 0.16)], True, "head"), "walk_back": (6, [(0, 0.16), (2, 0.16)], True, "head"),
+    "carry_idle_front": (4, [(0, 1.0)], True, "head"), "carry_idle_back": (4, [(0, 1.0)], True, "head"),
+    "carry_walk_front": (6, [(2, 0.18), (1, 0.18)], True, "head"), "carry_walk_back": (6, [(0, 0.18), (2, 0.18)], True, "head"),
+    "mine_front": (5, [(0, 0.26), (2, 0.14)], True, "feet"), "mine_back": (5, [(0, 0.26), (2, 0.14)], True, "feet"),
+    "mine_down_front": (4, [(0, 0.26), (2, 0.14)], True, "feet"), "mine_up_back": (4, [(0, 0.26), (2, 0.14)], True, "feet"),
+    "chop_front": (5, [(0, 0.26), (2, 0.14)], True, "feet"), "chop_back": (5, [(0, 0.26), (2, 0.14)], True, "feet"),
+    "climb_back": (4, [(0, 0.2), (1, 0.2)], True, "torso"),
+    "pickup_front": (3, [(0, 0.1), (1, 0.1), (2, 0.1)], False, "feet"),
+    "fall_front": (2, [(0, 1.0)], False, "feet"),
 }
 
 
@@ -108,6 +110,10 @@ def anchor(body, torso, mode, ref_h):
     if mode == "torso":
         cy = float(np.median(ty)) + 0.5 * ref_h * 0.95   # where the feet would be under a steady torso
         return cx, cy
+    if mode == "head":
+        # Walking and standing: the head stays put over the feet, so steps do not wobble the body sideways.
+        hy, hx = np.nonzero(body[top:top + int(0.2 * ref_h)])
+        return float(np.median(hx)), float(feet)
     return cx, float(feet)
 
 
@@ -130,7 +136,7 @@ def main(src, art):
     out_dir = os.path.join(art, "Characters", "Supplier")
     os.makedirs(out_dir, exist_ok=True)
     strips = {}
-    for clip, (n, _, _, _) in CLIPS.items():
+    for clip, (n, _, _, _) in CLIPS.items():  # noqa
         col, alpha = key(os.path.join(src, clip + ".png"))
         strips[clip] = (col, alpha, split(alpha, n))
     # Reference: the idle front character's painted area and height.
@@ -144,13 +150,14 @@ def main(src, art):
     target_h = BODY_UNITS * PPU
 
     manifest = {"ppu": PPU, "clips": {}}
-    for clip, (n, fps, loop, mode) in CLIPS.items():
+    for clip, (n, keys, loop, mode) in CLIPS.items():
         col, alpha, frames = strips[clip]
         area = np.median([measure(col, m)[2] for m in frames])
         strip_ref_h = ref_h_px * np.sqrt(area / ref_area)        # this strip's idle-equivalent height
         scale = target_h / strip_ref_h
         entries = []
-        for i, m in enumerate(frames):
+        for i, dur in keys:
+            m = frames[i]
             body, torso, _ = measure(col, m)
             ax, ay = anchor(body, torso, mode, strip_ref_h)
             ys, xs = np.nonzero(m)
@@ -166,12 +173,12 @@ def main(src, art):
             crop.save(os.path.join(out_dir, name))
             rel = f"Characters/Supplier/{name}"
             meta["sprites"][rel] = {"pivot": [round(px / w, 4), round(1.0 - py / h, 4)], "ppu": PPU}
-            entry = {"sprite": rel}
+            entry = {"sprite": rel, "dur": dur}
             if clip.startswith("carry") or clip == "pickup_front" and i == n - 1:
                 fx, fy = forearm(body, ax, ay, strip_ref_h)
                 entry["carry"] = [round((fx - ax) * scale / PPU, 3), round((ay - fy) * scale / PPU, 3)]
             entries.append(entry)
-        manifest["clips"][clip] = {"fps": fps, "loop": loop, "frames": entries}
+        manifest["clips"][clip] = {"fps": round(len(keys) / sum(d for _, d in keys), 3), "loop": loop, "frames": entries}
         print(f"{clip}: scale {scale:.3f}, frames {[e['sprite'].split('/')[-1] for e in entries]}")
     json.dump(manifest, open(os.path.join(out_dir, "animations.json"), "w"), indent=1)
     json.dump(meta, open(meta_path, "w"), indent=1, sort_keys=True)

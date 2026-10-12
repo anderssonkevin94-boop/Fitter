@@ -550,6 +550,7 @@ namespace Ravenholm.Presentation
             var sim = Sim;
             if (!_inside || sim == null) return;
             Walk(sim, move);
+            if (!_inside) return;   // climbed out onto the ground: the town's motor has placed them
             Fall(sim);
             _drawFeet = Mathf.MoveTowards(_drawFeet, _feet, Time.deltaTime * 10f);
             _player.position = Top(_x, _u, _drawFeet);
@@ -588,6 +589,7 @@ namespace Ravenholm.Presentation
             if (move.sqrMagnitude < 0.04f) { _climb = 0f; return; }
             if (Vertical(move))
             {
+                if (move.y > 0f && ClimbOut(sim)) return;
                 if (!OnLadder) return;   // up and down only aim, unless on a ladder
                 if (move.y > 0f) _descending = false;
                 _u = Mathf.MoveTowards(_u, Column, Time.deltaTime * 4f);
@@ -602,6 +604,28 @@ namespace Ravenholm.Presentation
             var du = -Mathf.Sign(move.x) * WalkSpeed * Mathf.Min(1f, Mathf.Abs(move.x) * 1.4f) * Time.deltaTime;
             _facing = new Vector2Int(0, du > 0f ? 1 : -1);
             TryStep(sim, _u + du);
+        }
+
+        /// <summary>
+        /// At the top of a ladder, or in a hole one block deep, up on the stick climbs out onto the ground: the ground
+        /// right behind the shaft (the town or the frontier), else the ground beside it along the cliff.
+        /// </summary>
+        private bool ClimbOut(SiteSimulator sim)
+        {
+            if (_feet > 1) return false;
+            if (_feet == 1 && sim.Ladder(Lane, Column, 0)) return false;   // one more rung first
+            var behind = (Vector2)Top(Lane + 1, Column, 0);
+            Vector2? to = SurfaceWalkable(behind) ? behind : (Vector2?)null;
+            for (var i = 0; !to.HasValue && i < 2; i++)
+            {
+                var u = Column + (i == 0 ? _facing.y : -_facing.y);
+                if (u >= 0 && sim.Solid(Lane, u, 0) && SurfaceWalkable(Top(Lane, u, 0))) to = Top(Lane, u, 0);
+            }
+            if (!to.HasValue) return false;
+            _inside = false;
+            _descending = false;
+            _motor.Teleport(to.Value);
+            return true;
         }
 
         /// <summary>Blocks per second up or down a ladder.</summary>
@@ -717,7 +741,8 @@ namespace Ravenholm.Presentation
 
         /// <summary>Within reach: up to two blocks around, from one under the feet to one above the head.</summary>
         public bool InReach(DigCell b) =>
-            Standing(out var x, out var u, out var feet) && b.X == x && Mathf.Abs(b.U - u) <= 2 && b.Row >= feet - 3 && b.Row <= feet + 1;
+            Standing(out var x, out var u, out var feet) && b.X == x && Mathf.Abs(b.U - u) <= 2 && b.Row >= feet - 3 && b.Row <= feet + 1 &&
+            (_inside || b.Row == 0);   // from the ground only the ground itself (the Mine's entry) can be broken into
 
         /// <summary>The blocks the supplier can dig now: in reach, diggable and drawn.</summary>
         public List<DigCell> Reachable()
@@ -728,6 +753,7 @@ namespace Ravenholm.Presentation
             for (var row = feet - 3; row <= feet + 1; row++)
             for (var du = -2; du <= 2; du++)
             {
+                if (!_inside && row != 0) continue;   // from the ground only the ground itself
                 if (!sim.CanDig(x, u + du, row) || !Shown(x, u + du, row)) continue;
                 list.Add(new DigCell(x, u + du, row));
             }

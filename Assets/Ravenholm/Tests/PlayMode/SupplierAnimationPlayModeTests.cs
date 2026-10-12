@@ -109,7 +109,8 @@ namespace Ravenholm.Tests
             Assert.IsTrue(GameRoot.Instance.Services.Sites.Get("site.mine").Ladder(0, 1, 1), "a ladder in the shaft");
             Stick(Vector2.up);
             yield return Until(() => anim.Clip == "climb_back", 3f, Now);
-            yield return Until(() => slab.Feet == 0, 10f, () => "climbs out");
+            yield return Until(() => !slab.PlayerInside, 10f, () => "up at the top of the ladder climbs out onto the ground");
+            Assert.IsTrue(slab.SurfaceWalkable(player.position));
             Stick(null);
             GameRoot.Instance.Services.Sites.SpeedMultiplier = 1f;
             yield return new WaitForSeconds(0.3f);

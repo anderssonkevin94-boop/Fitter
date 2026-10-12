@@ -20,6 +20,8 @@ namespace Ravenholm.Presentation
             public float fps = 8f;
             public bool loop = true;
             public Sprite[] frames = new Sprite[0];
+            [Tooltip("Seconds each frame shows (key poses held for their own time). Empty: every frame lasts 1 / fps.")]
+            public float[] durations = new float[0];
             [Tooltip("Per frame: where the carried pile sits (units from the feet; x toward the art's facing). Empty if none.")]
             public Vector2[] carry = new Vector2[0];
         }
