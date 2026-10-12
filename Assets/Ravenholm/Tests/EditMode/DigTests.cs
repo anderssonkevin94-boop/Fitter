@@ -57,6 +57,19 @@ namespace Ravenholm.Tests
         }
 
         [Test]
+        public void TheCliffCanBeDugRightOfTheCornerForALimitedStretch()
+        {
+            var sim = Make(new FakeLedger());
+            var limit = sim.Slab.MinU;
+            Assert.Less(limit, 0, "to the right of the corner (toward the town)");
+            Assert.IsTrue(sim.CanDig(0, -1, 2) && sim.CanDig(0, limit, 2), "under the town's edge, up to the limit");
+            Assert.IsFalse(sim.CanDig(0, limit - 1, 2), "and no further");
+            Assert.IsFalse(sim.CanDig(0, -1, 0), "the town's own ground stays (only the entry breaks the surface)");
+            Assert.IsTrue(DigOut(sim, 0, -3, 2));
+            Assert.AreEqual(sim.ContinuationOf(10, 2), sim.ContinuationOf(-10, 2), "effort rises the same either way along the cliff");
+        }
+
+        [Test]
         public void ScaffoldsGoInOpenSpaceAndCanBeStoodOn()
         {
             var sim = Make(new FakeLedger());

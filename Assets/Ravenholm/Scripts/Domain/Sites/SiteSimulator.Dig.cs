@@ -83,14 +83,14 @@ namespace Ravenholm.Domain.Sites
         /// <summary>A block that can be broken: inside the slab, not yet dug, and below the ground (or at the Mine's entry).</summary>
         public bool CanDig(int x, int u, int row) =>
             DigMode && _c.Dig.InSlab(x, u, row) && !IsDug(x, u, row) &&
-            (row >= 1 || x < _c.Dig.EntryThickness && u < _c.Dig.EntryLength);
+            (row >= 1 || x < _c.Dig.EntryThickness && u >= 0 && u < _c.Dig.EntryLength);
 
         /// <summary>The charted band used for a row's mix and effort (deeper than charted keeps the last band).</summary>
         public int BandOfRow(int row) => Math.Min(_c.Dig.LayerOfRow(row), _c.Bands.Count);
 
         /// <summary>Continuation index of a block: further along the cliff, and layers past the charted ones, cost more.</summary>
         public int ContinuationOf(int u, int row) =>
-            Math.Max(0, u) / Math.Max(1, _c.Dig.BlocksPerContinuation) + Math.Max(0, _c.Dig.LayerOfRow(row) - _c.Bands.Count);
+            Math.Abs(u) / Math.Max(1, _c.Dig.BlocksPerContinuation) + Math.Max(0, _c.Dig.LayerOfRow(row) - _c.Bands.Count);   // either way along the cliff
 
         /// <summary>A layer's mix; the first time a layer is reached it is revealed (as Dig Deeper did).</summary>
         public Composition LayerMix(int band, bool reveal)

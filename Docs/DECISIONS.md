@@ -732,3 +732,4 @@ Kevin's calls: no more ladders. The Mine has an elevator shaft from the start, i
   - A routine treats scaffolds as blocking, and as floor to walk on.
 - **Ladders removed.** `DugDown` is still recorded and saved, but unused. Shafts dug elsewhere have no ladder: build scaffolds to climb out.
 - **Art.** The scaffold, pulley and platform are procedural placeholders (`Props/prop_scaffold`, `prop_pulley`, `prop_lift_platform`).
+- **Digging right (2026-10-13, Kevin).** The cliff can be dug to the right of the elevator corner for a limited stretch (`DigSlab.MinU` = −12), under the town's own edge. Effort rises the same either way along the cliff (|u| per continuation). The surface there stays town ground: the entry is still only its four blocks (u 0..3).

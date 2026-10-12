@@ -319,7 +319,7 @@ namespace Ravenholm.Presentation
             // Slab columns near the view (their blocks show wherever the slab has been dug, or at its edges).
             var centre = SlabCoords(cam);
             var reachU = Mathf.CeilToInt(halfW * 2f + halfH * 4f);
-            for (var u = Mathf.Max(0, Mathf.FloorToInt(centre.y) - reachU); u <= Mathf.Min(slab.Length - 1, Mathf.CeilToInt(centre.y) + reachU); u++)
+            for (var u = Mathf.Max(slab.MinU, Mathf.FloorToInt(centre.y) - reachU); u <= Mathf.Min(slab.Length - 1, Mathf.CeilToInt(centre.y) + reachU); u++)
             for (var x = 0; x <= slab.Thickness; x++)   // and the rock right behind the slice: the tunnels' back wall
                 Column(CellOf(x, u));
             foreach (var k in new List<Vector3Int>(_blocks.Keys))
@@ -627,7 +627,7 @@ namespace Ravenholm.Presentation
             for (var i = 0; !to.HasValue && i < 2; i++)
             {
                 var u = Column + (i == 0 ? _facing.y : -_facing.y);
-                if (u >= 0 && sim.Solid(Lane, u, 0) && SurfaceWalkable(Top(Lane, u, 0))) to = Top(Lane, u, 0);
+                if (u >= sim.Slab.MinU && sim.Solid(Lane, u, 0) && SurfaceWalkable(Top(Lane, u, 0))) to = Top(Lane, u, 0);
             }
             if (!to.HasValue) return false;
             _inside = false;
@@ -644,7 +644,7 @@ namespace Ravenholm.Presentation
 
         private void TryStep(SiteSimulator sim, float u)
         {
-            u = Mathf.Clamp(u, 0f, sim.Slab.Length - 1);
+            u = Mathf.Clamp(u, sim.Slab.MinU, sim.Slab.Length - 1);
             var cu = Mathf.RoundToInt(u + Mathf.Sign(u - _u) * 0.3f);
             if (cu == Column) { _u = u; return; }
             if (!Blocks(sim, Lane, cu, _feet - 1) && !Blocks(sim, Lane, cu, _feet - 2)) { _u = u; return; }
@@ -696,7 +696,7 @@ namespace Ravenholm.Presentation
             u = Mathf.RoundToInt(s.y);
             var move = _root.InputRouter.MoveVector;
             if (move.sqrMagnitude > 0.04f && Mathf.Abs(move.x) > 0.1f) _facing = new Vector2Int(0, move.x < 0f ? 1 : -1);
-            return x >= -1 && x <= Slab.Thickness && u >= -1 && u <= Slab.Length;
+            return x >= -1 && x <= Slab.Thickness && u >= Slab.MinU - 1 && u <= Slab.Length;
         }
 
         // ------------------------------------------------------------------ what to dig

@@ -145,9 +145,10 @@ namespace Ravenholm.Domain.Sites
         public int RowsPerContinuation = 0;     // reserved
         public int BlocksPerContinuation = 8;   // staying in a layer: effort rises every this many blocks along the cliff
         public int ElevatorU = 0;               // the elevator shaft: the cliff corner by the town, open from the start
+        public int MinU = -12;                  // a limited stretch to the right of the corner, under the town's own edge
         public int ElevatorStartRows = 8;       // ...down through the topsoil and the first layer (rows 0..7)
 
-        public bool InSlab(int x, int u, int row) => x >= 0 && x < Thickness && u >= 0 && u < Length && row >= 0 && row < Depth;
+        public bool InSlab(int x, int u, int row) => x >= 0 && x < Thickness && u >= MinU && u < Length && row >= 0 && row < Depth;
 
         /// <summary>Layer (band) of a row: topsoil counts as the first layer.</summary>
         public int LayerOfRow(int row) => row < TopsoilRows ? 1 : (row - TopsoilRows) / RowsPerLayer + 1;
