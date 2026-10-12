@@ -61,6 +61,7 @@ namespace Ravenholm.Presentation
             _root = GameRoot.Instance;
             if (_root == null) { enabled = false; return; }
             _renderers = visual.GetComponentsInChildren<SpriteRenderer>(true);
+            _animator = visual.GetComponent<SupplierAnimator>();
             var packRoot = new GameObject("Pack").transform;
             packRoot.SetParent(transform, false);
             packRoot.localPosition = new Vector3(0f, 1.02f, 0f);
@@ -197,7 +198,10 @@ namespace Ravenholm.Presentation
 
             // Work swing (Forest is visible; Mine work happens inside the cutaway).
             var swinging = w.State == WorkerState.Working && !hidden && !Feel.ReducedMotion;   // the bubble and pack still show state
-            visual.localRotation = Quaternion.Euler(0f, 0f, swinging ? Mathf.Sin(Time.time * 9f) * 9f : 0f);
+            if (_animator != null)
+                _animator.Work = w.State != WorkerState.Working ? SupplierAnimator.Activity.None
+                    : sim.Config.Kind == SiteKind.Mine ? SupplierAnimator.Activity.Mine : SupplierAnimator.Activity.Chop;
+            else visual.localRotation = Quaternion.Euler(0f, 0f, swinging ? Mathf.Sin(Time.time * 9f) * 9f : 0f);
 
             for (var i = 0; i < _packPieces.Count; i++)
             {
@@ -210,6 +214,7 @@ namespace Ravenholm.Presentation
         }
 
         private UnityEngine.Rendering.SortingGroup _sorting;
+        private SupplierAnimator _animator;
 
         /// <summary>Underground the figure is sorted among the Mine's blocks; in town, normally.</summary>
         private void SortUnderground(int? order)
@@ -284,6 +289,7 @@ namespace Ravenholm.Presentation
 
         private void Face(float dx)
         {
+            if (_animator != null) return;   // the painted animations face the way the figure moves
             var sc = visual.localScale;
             sc.x = Mathf.Abs(sc.x) * (dx < 0 ? -1f : 1f);
             visual.localScale = sc;

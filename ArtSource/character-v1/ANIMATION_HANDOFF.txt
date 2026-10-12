@@ -1,0 +1,30 @@
+Animation strips — handoff to Claude
+
+17 PNG source strips, 77 frames; model-sheet.png attached on every generation call.
+No backpacks. Carry hands empty; no pile drawn.
+
+Import/QA notes:
+- Native dimensions vary despite requested uniform cells; do not assume a common pixel scale.
+- Magenta pixels are approximate, not exact FF00FF; key by hue/tolerance.
+- Frame baseline/scale/arm-anchor alignment is approximate and requires correction during slicing.
+- Walk and carry-walk cycles still contain similar repeated leg poses; inspect playback and repair alternation before production use.
+- Carry forearm placement is visually steady but not pixel-locked; align each frame to fixed forearm anchors before pile overlay.
+
+File | Frames | Width | Height
+idle_front.png | 4 | 1774 | 887
+idle_back.png | 4 | 2048 | 768
+walk_front.png | 6 | 2172 | 724
+walk_back.png | 6 | 2172 | 724
+mine_front.png | 5 | 1983 | 793
+mine_back.png | 5 | 1983 | 793
+mine_down_front.png | 4 | 1774 | 887
+mine_up_back.png | 4 | 1774 | 887
+chop_front.png | 5 | 1983 | 793
+chop_back.png | 5 | 1983 | 793
+climb_back.png | 4 | 1774 | 887
+pickup_front.png | 3 | 1774 | 887
+carry_idle_front.png | 4 | 1774 | 887
+carry_idle_back.png | 4 | 2048 | 768
+carry_walk_front.png | 6 | 2172 | 724
+carry_walk_back.png | 6 | 2172 | 724
+fall_front.png | 2 | 1448 | 1086

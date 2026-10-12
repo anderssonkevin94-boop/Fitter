@@ -110,9 +110,24 @@ namespace Ravenholm.Presentation
             }
         }
 
+        private SupplierAnimator _animator;
+        private bool _behind;
+
         private void Update()
         {
             if (_pieces.Count == 0) return;
+            // With painted animations the pile rests on the outstretched forearms: in front when facing the camera,
+            // behind the body when facing away.
+            // In other poses (mining, climbing) it rides on the head as before.
+            if (_animator == null) _animator = GetComponentInChildren<SupplierAnimator>();
+            var onArms = _animator != null && _animator.CarryAnchor.HasValue;
+            _stackRoot.localPosition = onArms ? _animator.CarryAnchor.Value : stackOrigin;
+            var behind = onArms && _animator.Back;
+            if (_behind != behind)
+            {
+                _behind = behind;
+                for (var i = 0; i < _pieces.Count; i++) _pieces[i].sortingOrder = (_behind ? -baseSortingOrder - MaxVisiblePieces : baseSortingOrder) + i;
+            }
             // Highlight pieces that the nearest receiver in range would accept.
             var sys = _root.Services.Logistics.System;
             var p = (Vector2)transform.position;

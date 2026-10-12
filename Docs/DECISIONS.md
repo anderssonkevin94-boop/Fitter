@@ -663,3 +663,26 @@ Three painted sheets from Kevin (brief: `Docs/ART_PROMPTS_ASTRA.md`) are cut int
   - The entry is the dirt strip on that edge; dug blocks keep their slab coordinates.
   - Ladders now lie parallel to the cliff face (the blocks' lit left faces), in the shaft's opening.
   - Standing over air (an old save) puts the supplier back beside the entry when they move.
+
+## The supplier's painted animations (2026-10-12)
+
+The character Kevin approved (the older tailor in an apron, `ArtSource/character-v1/model-sheet.png`) replaces the placeholder body and its bob.
+
+- **Import.** `Tools/ArtImport/import_character_strips.py` writes `Characters/Supplier/<clip>_<n>.png` at 256 px per unit (the importer now honours a sprite's own `ppu` in `sprite_meta.json`), plus `animations.json`. `ProjectSetup` rebuilds `Content/Config/SupplierAnimations.asset` (`CharacterAnimationSet`) from it.
+- **Clips.** 17 clips:
+  - idle and walk, front and back;
+  - carry idle and walk, forklift-style, front and back;
+  - mining: at a wall (front and back), down (front) and up (back);
+  - chop, front and back;
+  - climb (back), pick-up (front) and fall (front).
+- **The art faces left.** "Front" faces the bottom-left and "back" the top-left; the animator mirrors them for the right.
+- **Choosing a clip** (`SupplierAnimator`, on the body sprite):
+  - The view follows the way he moves (up the screen shows the back). In the Mine it follows his facing along the cliff.
+  - Working: mining is picked by the target's row (down, up or at a wall); chopping turns toward the tree.
+  - The climb plays only while he moves on the ladder; the fall plays while dropping; the pick-up plays after a pick-up.
+  - Carrying swaps idle and walk for the carry clips.
+- **The motor** only sizes the body now (0.9 underground, since the art is one unit tall).
+- **The carry pile** sits on the forearms in the carry poses: in front when he faces the camera, behind his body when he faces away. In other poses it rides on his head as before.
+- **The routine figure** for the supplier uses the same animations: walking when it moves, mining or chopping at its work spot.
+- **Sorting.** At ground level (the top of a ladder) the supplier sorts above the ground tiles, so he is no longer hidden by them.
+- **Known.** The generator's walk cycles repeat some leg poses (see the handoff notes); they read fine at game speed, and a cleanup pass could redo them later.

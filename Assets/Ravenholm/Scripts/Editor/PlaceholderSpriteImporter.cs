@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Ravenholm.EditorTools
 {
     /// <summary>
-    /// Applies the placeholder kit conventions on import: 128 PPU sprites, pivots and
+    /// Applies the placeholder kit conventions on import: 128 PPU sprites (or a sprite's own "ppu"), pivots and
     /// 9-slice borders from Art/Placeholder/sprite_meta.json (written by the generator).
     /// Sprite file names carry no logic; all metadata lives in that manifest.
     /// </summary>
@@ -16,10 +16,10 @@ namespace Ravenholm.EditorTools
         public const string ArtRoot = "Assets/Ravenholm/Art/Placeholder/";
         private const string MetaPath = ArtRoot + "sprite_meta.json";
 
-        private static Dictionary<string, (Vector2 pivot, Vector4 border, bool hasBorder)> _meta;
+        private static Dictionary<string, (Vector2 pivot, Vector4 border, bool hasBorder, float ppu)> _meta;
         private static float _ppu = 128f;
 
-        public override uint GetVersion() => 3;
+        public override uint GetVersion() => 5;
 
         private void OnPreprocessTexture()
         {
@@ -45,6 +45,7 @@ namespace Ravenholm.EditorTools
                 settings.spritePivot = m.pivot;
                 settings.spriteBorder = m.hasBorder ? m.border : Vector4.zero;
                 settings.spriteMeshType = m.hasBorder ? SpriteMeshType.FullRect : SpriteMeshType.Tight;
+                if (m.ppu > 0f) settings.spritePixelsPerUnit = m.ppu;   // e.g. the 2x character frames
             }
             else
             {
@@ -61,7 +62,7 @@ namespace Ravenholm.EditorTools
         private static void LoadMeta()
         {
             if (_meta != null) return;
-            _meta = new Dictionary<string, (Vector2, Vector4, bool)>();
+            _meta = new Dictionary<string, (Vector2, Vector4, bool, float)>();
             if (!File.Exists(MetaPath))
             {
                 Debug.LogError($"[PlaceholderSpriteImporter] {MetaPath} missing. Run Tools/PlaceholderArt/generate_placeholders.py.");
@@ -75,7 +76,8 @@ namespace Ravenholm.EditorTools
                 var v = new Vector2(pivot[0].Value<float>(), pivot[1].Value<float>());
                 var b = p.Value["border"];
                 var border = b != null ? new Vector4(b[0].Value<float>(), b[1].Value<float>(), b[2].Value<float>(), b[3].Value<float>()) : Vector4.zero;
-                _meta[p.Key] = (v, border, b != null);
+                var ppu = p.Value["ppu"]?.Value<float>() ?? 0f;
+                _meta[p.Key] = (v, border, b != null, ppu);
             }
         }
     }

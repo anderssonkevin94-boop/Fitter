@@ -572,6 +572,13 @@ namespace Ravenholm.Presentation
         private float _climb;
         private bool _descending;
 
+        /// <summary>Dropping through the air (not climbing): the supplier's fall pose.</summary>
+        public bool Falling => _inside && _drawFeet < _feet - 0.05f && !OnLadder;
+
+        /// <summary>Hanging on a ladder (not standing on a floor), and whether they are moving up or down it.</summary>
+        public bool OnLadderPose => OnLadder && Sim != null && !Sim.Solid(Lane, Column, _feet);
+        public bool ClimbMoving => OnLadderPose && Mathf.Abs(_drawFeet - _feet) > 0.02f;
+
         /// <summary>
         /// The Mine is one slice of the cliff face: left and right on the stick walk along it (screen left goes on along
         /// the cliff), up and down climb a ladder. Single blocks are stepped up; holes are dropped into.
@@ -634,7 +641,8 @@ namespace Ravenholm.Presentation
         private void UpdatePlayerSorting()
         {
             if (_playerSorting == null) return;
-            if (_inside)
+            // Underground among the blocks; standing at ground level (the top of a ladder) they are above the ground's tiles.
+            if (_inside && _feet > 0)
             {
                 _playerSorting.sortingLayerName = "Ground";
                 _playerSorting.sortingOrder = OrderFor(Lane, Column, _feet - 1) + 2;

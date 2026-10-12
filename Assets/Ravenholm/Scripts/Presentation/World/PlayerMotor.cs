@@ -34,6 +34,7 @@ namespace Ravenholm.Presentation
             if (_root == null) { enabled = false; return; }
             _blockerMask = LayerMask.GetMask(BlockerLayerName);
             if (visual != null) _visualBase = visual.localPosition;
+            _animator = visual != null ? visual.GetComponent<SupplierAnimator>() : null;
             var s = _root.Services.Sandbox.State;
             transform.position = new Vector3(s.PlayerX, s.PlayerY, 0f);
         }
@@ -52,6 +53,17 @@ namespace Ravenholm.Presentation
             if (slab != null && slab.PlayerInside) slab.UpdatePlayer(move);
             else if (move.sqrMagnitude > 0.0001f) WalkTown(move, slab);
 
+            if (visual != null && _animator != null)
+            {
+                // Painted animations (SupplierAnimator) show the walk, the work and the carry; the motor only sizes them.
+                _swing = Mathf.MoveTowards(_swing, 0f, Time.deltaTime);
+                _reach = Mathf.MoveTowards(_reach, 0f, Time.deltaTime * 4f);
+                _size = Mathf.MoveTowards(_size, Underground ? UndergroundScale : 1f, Time.deltaTime * 2f);
+                visual.localPosition = _visualBase;
+                visual.localRotation = Quaternion.identity;
+                visual.localScale = new Vector3(_size, _size, 1f);
+                return;
+            }
             if (move.sqrMagnitude > 0.0001f)
             {
                 _bobPhase += Time.deltaTime * 14f * move.magnitude;
@@ -99,7 +111,9 @@ namespace Ravenholm.Presentation
 
         private float _idlePhase;
         private float _size = 1f;
-        public const float UndergroundScale = 0.85f;
+        private SupplierAnimator _animator;
+        /// <summary>Underground the supplier is drawn a little smaller so a two-block tunnel fits them (the art is one unit tall).</summary>
+        public const float UndergroundScale = 0.9f;
         private float _reach;
 
         // ------------------------------------------------------------------ town

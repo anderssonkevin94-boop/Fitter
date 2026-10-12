@@ -88,6 +88,7 @@ namespace Ravenholm.EditorTools
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
             EnsureOreBlocks();
+            EnsureSupplierAnimations();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
             var boot = EnsureAsset<BootConfig>(ConfigDir + "BootConfig.asset");
             if (boot.Catalogue == null || boot.SandboxSettings == null || boot.UiTheme == null || boot.Balance == null)
@@ -799,6 +800,43 @@ namespace Ravenholm.EditorTools
                 EditorUtility.SetDirty(catalogue);
             }
             AssetDatabase.SaveAssets();
+        }
+
+        public const string SupplierAnimationsPath = ConfigDir + "SupplierAnimations.asset";
+
+        /// <summary>
+        /// The supplier's animation clips, rebuilt from Characters/Supplier/animations.json (written by
+        /// Tools/ArtImport/import_character_strips.py): generated data, so it is replaced, not merged.
+        /// </summary>
+        public static CharacterAnimationSet EnsureSupplierAnimations()
+        {
+            var set = EnsureAsset<CharacterAnimationSet>(SupplierAnimationsPath);
+            var json = PlaceholderSpriteImporter.ArtRoot + "Characters/Supplier/animations.json";
+            if (!File.Exists(json)) return set;
+            var root = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(json));
+            set.clips.Clear();
+            foreach (var p in (Newtonsoft.Json.Linq.JObject)root["clips"])
+            {
+                var clip = new CharacterAnimationSet.Clip { name = p.Key, fps = (float)p.Value["fps"], loop = (bool)p.Value["loop"] };
+                var frames = (Newtonsoft.Json.Linq.JArray)p.Value["frames"];
+                clip.frames = new Sprite[frames.Count];
+                var carry = new List<Vector2>();
+                var anyCarry = false;
+                for (var i = 0; i < frames.Count; i++)
+                {
+                    var rel = (string)frames[i]["sprite"];
+                    clip.frames[i] = LoadSprite(rel.Substring(0, rel.Length - 4));
+                    var c = frames[i]["carry"];
+                    anyCarry |= c != null;
+                    carry.Add(c != null ? new Vector2((float)c[0], (float)c[1]) : Vector2.zero);
+                }
+                // Only frames up to the last one with a carry point carry one (pick-up gets it on its last frame).
+                clip.carry = anyCarry ? carry.ToArray() : new Vector2[0];
+                set.clips.Add(clip);
+            }
+            EditorUtility.SetDirty(set);
+            AssetDatabase.SaveAssets();
+            return set;
         }
 
         /// <summary>The painted ore blocks (Art/Placeholder/Painted/Blocks) on the Mine's ores; edited values are kept.</summary>

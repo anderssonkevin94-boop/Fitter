@@ -180,6 +180,7 @@ namespace Ravenholm.EditorTools
             SiteMarker(mine.transform, "site.mine", 2.4f);
             SiteMarker(gate.transform, "site.forest", 2.0f);
 
+            Animate(player.Find("Visual"));
             player.gameObject.AddComponent<PlayerMotor>().EditorSetup(player.Find("Visual"));
             player.gameObject.AddComponent<CarryStackView>();
 
@@ -651,6 +652,7 @@ namespace Ravenholm.EditorTools
             col.isTrigger = true;
             col.size = new Vector2(0.7f, 1.1f);
             col.offset = new Vector2(0f, 0.5f);
+            if (workerId == Ravenholm.Domain.Sites.SiteSimulator.PlayerId) Animate(visual);   // the supplier's own figure on a routine
             var view = root.AddComponent<WorkerView>();
             view.EditorSetup(siteId, workerId, visual, staging, workPoint, pocket, bubble, icon,
                 ProjectSetup.LoadSprite("UI/Icons/ic_unknown"), ProjectSetup.LoadSprite("UI/Icons/ic_warning"));
@@ -753,6 +755,19 @@ namespace Ravenholm.EditorTools
             root.AddComponent<Inspectable>().EditorSetup(title, description, phase);
             if (!isPlayer) Circle(root.transform, Vector2.zero, 0.2f);
             return root.transform;
+        }
+
+        /// <summary>The supplier's painted animations on a character's body sprite (the old overlay is retired).</summary>
+        private static void Animate(Transform visual)
+        {
+            var set = AssetDatabase.LoadAssetAtPath<CharacterAnimationSet>(ProjectSetup.SupplierAnimationsPath);
+            var idle = set != null ? set.Get("idle_front") : null;
+            if (idle == null || idle.frames.Length == 0) return;
+            var body = visual.Find("Base").GetComponent<SpriteRenderer>();
+            body.sprite = idle.frames[0];
+            var overlay = visual.Find("Overlay");
+            if (overlay != null) overlay.gameObject.SetActive(false);
+            visual.gameObject.AddComponent<SupplierAnimator>().EditorSetup(set, body);
         }
 
         private static void AddLabel(Transform target, string text, float height)

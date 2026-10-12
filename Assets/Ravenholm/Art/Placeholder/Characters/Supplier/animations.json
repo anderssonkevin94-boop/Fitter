@@ -1,0 +1,422 @@
+{
+ "ppu": 256,
+ "clips": {
+  "idle_front": {
+   "fps": 4,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/idle_front_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/idle_front_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/idle_front_2.png"
+    },
+    {
+     "sprite": "Characters/Supplier/idle_front_3.png"
+    }
+   ]
+  },
+  "idle_back": {
+   "fps": 4,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/idle_back_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/idle_back_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/idle_back_2.png"
+    },
+    {
+     "sprite": "Characters/Supplier/idle_back_3.png"
+    }
+   ]
+  },
+  "walk_front": {
+   "fps": 10,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/walk_front_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/walk_front_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/walk_front_2.png"
+    },
+    {
+     "sprite": "Characters/Supplier/walk_front_3.png"
+    },
+    {
+     "sprite": "Characters/Supplier/walk_front_4.png"
+    },
+    {
+     "sprite": "Characters/Supplier/walk_front_5.png"
+    }
+   ]
+  },
+  "walk_back": {
+   "fps": 10,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/walk_back_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/walk_back_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/walk_back_2.png"
+    },
+    {
+     "sprite": "Characters/Supplier/walk_back_3.png"
+    },
+    {
+     "sprite": "Characters/Supplier/walk_back_4.png"
+    },
+    {
+     "sprite": "Characters/Supplier/walk_back_5.png"
+    }
+   ]
+  },
+  "carry_idle_front": {
+   "fps": 4,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/carry_idle_front_0.png",
+     "carry": [
+      -0.231,
+      0.644
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_idle_front_1.png",
+     "carry": [
+      -0.231,
+      0.64
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_idle_front_2.png",
+     "carry": [
+      -0.233,
+      0.642
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_idle_front_3.png",
+     "carry": [
+      -0.238,
+      0.644
+     ]
+    }
+   ]
+  },
+  "carry_idle_back": {
+   "fps": 4,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/carry_idle_back_0.png",
+     "carry": [
+      -0.249,
+      0.577
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_idle_back_1.png",
+     "carry": [
+      -0.255,
+      0.577
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_idle_back_2.png",
+     "carry": [
+      -0.25,
+      0.559
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_idle_back_3.png",
+     "carry": [
+      -0.25,
+      0.573
+     ]
+    }
+   ]
+  },
+  "carry_walk_front": {
+   "fps": 8,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/carry_walk_front_0.png",
+     "carry": [
+      -0.25,
+      0.687
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_walk_front_1.png",
+     "carry": [
+      -0.271,
+      0.719
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_walk_front_2.png",
+     "carry": [
+      -0.263,
+      0.715
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_walk_front_3.png",
+     "carry": [
+      -0.239,
+      0.672
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_walk_front_4.png",
+     "carry": [
+      -0.256,
+      0.708
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_walk_front_5.png",
+     "carry": [
+      -0.25,
+      0.698
+     ]
+    }
+   ]
+  },
+  "carry_walk_back": {
+   "fps": 8,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/carry_walk_back_0.png",
+     "carry": [
+      -0.227,
+      0.581
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_walk_back_1.png",
+     "carry": [
+      -0.225,
+      0.651
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_walk_back_2.png",
+     "carry": [
+      -0.232,
+      0.656
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_walk_back_3.png",
+     "carry": [
+      -0.227,
+      0.637
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_walk_back_4.png",
+     "carry": [
+      -0.236,
+      0.658
+     ]
+    },
+    {
+     "sprite": "Characters/Supplier/carry_walk_back_5.png",
+     "carry": [
+      -0.225,
+      0.587
+     ]
+    }
+   ]
+  },
+  "mine_front": {
+   "fps": 10,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/mine_front_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_front_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_front_2.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_front_3.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_front_4.png"
+    }
+   ]
+  },
+  "mine_back": {
+   "fps": 10,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/mine_back_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_back_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_back_2.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_back_3.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_back_4.png"
+    }
+   ]
+  },
+  "mine_down_front": {
+   "fps": 8,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/mine_down_front_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_down_front_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_down_front_2.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_down_front_3.png"
+    }
+   ]
+  },
+  "mine_up_back": {
+   "fps": 8,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/mine_up_back_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_up_back_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_up_back_2.png"
+    },
+    {
+     "sprite": "Characters/Supplier/mine_up_back_3.png"
+    }
+   ]
+  },
+  "chop_front": {
+   "fps": 10,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/chop_front_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/chop_front_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/chop_front_2.png"
+    },
+    {
+     "sprite": "Characters/Supplier/chop_front_3.png"
+    },
+    {
+     "sprite": "Characters/Supplier/chop_front_4.png"
+    }
+   ]
+  },
+  "chop_back": {
+   "fps": 10,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/chop_back_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/chop_back_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/chop_back_2.png"
+    },
+    {
+     "sprite": "Characters/Supplier/chop_back_3.png"
+    },
+    {
+     "sprite": "Characters/Supplier/chop_back_4.png"
+    }
+   ]
+  },
+  "climb_back": {
+   "fps": 8,
+   "loop": true,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/climb_back_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/climb_back_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/climb_back_2.png"
+    },
+    {
+     "sprite": "Characters/Supplier/climb_back_3.png"
+    }
+   ]
+  },
+  "pickup_front": {
+   "fps": 10,
+   "loop": false,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/pickup_front_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/pickup_front_1.png"
+    },
+    {
+     "sprite": "Characters/Supplier/pickup_front_2.png",
+     "carry": [
+      -0.274,
+      0.7
+     ]
+    }
+   ]
+  },
+  "fall_front": {
+   "fps": 1,
+   "loop": false,
+   "frames": [
+    {
+     "sprite": "Characters/Supplier/fall_front_0.png"
+    },
+    {
+     "sprite": "Characters/Supplier/fall_front_1.png"
+    }
+   ]
+  }
+ }
+}

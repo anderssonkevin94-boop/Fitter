@@ -195,3 +195,15 @@ The sheets were cut by `Tools/ArtImport/import_painted_sheets.py`, which keys ou
 - nature: `tree_cedar` (tall pine), `tree_maple` (leafy tree), `tree_ironwood` (bent pine), `tree_stump`, `bush_herb`, `rock_stone`.
 
 `block_ore_moonsilver` is the gold-ore block recoloured by the script.
+
+## The supplier's animations v1 (2026-10-12)
+
+`Characters/Supplier/*` comes from 17 AI-generated animation strips (77 frames) of the character Kevin approved on `model-sheet.png`, made with an image generator from `Docs/ART_PROMPTS_CHARACTER.md`. The strips, the model sheet and the generator's handoff notes are in `ArtSource/character-v1/`.
+
+The frames were cut and aligned by `Tools/ArtImport/import_character_strips.py`:
+- the magenta is keyed out;
+- every strip is scaled by the character's painted area, against the idle reference;
+- frames are anchored on the feet and the torso (the climb on the torso alone);
+- the carry frames also get the point on the forearms where the pile sits.
+
+The frames are drawn at 2x (256 px per unit).
