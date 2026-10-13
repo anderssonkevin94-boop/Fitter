@@ -55,6 +55,43 @@ namespace Ravenholm.EditorTools
             EditorSceneManager.SaveScene(scene, path);
         }
 
+        /// <summary>PROTOTYPE scene: a small plot of forest with mountains (see <see cref="MountainPrototype"/>).</summary>
+        public static void BuildMountainPrototype(string path)
+        {
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            _unlit = AssetDatabase.LoadAssetAtPath<Material>(UnlitMaterialPath);
+            new GameObject("SceneBootGuard").AddComponent<SceneBootGuard>();
+            var player = new GameObject("Supplier").transform;
+            var body = new GameObject("Body").AddComponent<SpriteRenderer>();
+            body.transform.SetParent(player, false);
+            body.transform.localScale = Vector3.one * 0.9f;
+            body.sharedMaterial = _unlit;
+            var set = AssetDatabase.LoadAssetAtPath<CharacterAnimationSet>(ProjectSetup.SupplierAnimationsPath);
+            var idle = set != null ? set.Get("idle_front") : null;
+            if (idle != null && idle.frames.Length > 0) body.sprite = idle.frames[0];
+
+            var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
+            var cam = camGo.AddComponent<Camera>();
+            cam.orthographic = true;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = Backdrop;
+            cam.nearClipPlane = 0.1f;
+            cam.farClipPlane = 50f;
+            camGo.transform.position = new Vector3(0f, 0f, -10f);
+            camGo.AddComponent<AudioListener>();
+            camGo.AddComponent<FeedbackAudio>();
+
+            Sprite Block(string name) => ProjectSetup.LoadSprite("Painted/Blocks/block_" + name);
+            new GameObject("MountainPrototype").AddComponent<MountainPrototype>().EditorSetup(cam, player, body, set,
+                Block("grass"), Block("topsoil"), Block("mossy"), Block("slate"),
+                new[] { Block("ore_iron"), Block("ore_copper"), Block("ore_coal") },
+                new[] { "resource.iron_ore", "resource.copper_ore", "resource.coal" },
+                ProjectSetup.LoadSprite("Nature/tree_cedar"), ProjectSetup.LoadSprite("Nature/tree_maple"), ProjectSetup.LoadSprite("Nature/tree_stump"),
+                ProjectSetup.LoadSprite("Tiles/tile_halfblock_0"),
+                new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") }, _unlit);
+            EditorSceneManager.SaveScene(scene, path);
+        }
+
         public static void BuildSandbox(string settingsPath, string path)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -103,6 +140,13 @@ namespace Ravenholm.EditorTools
                 "", footprint: null, siteId: "site.forest");
             Circle(gate.transform, new Vector2(-0.85f, 0f), 0.12f);
             Circle(gate.transform, new Vector2(0.85f, 0f), 0.12f);
+            // PROTOTYPE: a signpost by the forest gate into the forest-mountains prototype.
+            var mountainSign = Prop(props, "Forest mountains (prototype)", "Props/trail_marker", new Vector2(-14.0f, 1.4f),
+                "Try a plot of forest with mountains to climb or dig through (prototype). Nothing there touches your company.", "");
+            Object.DestroyImmediate(mountainSign.GetComponent<Inspectable>());
+            var ps = mountainSign.gameObject.AddComponent<PrototypeSign>();
+            ps.EditorSetup("forest mountains", "Try a plot of forest with mountains to climb or dig through (prototype).", "");
+            ps.EditorSetupScene(MountainPrototype.SceneName);
 
             // --- nature ---
             foreach (var (spot, cedar) in new[] { (new Vector2(5.4f, 8.2f), true), (new Vector2(11.4f, 5.0f), false), (new Vector2(7.2f, 8.8f), false) })

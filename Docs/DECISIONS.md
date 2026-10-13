@@ -739,3 +739,13 @@ Kevin's calls: no more ladders. The Mine has an elevator shaft from the start, i
 - **Layout.** The scene builder places two outcrops of rock on open town grass, one on each side of town (18 columns now). Each is a blob of 7–10 columns, up to three blocks high, tallest in the middle. Spots are searched near preferred points; every cell needs grass on all sides and no collider within 1.1. The layout lives in the scene (`SurfaceOutcropView.columns`).
 - **Domain.** The outcrops are the Mine's first-layer rock with their own ore veins (`SiteSimulator.SurfaceOreAt`). They are broken by hand like a Mine block (`PlayerBreakSurface`), with the same effort and ore bonus, straight into the carry. Broken blocks are saved as `surfaceBroken` (x, y, −level).
 - **Play.** Within reach, the main button offers "Mine" (`OutcropSpot`), which breaks the top block first and plays the pick swing; cracks show while a block is dug. Ore blocks show their painted ore. A column with blocks left can't be walked through.
+
+## Prototype: forest mountains (2026-10-13)
+
+This is an experiment for Kevin: mountains above ground to climb, or to cut through to reach more forest. It is a self-contained `MountainPrototype` scene, opened from the signpost by the forest gate, and it never touches the save.
+
+- **The plot.** A 20 × 20 grid of half-block voxels (bedrock floor at level 0). A ridge of rock runs across it, rising seven blocks above the floor, mostly in steps of two; at rows 4–5 a gentler pass climbs one block per step. Forest stands on both sides (leafy trees beyond the ridge) and thinner on the slopes; ore shows in the rock.
+- **Moving.** The supplier steps up one block at a time and drops down any height. A step of two or more, or a tree, is a wall.
+- **The button.** It chops the tree faced. Otherwise it digs the wall faced (head height, then legs), or, standing still, the block underfoot. What is gathered is only tallied (no economy).
+- **Seeing.** Blocks and trees drawn in front of the supplier that overlap them on screen turn see-through (35%); nothing is hidden.
+- **Animation.** It uses the supplier's painted clips (walk, idle, mine, mine down, chop).
