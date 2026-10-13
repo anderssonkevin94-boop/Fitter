@@ -178,6 +178,10 @@ namespace Ravenholm.Domain.Sites
         public int RidgeEvery = 24;    // a ridge every this many tiles further along
         public int PassRows = 3;       // a ridge's gentle pass (one block a step) along the cliff edge
         public int RockHeight = 4;     // ground this high is bare rock: no tree grows there
+        public double OpenShare = 0.33; // share of spots that are open ground (no tree), scattered, to move around in
+
+        /// <summary>Open ground: no tree grows at this spot (scattered from the world seed; the cliff edge's row stays wooded).</summary>
+        public bool OpenGround(ulong seed, int back, int along) => back >= 1 && Hash01(seed, back, along, 7) < OpenShare;
 
         /// <summary>
         /// How many blocks the ground stands above the floor at a tree's spot (0 = flat), from the world seed. Mostly flat

@@ -44,8 +44,13 @@ namespace Ravenholm.Domain.Sites
         public int TerrainHeight(int area, int slot) =>
             GroveMode ? _c.Grove.TerrainHeight(_worldSeed ^ SiteMath.StableHash(_c.SiteId), _c.Grove.RowOf(slot), _c.Grove.AlongOf(area, slot)) : 0;
 
-        /// <summary>Bare rock (a ridge's heights): no tree grows there.</summary>
-        public bool IsRock(int area, int slot) => GroveMode && TerrainHeight(area, slot) >= _c.Grove.RockHeight;
+        /// <summary>
+        /// No tree here: bare rock (a ridge's heights), or open ground between the trees. Everything that asks whether a
+        /// tree can grow treats both the same.
+        /// </summary>
+        public bool IsRock(int area, int slot) =>
+            GroveMode && (TerrainHeight(area, slot) >= _c.Grove.RockHeight ||
+                          _c.Grove.OpenGround(_worldSeed ^ SiteMath.StableHash(_c.SiteId), _c.Grove.RowOf(slot), _c.Grove.AlongOf(area, slot)));
 
         /// <summary>A stump: felled and not yet pulled out (it grows back unless cleared).</summary>
         public bool IsStump(int area, int slot) => !IsRock(area, slot) && IsFelled(area, slot) && !IsCleared(area, slot);

@@ -770,3 +770,4 @@ The forest-mountains prototype is now the real Forest; the prototype scene, its 
   - Facing a stump with no tree in reach, the button offers "Clear": 0.8 s for a log, and that spot never grows back (`Cleared`).
   - Saves keep `stumps` (felled-at times) and `cleared`.
   - A routine cuts only standing trees; regrown ones count again.
+- **A sparser forest (2026-10-13, Kevin).** About a third of the Forest's spots (`ForestGrove.OpenShare` 0.33, scattered from the world seed) are open ground with no tree, so there is room to move. The cliff edge's row stays wooded. Open ground counts like bare rock (`IsRock`): no tree, no stump, nothing for a routine to cut.

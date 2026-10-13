@@ -29,12 +29,17 @@ namespace Ravenholm.Tests
             var sim = Make(ledger);
             Assert.IsTrue(sim.GroveMode);
             Assert.IsFalse(sim.ChooseContinue() || sim.ChooseDeeper(), "cutting is the choice");
-            var species = sim.SpeciesAt(1, 7);
-            Assert.AreEqual(species, sim.SpeciesAt(1, 7), "a tree is what it is, before it is cut");
-            Assert.IsTrue(Fell(sim, 1, 7), "not just the cliff edge: any tree");
+            var slot = 6;   // a tree two rows back from the cliff (not every spot has one: some are open ground)
+            while (!sim.CanChop(1, slot)) slot++;
+            var species = sim.SpeciesAt(1, slot);
+            Assert.AreEqual(species, sim.SpeciesAt(1, slot), "a tree is what it is, before it is cut");
+            Assert.IsTrue(Fell(sim, 1, slot), "not just the cliff edge: any tree");
             Assert.GreaterOrEqual(ledger.Carry.Count(x => x == species), sim.Config.UnitsPerTree, "its logs, straight into the carry");
-            Assert.IsFalse(sim.CanChop(1, 7), "a felled tree is a stump");
-            Assert.AreEqual(new GroveCell(1, 7), sim.Record.LastChop);
+            Assert.IsFalse(sim.CanChop(1, slot), "a felled tree is a stump");
+            Assert.AreEqual(new GroveCell(1, slot), sim.Record.LastChop);
+            var open = 0;
+            for (var s = 0; s < 90; s++) if (sim.IsRock(1, s) && sim.TerrainHeight(1, s) < sim.Grove.RockHeight) open++;
+            Assert.Greater(open, 10, "about a third of the spots are open ground, to move around in");
             Assert.AreEqual(ledger.CreatedTotal, ledger.Carry.Count + sim.HeldUnits().Count());
         }
 
