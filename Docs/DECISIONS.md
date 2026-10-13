@@ -782,3 +782,15 @@ The underground cliff-face tunnel and the elevator are gone. The Mine is now a p
 - **Scaffolds** work as before. A tap where two open spaces line up on screen picks the deeper one.
 - **Kept but off.** The elevator code stays (`ElevatorStartRows` 0 opens none), and so does routine digging, which carries on the last cut, two high, straight ahead.
 - **Known.** Cuts dug under the surface (with ground left overhead) are seen only through the see-through rock.
+
+## The supplier is the dwarf (2026-10-13, Kevin)
+
+Astra's dwarf (`ArtSource/dwarf-v1`, imported by `Tools/ArtImport/import_dwarf.py`) replaces the painted tailor.
+
+- **What is painted.** He has eight directions (N, NE, E, SE, S, SW, W, NW): a five-frame walk at 150 ms a frame and one standing pose per direction. All are anchored on one ground point, so the feet stay planted, and none are mirrored. He is 0.85 units tall, at 240 px per unit.
+- **Facing.** The way he moves or works picks one of the eight, split evenly once the iso squash is undone. Moving along the grid's axes therefore faces a diagonal, and straight up the screen faces N.
+- **Not painted yet: carry, mine, chop, climb, pick-up.**
+  - These play the standing or walking pose of his facing, with a procedural motion. Tools get a wind-up (0.26 s) and then a strike (0.14 s); a pick-up is a dip.
+  - The pile rides on his head (`SupplierAnimator.HeadTop`).
+  - The tailor's frames stay in the project, unused. `import_character_strips.py` can bring them back.
+- **Body clearance (from Kevin's screenshot).** Walking only checked the feet's own cell, so the wide body could stand with its feet on a cell's edge, half inside a cliff or a trunk. The feet now keep `PlayerMotor.BodyClearance` (0.3 of a cell along the grid's axes) from any cell they cannot enter. A move may never press further in than the body already does, so he can always walk away after a teleport. Holes into the quarry stay open for this check.

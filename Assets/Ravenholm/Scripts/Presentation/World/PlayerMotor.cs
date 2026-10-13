@@ -144,13 +144,50 @@ namespace Ravenholm.Presentation
             }
             // The Forest's ground has height: one block up at a time, drops are fine, walls of two stop the supplier.
             var forest = ForestGridView.Current;
-            if (forest != null)
-            {
-                if (!forest.CanEnter(old, p)) p = SlideOnCells(old, p - old, q => forest.CanEnter(old, q) && (mine == null || mine.SurfaceWalkable(q)));
-                forest.Commit(old, p);
-            }
+            if (forest != null && !forest.CanEnter(old, p)) p = SlideOnCells(old, p - old, q => forest.CanEnter(old, q) && (mine == null || mine.SurfaceWalkable(q)));
+            // The body is wide: keep the feet off the walls, trees and rock around them, not just out of their cells.
+            bool Open(Vector2 at, Vector2 q) => mine == null || mine.SameCell(at, q)
+                                                 || (mine.SurfaceWalkable(q) || mine.CanEnterAt(q)) && (forest == null || forest.CanEnter(at, q));
+            var pressed = Pressing(old, Open);
+            if ((Pressing(p, Open) & ~pressed) != 0)
+                p = SlideOnCells(old, p - old, q => (mine == null || mine.SurfaceWalkable(q)) && (forest == null || forest.CanEnter(old, q))
+                                                    && (Pressing(q, Open) & ~pressed) == 0);
+            if (forest != null) forest.Commit(old, p);
             transform.position = new Vector3(p.x, p.y, 0f);
             _root.Services.Sandbox.ReportPlayerPosition(p.x, p.y);
+        }
+
+        /// <summary>
+        /// How far (in cells, along the grid's axes) the feet keep from a cell they cannot enter. Only the feet's own
+        /// cell used to be checked, so the wide painted body could stand with its feet on a cell's edge, half inside a
+        /// cliff or a trunk.
+        /// </summary>
+        public const float BodyClearance = 0.3f;
+
+        private static readonly Vector2 CellX = new Vector2(0.5f, 0.25f), CellY = new Vector2(-0.5f, 0.25f);
+
+        /// <summary>
+        /// Where the body presses into closed cells around a point: one bit per probe, at full and half clearance in the
+        /// eight grid directions. A move may not press a probe that was free (so the supplier can always walk away from a
+        /// wall it was put against, and freeing one side never pays for pressing into another).
+        /// </summary>
+        public static int Pressing(Vector2 at, System.Func<Vector2, Vector2, bool> open)
+        {
+            var n = 0;
+            var bit = 1;
+            for (var k = 1; k <= 2; k++)
+            {
+                var r = BodyClearance * k * 0.5f;
+                for (var i = -1; i <= 1; i++)
+                for (var j = -1; j <= 1; j++)
+                {
+                    if (i == 0 && j == 0) continue;
+                    var diag = i != 0 && j != 0 ? 0.7071f : 1f;
+                    if (!open(at, at + (i * CellX + j * CellY) * (r * diag))) n |= bit;
+                    bit <<= 1;
+                }
+            }
+            return n;
         }
 
         private static readonly Vector2[] SlideAxes =
@@ -165,8 +202,13 @@ namespace Ravenholm.Presentation
             if (ok(from + delta)) return from + delta;
             var best = from;
             var bestLen = 1e-8f;
-            foreach (var axis in SlideAxes)
+            // Pushing straight into a wall along a grid axis stops: the screen axes would slide it sideways along it.
+            var len = delta.magnitude;
+            var intoWall = len > 1e-6f && (Mathf.Abs(Vector2.Dot(delta, SlideAxes[0])) > 0.96f * len || Mathf.Abs(Vector2.Dot(delta, SlideAxes[1])) > 0.96f * len);
+            for (var a = 0; a < SlideAxes.Length; a++)
             {
+                if (intoWall && a >= 2) break;
+                var axis = SlideAxes[a];
                 var d = axis * Vector2.Dot(delta, axis);
                 if (d.sqrMagnitude > bestLen && ok(from + d)) { best = from + d; bestLen = d.sqrMagnitude; }
             }

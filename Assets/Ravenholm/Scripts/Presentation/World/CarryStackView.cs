@@ -121,7 +121,9 @@ namespace Ravenholm.Presentation
             // In other poses (mining, climbing) it rides on the head as before.
             if (_animator == null) _animator = GetComponentInChildren<SupplierAnimator>();
             var onArms = _animator != null && _animator.CarryAnchor.HasValue;
-            _stackRoot.localPosition = onArms ? _animator.CarryAnchor.Value : stackOrigin;
+            // On the head: just above the painted head when there is one (characters differ in height).
+            _stackRoot.localPosition = onArms ? _animator.CarryAnchor.Value
+                : _animator != null ? new Vector2(stackOrigin.x, _animator.HeadTop - 0.03f) : stackOrigin;
             var behind = onArms && _animator.Back;
             if (_behind != behind)
             {

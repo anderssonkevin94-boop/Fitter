@@ -275,6 +275,15 @@ namespace Ravenholm.Tests
             yield return new WaitForSeconds(0.3f);
             var feet = forest.PlayerFeet;
             var spot = Object.FindAnyObjectByType<ForestRockSpot>();
+            // Walking into the wall stops the feet short of it: the wide body does not sink into the rock.
+            var before = (Vector2)Motor.transform.position;
+            Stick(new Vector2(2f, 1f).normalized);
+            yield return new WaitForSeconds(0.8f);
+            Stick(null);
+            var at = (Vector2)Motor.transform.position;
+            Assert.AreEqual(rockCell, ground.WorldToCell(at), "still in front of the wall");
+            Assert.AreEqual(rockCell, ground.WorldToCell(at + new Vector2(0.5f, 0.25f) * (PlayerMotor.BodyClearance * 0.9f)), $"the feet keep clear of the wall (at {at}, from {before})");
+            yield return Capture.Take("forest_wall_clearance");
             GameRoot.Instance.InputRouter.ScriptedMove = new Vector2(2f, 1f).normalized * 0.3f;   // face into the wall (it doesn't give)
             yield return null;
             GameRoot.Instance.InputRouter.ScriptedMove = null;

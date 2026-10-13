@@ -551,6 +551,19 @@ namespace Ravenholm.Presentation
         private int Column => Mathf.RoundToInt(_u);
 
         /// <summary>Walking onto a hole in the ground (dug row 0) drops the supplier into the Mine.</summary>
+        public bool SameCell(Vector2 a, Vector2 b) => grid == null || grid.WorldToCell(a) == grid.WorldToCell(b);
+
+        /// <summary>Whether stepping onto this point would go down into the quarry (an open hole in the ground).</summary>
+        public bool CanEnterAt(Vector2 plane)
+        {
+            var sim = Sim;
+            if (sim == null || _inside) return false;
+            var s = SlabCoords(plane);
+            var x = Mathf.RoundToInt(s.x);
+            var u = Mathf.RoundToInt(s.y);
+            return InSlabColumn(x, u) && !sim.Solid(x, u, 0);
+        }
+
         public bool TryEnter(Vector2 plane)
         {
             var sim = Sim;

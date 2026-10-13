@@ -13,174 +13,195 @@ MonoBehaviour:
   m_Name: SupplierAnimations
   m_EditorClassIdentifier: Ravenholm.Presentation::Ravenholm.Presentation.CharacterAnimationSet
   clips:
-  - name: idle_front
+  - name: walk_N
+    fps: 6.667
+    loop: 1
+    frames:
+    - {fileID: 21300000, guid: 3e0ffcd12040e4008a07d2daa417844a, type: 3}
+    - {fileID: 21300000, guid: 1bb096699fda4486190ec4f2eeebd317, type: 3}
+    - {fileID: 21300000, guid: 5c4b2b6f027cd4f44ab2e099e89b77fe, type: 3}
+    - {fileID: 21300000, guid: d64b8bc9d45054529877d0de6fd6e0c2, type: 3}
+    - {fileID: 21300000, guid: 83d88e5c065c04afb8f7d714e75d85fb, type: 3}
+    durations:
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    carry: []
+  - name: idle_N
     fps: 1
     loop: 1
     frames:
-    - {fileID: 21300000, guid: 0a2178392598d40c3b8432e856e49128, type: 3}
+    - {fileID: 21300000, guid: 6d406c0831e3947c2a208ae44f146630, type: 3}
     durations:
     - 1
     carry: []
-  - name: idle_back
+  - name: walk_NE
+    fps: 6.667
+    loop: 1
+    frames:
+    - {fileID: 21300000, guid: c89d6e3c8d3d642e5a6aa2894a471359, type: 3}
+    - {fileID: 21300000, guid: d0acecb30e2df46fc93b7e01abe57f4f, type: 3}
+    - {fileID: 21300000, guid: 99ba1d774bbbc4fad81a687835d4370d, type: 3}
+    - {fileID: 21300000, guid: f593b28e3279e4217ae287c10f983f58, type: 3}
+    - {fileID: 21300000, guid: 2564fc21ca9644837a28db07ce07a290, type: 3}
+    durations:
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    carry: []
+  - name: idle_NE
     fps: 1
     loop: 1
     frames:
-    - {fileID: 21300000, guid: 6af6174c06bd540b7af2cf4b0c7e941a, type: 3}
+    - {fileID: 21300000, guid: 0aaa8dbe3fc464887a1955706bb01d55, type: 3}
     durations:
     - 1
     carry: []
-  - name: walk_front
-    fps: 6.25
+  - name: walk_E
+    fps: 6.667
     loop: 1
     frames:
-    - {fileID: 21300000, guid: 0ae650a9b2fae44f6b8c8d3cc7151b4c, type: 3}
-    - {fileID: 21300000, guid: 3ec44ce76cdf948a08f8b6cdf1e82e2a, type: 3}
+    - {fileID: 21300000, guid: db6afd5d9a4c94c26a46c61d3d04b59d, type: 3}
+    - {fileID: 21300000, guid: d320db7d1f27342da8d4f9471fe07eea, type: 3}
+    - {fileID: 21300000, guid: 09d4b74839b6844dc8245c4497d6b4d0, type: 3}
+    - {fileID: 21300000, guid: f48982d915e404a3fa75a3dd8ece82a0, type: 3}
+    - {fileID: 21300000, guid: 6d451d15bb1ea47478a25946dcac5ec8, type: 3}
     durations:
-    - 0.16
-    - 0.16
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
     carry: []
-  - name: walk_back
-    fps: 6.25
-    loop: 1
-    frames:
-    - {fileID: 21300000, guid: bd6b720cdf27d404ea8062894d222ca3, type: 3}
-    - {fileID: 21300000, guid: 3103519cb390f47edbf6efdb16bb6e29, type: 3}
-    durations:
-    - 0.16
-    - 0.16
-    carry: []
-  - name: carry_idle_front
+  - name: idle_E
     fps: 1
     loop: 1
     frames:
-    - {fileID: 21300000, guid: 2d5b1b3e6ac5d4c5883e003020079d5e, type: 3}
+    - {fileID: 21300000, guid: 2be38c113a47345dc985e5977fa3fd27, type: 3}
     durations:
     - 1
-    carry:
-    - {x: -0.238, y: 0.644}
-  - name: carry_idle_back
+    carry: []
+  - name: walk_SE
+    fps: 6.667
+    loop: 1
+    frames:
+    - {fileID: 21300000, guid: 00fed6c225fae49f7b99d490da87ed77, type: 3}
+    - {fileID: 21300000, guid: f4c3c34e6db3d472ab2cc327e64107de, type: 3}
+    - {fileID: 21300000, guid: 3751670b7d27b4e4d91dfc18d4ddeaa1, type: 3}
+    - {fileID: 21300000, guid: 2432e8c147c4c444e8606f2bc8797f17, type: 3}
+    - {fileID: 21300000, guid: 95bd2c6e5666b499ab67cb1c648c0574, type: 3}
+    durations:
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    carry: []
+  - name: idle_SE
     fps: 1
     loop: 1
     frames:
-    - {fileID: 21300000, guid: 2e363861ad11a4527bd762330cb9a625, type: 3}
+    - {fileID: 21300000, guid: 559cfa8a6fae648938afa301f32802ff, type: 3}
     durations:
     - 1
-    carry:
-    - {x: -0.278, y: 0.571}
-  - name: carry_walk_front
-    fps: 5.556
-    loop: 1
-    frames:
-    - {fileID: 21300000, guid: 787b12b0067f449399b07d8c2321e0d7, type: 3}
-    - {fileID: 21300000, guid: fa3f147a025464c30b73ece6e39fc677, type: 3}
-    durations:
-    - 0.18
-    - 0.18
-    carry:
-    - {x: -0.241, y: 0.691}
-    - {x: -0.243, y: 0.693}
-  - name: carry_walk_back
-    fps: 5.556
-    loop: 1
-    frames:
-    - {fileID: 21300000, guid: 36f2afc9510b64f578a6ec264952840c, type: 3}
-    - {fileID: 21300000, guid: 56c2502cfcaa94959b511939d1b6622c, type: 3}
-    durations:
-    - 0.18
-    - 0.18
-    carry:
-    - {x: -0.221, y: 0.585}
-    - {x: -0.215, y: 0.596}
-  - name: mine_front
-    fps: 5
-    loop: 1
-    frames:
-    - {fileID: 21300000, guid: 8d51f87b636304245a01e8077dab4105, type: 3}
-    - {fileID: 21300000, guid: a188141100b464583a212df8ada3fbca, type: 3}
-    durations:
-    - 0.26
-    - 0.14
     carry: []
-  - name: mine_back
-    fps: 5
+  - name: walk_S
+    fps: 6.667
     loop: 1
     frames:
-    - {fileID: 21300000, guid: 7c6a55691527b4524b300933e9866587, type: 3}
-    - {fileID: 21300000, guid: fc757c3c01ad44430bce22452f88f683, type: 3}
+    - {fileID: 21300000, guid: 99e2fa7543a4a4873a96bbd2b1edffba, type: 3}
+    - {fileID: 21300000, guid: c09cebcf17e914723b13a52327abe685, type: 3}
+    - {fileID: 21300000, guid: dc77ed60fd1574a0ea98507352091d8c, type: 3}
+    - {fileID: 21300000, guid: 6a4a0c5429b1d4ba4be4934d7e4f78a8, type: 3}
+    - {fileID: 21300000, guid: 81e0117ad9e464196ac6de07bda9e943, type: 3}
     durations:
-    - 0.26
-    - 0.14
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
     carry: []
-  - name: mine_down_front
-    fps: 5
-    loop: 1
-    frames:
-    - {fileID: 21300000, guid: 4c7e2dc82f32c438ab4d3e4038f04952, type: 3}
-    - {fileID: 21300000, guid: d0a967978480347d6ba70644ade5ccfb, type: 3}
-    durations:
-    - 0.26
-    - 0.14
-    carry: []
-  - name: mine_up_back
-    fps: 5
-    loop: 1
-    frames:
-    - {fileID: 21300000, guid: 6ab91b1ddca43421b9c110e7a92a0dab, type: 3}
-    - {fileID: 21300000, guid: 0918cef1d023a48f382542bd433f0bed, type: 3}
-    durations:
-    - 0.26
-    - 0.14
-    carry: []
-  - name: chop_front
-    fps: 5
-    loop: 1
-    frames:
-    - {fileID: 21300000, guid: 0fb76ef29696f4fd495f7edda3305e2d, type: 3}
-    - {fileID: 21300000, guid: d3e4d7ceafce9495bb26d708d9b2156c, type: 3}
-    durations:
-    - 0.26
-    - 0.14
-    carry: []
-  - name: chop_back
-    fps: 5
-    loop: 1
-    frames:
-    - {fileID: 21300000, guid: c3a38f2d158ba4ef79de3687288abb29, type: 3}
-    - {fileID: 21300000, guid: f1c86c1d9c6c447958f3393af6d6de41, type: 3}
-    durations:
-    - 0.26
-    - 0.14
-    carry: []
-  - name: climb_back
-    fps: 5
-    loop: 1
-    frames:
-    - {fileID: 21300000, guid: 953bbd80fea564551b654a31770910db, type: 3}
-    - {fileID: 21300000, guid: f60c1adf3501d485cba1a9e185851c2a, type: 3}
-    durations:
-    - 0.2
-    - 0.2
-    carry: []
-  - name: pickup_front
-    fps: 10
-    loop: 0
-    frames:
-    - {fileID: 21300000, guid: ffabba5c428b64ce1a098cc72431253e, type: 3}
-    - {fileID: 21300000, guid: d8cd1ecf8691b49809dfe428fcbd97cd, type: 3}
-    - {fileID: 21300000, guid: ab248c023c226478eb18bca68ef1b411, type: 3}
-    durations:
-    - 0.1
-    - 0.1
-    - 0.1
-    carry:
-    - {x: 0, y: 0}
-    - {x: 0, y: 0}
-    - {x: -0.274, y: 0.7}
-  - name: fall_front
+  - name: idle_S
     fps: 1
-    loop: 0
+    loop: 1
     frames:
-    - {fileID: 21300000, guid: 85c9bb71a9739467c9252169f8d27657, type: 3}
+    - {fileID: 21300000, guid: 5a5bbbb6522fc42dcb3d6898f89b2963, type: 3}
+    durations:
+    - 1
+    carry: []
+  - name: walk_SW
+    fps: 6.667
+    loop: 1
+    frames:
+    - {fileID: 21300000, guid: aa1760048515d4343afe88b80efb46f7, type: 3}
+    - {fileID: 21300000, guid: 4c088c1c79936434ca593ce982b1e825, type: 3}
+    - {fileID: 21300000, guid: 85b7b0f1a693e4c769697bad49b227f5, type: 3}
+    - {fileID: 21300000, guid: 1cd46be96f85140a48685bc3177ebf85, type: 3}
+    - {fileID: 21300000, guid: 54d09d8618bf94ef98fe68b1eb4f4df2, type: 3}
+    durations:
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    carry: []
+  - name: idle_SW
+    fps: 1
+    loop: 1
+    frames:
+    - {fileID: 21300000, guid: c179bf646cb4b404e9c6a576079167f8, type: 3}
+    durations:
+    - 1
+    carry: []
+  - name: walk_W
+    fps: 6.667
+    loop: 1
+    frames:
+    - {fileID: 21300000, guid: f5b0b0b0c2893482298287a3cde27d8b, type: 3}
+    - {fileID: 21300000, guid: 6d793edad6e674d05b202f7ed4362bc4, type: 3}
+    - {fileID: 21300000, guid: 1728c58eb85754f46ad3a9428382d510, type: 3}
+    - {fileID: 21300000, guid: 9efd4bdc0216e4fd88ba3321f696c58a, type: 3}
+    - {fileID: 21300000, guid: 87a24d53e6b414ac79a62ae97a62d33b, type: 3}
+    durations:
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    carry: []
+  - name: idle_W
+    fps: 1
+    loop: 1
+    frames:
+    - {fileID: 21300000, guid: fc4e3a54024324108b2cc108133071ec, type: 3}
+    durations:
+    - 1
+    carry: []
+  - name: walk_NW
+    fps: 6.667
+    loop: 1
+    frames:
+    - {fileID: 21300000, guid: 128480928b73749e69918e323753511b, type: 3}
+    - {fileID: 21300000, guid: 399a831c0ad884532a24be5f351bf3e9, type: 3}
+    - {fileID: 21300000, guid: 0dfbe0c4e8c7e47178d22eeefc5f08a3, type: 3}
+    - {fileID: 21300000, guid: 1af2f7758180a472dacd6f98b2a3584f, type: 3}
+    - {fileID: 21300000, guid: dfd15c1482df645f9b3e86781b7ba49c, type: 3}
+    durations:
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    - 0.15
+    carry: []
+  - name: idle_NW
+    fps: 1
+    loop: 1
+    frames:
+    - {fileID: 21300000, guid: 00169ffa70dbf4ad4a2b9a93de69064b, type: 3}
     durations:
     - 1
     carry: []

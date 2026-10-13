@@ -10,7 +10,7 @@ using Object = UnityEngine.Object;
 
 namespace Ravenholm.Tests
 {
-    /// <summary>The supplier's painted animations: walk views and mirroring, the carry pose holding the pile, mining, climbing.</summary>
+    /// <summary>The supplier's animations (the dwarf): eight walking directions, the pile on his head, a procedural swing.</summary>
     public sealed class SupplierAnimationPlayModeTests
     {
         private string _dir;
@@ -54,44 +54,41 @@ namespace Ravenholm.Tests
             var anim = player.GetComponentInChildren<SupplierAnimator>();
             Assert.NotNull(anim, "the supplier has painted animations");
             var body = anim.GetComponent<Transform>().Find("Base").GetComponent<SpriteRenderer>();
-            string Now() => $"clip {anim.Clip} frame {anim.Frame} back {anim.Back} mirrored {anim.Mirrored}";
-            Assert.AreEqual("idle_front", anim.Clip, Now());
+            string Now() => $"clip {anim.Clip} (asked {anim.Requested}) frame {anim.Frame} dir {anim.Dir}";
+            Assert.AreEqual("idle_S", anim.Clip, Now());
 
-            // Walking up the screen shows his back; down and to the right, his front, mirrored.
+            // Eight painted directions, never mirrored: up the screen is N, down and to the right SE.
             Stick(new Vector2(-0.6f, 0.8f));
-            yield return Until(() => anim.Clip == "walk_back", 3f, Now);
-            Assert.IsFalse(anim.Mirrored);
+            yield return Until(() => anim.Clip == "walk_N", 3f, Now);
             Stick(new Vector2(0.8f, -0.6f));
-            yield return Until(() => anim.Clip == "walk_front" && anim.Mirrored, 3f, Now);
-            Assert.IsTrue(body.flipX, "mirrored for the right");
+            yield return Until(() => anim.Clip == "walk_SE", 3f, Now);
+            Assert.IsFalse(body.flipX, "the dwarf is painted for every direction");
             var seen = anim.Frame;
             yield return Until(() => anim.Frame != seen, 2f, () => "the walk cycle plays");
+            Stick(new Vector2(-1f, 0f));
+            yield return Until(() => anim.Clip == "walk_W", 3f, Now);
+            yield return Capture.Take("dwarf_walk_west");
+            Stick(new Vector2(0.8f, -0.6f));
+            yield return Until(() => anim.Clip == "walk_SE", 3f, Now);
             Stick(null);
-            yield return Until(() => anim.Clip == "idle_front", 2f, Now);
+            yield return Until(() => anim.Clip == "idle_SE", 2f, Now);
 
-            // Carrying: the forklift pose, with the pile on his forearms (in front of him, toward his facing).
+            // Carrying: no carry pose painted yet, so the pile rides on his head, just above it.
             var sys = GameRoot.Instance.Services.Logistics.System;
             Assert.IsTrue(sys.TryCarry("resource.iron_ore"));
-            yield return Until(() => anim.Clip == "carry_idle_front", 2f, Now);
+            yield return Until(() => anim.Requested == "carry_idle_front", 2f, Now);
             yield return null;
-            Assert.IsTrue(anim.CarryAnchor.HasValue, "the carry frames know where the forearms are");
+            Assert.IsFalse(anim.CarryAnchor.HasValue, "no painted forearms to hold it");
             var stack = player.Find("CarryStack");
             Assert.NotNull(stack);
-            Assert.Greater(Mathf.Abs(stack.localPosition.x), 0.15f, "the pile sits out in front, on the arms");
-            Assert.Less(stack.localPosition.y, 0.8f, "at arm height, not on his head");
+            Assert.Less(Mathf.Abs(stack.localPosition.x), 0.05f, "centred over him");
+            Assert.That(stack.localPosition.y, Is.InRange(anim.HeadTop - 0.06f, anim.HeadTop + 0.03f), "on top of his head");
             Stick(new Vector2(0.8f, -0.6f));
-            yield return Until(() => anim.Clip == "carry_walk_front", 3f, Now);
+            yield return Until(() => anim.Requested == "carry_walk_front" && anim.Clip == "walk_SE", 3f, Now);
             Stick(null);
             for (var i = 0; i < 9; i++) sys.TryCarry(i % 2 == 0 ? "resource.iron_ore" : "resource.coal");   // a big pile
             yield return new WaitForSeconds(0.8f);
             yield return Capture.Take("supplier_carry_front");
-            Stick(new Vector2(-0.6f, 0.8f));
-            yield return Until(() => anim.Clip == "carry_walk_back", 3f, Now);
-            yield return new WaitForSeconds(0.3f);
-            Stick(null);
-            yield return new WaitForSeconds(0.5f);
-            Assert.AreEqual("carry_idle_back", anim.Clip, Now());
-            yield return Capture.Take("supplier_carry_back");
             sys.DebugUnloadCarry();
 
             // In the Mine: digging into the quarry plays the pick swung down.
@@ -102,7 +99,15 @@ namespace Ravenholm.Tests
             yield return new WaitForSeconds(0.5f);
             GameRoot.Instance.Services.Sites.SpeedMultiplier = 20f;
             GameRoot.Instance.Hud.ScriptedHold = true;
-            yield return Until(() => anim.Clip == "mine_down_front", 3f, Now);
+            yield return Until(() => anim.Requested == "mine_down_front" && anim.Clip.StartsWith("idle_"), 3f, Now);
+            var leaned = false;
+            var t0 = Time.time;
+            while (Time.time - t0 < 1f && !leaned)
+            {
+                leaned = Mathf.Abs(Mathf.DeltaAngle(0f, body.transform.localEulerAngles.z)) > 2f || Mathf.Abs(body.transform.localScale.y - 1f) > 0.03f;
+                yield return null;
+            }
+            Assert.IsTrue(leaned, "the standing pose swings the pick (procedurally)");
             yield return Until(() => slab.PlayerInside && slab.Feet >= 3, 20f, () => $"digs down ({Now()}, feet {slab.Feet})");
             GameRoot.Instance.Hud.ScriptedHold = false;
             yield return Until(() => !slab.Falling, 3f, () => "lands");

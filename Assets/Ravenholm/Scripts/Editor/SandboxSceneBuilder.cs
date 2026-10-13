@@ -851,7 +851,7 @@ namespace Ravenholm.EditorTools
         private static void Animate(Transform visual)
         {
             var set = AssetDatabase.LoadAssetAtPath<CharacterAnimationSet>(ProjectSetup.SupplierAnimationsPath);
-            var idle = set != null ? set.Get("idle_front") : null;
+            var idle = set != null ? set.Get("idle_S") ?? set.Get("idle_front") : null;
             if (idle == null || idle.frames.Length == 0) return;
             var body = visual.Find("Base").GetComponent<SpriteRenderer>();
             body.sprite = idle.frames[0];

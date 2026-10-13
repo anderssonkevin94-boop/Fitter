@@ -12,6 +12,11 @@ namespace Ravenholm.Presentation
     ///
     /// On the player it reads the motor, the Mine and the carry; a routine's figure drives it through <see cref="Work"/>
     /// and its own movement.
+    ///
+    /// Eight-direction sets (the dwarf, 2026-10-13: clips named walk_N .. walk_NW, idle_N ..) are painted for every
+    /// direction and never mirrored. Actions the set has no painted clip for (mining, chopping, carrying, climbing) play
+    /// the standing or walking pose of the facing direction with a procedural motion: a wind-up and a strike for tools,
+    /// a dip for a pick-up. The pile then rides on the head (<see cref="HeadTop"/>).
     /// </summary>
     public sealed class SupplierAnimator : MonoBehaviour
     {
@@ -29,7 +34,12 @@ namespace Ravenholm.Presentation
         /// <summary>For a routine's figure: what it is doing at its work spot (the player's is read from the game).</summary>
         public Activity Work { get; set; }
 
+        /// <summary>The clip shown (an eight-direction set: e.g. walk_SE).</summary>
         public string Clip { get; private set; } = "";
+        /// <summary>What the character is doing, by the clip it asked for (e.g. mine_down_front), painted or not.</summary>
+        public string Requested { get; private set; } = "";
+        /// <summary>The facing of eight (N, NE, E, SE, S, SW, W, NW; screen directions, north up the screen).</summary>
+        public string Dir { get; private set; } = "S";
         public int Frame { get; private set; }
         public bool Back { get; private set; }
         public bool Mirrored { get; private set; }
@@ -37,11 +47,22 @@ namespace Ravenholm.Presentation
         /// <summary>Where the carried pile sits, relative to the character's root (null when this frame has none).</summary>
         public Vector2? CarryAnchor { get; private set; }
 
+        /// <summary>The top of the head, in the character root's space (where a pile rides when the arms do not hold it).</summary>
+        public float HeadTop
+        {
+            get
+            {
+                if (body == null || body.sprite == null) return 1f;
+                var bt = body.transform;
+                return transform.localPosition.y + (bt.localPosition.y + body.sprite.bounds.max.y * bt.localScale.y) * Mathf.Abs(transform.localScale.y);
+            }
+        }
+
         private GameRoot _root;
         private PlayerMotor _motor;
         private Transform _rootTransform;
         private Vector3 _lastPos;
-        private Vector2 _heading = new Vector2(-1f, -0.5f);   // down-left: the front view, unmirrored
+        private Vector2 _heading = new Vector2(0f, -1f);   // facing the camera (S; the front view, unmirrored)
         private float _time, _pickup, _moving;
         private bool _subscribed;
 
@@ -80,23 +101,37 @@ namespace Ravenholm.Presentation
             }
             else _moving = Mathf.Max(0f, _moving - dt);
             var moving = _moving > 0f;
-            Back = _heading.y > 0.02f;
-            Mirrored = _heading.x > 0f;
+            Face(_heading);
 
             if (_motor != null && MineSlabView.Current != null && MineSlabView.Current.Riding) moving = false;   // riding is not walking
             var name = _motor != null ? PlayerClip(moving, out var advance) : FigureClip(moving, out advance);
             Play(name, advance ? dt : 0f);
         }
 
-        private string View(string baseName) => baseName + (Back ? "_back" : "_front");
+        private static readonly string[] Dirs = { "E", "NE", "N", "NW", "W", "SW", "S", "SE" };
+
+        /// <summary>
+        /// Faces a direction on screen. The eight directions split the circle evenly once the iso squash is undone (y
+        /// doubled), so moving along the grid's axes faces a diagonal (NE, NW, SE, SW) and straight up the screen faces N.
+        /// </summary>
+        private void Face(Vector2 screen)
+        {
+            if (screen.sqrMagnitude < 1e-8f) return;
+            Back = screen.y > 0.02f;
+            Mirrored = screen.x > 0f;
+            var i = Mathf.RoundToInt(Mathf.Atan2(screen.y * 2f, screen.x) / (Mathf.PI / 4f));
+            Dir = Dirs[(i % 8 + 8) % 8];
+        }
+
+        /// <summary>The clip for an action in the current view: the eight-direction one if painted, else front or back.</summary>
+        private string View(string baseName)
+        {
+            var eight = baseName + "_" + Dir;
+            return set.Get(eight) != null ? eight : baseName + (Back ? "_back" : "_front");
+        }
 
         /// <summary>Faces a direction on the Mine's grid (x into the cliff, u along it): up the screen is the back view.</summary>
-        private void FaceAlongCliff(Vector2Int f)
-        {
-            var screen = f.x * new Vector2(0.5f, 0.25f) + f.y * new Vector2(-0.5f, 0.25f);
-            Back = screen.y > 0f;
-            Mirrored = screen.x > 0f;
-        }
+        private void FaceAlongCliff(Vector2Int f) => Face(f.x * new Vector2(0.5f, 0.25f) + f.y * new Vector2(-0.5f, 0.25f));
 
         private string PlayerClip(bool moving, out bool advance)
         {
@@ -113,7 +148,7 @@ namespace Ravenholm.Presentation
                 FaceAlongCliff(slab.Facing);
                 return View(carrying ? "carry_idle" : "idle");
             }
-            if (inside && slab.Falling) { Mirrored = false; return "fall_front"; }
+            if (inside && slab.Falling) return "fall_front";
             if (_motor.Swinging)
             {
                 if (slab != null && slab.CanDigNow && slab.Target.HasValue && (inside || slab.PressDigging || DiggingAtTheMine()))
@@ -121,8 +156,8 @@ namespace Ravenholm.Presentation
                     var t = slab.Target.Value;
                     var feet = inside ? slab.Feet : 0;
                     if (inside) FaceAlongCliff(slab.Facing);
-                    if (t.Row >= feet) { Back = false; return "mine_down_front"; }
-                    if (t.Row <= feet - 3) { Back = true; return "mine_up_back"; }
+                    if (t.Row >= feet) return "mine_down_front";
+                    if (t.Row <= feet - 3) return "mine_up_back";
                     return View("mine");
                 }
                 FaceContextTarget();
@@ -130,7 +165,7 @@ namespace Ravenholm.Presentation
                 if (c != null && (c.ContextTarget is OutcropSpot || c.ContextTarget is ForestRockSpot)) return View("mine");   // rock above ground
                 return View("chop");
             }
-            if (_pickup > 0f) { Back = false; return "pickup_front"; }
+            if (_pickup > 0f) return "pickup_front";
             if (carrying) return View(moving ? "carry_walk" : "carry_idle");
             return View(moving ? "walk" : "idle");
         }
@@ -148,8 +183,7 @@ namespace Ravenholm.Presentation
             if (c == null || c.ContextTarget == null) return;
             var d = (Vector2)(c.ContextTarget.transform.position - _rootTransform.position);
             if (d.sqrMagnitude < 0.0001f) return;
-            Back = d.y > 0.02f;
-            Mirrored = d.x > 0f;
+            Face(d);
         }
 
         private string FigureClip(bool moving, out bool advance)
@@ -164,9 +198,21 @@ namespace Ravenholm.Presentation
             }
         }
 
+        private enum Motion { None, Swing, Dip }
+
         private void Play(string name, float dt)
         {
-            var clip = set.Get(name) ?? set.Get(View("idle"));
+            Requested = name;
+            var clip = set.Get(name);
+            var motion = Motion.None;
+            if (clip == null)
+            {
+                // Not painted for this character: the standing (or walking) pose of the facing, moved procedurally.
+                var walking = name.Contains("walk");
+                if (name.StartsWith("mine") || name.StartsWith("chop")) motion = Motion.Swing;
+                else if (name.StartsWith("pickup")) motion = Motion.Dip;
+                clip = set.Get(View(walking ? "walk" : "idle")) ?? set.Get(View("idle"));
+            }
             if (clip == null || clip.frames.Length == 0) return;
             if (clip.name != Clip)
             {
@@ -174,6 +220,7 @@ namespace Ravenholm.Presentation
                 _time = 0f;
             }
             _time += dt;
+            _motionTime = motion == Motion.None ? 0f : _motionTime + dt;
             var n = clip.frames.Length;
             float progress;   // 0..1 through the current frame
             if (clip.durations.Length == n)
@@ -193,17 +240,47 @@ namespace Ravenholm.Presentation
                 progress = f - i;
             }
             body.sprite = clip.frames[Frame];
-            body.flipX = Mirrored;
-            // A little life on top of the painted poses: each step lifts him, and standing he breathes.
+            var eight = clip.name.EndsWith("_" + Dir);
+            body.flipX = !eight && Mirrored;   // eight-direction art is painted for every side
+            // A little life on top of the painted poses: each step lifts him, and standing he breathes. A painted
+            // multi-frame walk already moves, so it gets only a small lift.
             var bob = 0f;
             var breath = 1f;
+            var lean = 0f;
+            var squash = 1f;
             if (!Feel.ReducedMotion)
             {
-                if (clip.name.Contains("walk")) bob = Mathf.Sin(progress * Mathf.PI) * (clip.name.StartsWith("carry") ? 0.02f : 0.035f);
+                if (clip.name.Contains("walk"))
+                {
+                    var lift = eight ? 0.012f : clip.name.StartsWith("carry") ? 0.02f : 0.035f;
+                    bob = Mathf.Sin(progress * Mathf.PI) * lift;
+                }
                 else if (clip.name.Contains("idle")) breath = 1f + Mathf.Sin(Time.time * 2.2f) * 0.012f;
+                if (motion == Motion.Swing)
+                {
+                    // A wind-up held (leaning back, rising), then a fast strike (leaning in, squashed), as the painted
+                    // tailor's key poses did: 0.26 s and 0.14 s.
+                    var t = Mathf.Repeat(_motionTime, 0.4f);
+                    var side = Dir.Contains("E") ? -1f : Dir.Contains("W") ? 1f : 0f;   // lean toward the facing
+                    if (t < 0.26f)
+                    {
+                        var k = Mathf.SmoothStep(0f, 1f, t / 0.26f);
+                        lean = -side * 7f * k;
+                        bob = 0.03f * k;
+                        squash = 1f + 0.04f * k;
+                    }
+                    else
+                    {
+                        var k = Mathf.Sin((t - 0.26f) / 0.14f * Mathf.PI);
+                        lean = side * 9f * k;
+                        squash = 1f - 0.07f * k;
+                    }
+                }
+                else if (motion == Motion.Dip) squash = 1f - 0.1f * Mathf.Sin(Mathf.Clamp01(_motionTime / 0.3f) * Mathf.PI);
             }
             body.transform.localPosition = new Vector3(0f, bob, 0f);
-            body.transform.localScale = new Vector3(2f - breath, breath, 1f);
+            body.transform.localRotation = Quaternion.Euler(0f, 0f, lean);
+            body.transform.localScale = new Vector3((2f - breath) * (2f - squash), breath * squash, 1f);
             if (Frame < clip.carry.Length)
             {
                 var a = clip.carry[Frame];
@@ -212,5 +289,7 @@ namespace Ravenholm.Presentation
             }
             else CarryAnchor = null;
         }
+
+        private float _motionTime;
     }
 }
