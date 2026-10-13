@@ -100,6 +100,8 @@ namespace Ravenholm.Presentation
                 _heading = delta;
             }
             else _moving = Mathf.Max(0f, _moving - dt);
+            // Smoothed ground speed (the walk's playback rate follows it).
+            if (dt > 0f) _speed = Mathf.Lerp(_speed, delta.magnitude / dt, Mathf.Clamp01(dt * 12f));
             var moving = _moving > 0f;
             Face(_heading);
 
@@ -219,7 +221,7 @@ namespace Ravenholm.Presentation
                 Clip = clip.name;
                 _time = 0f;
             }
-            _time += dt;
+            _time += dt * WalkRate(clip);
             _motionTime = motion == Motion.None ? 0f : _motionTime + dt;
             var n = clip.frames.Length;
             float progress;   // 0..1 through the current frame
@@ -291,5 +293,19 @@ namespace Ravenholm.Presentation
         }
 
         private float _motionTime;
+        private float _speed;
+
+        /// <summary>
+        /// How fast a walk plays: steps keep up with the ground covered (<see cref="CharacterAnimationSet.walkUnitsPerCycle"/>),
+        /// so a half push on the stick walks with slower steps. Other clips play at their painted timing.
+        /// </summary>
+        private float WalkRate(CharacterAnimationSet.Clip clip)
+        {
+            if (set.walkUnitsPerCycle <= 0f || !clip.name.Contains("walk") || _speed < 0.05f) return 1f;
+            var cycle = 0f;
+            if (clip.durations.Length == clip.frames.Length) foreach (var d in clip.durations) cycle += d;
+            else cycle = clip.frames.Length / Mathf.Max(0.01f, clip.fps);
+            return Mathf.Clamp(_speed * cycle / set.walkUnitsPerCycle, 0.4f, 3f);
+        }
     }
 }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d96b405f6e244443e92eda2c42916433, type: 3}
   m_Name: BalanceProfile
   m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.BalanceProfile
-  walkSpeed: 3.5
+  walkSpeed: 2.6
   playerFootprintRadius: 0.22
   carryCapacity: 12
   pickupRadius: 0.8

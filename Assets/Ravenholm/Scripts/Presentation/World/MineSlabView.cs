@@ -676,8 +676,8 @@ namespace Ravenholm.Presentation
         /// <summary>Blocks per second up or down on the elevator.</summary>
         public const float RideSpeed = 6f;
 
-        /// <summary>Blocks per second along the cliff (as in the cliff-face prototype).</summary>
-        public const float WalkSpeed = 3.2f;
+        /// <summary>Blocks per second in the quarry (slowed with the town's walk for the dwarf: 3.2 to 2.4).</summary>
+        public const float WalkSpeed = 2.4f;
 
         private void TryStep(SiteSimulator sim, float u, float x)
         {

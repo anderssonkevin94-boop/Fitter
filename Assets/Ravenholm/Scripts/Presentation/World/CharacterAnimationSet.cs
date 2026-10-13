@@ -28,6 +28,9 @@ namespace Ravenholm.Presentation
 
         public List<Clip> clips = new List<Clip>();
 
+        [Tooltip("How far the character moves per walk cycle, in world units. The walk plays faster or slower to match the actual speed (a full-speed walk at 2.6 units/s with 1 unit per cycle loops every 0.38 s). 0: walks play at their painted timing.")]
+        [Min(0f)] public float walkUnitsPerCycle = 1f;
+
         private Dictionary<string, Clip> _byName;
 
         public Clip Get(string name)

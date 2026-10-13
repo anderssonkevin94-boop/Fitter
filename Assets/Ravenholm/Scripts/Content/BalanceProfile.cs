@@ -10,8 +10,8 @@ namespace Ravenholm.Content
     public sealed class BalanceProfile : ScriptableObject
     {
         [Header("Movement (GDD 3)")]
-        [Tooltip("World units per second. GDD default 3.5.")]
-        [Min(0.1f)] public float walkSpeed = 3.5f;
+        [Tooltip("World units per second. GDD default 3.5; 2.6 since the dwarf (2026-10-13, Kevin: a little slower).")]
+        [Min(0.1f)] public float walkSpeed = 2.6f;
         [Tooltip("Radius of the player's collision footprint at the feet, in world units.")]
         [Min(0.05f)] public float playerFootprintRadius = 0.22f;
 

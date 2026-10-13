@@ -794,3 +794,7 @@ Astra's dwarf (`ArtSource/dwarf-v1`, imported by `Tools/ArtImport/import_dwarf.p
   - The pile rides on his head (`SupplierAnimator.HeadTop`).
   - The tailor's frames stay in the project, unused. `import_character_strips.py` can bring them back.
 - **Body clearance (from Kevin's screenshot).** Walking only checked the feet's own cell, so the wide body could stand with its feet on a cell's edge, half inside a cliff or a trunk. The feet now keep `PlayerMotor.BodyClearance` (0.3 of a cell along the grid's axes) from any cell they cannot enter. A move may never press further in than the body already does, so he can always walk away after a teleport. Holes into the quarry stay open for this check.
+- **Walk speed and steps (2026-10-13, Kevin).**
+  - The walk is a little slower: `BalanceProfile.walkSpeed` goes from 3.5 to 2.6 units/s, and the quarry's from 3.2 to 2.4 blocks/s.
+  - The dwarf's painted shuffle plants its feet at only about 0.19 units/s, so its playback now follows the ground actually covered: one cycle per `CharacterAnimationSet.walkUnitsPerCycle` (1 unit). At full speed that is about twice the painted timing (0.38 s a cycle). A half push walks with slower steps.
+  - Astra is asked separately for a longer-stride walk, which would plant the feet fully.
