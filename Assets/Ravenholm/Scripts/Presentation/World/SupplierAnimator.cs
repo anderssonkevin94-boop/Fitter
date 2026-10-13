@@ -225,7 +225,9 @@ namespace Ravenholm.Presentation
                 Clip = clip.name;
             }
             _time += dt * WalkRate(clip);
-            _motionTime = motion == Motion.None ? 0f : _motionTime + dt;
+            // A swing survives a frame or two without the button (slow frames): it restarts only after a real pause.
+            if (motion != Motion.None) { _motionTime += dt; _motionGap = 0f; }
+            else if ((_motionGap += dt) > 0.3f) _motionTime = 0f;
             var n = clip.frames.Length;
             float progress;   // 0..1 through the current frame
             if (clip.durations.Length == n)
@@ -293,7 +295,7 @@ namespace Ravenholm.Presentation
             else CarryAnchor = null;
         }
 
-        private float _motionTime;
+        private float _motionTime, _motionGap;
         private float _speed;
 
         /// <summary>

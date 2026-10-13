@@ -812,3 +812,9 @@ Astra's dwarf (`ArtSource/dwarf-v1`, imported by `Tools/ArtImport/import_dwarf.p
   - Playback is 1.3× (69 ms frames, about 5.8 steps a second).
   - `walkGroundFactor` 1.25 lets the ground run a quarter ahead of the planted feet. That gives about 2.0 units/s sideways and 1.0 up or down.
   - Both factors are tunable on `SupplierAnimations.asset`.
+- **The legs swing from the hip (2026-10-13, Kevin: sliding rigid legs back and forth "is obviously not ok").**
+  - Walk v4 (`ArtSource/dwarf-v4-hip-swing`, `render_swing.py`) rotates each leg about a hip pivot.
+  - Seen from the side, the leg tilts in the screen plane. Facing toward or away from the camera, it foreshortens.
+  - The planted foot stays on its floor point, and the hips dip at the ends of the stride (the pendulum).
+  - A small knee bend at mid-swing (the leg is 12% shorter) lets the boot clear the floor.
+  - The stride, speeds and timing are unchanged from v3.

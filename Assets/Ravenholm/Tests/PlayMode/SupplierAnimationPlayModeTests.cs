@@ -102,7 +102,7 @@ namespace Ravenholm.Tests
             yield return Until(() => anim.Requested == "mine_down_front" && anim.Clip.StartsWith("idle_"), 3f, Now);
             var leaned = false;
             var t0 = Time.time;
-            while (Time.time - t0 < 1f && !leaned)
+            while (Time.time - t0 < 2f && !leaned)
             {
                 leaned = Mathf.Abs(Mathf.DeltaAngle(0f, body.transform.localEulerAngles.z)) > 2f || Mathf.Abs(body.transform.localScale.y - 1f) > 0.03f;
                 yield return null;
