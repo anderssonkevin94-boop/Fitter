@@ -642,9 +642,19 @@ namespace Ravenholm.Presentation
             var dx = move.x + 2f * move.y;
             var len = Mathf.Sqrt(du * du + dx * dx);
             if (len < 0.01f) return;
-            var speed = WalkSpeed * Mathf.Min(1f, move.magnitude) * Time.deltaTime / len;
-            du *= speed;
-            dx *= speed;
+            if (_motor != null)
+            {
+                // The same ground speed as in town (the painted walk's planted feet), turned into grid steps.
+                var v = _motor.WalkVelocity(move) * Time.deltaTime;
+                du = -v.x + 2f * v.y;
+                dx = v.x + 2f * v.y;
+            }
+            else
+            {
+                var speed = WalkSpeed * Mathf.Min(1f, move.magnitude) * Time.deltaTime / len;
+                du *= speed;
+                dx *= speed;
+            }
             _facing = Mathf.Abs(du) >= Mathf.Abs(dx) ? new Vector2Int(0, du > 0f ? 1 : -1) : new Vector2Int(dx > 0f ? 1 : -1, 0);
             TryStep(sim, _u + du, _x);
             if (!_inside) return;
@@ -676,7 +686,7 @@ namespace Ravenholm.Presentation
         /// <summary>Blocks per second up or down on the elevator.</summary>
         public const float RideSpeed = 6f;
 
-        /// <summary>Blocks per second in the quarry (slowed with the town's walk for the dwarf: 3.2 to 2.4).</summary>
+        /// <summary>Blocks per second in the quarry when there is no supplier motor (it sets the speed: <see cref="PlayerMotor.WalkVelocity"/>).</summary>
         public const float WalkSpeed = 2.4f;
 
         private void TryStep(SiteSimulator sim, float u, float x)

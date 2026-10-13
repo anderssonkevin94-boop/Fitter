@@ -25,6 +25,8 @@ namespace Ravenholm.Presentation
         [SerializeField] private CharacterAnimationSet set;
         [SerializeField] private SpriteRenderer body;
 
+        public CharacterAnimationSet Set => set;
+
         public void EditorSetup(CharacterAnimationSet animations, SpriteRenderer bodyRenderer)
         {
             set = animations;
@@ -94,7 +96,7 @@ namespace Ravenholm.Presentation
             var delta = (Vector2)(pos - _lastPos);
             _lastPos = pos;
             // Moving: a little hysteresis so a stop of one frame does not flicker to idle.
-            if (dt > 0f && delta.magnitude / dt > 0.25f)
+            if (dt > 0f && delta.magnitude / dt > 0.08f)
             {
                 _moving = 0.12f;
                 _heading = delta;
@@ -218,8 +220,9 @@ namespace Ravenholm.Presentation
             if (clip == null || clip.frames.Length == 0) return;
             if (clip.name != Clip)
             {
+                // Turning while walking keeps the step's phase (the walks share their timing); anything else starts over.
+                if (!(clip.name.Contains("walk") && Clip.Contains("walk"))) _time = 0f;
                 Clip = clip.name;
-                _time = 0f;
             }
             _time += dt * WalkRate(clip);
             _motionTime = motion == Motion.None ? 0f : _motionTime + dt;
@@ -252,11 +255,9 @@ namespace Ravenholm.Presentation
             var squash = 1f;
             if (!Feel.ReducedMotion)
             {
-                if (clip.name.Contains("walk"))
-                {
-                    var lift = eight ? 0.012f : clip.name.StartsWith("carry") ? 0.02f : 0.035f;
-                    bob = Mathf.Sin(progress * Mathf.PI) * lift;
-                }
+                // An eight-direction set has its sway baked into the frames: nothing is added to it.
+                if (eight) { }
+                else if (clip.name.Contains("walk")) bob = Mathf.Sin(progress * Mathf.PI) * (clip.name.StartsWith("carry") ? 0.02f : 0.035f);
                 else if (clip.name.Contains("idle")) breath = 1f + Mathf.Sin(Time.time * 2.2f) * 0.012f;
                 if (motion == Motion.Swing)
                 {
@@ -296,16 +297,22 @@ namespace Ravenholm.Presentation
         private float _speed;
 
         /// <summary>
-        /// How fast a walk plays: steps keep up with the ground covered (<see cref="CharacterAnimationSet.walkUnitsPerCycle"/>),
-        /// so a half push on the stick walks with slower steps. Other clips play at their painted timing.
+        /// How fast a walk plays: the ground covered over the painted velocity that plants the feet (scaled by the drawn
+        /// size), so full stick plays at <see cref="CharacterAnimationSet.walkPlaybackRate"/> and a half push walks with
+        /// slower steps. Other clips play at their painted timing.
         /// </summary>
-        private float WalkRate(CharacterAnimationSet.Clip clip)
+        /// <summary>The playback rate of the current clip (a walk: ground covered over its painted planted-feet speed).</summary>
+        public float PlaybackRate { get; private set; } = 1f;
+
+        private float WalkRate(CharacterAnimationSet.Clip clip) => PlaybackRate = ComputeWalkRate(clip);
+
+        private float ComputeWalkRate(CharacterAnimationSet.Clip clip)
         {
-            if (set.walkUnitsPerCycle <= 0f || !clip.name.Contains("walk") || _speed < 0.05f) return 1f;
-            var cycle = 0f;
-            if (clip.durations.Length == clip.frames.Length) foreach (var d in clip.durations) cycle += d;
-            else cycle = clip.frames.Length / Mathf.Max(0.01f, clip.fps);
-            return Mathf.Clamp(_speed * cycle / set.walkUnitsPerCycle, 0.4f, 3f);
+            if (!clip.name.Contains("walk")) return 1f;
+            var painted = clip.velocity.magnitude * Mathf.Abs(transform.lossyScale.y);
+            if (painted <= 0f) return set.walkPlaybackRate;
+            if (_speed < 0.02f) return set.walkPlaybackRate;
+            return Mathf.Clamp(_speed / painted, 0.25f, set.walkPlaybackRate * 1.5f);
         }
     }
 }

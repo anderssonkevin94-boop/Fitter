@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Ravenholm.Presentation::Ravenholm.Presentation.CharacterAnimationSet
   clips:
   - name: walk_N
-    fps: 6.667
+    fps: 11.111
     loop: 1
     frames:
     - {fileID: 21300000, guid: 3e0ffcd12040e4008a07d2daa417844a, type: 3}
@@ -23,12 +23,13 @@ MonoBehaviour:
     - {fileID: 21300000, guid: d64b8bc9d45054529877d0de6fd6e0c2, type: 3}
     - {fileID: 21300000, guid: 83d88e5c065c04afb8f7d714e75d85fb, type: 3}
     durations:
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
     carry: []
+    velocity: {x: 0, y: 0.30864}
   - name: idle_N
     fps: 1
     loop: 1
@@ -37,8 +38,9 @@ MonoBehaviour:
     durations:
     - 1
     carry: []
+    velocity: {x: 0, y: 0}
   - name: walk_NE
-    fps: 6.667
+    fps: 11.111
     loop: 1
     frames:
     - {fileID: 21300000, guid: c89d6e3c8d3d642e5a6aa2894a471359, type: 3}
@@ -47,12 +49,13 @@ MonoBehaviour:
     - {fileID: 21300000, guid: f593b28e3279e4217ae287c10f983f58, type: 3}
     - {fileID: 21300000, guid: 2564fc21ca9644837a28db07ce07a290, type: 3}
     durations:
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
     carry: []
+    velocity: {x: 0.43642, y: 0.21821}
   - name: idle_NE
     fps: 1
     loop: 1
@@ -61,8 +64,9 @@ MonoBehaviour:
     durations:
     - 1
     carry: []
+    velocity: {x: 0, y: 0}
   - name: walk_E
-    fps: 6.667
+    fps: 11.111
     loop: 1
     frames:
     - {fileID: 21300000, guid: db6afd5d9a4c94c26a46c61d3d04b59d, type: 3}
@@ -71,12 +75,13 @@ MonoBehaviour:
     - {fileID: 21300000, guid: f48982d915e404a3fa75a3dd8ece82a0, type: 3}
     - {fileID: 21300000, guid: 6d451d15bb1ea47478a25946dcac5ec8, type: 3}
     durations:
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
     carry: []
+    velocity: {x: 0.61728, y: 0}
   - name: idle_E
     fps: 1
     loop: 1
@@ -85,8 +90,9 @@ MonoBehaviour:
     durations:
     - 1
     carry: []
+    velocity: {x: 0, y: 0}
   - name: walk_SE
-    fps: 6.667
+    fps: 11.111
     loop: 1
     frames:
     - {fileID: 21300000, guid: 00fed6c225fae49f7b99d490da87ed77, type: 3}
@@ -95,12 +101,13 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 2432e8c147c4c444e8606f2bc8797f17, type: 3}
     - {fileID: 21300000, guid: 95bd2c6e5666b499ab67cb1c648c0574, type: 3}
     durations:
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
     carry: []
+    velocity: {x: 0.43642, y: -0.21821}
   - name: idle_SE
     fps: 1
     loop: 1
@@ -109,8 +116,9 @@ MonoBehaviour:
     durations:
     - 1
     carry: []
+    velocity: {x: 0, y: 0}
   - name: walk_S
-    fps: 6.667
+    fps: 11.111
     loop: 1
     frames:
     - {fileID: 21300000, guid: 99e2fa7543a4a4873a96bbd2b1edffba, type: 3}
@@ -119,12 +127,13 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 6a4a0c5429b1d4ba4be4934d7e4f78a8, type: 3}
     - {fileID: 21300000, guid: 81e0117ad9e464196ac6de07bda9e943, type: 3}
     durations:
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
     carry: []
+    velocity: {x: 0, y: -0.30864}
   - name: idle_S
     fps: 1
     loop: 1
@@ -133,8 +142,9 @@ MonoBehaviour:
     durations:
     - 1
     carry: []
+    velocity: {x: 0, y: 0}
   - name: walk_SW
-    fps: 6.667
+    fps: 11.111
     loop: 1
     frames:
     - {fileID: 21300000, guid: aa1760048515d4343afe88b80efb46f7, type: 3}
@@ -143,12 +153,13 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 1cd46be96f85140a48685bc3177ebf85, type: 3}
     - {fileID: 21300000, guid: 54d09d8618bf94ef98fe68b1eb4f4df2, type: 3}
     durations:
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
     carry: []
+    velocity: {x: -0.43642, y: -0.21821}
   - name: idle_SW
     fps: 1
     loop: 1
@@ -157,8 +168,9 @@ MonoBehaviour:
     durations:
     - 1
     carry: []
+    velocity: {x: 0, y: 0}
   - name: walk_W
-    fps: 6.667
+    fps: 11.111
     loop: 1
     frames:
     - {fileID: 21300000, guid: f5b0b0b0c2893482298287a3cde27d8b, type: 3}
@@ -167,12 +179,13 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 9efd4bdc0216e4fd88ba3321f696c58a, type: 3}
     - {fileID: 21300000, guid: 87a24d53e6b414ac79a62ae97a62d33b, type: 3}
     durations:
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
     carry: []
+    velocity: {x: -0.61728, y: 0}
   - name: idle_W
     fps: 1
     loop: 1
@@ -181,8 +194,9 @@ MonoBehaviour:
     durations:
     - 1
     carry: []
+    velocity: {x: 0, y: 0}
   - name: walk_NW
-    fps: 6.667
+    fps: 11.111
     loop: 1
     frames:
     - {fileID: 21300000, guid: 128480928b73749e69918e323753511b, type: 3}
@@ -191,12 +205,13 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 1af2f7758180a472dacd6f98b2a3584f, type: 3}
     - {fileID: 21300000, guid: dfd15c1482df645f9b3e86781b7ba49c, type: 3}
     durations:
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
-    - 0.15
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
+    - 0.09
     carry: []
+    velocity: {x: -0.43642, y: 0.21821}
   - name: idle_NW
     fps: 1
     loop: 1
@@ -205,3 +220,5 @@ MonoBehaviour:
     durations:
     - 1
     carry: []
+    velocity: {x: 0, y: 0}
+  walkPlaybackRate: 2

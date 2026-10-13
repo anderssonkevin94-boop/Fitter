@@ -67,8 +67,9 @@ namespace Ravenholm.Tests
         private static void HoldDig(bool held) => GameRoot.Instance.Hud.ScriptedHold = held;
 
         /// <summary>Screen direction of walking along the cliff (+u).</summary>
-        private static readonly Vector2 Along = new Vector2(-2f, 1f).normalized;
-        private static readonly Vector2 Into = new Vector2(2f, 1f).normalized;
+        // The stick's diagonals walk along the grid's axes (up or down the screen moves at half speed: the dwarf's painted walk).
+        private static readonly Vector2 Along = new Vector2(-1f, 1f).normalized;
+        private static readonly Vector2 Into = new Vector2(1f, 1f).normalized;
 
         private static IEnumerator Until(Func<bool> done, float seconds, string what) => Until(done, seconds, () => what);
 
@@ -277,14 +278,14 @@ namespace Ravenholm.Tests
             var spot = Object.FindAnyObjectByType<ForestRockSpot>();
             // Walking into the wall stops the feet short of it: the wide body does not sink into the rock.
             var before = (Vector2)Motor.transform.position;
-            Stick(new Vector2(2f, 1f).normalized);
+            Stick(Into);
             yield return new WaitForSeconds(0.8f);
             Stick(null);
             var at = (Vector2)Motor.transform.position;
             Assert.AreEqual(rockCell, ground.WorldToCell(at), "still in front of the wall");
             Assert.AreEqual(rockCell, ground.WorldToCell(at + new Vector2(0.5f, 0.25f) * (PlayerMotor.BodyClearance * 0.9f)), $"the feet keep clear of the wall (at {at}, from {before})");
             yield return Capture.Take("forest_wall_clearance");
-            GameRoot.Instance.InputRouter.ScriptedMove = new Vector2(2f, 1f).normalized * 0.3f;   // face into the wall (it doesn't give)
+            GameRoot.Instance.InputRouter.ScriptedMove = Into * 0.3f;   // face into the wall (it doesn't give)
             yield return null;
             GameRoot.Instance.InputRouter.ScriptedMove = null;
             S.Sites.SpeedMultiplier = 20f;

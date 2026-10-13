@@ -58,7 +58,7 @@ namespace Ravenholm.Tests
             Assert.AreEqual("idle_S", anim.Clip, Now());
 
             // Eight painted directions, never mirrored: up the screen is N, down and to the right SE.
-            Stick(new Vector2(-0.6f, 0.8f));
+            Stick(new Vector2(0f, 1f));
             yield return Until(() => anim.Clip == "walk_N", 3f, Now);
             Stick(new Vector2(0.8f, -0.6f));
             yield return Until(() => anim.Clip == "walk_SE", 3f, Now);
@@ -115,6 +115,65 @@ namespace Ravenholm.Tests
             GameRoot.Instance.Services.Sites.SpeedMultiplier = 1f;
             yield return new WaitForSeconds(0.3f);
             yield return Capture.Take("supplier_animation");
+        }
+
+        /// <summary>
+        /// Every direction walks with its own painted clip at the painted planted-feet speed (times the playback rate),
+        /// measured on the game's floor; diagonals face diagonally; turning keeps the step's phase; stopping keeps the facing.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator TheDwarfWalksAllEightDirectionsWithPlantedFeet()
+        {
+            SceneManager.LoadScene(GameRoot.BootstrapSceneName);
+            yield return Until(() => GameRoot.Instance != null && SandboxSceneController.Current != null, 10f, () => "town loaded");
+            for (var i = 0; i < 3; i++) yield return null;
+            var player = SandboxSceneController.Current.Player;
+            var motor = player.GetComponent<PlayerMotor>();
+            var anim = player.GetComponentInChildren<SupplierAnimator>();
+            var set = anim.Set;
+            Assert.AreEqual(2f, set.walkPlaybackRate, "Kevin's choice: twice the painted speed");
+            var start = (Vector2)player.position;
+            string[] dirs = { "E", "NE", "N", "NW", "W", "SW", "S", "SE" };
+            for (var k = 0; k < 8; k++)
+            {
+                motor.Teleport(start);
+                yield return new WaitForSeconds(0.2f);
+                var a = k * Mathf.PI / 4f;
+                var stick = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+                Stick(stick);
+                yield return Until(() => anim.Clip == "walk_" + dirs[k], 2f, () => $"walks {dirs[k]} (clip {anim.Clip})");
+                yield return new WaitForSeconds(0.1f);
+                var p0 = (Vector2)player.position;
+                var t0 = Time.time;
+                yield return new WaitForSeconds(0.45f);
+                var v = ((Vector2)player.position - p0) / (Time.time - t0);
+                var clip = set.Get("walk_" + dirs[k]);
+                var planted = clip.velocity * anim.PlaybackRate;    // the ground the painted feet cover at this playback
+                Assert.Less((v - planted).magnitude, 0.05f * planted.magnitude + 0.01f,
+                    $"{dirs[k]}: feet planted (moves {v}, painted {planted} at {anim.PlaybackRate:F2}x)");
+                Assert.AreEqual(2f, anim.PlaybackRate, 0.1f, $"{dirs[k]}: full stick plays at twice the painted timing");
+                Assert.IsFalse(anim.GetComponentInChildren<SpriteRenderer>().flipX, "never mirrored");
+                if (dirs[k] == "SE") yield return Capture.Take("dwarf_walk_SE");
+            }
+
+            // Turning while walking keeps the step's phase.
+            motor.Teleport(start);
+            yield return new WaitForSeconds(0.2f);
+            Stick(Vector2.right);
+            yield return Until(() => anim.Clip == "walk_E" && anim.Frame == 2, 2f, () => $"mid-step ({anim.Clip} {anim.Frame})");
+            Stick(new Vector2(1f, 1f).normalized);
+            yield return Until(() => anim.Clip == "walk_NE", 1f, () => $"turns to NE ({anim.Clip})");
+            Assert.That(anim.Frame, Is.InRange(2, 3), "the step carries on from where it was");
+
+            // A half push walks at half speed with half-speed steps (still planted).
+            Stick(new Vector2(1f, 1f).normalized * 0.5f);
+            yield return new WaitForSeconds(0.4f);
+            Assert.AreEqual(1f, anim.PlaybackRate, 0.15f, "half the playback");
+
+            // Stopping stands, facing the way it walked.
+            Stick(null);
+            yield return Until(() => anim.Clip == "idle_NE", 1f, () => $"stands facing NE ({anim.Clip})");
+            Assert.AreEqual(0f, anim.GetComponentInChildren<SpriteRenderer>().transform.localEulerAngles.z, 0.01f, "no added rotation");
         }
     }
 }

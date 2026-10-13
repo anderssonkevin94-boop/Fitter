@@ -837,6 +837,8 @@ namespace Ravenholm.EditorTools
                 // Only frames up to the last one with a carry point carry one (pick-up gets it on its last frame).
                 clip.carry = anyCarry ? carry.ToArray() : new Vector2[0];
                 clip.durations = durations.ToArray();
+                var v = p.Value["velocity"];
+                clip.velocity = v != null ? new Vector2((float)v[0], (float)v[1]) : Vector2.zero;
                 set.clips.Add(clip);
             }
             EditorUtility.SetDirty(set);

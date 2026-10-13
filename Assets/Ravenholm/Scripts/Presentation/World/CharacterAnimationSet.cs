@@ -24,12 +24,33 @@ namespace Ravenholm.Presentation
             public float[] durations = new float[0];
             [Tooltip("Per frame: where the carried pile sits (units from the feet; x toward the art's facing). Empty if none.")]
             public Vector2[] carry = new Vector2[0];
+            [Tooltip("A walk's ground velocity at its painted timing (units/s, y up) that keeps the feet planted. Zero if none.")]
+            public Vector2 velocity;
         }
 
         public List<Clip> clips = new List<Clip>();
 
-        [Tooltip("How far the character moves per walk cycle, in world units. The walk plays faster or slower to match the actual speed (a full-speed walk at 2.6 units/s with 1 unit per cycle loops every 0.38 s). 0: walks play at their painted timing.")]
-        [Min(0f)] public float walkUnitsPerCycle = 1f;
+        [Tooltip("How much faster than painted the walk plays at full stick. Movement speed scales with it, so the feet stay planted (2026-10-13, Kevin: 2x, a 225 ms loop).")]
+        [Min(0.1f)] public float walkPlaybackRate = 2f;
+
+        /// <summary>
+        /// The walk's full-stick speeds at painted timing (units/s): sideways (x) and up or down the screen (y), from the
+        /// painted velocities (they lie on an ellipse). Zero when the walks carry no velocities.
+        /// </summary>
+        public Vector2 WalkAxes
+        {
+            get
+            {
+                var axes = Vector2.zero;
+                foreach (var c in clips)
+                {
+                    if (c == null || !c.name.StartsWith("walk")) continue;
+                    axes.x = Mathf.Max(axes.x, Mathf.Abs(c.velocity.x));
+                    axes.y = Mathf.Max(axes.y, Mathf.Abs(c.velocity.y));
+                }
+                return axes;
+            }
+        }
 
         private Dictionary<string, Clip> _byName;
 

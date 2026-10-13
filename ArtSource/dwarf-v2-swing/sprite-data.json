@@ -1,0 +1,202 @@
+{
+  "image": "dwarf-walk.png",
+  "frameSize": [
+    256,
+    256
+  ],
+  "origin": [
+    128,
+    222
+  ],
+  "frameCount": 5,
+  "frameDurationMs": 90,
+  "loopDurationMs": 450,
+  "directionOrder": [
+    "N",
+    "NE",
+    "E",
+    "SE",
+    "S",
+    "SW",
+    "W",
+    "NW"
+  ],
+  "animations": {
+    "N": {
+      "row": 0,
+      "frames": [
+        "N-0",
+        "N-1",
+        "N-2",
+        "N-3",
+        "N-4"
+      ],
+      "direction": [
+        0,
+        -1
+      ],
+      "screenMotionPerCycle": [
+        0.0,
+        -33.333333333333336
+      ],
+      "screenVelocityPerSecond": [
+        0.0,
+        -74.07407407407408
+      ]
+    },
+    "NE": {
+      "row": 1,
+      "frames": [
+        "NE-0",
+        "NE-1",
+        "NE-2",
+        "NE-3",
+        "NE-4"
+      ],
+      "direction": [
+        0.707,
+        -0.707
+      ],
+      "screenMotionPerCycle": [
+        47.13333333333333,
+        -23.566666666666666
+      ],
+      "screenVelocityPerSecond": [
+        104.74074074074073,
+        -52.37037037037037
+      ]
+    },
+    "E": {
+      "row": 2,
+      "frames": [
+        "E-0",
+        "E-1",
+        "E-2",
+        "E-3",
+        "E-4"
+      ],
+      "direction": [
+        1,
+        0
+      ],
+      "screenMotionPerCycle": [
+        66.66666666666667,
+        0.0
+      ],
+      "screenVelocityPerSecond": [
+        148.14814814814815,
+        0.0
+      ]
+    },
+    "SE": {
+      "row": 3,
+      "frames": [
+        "SE-0",
+        "SE-1",
+        "SE-2",
+        "SE-3",
+        "SE-4"
+      ],
+      "direction": [
+        0.707,
+        0.707
+      ],
+      "screenMotionPerCycle": [
+        47.13333333333333,
+        23.566666666666666
+      ],
+      "screenVelocityPerSecond": [
+        104.74074074074073,
+        52.37037037037037
+      ]
+    },
+    "S": {
+      "row": 4,
+      "frames": [
+        "S-0",
+        "S-1",
+        "S-2",
+        "S-3",
+        "S-4"
+      ],
+      "direction": [
+        0,
+        1
+      ],
+      "screenMotionPerCycle": [
+        0.0,
+        33.333333333333336
+      ],
+      "screenVelocityPerSecond": [
+        0.0,
+        74.07407407407408
+      ]
+    },
+    "SW": {
+      "row": 5,
+      "frames": [
+        "SW-0",
+        "SW-1",
+        "SW-2",
+        "SW-3",
+        "SW-4"
+      ],
+      "direction": [
+        -0.707,
+        0.707
+      ],
+      "screenMotionPerCycle": [
+        -47.13333333333333,
+        23.566666666666666
+      ],
+      "screenVelocityPerSecond": [
+        -104.74074074074073,
+        52.37037037037037
+      ]
+    },
+    "W": {
+      "row": 6,
+      "frames": [
+        "W-0",
+        "W-1",
+        "W-2",
+        "W-3",
+        "W-4"
+      ],
+      "direction": [
+        -1,
+        0
+      ],
+      "screenMotionPerCycle": [
+        -66.66666666666667,
+        0.0
+      ],
+      "screenVelocityPerSecond": [
+        -148.14814814814815,
+        0.0
+      ]
+    },
+    "NW": {
+      "row": 7,
+      "frames": [
+        "NW-0",
+        "NW-1",
+        "NW-2",
+        "NW-3",
+        "NW-4"
+      ],
+      "direction": [
+        -0.707,
+        -0.707
+      ],
+      "screenMotionPerCycle": [
+        -47.13333333333333,
+        -23.566666666666666
+      ],
+      "screenVelocityPerSecond": [
+        -104.74074074074073,
+        -52.37037037037037
+      ]
+    }
+  }
+}

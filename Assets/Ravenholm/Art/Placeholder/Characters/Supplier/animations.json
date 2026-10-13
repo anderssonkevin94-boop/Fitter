@@ -2,29 +2,33 @@
  "ppu": 240,
  "clips": {
   "walk_N": {
-   "fps": 6.667,
+   "fps": 11.111,
    "loop": true,
    "frames": [
     {
      "sprite": "Characters/Supplier/dwarf_walk_N_0.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_N_1.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_N_2.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_N_3.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_N_4.png",
-     "dur": 0.15
+     "dur": 0.09
     }
+   ],
+   "velocity": [
+    0.0,
+    0.30864
    ]
   },
   "idle_N": {
@@ -38,29 +42,33 @@
    ]
   },
   "walk_NE": {
-   "fps": 6.667,
+   "fps": 11.111,
    "loop": true,
    "frames": [
     {
      "sprite": "Characters/Supplier/dwarf_walk_NE_0.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_NE_1.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_NE_2.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_NE_3.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_NE_4.png",
-     "dur": 0.15
+     "dur": 0.09
     }
+   ],
+   "velocity": [
+    0.43642,
+    0.21821
    ]
   },
   "idle_NE": {
@@ -74,29 +82,33 @@
    ]
   },
   "walk_E": {
-   "fps": 6.667,
+   "fps": 11.111,
    "loop": true,
    "frames": [
     {
      "sprite": "Characters/Supplier/dwarf_walk_E_0.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_E_1.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_E_2.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_E_3.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_E_4.png",
-     "dur": 0.15
+     "dur": 0.09
     }
+   ],
+   "velocity": [
+    0.61728,
+    -0.0
    ]
   },
   "idle_E": {
@@ -110,29 +122,33 @@
    ]
   },
   "walk_SE": {
-   "fps": 6.667,
+   "fps": 11.111,
    "loop": true,
    "frames": [
     {
      "sprite": "Characters/Supplier/dwarf_walk_SE_0.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_SE_1.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_SE_2.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_SE_3.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_SE_4.png",
-     "dur": 0.15
+     "dur": 0.09
     }
+   ],
+   "velocity": [
+    0.43642,
+    -0.21821
    ]
   },
   "idle_SE": {
@@ -146,29 +162,33 @@
    ]
   },
   "walk_S": {
-   "fps": 6.667,
+   "fps": 11.111,
    "loop": true,
    "frames": [
     {
      "sprite": "Characters/Supplier/dwarf_walk_S_0.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_S_1.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_S_2.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_S_3.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_S_4.png",
-     "dur": 0.15
+     "dur": 0.09
     }
+   ],
+   "velocity": [
+    0.0,
+    -0.30864
    ]
   },
   "idle_S": {
@@ -182,29 +202,33 @@
    ]
   },
   "walk_SW": {
-   "fps": 6.667,
+   "fps": 11.111,
    "loop": true,
    "frames": [
     {
      "sprite": "Characters/Supplier/dwarf_walk_SW_0.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_SW_1.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_SW_2.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_SW_3.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_SW_4.png",
-     "dur": 0.15
+     "dur": 0.09
     }
+   ],
+   "velocity": [
+    -0.43642,
+    -0.21821
    ]
   },
   "idle_SW": {
@@ -218,29 +242,33 @@
    ]
   },
   "walk_W": {
-   "fps": 6.667,
+   "fps": 11.111,
    "loop": true,
    "frames": [
     {
      "sprite": "Characters/Supplier/dwarf_walk_W_0.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_W_1.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_W_2.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_W_3.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_W_4.png",
-     "dur": 0.15
+     "dur": 0.09
     }
+   ],
+   "velocity": [
+    -0.61728,
+    -0.0
    ]
   },
   "idle_W": {
@@ -254,29 +282,33 @@
    ]
   },
   "walk_NW": {
-   "fps": 6.667,
+   "fps": 11.111,
    "loop": true,
    "frames": [
     {
      "sprite": "Characters/Supplier/dwarf_walk_NW_0.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_NW_1.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_NW_2.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_NW_3.png",
-     "dur": 0.15
+     "dur": 0.09
     },
     {
      "sprite": "Characters/Supplier/dwarf_walk_NW_4.png",
-     "dur": 0.15
+     "dur": 0.09
     }
+   ],
+   "velocity": [
+    -0.43642,
+    0.21821
    ]
   },
   "idle_NW": {

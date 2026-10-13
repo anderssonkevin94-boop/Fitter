@@ -119,6 +119,21 @@ namespace Ravenholm.Presentation
         private float _idlePhase;
         private float _size = 1f;
         private SupplierAnimator _animator;
+
+        /// <summary>
+        /// The supplier's ground velocity for a stick position (world units/s on screen). With a painted walk that carries
+        /// its planted-feet speeds, it is those (sideways faster than up or down: the elevated camera), times the walk's
+        /// playback rate and the drawn size, so the feet stay planted; otherwise the balance's walk speed.
+        /// </summary>
+        public Vector2 WalkVelocity(Vector2 move)
+        {
+            if (move.sqrMagnitude > 1f) move.Normalize();
+            var set = _animator != null ? _animator.Set : null;
+            var axes = set != null ? set.WalkAxes : Vector2.zero;
+            if (axes.x <= 0f || axes.y <= 0f) return move * _root.Config.Balance.walkSpeed;
+            var size = visual != null ? Mathf.Abs(visual.localScale.y) : 1f;
+            return new Vector2(move.x * axes.x, move.y * axes.y) * (set.walkPlaybackRate * size);
+        }
         /// <summary>Underground the supplier is drawn a little smaller so a two-block tunnel fits them (the art is one unit tall).</summary>
         public const float UndergroundScale = 0.9f;
         private float _reach;
@@ -131,7 +146,7 @@ namespace Ravenholm.Presentation
             Vector2 old = transform.position;
             // Standing over thin air (an old save, or ground that moved): back to the Mine's entry rather than stuck.
             if (mine != null && !mine.OnGround(old)) { Teleport(mine.BesideEntry); return; }
-            var delta = move * (balance.walkSpeed * Time.deltaTime);
+            var delta = WalkVelocity(move) * Time.deltaTime;
             var p = Slide(old, delta, balance.playerFootprintRadius, _blockerMask);
             var b = _root.Config.SandboxSettings.WorldBounds;
             p.x = Mathf.Clamp(p.x, b.xMin + 0.4f, b.xMax - 0.4f);

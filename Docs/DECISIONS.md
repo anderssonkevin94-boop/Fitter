@@ -798,3 +798,11 @@ Astra's dwarf (`ArtSource/dwarf-v1`, imported by `Tools/ArtImport/import_dwarf.p
   - The walk is a little slower: `BalanceProfile.walkSpeed` goes from 3.5 to 2.6 units/s, and the quarry's from 3.2 to 2.4 blocks/s.
   - The dwarf's painted shuffle plants its feet at only about 0.19 units/s, so its playback now follows the ground actually covered: one cycle per `CharacterAnimationSet.walkUnitsPerCycle` (1 unit). At full speed that is about twice the painted timing (0.38 s a cycle). A half push walks with slower steps.
   - Astra is asked separately for a longer-stride walk, which would plant the feet fully.
+- **The swing walk with planted feet (2026-10-13, Kevin; supersedes the walk-speed note above).**
+  - Astra's v2 walk (`ArtSource/dwarf-v2-swing`) has a longer stride, with the body sway and arm swing baked into the frames: 5 frames of 90 ms, a 450 ms loop. Nothing is added on top: no bob, rotation or warp. Idle uses `dwarf-idle.png` and keeps the last facing.
+  - **Speed comes from the art.** Each walk clip carries its painted planted-feet velocity from `sprite-data.json` (px/s ÷ 240 px per unit). That is 0.62 units/s sideways and 0.31 up or down: an ellipse, because the camera is elevated.
+  - The supplier moves at that velocity × `CharacterAnimationSet.walkPlaybackRate` × drawn size (`PlayerMotor.WalkVelocity`). Kevin chose **2×**: 45 ms frames, about 1.23 units/s sideways and 0.62 up or down. The quarry turns the same velocity into grid steps.
+  - `BalanceProfile.walkSpeed` (2.6) is now only the fallback for a character without painted speeds.
+  - A diagonal push on the stick moves along a grid axis and faces the diagonal clip.
+  - Playback follows the ground actually covered: a half push plays half as fast, so the feet stay planted. Turning while walking keeps the step's phase.
+  - **Known:** the feet are exact at frame boundaries. Between them a held frame glides with the continuous movement (by Astra's note).
