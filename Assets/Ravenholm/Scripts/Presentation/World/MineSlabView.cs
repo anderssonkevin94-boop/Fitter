@@ -156,6 +156,7 @@ namespace Ravenholm.Presentation
             if (ground == null) return true;
             var c = grid.WorldToCell(plane);
             if (!ground.HasTile(c)) return false;
+            if (SurfaceOutcropView.Current != null && SurfaceOutcropView.Current.Blocked(c)) return false;   // rock on the surface
             return ForestGridView.Current == null || !ForestGridView.Current.HasStandingTree(c);
         }
 
@@ -907,7 +908,7 @@ namespace Ravenholm.Presentation
         private void Crack(SiteSimulator sim)
         {
             var t = sim.Record.DigTarget;
-            if (!t.HasValue || crackSprites.Length == 0) { _crack.enabled = false; return; }
+            if (!t.HasValue || t.Value.Row < 0 || crackSprites.Length == 0) { _crack.enabled = false; return; }   // surface outcrops crack themselves
             var p = sim.DigProgress(t.Value.X, t.Value.U, t.Value.Row);
             _crack.enabled = p > 0.05f;
             if (!_crack.enabled) return;

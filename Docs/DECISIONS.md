@@ -733,3 +733,9 @@ Kevin's calls: no more ladders. The Mine has an elevator shaft from the start, i
 - **Ladders removed.** `DugDown` is still recorded and saved, but unused. Shafts dug elsewhere have no ladder: build scaffolds to climb out.
 - **Art.** The scaffold, pulley and platform are procedural placeholders (`Props/prop_scaffold`, `prop_pulley`, `prop_lift_platform`).
 - **Digging right (2026-10-13, Kevin).** The cliff can be dug to the right of the elevator corner for a limited stretch (`DigSlab.MinU` = −12), under the town's own edge. Effort rises the same either way along the cliff (|u| per continuation). The surface there stays town ground: the entry is still only its four blocks (u 0..3).
+
+## Surface outcrops: mining above ground (2026-10-13, Kevin)
+
+- **Layout.** The scene builder places two outcrops of rock on open town grass, one on each side of town (18 columns now). Each is a blob of 7–10 columns, up to three blocks high, tallest in the middle. Spots are searched near preferred points; every cell needs grass on all sides and no collider within 1.1. The layout lives in the scene (`SurfaceOutcropView.columns`).
+- **Domain.** The outcrops are the Mine's first-layer rock with their own ore veins (`SiteSimulator.SurfaceOreAt`). They are broken by hand like a Mine block (`PlayerBreakSurface`), with the same effort and ore bonus, straight into the carry. Broken blocks are saved as `surfaceBroken` (x, y, −level).
+- **Play.** Within reach, the main button offers "Mine" (`OutcropSpot`), which breaks the top block first and plays the pick swing; cracks show while a block is dug. Ore blocks show their painted ore. A column with blocks left can't be walked through.

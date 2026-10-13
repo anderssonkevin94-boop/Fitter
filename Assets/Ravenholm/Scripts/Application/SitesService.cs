@@ -241,6 +241,22 @@ namespace Ravenholm.Services
         }
 
         /// <summary>The supplier chops a tree of the current clearing. Returns units carried away.</summary>
+        // ------------------------------------------------------------------ surface outcrops
+
+        /// <summary>The supplier breaks a surface outcrop block for a moment (the Mine's rock, above ground). True when it breaks.</summary>
+        public bool PlayerBreakSurface(int x, int y, int level, float seconds)
+        {
+            var sim = Get("site.mine");
+            if (sim == null || !sim.DigMode) return false;
+            _digMs += seconds * 1000.0 * SpeedMultiplier;
+            var ms = (long)Math.Floor(_digMs);
+            _digMs -= ms;
+            var broke = sim.PlayerBreakSurface(x, y, level, ms, PlayerDamagePerSecond);
+            if (broke) _scheduler.SaveNow("broke an outcrop block");
+            else _scheduler.MarkDirty();
+            return broke;
+        }
+
         // ------------------------------------------------------------------ Mine scaffolds
 
         /// <summary>The Mine's scaffold materials in the town's stock (what building one could use), and the cost of one.</summary>
@@ -602,6 +618,11 @@ namespace Ravenholm.Services
                 foreach (var kv in s.Chopped) { d.Chopped.Add(kv.Key.Area); d.Chopped.Add(kv.Key.Slot); d.Chopped.Add(kv.Value); }
             }
             if (s.LastChop.HasValue) d.LastChop = new List<int> { s.LastChop.Value.Area, s.LastChop.Value.Slot };
+            if (s.SurfaceBroken.Count > 0)
+            {
+                d.SurfaceBroken = new List<int>(s.SurfaceBroken.Count * 3);
+                foreach (var c in s.SurfaceBroken) { d.SurfaceBroken.Add(c.X); d.SurfaceBroken.Add(c.U); d.SurfaceBroken.Add(c.Row); }
+            }
             if (s.Scaffolds.Count > 0)
             {
                 d.Scaffolds = new List<int>(s.Scaffolds.Count * 3);
@@ -705,6 +726,8 @@ namespace Ravenholm.Services
             if (d.Chopped != null)
                 for (var i = 0; i + 2 < d.Chopped.Count; i += 3) s.Chopped[new GroveCell((int)d.Chopped[i], (int)d.Chopped[i + 1])] = d.Chopped[i + 2];
             if (d.LastChop != null && d.LastChop.Count == 2) s.LastChop = new GroveCell(d.LastChop[0], d.LastChop[1]);
+            if (d.SurfaceBroken != null)
+                for (var i = 0; i + 2 < d.SurfaceBroken.Count; i += 3) s.SurfaceBroken.Add(new DigCell(d.SurfaceBroken[i], d.SurfaceBroken[i + 1], d.SurfaceBroken[i + 2]));
             if (d.Scaffolds != null)
                 for (var i = 0; i + 2 < d.Scaffolds.Count; i += 3)
                     s.Scaffolds[new DigCell(d.Scaffolds[i], d.Scaffolds[i + 1], d.Scaffolds[i + 2])] =

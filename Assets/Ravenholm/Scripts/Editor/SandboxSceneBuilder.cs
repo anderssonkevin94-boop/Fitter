@@ -201,6 +201,7 @@ namespace Ravenholm.EditorTools
             var controller = new GameObject("SandboxSceneController").AddComponent<SandboxSceneController>();
             controller.EditorSetup(cam, player);
 
+            Outcrops(world);
             EditorSceneManager.SaveScene(scene, path);
         }
 
@@ -757,6 +758,82 @@ namespace Ravenholm.EditorTools
             root.AddComponent<Inspectable>().EditorSetup(title, description, phase);
             if (!isPlayer) Circle(root.transform, Vector2.zero, 0.2f);
             return root.transform;
+        }
+
+        /// <summary>
+        /// Surface outcrops (mining above ground): two blobs of 7–10 rock columns, up to three blocks high (taller in the
+        /// middle), each on open grass on its own side of town, clear of paths, buildings and props.
+        /// </summary>
+        private static void Outcrops(Transform world)
+        {
+            Physics2D.SyncTransforms();
+            var tiles = ProjectSetup.EnsureTiles();
+            var grass = new HashSet<TileBase> { tiles["grass_a"], tiles["grass_b"], tiles["grass_c"] };
+            bool Open(Vector3Int c)
+            {
+                if (!grass.Contains(_groundMap.GetTile(c))) return false;
+                for (var dx = -1; dx <= 1; dx++)
+                for (var dy = -1; dy <= 1; dy++)
+                    if (!grass.Contains(_groundMap.GetTile(c + new Vector3Int(dx, dy, 0)))) return false;   // a grass margin all round
+                return Physics2D.OverlapCircle(_grid.GetCellCenterWorld(c), 1.1f) == null;
+            }
+            var neighbours = new[] { new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0),
+                                     new Vector3Int(1, 1, 0), new Vector3Int(-1, -1, 0), new Vector3Int(1, -1, 0), new Vector3Int(-1, 1, 0),
+                                     new Vector3Int(2, 0, 0), new Vector3Int(0, 2, 0) };
+            var cols = new List<Vector3Int>();
+            // One on each side of town: the first spot (in order of preference) with open ground near it.
+            foreach (var wishes in new[]
+                     {
+                         new[] { new Vector2(-8.5f, -6.5f), new Vector2(-9f, -3f), new Vector2(-7f, 7f) },
+                         new[] { new Vector2(8.5f, -6.5f), new Vector2(12f, -3.5f), new Vector2(6.5f, -9f), new Vector2(13f, 2f), new Vector2(9f, 10f) },
+                     })
+            {
+                Vector3Int? centre = null;
+                foreach (var wish in wishes)
+                {
+                    var near = _grid.WorldToCell(wish);
+                    var bestD = float.MaxValue;
+                    for (var dx = -10; dx <= 10; dx++)
+                    for (var dy = -10; dy <= 10; dy++)
+                    {
+                        var c = near + new Vector3Int(dx, dy, 0);
+                        if (!Open(c)) continue;
+                        var n = 0;
+                        foreach (var o in neighbours) if (Open(c + o)) n++;
+                        if (n < 8) continue;
+                        if (cols.Exists(k => Mathf.Abs(k.x - c.x) + Mathf.Abs(k.y - c.y) < 8)) continue;   // apart from the other group
+                        var d = Vector2.Distance(_grid.GetCellCenterWorld(c), wish);
+                        if (d < bestD) { bestD = d; centre = c; }
+                    }
+                    if (centre.HasValue) break;
+                }
+                if (!centre.HasValue) { Debug.LogWarning("[Setup] No open ground for an outcrop."); continue; }
+                var cc = centre.Value;
+                cols.Add(new Vector3Int(cc.x, cc.y, 3));
+                var count = 1;
+                foreach (var o in neighbours)
+                {
+                    if (count >= 9) break;
+                    var c = cc + o;
+                    if (!Open(c)) continue;
+                    var h = Hash01(c.x, c.y) < 0.45f ? 2 : 1;
+                    if (o.sqrMagnitude > 2) h = 1;   // the outer cells stay low
+                    cols.Add(new Vector3Int(c.x, c.y, h));
+                    count++;
+                }
+            }
+            Debug.Log($"[Setup] Surface outcrops: {cols.Count} columns: {string.Join(" ", cols)}");
+            var go = new GameObject("SurfaceOutcrops");
+            go.transform.SetParent(world, false);
+            go.AddComponent<SurfaceOutcropView>().EditorSetup(_grid, cols,
+                new[] { ProjectSetup.LoadSprite("Painted/Blocks/block_mossy"), ProjectSetup.LoadSprite("Painted/Blocks/block_slate"), ProjectSetup.LoadSprite("Painted/Blocks/block_slate") },
+                new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") }, _unlit);
+            var spot = new GameObject("OutcropSpot");
+            spot.transform.SetParent(go.transform, false);
+            var col = spot.AddComponent<CircleCollider2D>();
+            col.isTrigger = true;
+            col.radius = 0.4f;
+            spot.AddComponent<OutcropSpot>();
         }
 
         /// <summary>The supplier's painted animations on a character's body sprite (the old overlay is retired).</summary>

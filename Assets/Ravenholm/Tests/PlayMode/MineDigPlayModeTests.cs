@@ -231,6 +231,42 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
+        public IEnumerator SurfaceOutcropsAreMinedAboveGround()
+        {
+            yield return Boot();
+            var view = SurfaceOutcropView.Current;
+            Assert.NotNull(view, "rock outcrops stand on the town's surface");
+            Assert.GreaterOrEqual(view.Columns.Count, 14, "two groups of 7–10");
+            var tall = view.Columns.First(c => c.z == 3);
+            Assert.IsTrue(view.Columns.All(c => c.z >= 1 && c.z <= 3), "up to three blocks high");
+            var cell = new Vector3Int(tall.x, tall.y, 0);
+            var ground = Map("Ground");
+            Assert.IsTrue(view.Blocked(cell));
+            Assert.IsFalse(MineSlabView.Current.SurfaceWalkable(ground.GetCellCenterWorld(cell)), "rock can't be walked through");
+
+            // Stand beside the tall column and hold the main button: the top block breaks first, its ore into the carry.
+            Motor.Teleport(ground.GetCellCenterWorld(cell) + new Vector3(0.75f, -0.3f, 0f));
+            SandboxSceneController.Current.SnapPlayerToSavedPosition();
+            yield return new WaitForSeconds(0.6f);
+            var spot = SandboxSceneController.Current.ContextTarget as OutcropSpot;
+            Assert.NotNull(spot, $"the main button offers Mine (target {SandboxSceneController.Current.ContextTarget})");
+            Assert.AreEqual("Mine", spot.ContextVerb);
+            var target = spot.Target;
+            Assert.AreEqual(view.TopLevel(target.x, target.y), target.z, "the top block first");
+            var carry = S.Logistics.System.CarryCount;
+            S.Sites.SpeedMultiplier = 20f;
+            HoldDig(true);
+            yield return Until(() => Mine.IsSurfaceBroken(target.x, target.y, target.z), 10f, "the block breaks");
+            HoldDig(false);
+            S.Sites.SpeedMultiplier = 1f;
+            Assert.Greater(S.Logistics.System.CarryCount, carry, "its ore went into the carry");
+            Assert.AreEqual(target.z - 1, view.TopLevel(target.x, target.y), "the column is a block lower");
+            yield return new WaitForSeconds(0.5f);
+            yield return Capture.Take("surface_outcrop");
+            CollectionAssert.IsEmpty(S.Logistics.System.Audit());
+        }
+
+        [UnityTest]
         public IEnumerator ARoutineCarriesOnTheLastTunnel()
         {
             yield return Boot();

@@ -139,6 +139,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("chopped")] public List<long> Chopped;
         /// <summary>Mine: scaffolds as x, u, row triples, and the material each used (optional).</summary>
         [JsonProperty("scaffolds")] public List<int> Scaffolds;
+        /// <summary>Mine: surface outcrop blocks broken, as cell x, cell y, −level triples (optional).</summary>
+        [JsonProperty("surfaceBroken")] public List<int> SurfaceBroken;
         [JsonProperty("scaffoldMaterials")] public List<string> ScaffoldMaterials;
         [JsonProperty("lastChop")] public List<int> LastChop;
     }

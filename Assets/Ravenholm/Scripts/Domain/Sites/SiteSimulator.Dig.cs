@@ -19,6 +19,62 @@ namespace Ravenholm.Domain.Sites
 
         public bool IsDug(int x, int u, int row) => _s.Dug.Contains(new DigCell(x, u, row));
 
+        // ------------------------------------------------------------------ surface outcrops
+
+        /// <summary>
+        /// Rock outcrops on the town's surface (stacks of blocks on the ground, 2026-10-13): first-layer rock with its
+        /// own ore veins, broken by hand like a Mine block (into the carry). The layout is the scene's; only what is
+        /// broken is kept here. Level 1 sits on the ground.
+        /// </summary>
+        public bool IsSurfaceBroken(int x, int y, int level) => _s.SurfaceBroken.Contains(new DigCell(x, y, -level));
+
+        public string SurfaceOreAt(int x, int y, int level)
+        {
+            var template = _c.Bands[0];
+            return MineVeins.OreAt(_worldSeed ^ 0x5EEDF00DUL, LayerMix(1, false), template.BaselineResourceId, x + 4096, y + 4096, level, out _);
+        }
+
+        public long SurfaceDurabilityMicro(int x, int y, int level)
+        {
+            var micro = Math.Max(1L, SiteMath.Durability(_c, 1, 0) * 1000 / Math.Max(1, _c.UnitsPerSection));
+            return SurfaceOreAt(x, y, level) != null ? micro * 5 / 4 : micro;
+        }
+
+        public float SurfaceProgress(int x, int y, int level)
+        {
+            if (!_s.DigTarget.HasValue || !_s.DigTarget.Value.Equals(new DigCell(x, y, -level))) return 0f;
+            return Math.Min(1f, (float)_s.DigDoneMicro / Math.Max(1, SurfaceDurabilityMicro(x, y, level)));
+        }
+
+        /// <summary>The supplier swings at an outcrop block. Its ore goes straight into the carry. True when it breaks.</summary>
+        public bool PlayerBreakSurface(int x, int y, int level, long ms, int dps)
+        {
+            if (!DigMode || level < 1 || IsSurfaceBroken(x, y, level)) return false;
+            TakeIntoCarry(_s.FacePending);
+            var cell = new DigCell(x, y, -level);
+            if (!_s.DigTarget.HasValue || !_s.DigTarget.Value.Equals(cell))
+            {
+                _s.DigTarget = cell;
+                _s.DigDoneMicro = 0;
+            }
+            _s.DigDoneMicro += Math.Max(0, dps) * Math.Max(0, ms);
+            var broke = _s.DigDoneMicro >= SurfaceDurabilityMicro(x, y, level);
+            if (broke)
+            {
+                _s.DigTarget = null;
+                _s.DigDoneMicro = 0;
+                _s.SurfaceBroken.Add(cell);
+                var mix = LayerMix(1, true);
+                var ore = SurfaceOreAt(x, y, level);
+                Release(ore ?? LayerBaseline(1), true);
+                if (ore != null && _rng.NextDouble() < MineVeins.HandBonusChance) Release(ore, true);
+                if (!string.IsNullOrEmpty(mix.RareResourceId) && _rng.NextDouble() < mix.RareChance) Release(mix.RareResourceId, true);
+            }
+            Resolve();
+            SaveRng();
+            return broke;
+        }
+
         // ------------------------------------------------------------------ the elevator and scaffolds
 
         /// <summary>

@@ -278,6 +278,8 @@ namespace Ravenholm.Domain.Sites
         public readonly HashSet<DigCell> Dug = new HashSet<DigCell>();
         /// <summary>Blocks dug straight down from on top of them (kept from the ladder days; no longer used).</summary>
         public readonly HashSet<DigCell> DugDown = new HashSet<DigCell>();
+        /// <summary>Mine: surface outcrops' blocks broken so far, as (cell x, cell y, −level) (level 1 sits on the ground).</summary>
+        public readonly HashSet<DigCell> SurfaceBroken = new HashSet<DigCell>();
         /// <summary>Mine: scaffolds the supplier built in open space, and the material each one used (refunded on removal).</summary>
         public readonly Dictionary<DigCell, string> Scaffolds = new Dictionary<DigCell, string>();
         /// <summary>Mine (dig slab): the block the supplier is breaking by hand, and how far.</summary>
