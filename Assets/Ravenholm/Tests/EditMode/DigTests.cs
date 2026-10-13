@@ -44,6 +44,7 @@ namespace Ravenholm.Tests
         public void TheElevatorShaftIsOpenFromTheStartAndDiggingItsFloorExtendsIt()
         {
             var sim = Make(new FakeLedger());
+            sim.Slab.ElevatorStartRows = 8;   // the quarry has none by default; the elevator still works where one is set up
             Assert.AreEqual(-1, sim.ElevatorBottom, "a bare slab has no shaft until it is opened");
             sim.EnsureElevatorShaft();
             var start = sim.Slab.ElevatorStartRows;
@@ -57,15 +58,16 @@ namespace Ravenholm.Tests
         }
 
         [Test]
-        public void TheCliffCanBeDugRightOfTheCornerForALimitedStretch()
+        public void TheQuarryPlotRunsBothWaysFromTheCornerForALimitedStretch()
         {
             var sim = Make(new FakeLedger());
             var limit = sim.Slab.MinU;
             Assert.Less(limit, 0, "to the right of the corner (toward the town)");
-            Assert.IsTrue(sim.CanDig(0, -1, 2) && sim.CanDig(0, limit, 2), "under the town's edge, up to the limit");
+            Assert.IsTrue(sim.CanDig(0, -1, 2) && sim.CanDig(0, limit, 2), "the plot runs to the limit");
             Assert.IsFalse(sim.CanDig(0, limit - 1, 2), "and no further");
-            Assert.IsFalse(sim.CanDig(0, -1, 0), "the town's own ground stays (only the entry breaks the surface)");
-            Assert.IsTrue(DigOut(sim, 0, -3, 2));
+            Assert.IsTrue(sim.CanDig(0, limit, 0), "its surface can be broken anywhere (a pit dug from above)");
+            Assert.IsFalse(sim.CanDig(0, limit - 1, 0), "but not past the plot");
+            Assert.IsTrue(DigOut(sim, 0, -2, 2));
             Assert.AreEqual(sim.ContinuationOf(10, 2), sim.ContinuationOf(-10, 2), "effort rises the same either way along the cliff");
         }
 

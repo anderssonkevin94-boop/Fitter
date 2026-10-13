@@ -135,18 +135,18 @@ namespace Ravenholm.Domain.Sites
     /// </summary>
     public sealed class DigSlab
     {
-        public int Thickness = 1;               // the cliff face: one slice (2026-10-12; was 8 blocks into the cliff)
-        public int Length = 120;
+        public int Thickness = 5;               // the open-pit quarry (2026-10-13): five tiles back from the cliff edge...
+        public int Length = 4;                  // ...from MinU to Length − 1 along it (six tiles)
         public int Depth = 600;
         public int TopsoilRows = 2;
         public int RowsPerLayer = 6;            // three levels, two blocks each
-        public int EntryThickness = 1;          // the Mine's corner: where the ground itself can be broken into
+        public int EntryThickness = 5;          // the whole plot's surface can be broken into (a pit dug from above)
         public int EntryLength = 4;
         public int RowsPerContinuation = 0;     // reserved
         public int BlocksPerContinuation = 8;   // staying in a layer: effort rises every this many blocks along the cliff
         public int ElevatorU = 0;               // the elevator shaft: the cliff corner by the town, open from the start
-        public int MinU = -12;                  // a limited stretch to the right of the corner, under the town's own edge
-        public int ElevatorStartRows = 8;       // ...down through the topsoil and the first layer (rows 0..7)
+        public int MinU = -2;                   // the plot's town-side end along the cliff
+        public int ElevatorStartRows = 0;       // no elevator in the quarry (climb out by steps and scaffolds); 8 opens one
 
         public bool InSlab(int x, int u, int row) => x >= 0 && x < Thickness && u >= MinU && u < Length && row >= 0 && row < Depth;
 

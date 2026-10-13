@@ -241,6 +241,7 @@ namespace Ravenholm.Presentation
             Crack(sim);
             UpdateRings();
             UpdatePlayerSorting();
+            RevealInPit();
         }
 
         // ------------------------------------------------------------------ drawing
@@ -340,7 +341,7 @@ namespace Ravenholm.Presentation
         /// The −u face of a half block (its right-hand side on screen): a white parallelogram whose pivot is the block's
         /// top centre. Tinted dark, it is the side wall seen inside a hole in the cliff face.
         /// </summary>
-        private static Sprite MakeSideFace()
+        private static Sprite MakeSideFace(bool left = false)
         {
             const int ppu = 128;
             int w = ppu / 2, h = ppu * 3 / 4;
@@ -349,26 +350,40 @@ namespace Ravenholm.Presentation
             for (var y = 0; y < h; y++)
             for (var x = 0; x < w; x++)
             {
+                // Local: the block's top centre at (0, 0); the right face spans x 0..0.5, the left face −0.5..0 (mirrored).
                 float lx = (x + 0.5f) / ppu, ly = (y + 0.5f) / ppu - 0.75f;
+                if (left) lx = 0.5f - lx;
                 var inside = ly <= -0.25f + 0.5f * lx && ly >= -0.75f + 0.5f * lx;
                 px[y * w + x] = inside ? new Color32(255, 255, 255, 255) : new Color32(0, 0, 0, 0);
             }
             tex.SetPixels32(px);
             tex.Apply();
-            return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0f, 1f), ppu);
+            return Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(left ? 1f : 0f, 1f), ppu);
         }
+
+        private Sprite _leftFace;
 
         /// <summary>Shadows the side wall of every hole: a block whose neighbour toward the town (u − 1) is dug.</summary>
         private void HoleSides(SiteSimulator sim)
         {
             if (_sideFace == null) _sideFace = MakeSideFace();
+            if (_leftFace == null) _leftFace = MakeSideFace(true);
             var keep = new HashSet<Vector3Int>();
             foreach (var d in sim.Record.Dug)
             {
-                if (!sim.Solid(d.X, d.U + 1, d.Row) || !IsDrawn(d.X, d.U + 1, d.Row)) continue;
-                var k = new Vector3Int(d.X, d.U + 1, d.Row);
-                keep.Add(k);
-                Put(_sides, k, _sideFace, Top(d.X, d.U + 1, d.Row), OrderFor(d.X, d.U + 1, d.Row) + 1, HoleSide);
+                // The pit's walls seen from inside: the side of the block further along the cliff, and of the block behind.
+                if (sim.Solid(d.X, d.U + 1, d.Row) && IsDrawn(d.X, d.U + 1, d.Row))
+                {
+                    var k = new Vector3Int(d.X, d.U + 1, d.Row);
+                    keep.Add(k);
+                    Put(_sides, k, _sideFace, Top(d.X, d.U + 1, d.Row), OrderFor(d.X, d.U + 1, d.Row) + 1, HoleSide);
+                }
+                if (d.X + 1 < sim.Slab.Thickness && sim.Solid(d.X + 1, d.U, d.Row) && IsDrawn(d.X + 1, d.U, d.Row))
+                {
+                    var k = new Vector3Int(d.X + 1, d.U, d.Row + 100000);   // a separate key for the left face
+                    keep.Add(k);
+                    Put(_sides, k, _leftFace, Top(d.X + 1, d.U, d.Row), OrderFor(d.X + 1, d.U, d.Row) + 1, HoleSide);
+                }
             }
             foreach (var k in new List<Vector3Int>(_sides.Keys))
                 if (!keep.Contains(k)) Remove(_sides, k);
@@ -545,7 +560,7 @@ namespace Ravenholm.Presentation
             var u = Mathf.RoundToInt(s.y);
             if (!InSlabColumn(x, u) || sim.Solid(x, u, 0)) return false;
             _inside = true;
-            _x = 0f;   // the slice
+            _x = s.x;
             _u = s.y;
             _feet = 0;
             _drawFeet = 0;
@@ -573,7 +588,8 @@ namespace Ravenholm.Presentation
             }
         }
 
-        private bool Blocks(SiteSimulator sim, int x, int u, int row) => x < 0 ? row >= 0 : sim.Standable(x, u, row);
+        /// <summary>In the way: rock, scaffolds, and the drop in front of the cliff (never walked off).</summary>
+        private bool Blocks(SiteSimulator sim, int x, int u, int row) => x < 0 || sim.Standable(x, u, row);
 
         /// <summary>The stick's up and down (climbing a ladder, or aiming up and down) rather than walking along the cliff.</summary>
         public static bool Vertical(Vector2 m) => Mathf.Abs(m.y) > 0.3f && Mathf.Abs(m.y) > Mathf.Abs(m.x);
@@ -597,11 +613,9 @@ namespace Ravenholm.Presentation
         private void Walk(SiteSimulator sim, Vector2 move)
         {
             if (move.sqrMagnitude < 0.04f) { _climb = 0f; return; }
-            if (Vertical(move))
+            if (InElevator && Vertical(move))
             {
-                if (move.y > 0f && ClimbOut(sim)) return;
-                if (!InElevator) return;   // up and down only aim, unless riding the elevator
-                _u = Mathf.MoveTowards(_u, Column, Time.deltaTime * 4f);
+                // An elevator (where one exists) rides with up and down on the stick.
                 _climb += RideSpeed * Mathf.Min(1f, Mathf.Abs(move.y)) * Time.deltaTime;
                 if (_climb < 1f) return;
                 _climb = 0f;
@@ -610,9 +624,18 @@ namespace Ravenholm.Presentation
                 return;
             }
             _climb = 0f;
-            var du = -Mathf.Sign(move.x) * WalkSpeed * Mathf.Min(1f, Mathf.Abs(move.x) * 1.4f) * Time.deltaTime;
-            _facing = new Vector2Int(0, du > 0f ? 1 : -1);
-            TryStep(sim, _u + du);
+            // The open pit: the stick walks on the grid like in town. Screen = du·(−0.5, 0.25) + dx·(0.5, 0.25).
+            var du = -move.x + 2f * move.y;
+            var dx = move.x + 2f * move.y;
+            var len = Mathf.Sqrt(du * du + dx * dx);
+            if (len < 0.01f) return;
+            var speed = WalkSpeed * Mathf.Min(1f, move.magnitude) * Time.deltaTime / len;
+            du *= speed;
+            dx *= speed;
+            _facing = Mathf.Abs(du) >= Mathf.Abs(dx) ? new Vector2Int(0, du > 0f ? 1 : -1) : new Vector2Int(dx > 0f ? 1 : -1, 0);
+            TryStep(sim, _u + du, _x);
+            if (!_inside) return;
+            TryStep(sim, _u, _x + dx);
         }
 
         /// <summary>
@@ -643,20 +666,33 @@ namespace Ravenholm.Presentation
         /// <summary>Blocks per second along the cliff (as in the cliff-face prototype).</summary>
         public const float WalkSpeed = 3.2f;
 
-        private void TryStep(SiteSimulator sim, float u)
+        private void TryStep(SiteSimulator sim, float u, float x)
         {
-            u = Mathf.Clamp(u, sim.Slab.MinU, sim.Slab.Length - 1);
-            var cu = Mathf.RoundToInt(u + Mathf.Sign(u - _u) * 0.3f);
-            if (cu == Column) { _u = u; return; }
-            if (!Blocks(sim, Lane, cu, _feet - 1) && !Blocks(sim, Lane, cu, _feet - 2)) { _u = u; return; }
+            var cu = Mathf.RoundToInt(u + Mathf.Sign(u - _u) * (Mathf.Abs(u - _u) > 1e-5f ? 0.3f : 0f));
+            var cx = Mathf.RoundToInt(x + Mathf.Sign(x - _x) * (Mathf.Abs(x - _x) > 1e-5f ? 0.3f : 0f));
+            if (cu == Column && cx == Lane) { _u = u; _x = x; return; }
+            if (!Blocks(sim, cx, cu, _feet - 1) && !Blocks(sim, cx, cu, _feet - 2)) { _u = u; _x = x; return; }
             // A single block in the way, with headroom above it and above the supplier: step up onto it.
-            if (Blocks(sim, Lane, cu, _feet - 1) && !Blocks(sim, Lane, cu, _feet - 2) && !Blocks(sim, Lane, cu, _feet - 3) && !Blocks(sim, Lane, Column, _feet - 3))
+            if (Blocks(sim, cx, cu, _feet - 1) && !Blocks(sim, cx, cu, _feet - 2) && !Blocks(sim, cx, cu, _feet - 3) && !Blocks(sim, Lane, Column, _feet - 3))
             {
                 _feet -= 1;
                 _u = u;
+                _x = x;
+                if (_feet <= 0) ClimbOnto(sim, cx, cu);   // stepped up out of the pit onto the ground
                 return;
             }
             _u = Mathf.Clamp(_u, Column - 0.3f, Column + 0.3f);
+            _x = Mathf.Clamp(_x, Lane - 0.3f, Lane + 0.3f);
+        }
+
+        /// <summary>Out of the pit onto the ground at a cell: the town's motor takes over there.</summary>
+        private void ClimbOnto(SiteSimulator sim, int x, int u)
+        {
+            var to = (Vector2)Top(x, u, 0);
+            if (!SurfaceWalkable(to)) return;   // stays on the rim inside the Mine until there is ground to stand on
+            _inside = false;
+            _descending = false;
+            _motor.Teleport(to);
         }
 
         private void Fall(SiteSimulator sim)
@@ -668,6 +704,37 @@ namespace Ravenholm.Presentation
             if (_fallTimer < 0.07f) return;
             _fallTimer = 0f;
             _feet += 1;
+        }
+
+        // ------------------------------------------------------------------ seeing into the pit
+
+        private string _revealKey = "";
+        private readonly List<SpriteRenderer> _faded = new List<SpriteRenderer>();
+        public int FadedBlocks => _faded.Count;
+
+        /// <summary>
+        /// Down in the pit, rock between the camera and the supplier (drawn in front of them, overlapping them on screen)
+        /// turns see-through; nothing is hidden.
+        /// </summary>
+        private void RevealInPit()
+        {
+            var key = $"{Lane}|{Column}|{_feet}|{_inside}|{_drawKey}";
+            if (key == _revealKey) return;
+            _revealKey = key;
+            foreach (var sr in _faded) if (sr != null) { var c = sr.color; c.a = 1f; sr.color = c; }
+            _faded.Clear();
+            if (!_inside || _feet < 2) return;
+            var me = (Vector2)Top(_x, _u, _feet - 1);
+            var mine = OrderFor(Lane, Column, _feet - 1) + 2;
+            foreach (var sr in _blocks.Values)
+            {
+                if (sr.sortingOrder <= mine) continue;
+                if (Vector2.Distance((Vector2)sr.transform.position + new Vector2(0f, -0.3f), me) > 1.05f) continue;
+                var c = sr.color;
+                c.a = 0.35f;
+                sr.color = c;
+                _faded.Add(sr);
+            }
         }
 
         /// <summary>Underground the supplier is sorted among the blocks (as the cube of their lower body); in town, normally.</summary>
@@ -702,7 +769,12 @@ namespace Ravenholm.Presentation
             x = Mathf.RoundToInt(s.x);
             u = Mathf.RoundToInt(s.y);
             var move = _root.InputRouter.MoveVector;
-            if (move.sqrMagnitude > 0.04f && Mathf.Abs(move.x) > 0.1f) _facing = new Vector2Int(0, move.x < 0f ? 1 : -1);
+            if (move.sqrMagnitude > 0.04f)
+            {
+                var du = -move.x + 2f * move.y;
+                var dx = move.x + 2f * move.y;
+                _facing = Mathf.Abs(du) >= Mathf.Abs(dx) ? new Vector2Int(0, du > 0 ? 1 : -1) : new Vector2Int(dx > 0 ? 1 : -1, 0);
+            }
             return x >= -1 && x <= Slab.Thickness && u >= Slab.MinU - 1 && u <= Slab.Length;
         }
 
@@ -756,7 +828,7 @@ namespace Ravenholm.Presentation
 
         /// <summary>Within reach: up to two blocks around, from one under the feet to one above the head.</summary>
         public bool InReach(DigCell b) =>
-            Standing(out var x, out var u, out var feet) && b.X == x && Mathf.Abs(b.U - u) <= 2 && b.Row >= feet - 3 && b.Row <= feet + 1 &&
+            Standing(out var x, out var u, out var feet) && Mathf.Abs(b.X - x) <= 2 && Mathf.Abs(b.U - u) <= 2 && b.Row >= feet - 3 && b.Row <= feet + 1 &&
             (_inside || b.Row == 0);   // from the ground only the ground itself (the Mine's entry) can be broken into
 
         /// <summary>The blocks the supplier can dig now: in reach, diggable and drawn.</summary>
@@ -767,10 +839,11 @@ namespace Ravenholm.Presentation
             if (sim == null || !Standing(out var x, out var u, out var feet)) return list;
             for (var row = feet - 3; row <= feet + 1; row++)
             for (var du = -2; du <= 2; du++)
+            for (var dx = -2; dx <= 2; dx++)
             {
                 if (!_inside && row != 0) continue;   // from the ground only the ground itself
-                if (!sim.CanDig(x, u + du, row) || !Shown(x, u + du, row)) continue;
-                list.Add(new DigCell(x, u + du, row));
+                if (!sim.CanDig(x + dx, u + du, row) || !Shown(x + dx, u + du, row)) continue;
+                list.Add(new DigCell(x + dx, u + du, row));
             }
             return list;
         }
@@ -881,9 +954,10 @@ namespace Ravenholm.Presentation
             if (sim == null || !_inside || !Standing(out var x, out var u, out var feet)) return list;
             for (var row = Mathf.Max(0, feet - 3); row <= feet + 1; row++)
             for (var du = -2; du <= 2; du++)
+            for (var dx = -2; dx <= 2; dx++)
             {
-                var c = new DigCell(x, u + du, row);
-                if (du == 0 && (row == feet - 1 || row == feet - 2)) continue;   // the supplier's own body
+                var c = new DigCell(x + dx, u + du, row);
+                if (du == 0 && dx == 0 && (row == feet - 1 || row == feet - 2)) continue;   // the supplier's own body
                 if (sim.IsScaffold(c.X, c.U, c.Row) || sim.CanPlaceScaffold(c.X, c.U, c.Row)) list.Add(c);
             }
             return list;
@@ -897,7 +971,9 @@ namespace Ravenholm.Presentation
             foreach (var c in Buildable())
             {
                 var d = Vector2.Distance(world, (Vector2)Top(c.X, c.U, c.Row) + new Vector2(0f, -0.25f));
-                if (d < bestD) { bestD = d; best = c; }
+                // Spaces that line up exactly on screen: the deeper one (a hole to bridge) wins.
+                var tie = best.HasValue && Mathf.Abs(d - bestD) < 0.05f;
+                if (tie ? c.Row > best.Value.Row : d < bestD) { bestD = Mathf.Min(d, bestD); best = c; }
             }
             if (!best.HasValue) return;
             var b = best.Value;

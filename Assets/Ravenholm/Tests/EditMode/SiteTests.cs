@@ -365,7 +365,7 @@ namespace Ravenholm.Tests
             var a = Boot();
             // The dig slab: digging down into the second layer reveals it.
             var row = a.Sites.Get("site.mine").Slab.FirstRowOf(2);
-            Assert.IsTrue(DigTestKit.Dig(a, 0, 5, row));
+            Assert.IsTrue(DigTestKit.Dig(a, 1, 1, row));
             var comp = a.Sites.Get("site.mine").Record.Composition.Weights.ToList();
 
             var b = Boot();

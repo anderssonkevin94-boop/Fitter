@@ -563,8 +563,8 @@ namespace Ravenholm.Presentation
                 // Digging is the choice: down reaches the next layer, along the cliff stays in this one.
                 _continue.gameObject.SetActive(false);
                 _deeper.gameObject.SetActive(false);
-                _decisionText.text = "<size=85%>Dig down to reach the next layer (new ores, harder rock). Dig along the cliff to stay in a layer; " +
-                                     "it gets a little harder the further you go. Tap shows nearby ore. The elevator at the corner rides up and down to any floor; build scaffolds (Build button, 1 lumber each) to climb or bridge anywhere else.</size>";
+                _decisionText.text = "<size=85%>An open-pit quarry: dig down to reach the next layer (new ores, harder rock). You step up one block at a time, " +
+                                     "so leave steps as you go, or build scaffolds (Build button, 1 lumber each). Tap shows nearby ore.</size>";
                 return;
             }
             var face = sim.WaitingFace();

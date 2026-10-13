@@ -771,3 +771,14 @@ The forest-mountains prototype is now the real Forest; the prototype scene, its 
   - Saves keep `stumps` (felled-at times) and `cleared`.
   - A routine cuts only standing trees; regrown ones count again.
 - **A sparser forest (2026-10-13, Kevin).** About a third of the Forest's spots (`ForestGrove.OpenShare` 0.33, scattered from the world seed) are open ground with no tree, so there is room to move. The cliff edge's row stays wooded. Open ground counts like bare rock (`IsRock`): no tree, no stump, nothing for a routine to cut.
+
+## The Mine is an open-pit quarry (2026-10-13, Kevin)
+
+The underground cliff-face tunnel and the elevator are gone. The Mine is now a plot of ground at the cliff corner, dug down from above.
+
+- **The plot.** `DigSlab` is 5 tiles back from the cliff edge (`Thickness`) by 6 tiles along it (`MinU` −2 to `Length` − 1 = 3), as deep as the layers go. Its whole surface can be broken into (dirt tiles mark it), and the Mine's sign stands beside it. Layer progression (new ores, harder rock) still comes with depth. Mine layout 5: older Mines reset to untouched ground, keeping revealed layers.
+- **Moving.** In the pit the stick walks on the grid as in town, in all four directions. The supplier steps up one block, drops any height, and climbs out by stepping up onto the ground (steps they leave, or scaffolds). Walking off the cliff's face is never possible.
+- **Seeing in.** Down in the pit (two or more blocks), rock drawn in front of the supplier that overlaps them turns see-through. The pit's far walls get a shadowed face, as its side walls do.
+- **Scaffolds** work as before. A tap where two open spaces line up on screen picks the deeper one.
+- **Kept but off.** The elevator code stays (`ElevatorStartRows` 0 opens none), and so does routine digging, which carries on the last cut, two high, straight ahead.
+- **Known.** Cuts dug under the surface (with ground left overhead) are seen only through the see-through rock.

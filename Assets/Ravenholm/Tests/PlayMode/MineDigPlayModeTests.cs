@@ -68,6 +68,7 @@ namespace Ravenholm.Tests
 
         /// <summary>Screen direction of walking along the cliff (+u).</summary>
         private static readonly Vector2 Along = new Vector2(-2f, 1f).normalized;
+        private static readonly Vector2 Into = new Vector2(2f, 1f).normalized;
 
         private static IEnumerator Until(Func<bool> done, float seconds, string what) => Until(done, seconds, () => what);
 
@@ -113,7 +114,7 @@ namespace Ravenholm.Tests
         // ------------------------------------------------------------------ the dig slab
 
         [UnityTest]
-        public IEnumerator DigDownTunnelAlongTheCliffAndClimbOutOnTheLadder()
+        public IEnumerator DigAQuarryIntoTheGroundAndClimbOutOnSteps()
         {
             yield return Boot();
             var slab = MineSlabView.Current;
@@ -122,30 +123,26 @@ namespace Ravenholm.Tests
             Assert.Greater(slab.DrawnBlocks, 0, "the town's cliff edges are drawn as blocks");
             S.Sites.SpeedMultiplier = 20f;
 
-            // The topsoil outside the entry cannot be dug; the entry can.
-            Assert.IsFalse(Mine.CanDig(6, 10, 0));
-            Assert.IsTrue(Mine.CanDig(0, 1, 0));
-            Assert.IsFalse(Mine.CanDig(1, 1, 1), "the Mine is one slice of the cliff face");
-            Assert.IsTrue(Mine.Elevator(0, 0, 0) && Mine.ElevatorBottom >= 7, "the elevator shaft is there from the start");
+            // The quarry's plot: its whole surface can be broken into; the ground around it can't.
+            var q = Mine.Slab;
+            Assert.IsTrue(Mine.CanDig(0, 1, 0) && Mine.CanDig(q.Thickness - 1, q.MinU, 0), "anywhere on the plot");
+            Assert.IsFalse(Mine.CanDig(q.Thickness, 1, 0) || Mine.CanDig(0, q.Length, 0), "not past it");
             yield return DigDown(slab, 3);
             Assert.AreEqual(3, slab.Feet, "three blocks down: room to stand, two blocks tall");
             Assert.Greater(S.Logistics.System.CarryCount, 0, "dug ore goes straight into the carry");
             Assert.IsTrue(Mine.Record.Revealed.ContainsKey(1), "the first layer is revealed by digging into it");
 
-            // Tunnel along the cliff: walking into the wall with Dig held digs head height, then legs, then steps in.
-            var startU = slab.U;
-            Stick(Along);
+            // Into the plot (back from the cliff): walking into the wall with Dig held digs head height, then legs, then steps in.
+            Stick(Into);
             HoldDig(true);
-            yield return Until(() => slab.U > startU + 3.5f, 40f, "tunnels along the cliff and walks into it");
+            yield return Until(() => slab.X > 2.5f, 40f, () => $"digs back into the plot and walks in (x {slab.X}, feet {slab.Feet}, target {slab.Target})");
             HoldDig(false);
             Stick(null);
-            Assert.AreEqual(3, slab.Feet, "a level tunnel: no falling, no climbing");
+            Assert.AreEqual(3, slab.Feet, "level: no falling, no climbing");
             var lane = Mathf.RoundToInt(slab.X);
             var col = Mathf.RoundToInt(slab.U);
-            Assert.IsTrue(Mine.IsDug(lane, col, 2) && Mine.IsDug(lane, col, 1), "the supplier stands in a two-high tunnel");
-            Assert.IsNotNull(Mine.Record.LastDig, "the tunnel is remembered for routines");
-
-            // Auto-target: the wall walked into (head height first, then legs), else the block underfoot.
+            Assert.IsTrue(Mine.IsDug(lane, col, 2) && Mine.IsDug(lane, col, 1), "standing in a two-high cut");
+            Assert.IsNotNull(Mine.Record.LastDig, "remembered for routines");
             yield return null;
             {
                 var f = slab.Facing;
@@ -156,77 +153,66 @@ namespace Ravenholm.Tests
                 Assert.IsNull(slab.Selected);
                 Assert.AreEqual(expected, slab.Target, "head height first, then legs, else the block underfoot");
             }
-
-            // Depth: nothing is in front of the supplier; the floor and the wall ahead are drawn behind them.
             yield return null;
-            Assert.AreEqual(0, lane, "the tunnel is in the cliff face itself");
             Assert.Less(slab.DrawnOrder(lane, col, slab.Feet), slab.PlayerOrder, "the floor block is behind the supplier");
+            Assert.Greater(slab.FadedBlocks, 0, "down in the pit, the rock in front turns see-through");
 
-            // What can be dug wears a faint outline; pressing and holding on one digs it without the button.
-            Assert.Greater(slab.OutlinedBlocks, 0, "reachable blocks are outlined");
-            var inward = new DigCell(0, col + 1, slab.Feet);   // the floor one ahead
-            Assert.IsTrue(Mine.CanDig(inward.X, inward.U, inward.Row) && slab.Reachable().Contains(inward), "the floor ahead is reachable");
-            GameRoot.Instance.InputRouter.ScriptedPress = Camera.main.WorldToScreenPoint(slab.Top(inward.X, inward.U, inward.Row) + new Vector3(-0.15f, -0.35f, 0f));
-            yield return Until(() => Mine.IsDug(inward.X, inward.U, inward.Row), 10f, "press and hold digs the block under the finger");
+            // Reachable blocks wear a faint outline; pressing and holding on one digs it without the button.
+            Assert.Greater(slab.OutlinedBlocks, 0);
+            var floorAhead = new DigCell(lane, col + 1, slab.Feet);
+            var wallBeside = new DigCell(lane, col + 1, slab.Feet - 1);   // the wall beside, at leg height (in view)
+            Assert.IsTrue(slab.Reachable().Contains(wallBeside), "the wall beside is reachable");
+            GameRoot.Instance.InputRouter.ScriptedPress = Camera.main.WorldToScreenPoint(slab.Top(wallBeside.X, wallBeside.U, wallBeside.Row) + new Vector3(0.15f, -0.35f, 0f));
+            yield return Until(() => Mine.IsDug(wallBeside.X, wallBeside.U, wallBeside.Row), 10f, "press and hold digs the block under the finger");
             GameRoot.Instance.InputRouter.ScriptedPress = null;
-            Assert.IsFalse(slab.InReach(new DigCell(lane, col + 6, 2)), "blocks far away are out of reach");
 
-            // Reading the rock: the Tap button rings for ore nearby; cracks show while a block is being dug.
+            // The Tap button rings for ore nearby; cracks show while a block is dug.
             var rings = slab.Tap();
-            Assert.Greater(slab.TapCooldownLeft, 0f, "the tap has a cooldown");
+            Assert.Greater(slab.TapCooldownLeft, 0f);
             Assert.AreEqual(rings, slab.LastTapRings);
-            StringAssert.StartsWith("Tap…", slab.LastTapNote);
-            var wall = Mine.CanDig(0, col + 2, slab.Feet - 1) ? new DigCell(0, col + 2, slab.Feet - 1) : new DigCell(0, col + 2, slab.Feet - 2);
-            TapUntilSelected(slab, wall, new Vector3(-0.15f, -0.35f, 0f));
-            yield return null;
-            Assert.AreEqual(wall, slab.Target, "a tapped block becomes the block to dig");
             S.Sites.SpeedMultiplier = 1f;
             HoldDig(true);
             yield return Until(() => slab.CrackShowing, 5f, "the block cracks as it is dug");
             HoldDig(false);
             S.Sites.SpeedMultiplier = 20f;
 
-            yield return new WaitForSeconds(0.6f);
-            yield return Capture.Take("mine_dig_slab");
-
-            // Build: a scaffold over the hole dug ahead (one lumber), stood on like rock. First open the way to it.
-            foreach (var row in new[] { inward.Row - 1, inward.Row - 2 })
-                for (var i = 0; i < 4000 && !Mine.IsDug(0, inward.U, row); i++) S.Sites.PlayerDig(0, inward.U, row, 1f, null);
-            Assert.IsTrue(Mine.IsDug(0, inward.U, inward.Row - 1) && Mine.IsDug(0, inward.U, inward.Row - 2));
+            // Build: a scaffold over a hole beside (one lumber), stood on like rock. First open the way to it and the hole.
+            foreach (var row in new[] { floorAhead.Row - 1, floorAhead.Row - 2, floorAhead.Row })
+                for (var i = 0; i < 4000 && !Mine.IsDug(lane, floorAhead.U, row); i++) S.Sites.PlayerDig(lane, floorAhead.U, row, 1f, null);
             S.Logistics.System.ProduceShared("resource.cedar_lumber", 3, "test");
             slab.BuildMode = true;
             yield return null;
-            Assert.IsTrue(slab.Buildable().Contains(inward), "the hole ahead can take a scaffold");
+            Assert.IsTrue(slab.Buildable().Contains(floorAhead), "the hole beside can take a scaffold");
             var lumber = S.Sites.ScaffoldMaterialInStock("site.mine");
-            slab.BuildAt(slab.Top(inward.X, inward.U, inward.Row) + new Vector3(0f, -0.25f, 0f));
-            Assert.IsTrue(Mine.IsScaffold(inward.X, inward.U, inward.Row), "a scaffold is built there");
+            slab.BuildAt(slab.Top(floorAhead.X, floorAhead.U, floorAhead.Row) + new Vector3(0f, -0.25f, 0f));
+            Assert.IsTrue(Mine.IsScaffold(floorAhead.X, floorAhead.U, floorAhead.Row), "a scaffold is built there");
             Assert.AreEqual(lumber - 1, S.Sites.ScaffoldMaterialInStock("site.mine"), "for one lumber");
+            slab.BuildMode = false;
             yield return null;
             Assert.AreEqual(1, slab.ScaffoldsDrawn);
-            slab.BuildMode = false;
             var feetBefore = slab.Feet;
             Stick(Along);
-            yield return Until(() => Mathf.RoundToInt(slab.U) == inward.U, 5f, "walks onto the scaffold");
+            yield return Until(() => Mathf.RoundToInt(slab.U) == floorAhead.U, 5f, "walks onto the scaffold");
             Stick(null);
             yield return new WaitForSeconds(0.3f);
             Assert.AreEqual(feetBefore, slab.Feet, "standing on the scaffold, not fallen into the hole");
             yield return new WaitForSeconds(0.3f);
-            yield return Capture.Take("mine_scaffold");
+            yield return Capture.Take("mine_dig_slab");
 
-            // Back to the elevator at the corner, up it, and out onto the ground.
+            // Out of the pit on steps: back to the first hole (open to the sky), then up steps cut toward the town.
             Stick(-Along);
-            yield return Until(() => Mathf.RoundToInt(slab.U) == 0, 10f, "walks back to the elevator");
+            yield return Until(() => Mathf.RoundToInt(slab.U) == 1, 10f, "steps back off the scaffold into the cut");
+            Stick(-Into);
+            yield return Until(() => Mathf.RoundToInt(slab.X) == 0, 10f, () => $"walks back to the first hole (x {slab.X}, u {slab.U}, feet {slab.Feet})");
             Stick(null);
-            yield return new WaitForSeconds(0.3f);
-            Assert.AreEqual(3, slab.Feet, "the platform is waiting at this floor");
-            Assert.IsTrue(slab.InElevator);
-            Assert.AreEqual(3f, slab.PlatformRow, 0.05f);
-            Stick(Vector2.up);
-            yield return Until(() => slab.Riding, 3f, () => "rides up");
-            yield return Until(() => !slab.PlayerInside, 10f, () => $"rides to the top and steps out onto the ground (feet {slab.Feet})");
+            void Carve(int x, int u, int row) { for (var i = 0; i < 4000 && !Mine.IsDug(x, u, row); i++) S.Sites.PlayerDig(x, u, row, 1f, null); }
+            Carve(0, 0, 0); Carve(0, 0, 1);   // a step to feet 2
+            Carve(0, -1, 0);                  // a step to feet 1
+            Stick(-Along);
+            yield return Until(() => !slab.PlayerInside, 10f, () => $"climbs the steps out of the pit (u {slab.U}, feet {slab.Feet})");
             Stick(null);
             var at = (Vector2)SandboxSceneController.Current.Player.position;
-            Assert.IsTrue(slab.SurfaceWalkable(at), $"back on the town's ground (at {at}, slab {slab.SlabCoords(at)}, ground {slab.OnGround(at)})");
+            Assert.IsTrue(slab.SurfaceWalkable(at), $"back on the ground (at {at})");
             S.Sites.SpeedMultiplier = 1f;
         }
 
@@ -352,13 +338,13 @@ namespace Ravenholm.Tests
             Assert.IsFalse(S.Sites.StartRoutine("site.mine"), "nothing dug yet: no tunnel to carry on");
             S.Sites.SpeedMultiplier = 20f;
             yield return DigDown(slab, 3);
-            Stick(Along);
+            Stick(Into);
             HoldDig(true);
-            var startU = slab.U;
-            yield return Until(() => slab.U > startU + 1.5f, 30f, "starts a tunnel along the cliff");
+            yield return Until(() => slab.X > 1.5f, 30f, "starts a cut back into the plot");
             HoldDig(false);
             Stick(null);
             S.Sites.SpeedMultiplier = 1f;
+            var startX = Mathf.RoundToInt(slab.X);
 
             Assert.IsTrue(S.Sites.StartRoutine("site.mine"));
             yield return null;
@@ -370,7 +356,7 @@ namespace Ravenholm.Tests
             Assert.Greater(Mine.Record.Dug.Count, dug, "the routine digs on along the tunnel");
             var f = Mine.Record.RoutineFace;
             Assert.AreEqual(3, f.Feet, "on the same level");
-            Assert.Greater(f.U, Mathf.RoundToInt(startU) + 1, "further along the cliff");
+            Assert.Greater(f.X, startX, "further in");
 
             // Moving takes over: the routine ends and the supplier is back beside the Mine's entry.
             Stick(Vector2.right);

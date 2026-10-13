@@ -240,8 +240,8 @@ namespace Ravenholm.EditorTools
             _mineCell = new Vector3Int(settings.mineCell.x, settings.mineCell.y, 0);
             _mineCorner = (Vector2)grid.GetCellCenterWorld(_mineCell) - new Vector2(0f, 0.25f);
             bool InMine(Vector3Int cell) =>
-                cell.x >= _mineCell.x && cell.x < _mineCell.x + MineEntryThickness &&
-                cell.y >= _mineCell.y && cell.y < _mineCell.y + MineEntry;
+                cell.x >= _mineCell.x && cell.x < _mineCell.x + QuarryDepth &&
+                cell.y >= _mineCell.y + QuarryFrom && cell.y < _mineCell.y + MineEntry;
             var frontierY = town.yMax;   // first frontier row
             var paths = new[]
             {
@@ -445,17 +445,16 @@ namespace Ravenholm.EditorTools
             // The Mine's signpost (its panel and marker), beside the entry on town ground.
             var go = new GameObject("Mine");
             go.transform.SetParent(parent, false);
-            go.transform.position = _grid.GetCellCenterWorld(_mineCell + new Vector3Int(2, 1, 0));
+            go.transform.position = _grid.GetCellCenterWorld(_mineCell + new Vector3Int(QuarryDepth + 1, 1, 0));   // beside the quarry
             Sprite(go.transform, "Sign", "Props/trail_marker", Vector2.zero, 0);
             var tap = go.AddComponent<CircleCollider2D>();
             tap.isTrigger = true;
             tap.radius = 0.5f;
             tap.offset = new Vector2(0f, 0.4f);
             var site = go.AddComponent<SiteInspectable>();
-            site.EditorSetup("Mine", "Dig your own Mine into the cliff face: stand on the dirt at the cliff's edge and hold Dig. Blocks are half a level " +
-                                     "tall, so you are two blocks tall. Left and right walk along the cliff; down on the stick digs underfoot and up " +
-                                     "overhead. Down reaches the next layer (new ores, harder rock); along the cliff stays in a layer. The elevator at the " +
-                                     "corner rides up and down to any floor (up and down on the stick); build scaffolds with lumber to climb anywhere else.", "");
+            site.EditorSetup("Mine", "Your quarry: the dirt plot at the cliff's edge. Stand on it and hold Dig to dig down; dig into the walls you walk " +
+                                     "into. Blocks are half a level tall, so you are two blocks tall: step up one block at a time, so leave steps (or build " +
+                                     "scaffolds with lumber) to climb back out. Deeper reaches the next layers (new ores, harder rock).", "");
             site.EditorSetupSite("site.mine");
             AddLabel(go.transform, "Mine", 1.6f);
             return go;
@@ -464,8 +463,11 @@ namespace Ravenholm.EditorTools
         /// <summary>Size of the Mine's entry (the ground that can be broken into), matching the dig slab's default.</summary>
         private const int MineEntry = 4;
 
-        /// <summary>The Mine is one slice of the cliff face: its entry is the one row of ground along the cliff edge.</summary>
-        private const int MineEntryThickness = 1;
+        /// <summary>The Mine is an open-pit quarry: its plot (dug from above) runs this far back from the cliff edge...</summary>
+        private const int QuarryDepth = 5;
+
+        /// <summary>...and from this far along the cliff (toward the town) to <see cref="MineEntry"/>.</summary>
+        private const int QuarryFrom = -2;
 
         private static GameObject Blocker(Transform parent, string name)
         {

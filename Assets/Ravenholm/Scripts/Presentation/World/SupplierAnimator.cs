@@ -90,11 +90,12 @@ namespace Ravenholm.Presentation
 
         private string View(string baseName) => baseName + (Back ? "_back" : "_front");
 
-        /// <summary>Faces along the cliff in the Mine: +u is up-left (back), −u down-right (front, mirrored).</summary>
-        private void FaceAlongCliff(int du)
+        /// <summary>Faces a direction on the Mine's grid (x into the cliff, u along it): up the screen is the back view.</summary>
+        private void FaceAlongCliff(Vector2Int f)
         {
-            Back = du > 0;
-            Mirrored = du < 0;
+            var screen = f.x * new Vector2(0.5f, 0.25f) + f.y * new Vector2(-0.5f, 0.25f);
+            Back = screen.y > 0f;
+            Mirrored = screen.x > 0f;
         }
 
         private string PlayerClip(bool moving, out bool advance)
@@ -103,13 +104,13 @@ namespace Ravenholm.Presentation
             var slab = MineSlabView.Current;
             var inside = slab != null && slab.PlayerInside;
             var carrying = _root != null && _root.Services.Logistics.System.CarryCount > 0;
-            if (inside && !moving) FaceAlongCliff(slab.Facing.y);
+            if (inside && !moving) FaceAlongCliff(slab.Facing);
             _pickup = Mathf.Max(0f, _pickup - Time.deltaTime);
 
             if (inside && slab.Riding)
             {
                 // On the elevator's platform: standing, facing along the cliff, carried up or down.
-                FaceAlongCliff(slab.Facing.y);
+                FaceAlongCliff(slab.Facing);
                 return View(carrying ? "carry_idle" : "idle");
             }
             if (inside && slab.Falling) { Mirrored = false; return "fall_front"; }
@@ -119,7 +120,7 @@ namespace Ravenholm.Presentation
                 {
                     var t = slab.Target.Value;
                     var feet = inside ? slab.Feet : 0;
-                    if (inside) FaceAlongCliff(slab.Facing.y);
+                    if (inside) FaceAlongCliff(slab.Facing);
                     if (t.Row >= feet) { Back = false; return "mine_down_front"; }
                     if (t.Row <= feet - 3) { Back = true; return "mine_up_back"; }
                     return View("mine");

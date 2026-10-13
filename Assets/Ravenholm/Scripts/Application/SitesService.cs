@@ -518,7 +518,7 @@ namespace Ravenholm.Services
                 {
                     var record = FromSave(saved);
                     if (def.SiteType == SiteType.Mine && saved.Layout < 2) ConvertOldMine(record);
-                    if (def.SiteType == SiteType.Mine && saved.Layout < 4) ConvertToDigSlab(record);
+                    if (def.SiteType == SiteType.Mine && saved.Layout < 5) ConvertToDigSlab(record);
                     if (def.SiteType == SiteType.Forest && saved.Layout < ForestLayout) SiteSimulator.ConvertToGrove(record, def.TreesPerClearing);
                     var loaded = Create(def, record);
                     loaded.EnsureElevatorShaft();   // older saves get the elevator shaft too
@@ -552,7 +552,7 @@ namespace Ravenholm.Services
             }
         }
 
-        public const int MineLayout = 4;
+        public const int MineLayout = 5;
 
         /// <summary>Forest layout: 2 = the grid of trees (absent = clearings).</summary>
         public const int ForestLayout = 2;
