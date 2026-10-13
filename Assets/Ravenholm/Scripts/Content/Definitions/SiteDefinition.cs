@@ -57,6 +57,8 @@ namespace Ravenholm.Content
         [Tooltip("Mine: what a scaffold is built from (any one of these, from the town's stock), and how many each.")]
         [SerializeField] private List<ResourceDefinition> scaffoldMaterials = new List<ResourceDefinition>();
         [Min(0)] [SerializeField] private int scaffoldCost = 1;
+        [Tooltip("Forest: seconds before a stump left standing grows back into its tree (0 = never). Cleared stumps never do.")]
+        [Min(0)] [SerializeField] private float treeRegrowSeconds = 300f;
 
         public override string IdKind => "site";
         public SiteType SiteType => siteType;
@@ -78,6 +80,7 @@ namespace Ravenholm.Content
         public float DepositSeconds => depositSeconds;
         public IReadOnlyList<ResourceDefinition> ScaffoldMaterials => scaffoldMaterials;
         public int ScaffoldCost => scaffoldCost;
+        public float TreeRegrowSeconds => treeRegrowSeconds;
 
         public override void Validate(List<string> errors)
         {

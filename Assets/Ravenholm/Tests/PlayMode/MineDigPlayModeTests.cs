@@ -231,6 +231,84 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
+        public IEnumerator TheForestHasHillsAndRidgesToClimbOrDigThrough()
+        {
+            yield return Boot();
+            var forest = Object.FindAnyObjectByType<ForestGridView>();
+            var sim = S.Sites.Get("site.forest");
+            var g = sim.Grove;
+            var ground = Map("Ground");
+            Vector3Int CellAt(int back, int along)
+            {
+                Assert.IsTrue(forest.CellOf(along / g.AreaLength + 1, back * g.AreaLength + along % g.AreaLength, out var c));
+                return c;
+            }
+            int Slot(int back, int along) => back * g.AreaLength + along % g.AreaLength;
+            int Area(int along) => along / g.AreaLength + 1;
+            var ridge = g.RidgeFirst;
+
+            // Clear the trees along the cliff edge over the ridge's pass, so the way is open.
+            S.Sites.SpeedMultiplier = 50f;
+            for (var along = ridge - 5; along <= ridge + 1; along++)
+            for (var back = 0; back <= 1; back++)
+            {
+                var (a, sl) = (Area(along), Slot(back, along));
+                for (var i = 0; i < 4000 && sim.CanChop(a, sl); i++) S.Sites.PlayerChopCell("site.forest", a, sl, 0.5f);
+                S.Sites.ClearStump("site.forest", a, sl);
+                S.Logistics.System.DebugUnloadCarry();
+            }
+            S.Sites.SpeedMultiplier = 1f;
+            Assert.AreEqual(3, forest.HeightAt(CellAt(0, ridge)), "the pass's top is three blocks up");
+
+            // Walk along the cliff edge up the pass: one block a step.
+            Motor.Teleport(ground.GetCellCenterWorld(CellAt(0, ridge - 5)));
+            SandboxSceneController.Current.SnapPlayerToSavedPosition();
+            yield return new WaitForSeconds(0.5f);
+            Assert.AreEqual(0, forest.PlayerFeet, "on the forest floor");
+            Stick(Along);
+            yield return Until(() => forest.PlayerFeet == 3, 10f, () => $"climbs the pass (feet {forest.PlayerFeet}, at {Motor.transform.position})");
+            Stick(null);
+            yield return new WaitForSeconds(0.3f);
+            Assert.Greater(Motor.Elevation, 1f, "drawn up on the blocks");
+            yield return Capture.Take("forest_pass");
+
+            // Back from the cliff is a wall of rock (three blocks up from here): dig into it, head height first.
+            var wall = CellAt(1, ridge);
+            var rockCell = CellAt(2, ridge);
+            Motor.Teleport(ground.GetCellCenterWorld(wall));
+            yield return new WaitForSeconds(0.3f);
+            var behind = CellAt(3, ridge);
+            Assert.GreaterOrEqual(forest.HeightAt(behind) - forest.PlayerFeet, 2, "a wall");
+            Assert.IsFalse(forest.CanEnter(ground.GetCellCenterWorld(rockCell), ground.GetCellCenterWorld(behind)), "too high to step onto");
+            Assert.IsTrue(forest.RockTarget(ground.GetCellCenterWorld(rockCell), new Vector2(2f, 1f), false, out _) ||
+                          forest.SolidAt(behind, forest.PlayerFeet + 1), "rock to dig");
+            var shadowsBefore = forest.ShadowsDrawn;
+            Assert.Greater(shadowsBefore, 0, "taller blocks cast shadows on the ground beside them");
+            // Dig the two blocks at body height out of the wall through the rock spot, standing in front of it.
+            Motor.Teleport(ground.GetCellCenterWorld(rockCell));
+            yield return new WaitForSeconds(0.3f);
+            var feet = forest.PlayerFeet;
+            var spot = Object.FindAnyObjectByType<ForestRockSpot>();
+            GameRoot.Instance.InputRouter.ScriptedMove = new Vector2(2f, 1f).normalized * 0.3f;   // face into the wall (it doesn't give)
+            yield return null;
+            GameRoot.Instance.InputRouter.ScriptedMove = null;
+            S.Sites.SpeedMultiplier = 20f;
+            for (var i = 0; i < 600 && (forest.SolidAt(behind, feet + 1) || forest.SolidAt(behind, feet + 2)); i++)
+            {
+                yield return null;
+                if (spot.Available) spot.OnHold(Time.deltaTime);
+            }
+            S.Sites.SpeedMultiplier = 1f;
+            Assert.IsFalse(forest.SolidAt(behind, feet + 1) || forest.SolidAt(behind, feet + 2), "dug a way into the rock");
+            if (forest.HeightAt(behind) > feet + 2)
+            {
+                yield return new WaitForSeconds(0.2f);
+                Assert.Greater(forest.ShadowsDrawn, 0, "the rock left overhead shades the floor under it");
+            }
+            CollectionAssert.IsEmpty(S.Logistics.System.Audit());
+        }
+
+        [UnityTest]
         public IEnumerator SurfaceOutcropsAreMinedAboveGround()
         {
             yield return Boot();
@@ -347,7 +425,11 @@ namespace Ravenholm.Tests
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
             yield return new WaitForSeconds(1.5f);
             foreach (var tree in forest.GetComponentsInChildren<SpriteRenderer>())
-                Assert.AreEqual(SpriteSortPoint.Pivot, tree.spriteSortPoint, "trees sort by their foot, so whoever stands behind is hidden");
+            {
+                if (!tree.name.StartsWith("Tree") && tree.name != "ForestTree") continue;
+                Assert.AreEqual("Ground", tree.sortingLayerName, "trees sort among the Forest's blocks, by cell and level");
+                Assert.Greater(tree.sortingOrder, ForestGridView.TerrainBase - 2000);
+            }
             yield return Capture.Take("forest_frontier");
         }
     }

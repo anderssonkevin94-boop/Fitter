@@ -42,6 +42,7 @@ namespace Ravenholm.Presentation
         private void Update()
         {
             var move = _root.InputRouter.MoveVector;
+            if (move.sqrMagnitude > 0.04f) LastMove = move;
             var slab = MineSlabView.Current;
             // Solo play: on a routine the supplier is out working it (drawn by the routine's avatar); moving takes over.
             if (_root.Services.Sites.RoutineSiteId != null)
@@ -59,7 +60,7 @@ namespace Ravenholm.Presentation
                 _swing = Mathf.MoveTowards(_swing, 0f, Time.deltaTime);
                 _reach = Mathf.MoveTowards(_reach, 0f, Time.deltaTime * 4f);
                 _size = Mathf.MoveTowards(_size, Underground ? UndergroundScale : 1f, Time.deltaTime * 2f);
-                visual.localPosition = _visualBase;
+                visual.localPosition = _visualBase + new Vector3(0f, Elevation, 0f);
                 visual.localRotation = Quaternion.identity;
                 visual.localScale = new Vector3(_size, _size, 1f);
                 return;
@@ -109,6 +110,12 @@ namespace Ravenholm.Presentation
             visual.localScale = new Vector3(facing * (2f - breath) * _size, breath * _size, 1f);   // the sign is the facing
         }
 
+        /// <summary>How high the supplier stands on the Forest's blocks (drawn up there; the walking plane stays the ground).</summary>
+        public float Elevation => !Underground && ForestGridView.Current != null ? ForestGridView.Current.PlayerDrawFeet * MineSlabView.RowHeight : 0f;
+
+        /// <summary>The way the supplier last moved (stick direction on screen), for facing.</summary>
+        public Vector2 LastMove { get; private set; } = new Vector2(-1f, -0.5f);
+
         private float _idlePhase;
         private float _size = 1f;
         private SupplierAnimator _animator;
@@ -134,6 +141,13 @@ namespace Ravenholm.Presentation
             {
                 if (mine.TryEnter(p)) return;
                 if (mine.SurfaceWalkable(old)) p = SlideOnCells(old, p - old, mine.SurfaceWalkable);
+            }
+            // The Forest's ground has height: one block up at a time, drops are fine, walls of two stop the supplier.
+            var forest = ForestGridView.Current;
+            if (forest != null)
+            {
+                if (!forest.CanEnter(old, p)) p = SlideOnCells(old, p - old, q => forest.CanEnter(old, q) && (mine == null || mine.SurfaceWalkable(q)));
+                forest.Commit(old, p);
             }
             transform.position = new Vector3(p.x, p.y, 0f);
             _root.Services.Sandbox.ReportPlayerPosition(p.x, p.y);

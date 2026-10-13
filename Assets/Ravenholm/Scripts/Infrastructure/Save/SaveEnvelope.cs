@@ -143,6 +143,9 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("surfaceBroken")] public List<int> SurfaceBroken;
         [JsonProperty("scaffoldMaterials")] public List<string> ScaffoldMaterials;
         [JsonProperty("lastChop")] public List<int> LastChop;
+        /// <summary>Forest grid: stumps as area, slot, felled-at ms triples, and stumps cleared as area, slot pairs (optional).</summary>
+        [JsonProperty("stumps")] public List<long> Stumps;
+        [JsonProperty("cleared")] public List<int> Cleared;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

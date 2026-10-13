@@ -126,7 +126,7 @@ namespace Ravenholm.Presentation
                 }
                 FaceContextTarget();
                 var c = SandboxSceneController.Current;
-                if (c != null && c.ContextTarget is OutcropSpot) return View("mine");   // rock above ground
+                if (c != null && (c.ContextTarget is OutcropSpot || c.ContextTarget is ForestRockSpot)) return View("mine");   // rock above ground
                 return View("chop");
             }
             if (_pickup > 0f) { Back = false; return "pickup_front"; }

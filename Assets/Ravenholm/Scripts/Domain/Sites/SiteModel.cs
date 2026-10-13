@@ -168,8 +168,54 @@ namespace Ravenholm.Domain.Sites
         public int Areas = 1000;
         public int TreesPerContinuation = 6;
         public int RoutineReach = 8;            // a routine looks this far (grid steps) from its last tree for the next
+        public long RegrowMs = 300000;          // a stump left standing grows back into its tree after this long (0 = never)
 
         public bool InGrove(int area, int slot) => area >= 1 && area <= Areas && slot >= 0 && slot < Rows * AreaLength;
+
+        // ------------------------------------------------------------------ the ground's shape (forest mountains)
+
+        public int RidgeFirst = 14;    // the first ridge's centre, in tiles along the cliff
+        public int RidgeEvery = 24;    // a ridge every this many tiles further along
+        public int PassRows = 3;       // a ridge's gentle pass (one block a step) along the cliff edge
+        public int RockHeight = 4;     // ground this high is bare rock: no tree grows there
+
+        /// <summary>
+        /// How many blocks the ground stands above the floor at a tree's spot (0 = flat), from the world seed. Mostly flat
+        /// with small hills (one block a step); every <see cref="RidgeEvery"/> tiles along the cliff a ridge runs back from
+        /// the edge: walls of two blocks rising to six of bare rock, with a pass of one block a step by the cliff edge.
+        /// </summary>
+        public int TerrainHeight(ulong seed, int back, int along)
+        {
+            var phase = ((along - RidgeFirst) % RidgeEvery + RidgeEvery) % RidgeEvery;
+            var d = Math.Min(phase, RidgeEvery - phase);   // tiles to the nearest ridge's centre
+            var ridge = 0;
+            if (along >= RidgeFirst - 2 && d <= 2) ridge = back < PassRows ? 3 - d : 6 - 2 * d;
+            var n = 0.6 * Noise(seed, back, along, 6.0, 1) + 0.4 * Noise(seed, back, along, 3.0, 2);
+            var hill = n > 0.62 ? Math.Min(3, (int)Math.Round((n - 0.62) / 0.38 * 4.0)) : 0;
+            if (back < 1) hill = 0;   // the cliff edge's row stays open to walk along
+            return Math.Max(ridge, hill);
+        }
+
+        private static double Hash01(ulong seed, int x, int y, int salt)
+        {
+            unchecked
+            {
+                var h = seed ^ ((ulong)(uint)x * 0x9E3779B97F4A7C15UL) ^ ((ulong)(uint)y * 0xC2B2AE3D27D4EB4FUL) ^ ((ulong)salt * 0x165667B19E3779F9UL);
+                h ^= h >> 33; h *= 0xff51afd7ed558ccdUL; h ^= h >> 33; h *= 0xc4ceb9fe1a85ec53UL; h ^= h >> 33;
+                return (h >> 11) * (1.0 / (1UL << 53));
+            }
+        }
+
+        private static double Noise(ulong seed, int x, int y, double scale, int salt)
+        {
+            double fx = x / scale, fy = y / scale;
+            int x0 = (int)Math.Floor(fx), y0 = (int)Math.Floor(fy);
+            double tx = fx - x0, ty = fy - y0;
+            tx = tx * tx * (3 - 2 * tx);
+            ty = ty * ty * (3 - 2 * ty);
+            double a = Hash01(seed, x0, y0, salt), b = Hash01(seed, x0 + 1, y0, salt), c = Hash01(seed, x0, y0 + 1, salt), e = Hash01(seed, x0 + 1, y0 + 1, salt);
+            return (a + (b - a) * tx) * (1 - ty) + (c + (e - c) * tx) * ty;
+        }
         public int RowOf(int slot) => slot / AreaLength;
         /// <summary>Position along the cliff, counted over all areas (for distances between trees).</summary>
         public int AlongOf(int area, int slot) => (area - 1) * AreaLength + slot % AreaLength;
@@ -305,6 +351,10 @@ namespace Ravenholm.Domain.Sites
         public readonly Dictionary<GroveCell, long> Chopped = new Dictionary<GroveCell, long>();
         /// <summary>Forest grid: the tree last cut (by hand or by a routine): a routine carries on nearest to it.</summary>
         public GroveCell? LastChop;
+        /// <summary>Forest grid: when each stump was felled (sim ms); it grows back after <see cref="ForestGrove.RegrowMs"/>.</summary>
+        public readonly Dictionary<GroveCell, long> FelledAtMs = new Dictionary<GroveCell, long>();
+        /// <summary>Forest grid: stumps pulled out: open ground for good, nothing grows back.</summary>
+        public readonly HashSet<GroveCell> Cleared = new HashSet<GroveCell>();
 
         public readonly List<WorkerRecord> Workers = new List<WorkerRecord>();
 

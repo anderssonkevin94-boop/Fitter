@@ -388,8 +388,7 @@ namespace Ravenholm.Tests
             g.Simulation.Advance(10 * Minute, 10 * Minute);
             var routine = g.Sites.RoutineWorker;
             Assert.IsNotNull(routine);
-            var felled = forest.Record.Chopped.Keys.Count(c => forest.IsFelled(c.Area, c.Slot));
-            Assert.Greater(felled, 1, "the routine keeps cutting while away");
+            Assert.Greater(forest.Record.DepositedTotal + routine.Pack.Count, forest.Config.UnitsPerTree, "the routine keeps cutting while away (more than a tree's logs)");
             Assert.Greater(forest.Record.DepositedTotal + routine.Pack.Count, 0, "and hauls to staging");
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
             g.Scheduler.SaveNow("test");

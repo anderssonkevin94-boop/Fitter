@@ -11,7 +11,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Ravenholm/Scenes/DebugSandbox.unity
     guid: a79cfbb658274441594142aefee2924d
-  - enabled: 1
-    path: Assets/Ravenholm/Scenes/MountainPrototype.unity
-    guid: b467b1e98dedf45fdba5735451b5a90d
   m_configObjects: {}

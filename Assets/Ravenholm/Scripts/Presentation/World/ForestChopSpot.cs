@@ -15,6 +15,10 @@ namespace Ravenholm.Presentation
 
         private int _tree = -1;
         private int _area = -1, _slot = -1;
+        private bool _clearing;
+        private float _clearHeld;
+        private const float ClearSeconds = 0.8f;
+        public bool Clearing => _clearing;
         private Vector3Int _cell;
         public int Area => _area;
         public int Slot => _slot;
@@ -52,7 +56,18 @@ namespace Ravenholm.Presentation
         {
             if (sim.GroveMode)
             {
-                if (!forest.NearestStanding(me, Reach, out _area, out _slot, out _cell)) return;
+                _clearing = false;
+                if (!forest.NearestStanding(me, Reach, out _area, out _slot, out _cell))
+                {
+                    // No tree in reach: a stump can be pulled out (it won't grow back then).
+                    if (!forest.NearestStump(me, Reach, out _area, out _slot, out _cell)) { _area = _slot = -1; return; }
+                    _clearing = true;
+                    _verb = "Clear";
+                    transform.position = forest.WorkSpotOf(_cell) + new Vector3(0f, 0.3f, 0f);
+                    EditorSetup("stump", "Hold to pull the stump out (a log). Left standing, it grows back into a tree after a while.", "");
+                    Available = true;
+                    return;
+                }
                 _verb = "Chop";
                 transform.position = forest.WorkSpotOf(_cell) + new Vector3(0f, 0.3f, 0f);
                 EditorSetup(UnitVisuals.DisplayName(sim.SpeciesAt(_area, _slot)).ToLowerInvariant(),
@@ -98,8 +113,14 @@ namespace Ravenholm.Presentation
         {
             var root = GameRoot.Instance;
             if (root == null) return;
-            if (_area >= 0)
+            if (_area >= 0 && _clearing)
             {
+                _clearHeld += deltaSeconds * root.Services.Sites.SpeedMultiplier;
+                if (_clearHeld >= ClearSeconds && root.Services.Sites.ClearStump(SiteId, _area, _slot)) _clearHeld = 0f;
+            }
+            else if (_area >= 0)
+            {
+                _clearHeld = 0f;
                 if (root.Services.Sites.PlayerChopCell(SiteId, _area, _slot, deltaSeconds) > 0) ForestGridView.Current?.Shake(_cell);
             }
             else if (_tree >= 0) root.Services.Sites.PlayerChop(SiteId, _tree, deltaSeconds);

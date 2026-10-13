@@ -316,6 +316,15 @@ namespace Ravenholm.Services
             return null;
         }
 
+        /// <summary>The supplier pulls out a stump of the Forest's grid (a log; nothing grows back there).</summary>
+        public bool ClearStump(string siteId, int area, int slot)
+        {
+            var sim = Get(siteId);
+            if (sim == null || !sim.ClearStump(area, slot)) return false;
+            _scheduler.SaveNow("cleared a stump");
+            return true;
+        }
+
         /// <summary>The supplier cuts a tree of the Forest's grid for a moment. Returns the logs cut.</summary>
         public int PlayerChopCell(string siteId, int area, int slot, float seconds)
         {
@@ -441,7 +450,9 @@ namespace Ravenholm.Services
                 // Solo play: the Mine is dug block by block (the dig slab); three levels of two blocks per layer.
                 Dig = def.SiteType == SiteType.Mine ? new DigSlab { RowsPerLayer = 2 * Math.Max(1, def.LevelsPerBand) } : null,
                 // Solo play: the Forest is a grid of trees, any of them cut where the supplier reaches (2026-10-12).
-                Grove = def.SiteType == SiteType.Forest ? new ForestGrove { TreesPerContinuation = Math.Max(1, def.TreesPerClearing) } : null,
+                Grove = def.SiteType == SiteType.Forest
+                    ? new ForestGrove { TreesPerContinuation = Math.Max(1, def.TreesPerClearing), RegrowMs = (long)Math.Round(def.TreeRegrowSeconds * 1000) }
+                    : null,
                 HopMs = (int)Math.Round(def.HopSeconds * 1000),
                 DepositMs = (int)Math.Round(def.DepositSeconds * 1000),
             };
@@ -618,6 +629,16 @@ namespace Ravenholm.Services
                 foreach (var kv in s.Chopped) { d.Chopped.Add(kv.Key.Area); d.Chopped.Add(kv.Key.Slot); d.Chopped.Add(kv.Value); }
             }
             if (s.LastChop.HasValue) d.LastChop = new List<int> { s.LastChop.Value.Area, s.LastChop.Value.Slot };
+            if (s.FelledAtMs.Count > 0)
+            {
+                d.Stumps = new List<long>(s.FelledAtMs.Count * 3);
+                foreach (var kv in s.FelledAtMs) { d.Stumps.Add(kv.Key.Area); d.Stumps.Add(kv.Key.Slot); d.Stumps.Add(kv.Value); }
+            }
+            if (s.Cleared.Count > 0)
+            {
+                d.Cleared = new List<int>(s.Cleared.Count * 2);
+                foreach (var c in s.Cleared) { d.Cleared.Add(c.Area); d.Cleared.Add(c.Slot); }
+            }
             if (s.SurfaceBroken.Count > 0)
             {
                 d.SurfaceBroken = new List<int>(s.SurfaceBroken.Count * 3);
@@ -726,6 +747,10 @@ namespace Ravenholm.Services
             if (d.Chopped != null)
                 for (var i = 0; i + 2 < d.Chopped.Count; i += 3) s.Chopped[new GroveCell((int)d.Chopped[i], (int)d.Chopped[i + 1])] = d.Chopped[i + 2];
             if (d.LastChop != null && d.LastChop.Count == 2) s.LastChop = new GroveCell(d.LastChop[0], d.LastChop[1]);
+            if (d.Stumps != null)
+                for (var i = 0; i + 2 < d.Stumps.Count; i += 3) s.FelledAtMs[new GroveCell((int)d.Stumps[i], (int)d.Stumps[i + 1])] = d.Stumps[i + 2];
+            if (d.Cleared != null)
+                for (var i = 0; i + 1 < d.Cleared.Count; i += 2) s.Cleared.Add(new GroveCell(d.Cleared[i], d.Cleared[i + 1]));
             if (d.SurfaceBroken != null)
                 for (var i = 0; i + 2 < d.SurfaceBroken.Count; i += 3) s.SurfaceBroken.Add(new DigCell(d.SurfaceBroken[i], d.SurfaceBroken[i + 1], d.SurfaceBroken[i + 2]));
             if (d.Scaffolds != null)

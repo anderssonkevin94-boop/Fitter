@@ -680,6 +680,12 @@ namespace Ravenholm.Presentation
                 _playerSorting.sortingLayerName = "Ground";
                 _playerSorting.sortingOrder = OrderFor(Lane, Column, _feet - 1) + 2;
             }
+            else if (ForestGridView.Current != null && ForestGridView.Current.PlayerSortOrder(_player.position, out var order))
+            {
+                // In the Forest: among its blocks and trees, on the Ground layer.
+                _playerSorting.sortingLayerName = "Ground";
+                _playerSorting.sortingOrder = order;
+            }
             else
             {
                 _playerSorting.sortingLayerName = "Default";

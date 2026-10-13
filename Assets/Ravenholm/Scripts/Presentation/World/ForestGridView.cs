@@ -24,7 +24,7 @@ namespace Ravenholm.Presentation
     /// earlier clearings are stumps; ground not yet reached stays forest, darker in areas not yet entered.
     /// Only trees near the camera are drawn. Presentation only.
     /// </summary>
-    public sealed class ForestGridView : MonoBehaviour
+    public sealed partial class ForestGridView : MonoBehaviour
     {
         [SerializeField] private string siteId = "site.forest";
         [SerializeField] private Grid grid;
@@ -173,7 +173,8 @@ namespace Ravenholm.Presentation
         {
             Build();
             if (!_slotOf.TryGetValue(c, out var at)) return false;
-            return State(at.area, at.slot, out _) != TreeState.Cut;
+            var state = State(at.area, at.slot, out _);
+            return state == TreeState.Standing || state == TreeState.Current;
         }
 
         private enum TreeState
@@ -181,6 +182,7 @@ namespace Ravenholm.Presentation
             Standing,
             Current,
             Cut,
+            None,   // no tree: bare rock, or a stump pulled out
         }
 
         private SiteSimulator Sim => _root != null ? _root.Services.Sites.Get(siteId) : null;
@@ -199,7 +201,12 @@ namespace Ravenholm.Presentation
             treeIndex = -1;
             var sim = Sim;
             if (sim == null) return TreeState.Standing;
-            if (sim.GroveMode) return sim.IsFelled(area, slot) ? TreeState.Cut : TreeState.Standing;   // the grid: any tree
+            if (sim.GroveMode)
+            {
+                // The grid: any tree. Bare rock has none; a pulled-out stump leaves open ground for good.
+                if (sim.IsRock(area, slot) || sim.IsCleared(area, slot)) return TreeState.None;
+                return sim.IsFelled(area, slot) ? TreeState.Cut : TreeState.Standing;
+            }
             var s = sim.Record;
             if (area > s.Depth) return TreeState.Standing;
             var per = sim.Config.TreesPerClearing;
@@ -224,7 +231,9 @@ namespace Ravenholm.Presentation
             var felled = 0;
             foreach (var t in s.Trees) if (t.Felled) felled++;
             var cam = _camera != null ? (Vector2)_camera.transform.position : Vector2.zero;
-            var key = $"{Mathf.Round(cam.x * 2f)}|{Mathf.Round(cam.y * 2f)}|{s.Depth}|{s.K}|{s.SectionDepths.Count}|{felled}|{s.Trees.Count}|{sim.FelledVersion}|{s.Revealed.Count}";
+            UpdateSupplier();
+            var dug = Mine != null ? Mine.Record.SurfaceBroken.Count : 0;
+            var key = $"{Mathf.Round(cam.x * 2f)}|{Mathf.Round(cam.y * 2f)}|{s.Depth}|{s.K}|{s.SectionDepths.Count}|{felled}|{s.Trees.Count}|{sim.FelledVersion}|{s.Revealed.Count}|{dug}";
             if (key == _key) return;
             _key = key;
             Redraw(sim, cam);
@@ -235,6 +244,7 @@ namespace Ravenholm.Presentation
             var halfH = _camera != null ? _camera.orthographicSize + 2.5f : 12f;
             var halfW = _camera != null ? halfH * _camera.aspect + 1.5f : 8f;
             var keep = new HashSet<Vector3Int>();
+            var cells = new HashSet<Vector3Int>();
             for (var a = 1; a < _columns.Count; a++)
             {
                 var col = _columns[a];
@@ -242,10 +252,17 @@ namespace Ravenholm.Presentation
                 {
                     var c = col[slot];
                     var p = Centre(c);
-                    if (Mathf.Abs(p.y - cam.y) > halfH || Mathf.Abs(p.x - cam.x) > halfW) continue;
-                    keep.Add(c);
-                    if (!_shown.TryGetValue(c, out var sr)) _shown[c] = sr = Take(p);
+                    if (Mathf.Abs(p.y - cam.y) > halfH + 4f || Mathf.Abs(p.x - cam.x) > halfW) continue;
+                    cells.Add(c);
                     var state = State(a, slot, out var tree);
+                    if (state == TreeState.None) continue;
+                    keep.Add(c);
+                    var top = SurfaceTop(c);
+                    if (!_shown.TryGetValue(c, out var sr)) _shown[c] = sr = Take(p);
+                    // On the ground's top, among its blocks: the Ground layer, sorted by cell and level.
+                    sr.transform.position = SurfacePoint(c, top);
+                    sr.sortingLayerName = "Ground";
+                    sr.sortingOrder = TerrainOrder(c, top + 1) + 2;
                     sr.sprite = state == TreeState.Cut ? stumpSprite : SpriteFor(SpeciesAt(sim, a, tree, slot));
                     sr.color = AreaTint(sim, a);
                     sr.name = tree >= 0 ? $"Tree{tree}" : "ForestTree";
@@ -254,6 +271,7 @@ namespace Ravenholm.Presentation
             var drop = new List<Vector3Int>();
             foreach (var kv in _shown) if (!keep.Contains(kv.Key)) drop.Add(kv.Key);
             foreach (var c in drop) { Give(_shown[c]); _shown.Remove(c); }
+            RedrawTerrain(cells);
         }
 
         private string SpeciesAt(SiteSimulator sim, int area, int tree, int slot)
@@ -358,7 +376,34 @@ namespace Ravenholm.Presentation
             for (var dy = -3; dy <= 3; dy++)
             {
                 var c = new Vector3Int(at.x + dx, at.y + dy, 0);
-                if (!_slotOf.TryGetValue(c, out var t) || State(t.area, t.slot, out _) == TreeState.Cut) continue;
+                if (!_slotOf.TryGetValue(c, out var t)) continue;
+                var st = State(t.area, t.slot, out _);
+                if (st != TreeState.Standing && st != TreeState.Current) continue;
+                if (Mathf.Abs(SurfaceTop(c) - _feet) > 1) continue;   // not a tree up on a cliff, or down below
+                var d = Vector2.Distance(me, WorkSpotOf(c));
+                if (d >= best) continue;
+                best = d;
+                area = t.area;
+                slot = t.slot;
+                cell = c;
+            }
+            return area >= 0;
+        }
+
+        /// <summary>The stump nearest a point within reach, at about the supplier's level (to pull out).</summary>
+        public bool NearestStump(Vector2 me, float reach, out int area, out int slot, out Vector3Int cell)
+        {
+            Build();
+            area = slot = -1;
+            cell = default;
+            var at = grid.WorldToCell(me);
+            var best = reach;
+            for (var dx = -3; dx <= 3; dx++)
+            for (var dy = -3; dy <= 3; dy++)
+            {
+                var c = new Vector3Int(at.x + dx, at.y + dy, 0);
+                if (!_slotOf.TryGetValue(c, out var t) || State(t.area, t.slot, out _) != TreeState.Cut) continue;
+                if (Mathf.Abs(SurfaceTop(c) - _feet) > 1) continue;
                 var d = Vector2.Distance(me, WorkSpotOf(c));
                 if (d >= best) continue;
                 best = d;

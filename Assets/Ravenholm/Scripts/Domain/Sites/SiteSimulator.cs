@@ -559,6 +559,7 @@ namespace Ravenholm.Domain.Sites
                 remaining -= step;
                 Resolve();
             }
+            RegrowDue();
             SaveRng();
         }
 

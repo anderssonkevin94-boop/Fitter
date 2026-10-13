@@ -1,5 +1,6 @@
 using System.Linq;
 using NUnit.Framework;
+using UnityEngine;
 using Ravenholm.Domain.Sites;
 
 namespace Ravenholm.Tests
@@ -62,8 +63,7 @@ namespace Ravenholm.Tests
             Assert.AreEqual(1, d, "the next tree is right beside the last one");
             sim.AddWorker(new WorkerRecord { Id = SiteSimulator.PlayerId, Name = "You", ToolId = "t10", PackId = "p6" });
             for (var i = 0; i < 600; i++) sim.Advance(1000);
-            var felled = sim.Record.Chopped.Keys.Count(c => sim.IsFelled(c.Area, c.Slot));
-            Assert.Greater(felled, 3, "the routine keeps cutting");
+            Assert.Greater(sim.Record.DepositedTotal, 3 * sim.Config.UnitsPerTree, "the routine keeps cutting (more than three trees' logs)");
             Assert.Greater(ledger.StagingCount, 0, "and hauls to staging");
             Assert.AreEqual(ledger.CreatedTotal, ledger.StagingCount + ledger.Carry.Count + sim.HeldUnits().Count());
         }
@@ -84,6 +84,50 @@ namespace Ravenholm.Tests
             Assert.AreEqual(a.Chopped.Count, b.Chopped.Count);
             foreach (var kv in a.Chopped) Assert.AreEqual(kv.Value, b.Chopped[kv.Key], $"tree {kv.Key}");
             Assert.AreEqual(a.LastChop, b.LastChop);
+        }
+
+        [Test]
+        public void StumpsGrowBackUnlessPulledOut()
+        {
+            var ledger = new FakeLedger();
+            var sim = Make(ledger);
+            sim.Grove.RegrowMs = 60000;
+            Assert.IsTrue(Fell(sim, 1, 0));
+            Assert.IsTrue(sim.IsStump(1, 0), "a felled tree leaves a stump");
+            sim.Advance(59000);
+            Assert.IsTrue(sim.IsStump(1, 0), "not yet");
+            sim.Advance(2000);
+            Assert.IsTrue(sim.CanChop(1, 0), "left standing, the stump grows back into its tree");
+            Assert.AreEqual(sim.SpeciesAt(1, 0), sim.SpeciesAt(1, 0));
+            Assert.IsTrue(Fell(sim, 1, 0));
+            var logs = ledger.Carry.Count;
+            Assert.IsTrue(sim.ClearStump(1, 0), "hitting it further pulls it out");
+            Assert.AreEqual(logs + 1, ledger.Carry.Count, "for a log");
+            sim.Advance(120000);
+            Assert.IsFalse(sim.CanChop(1, 0) || sim.IsStump(1, 0), "a pulled-out stump never grows back");
+            Assert.IsTrue(sim.IsCleared(1, 0));
+            Assert.AreEqual(ledger.CreatedTotal, ledger.Carry.Count + sim.HeldUnits().Count());
+        }
+
+        [Test]
+        public void TheForestHasHillsAndRidgesWithAPassByTheCliff()
+        {
+            var sim = Make(new FakeLedger());
+            var g = sim.Grove;
+            int Cell(int back, int along, out int area) { area = along / g.AreaLength + 1; return back * g.AreaLength + along % g.AreaLength; }
+            var ridge = g.RidgeFirst;
+            var slot = Cell(6, ridge, out var area);
+            Assert.AreEqual(6, sim.TerrainHeight(area, slot), "a ridge of six blocks");
+            Assert.IsTrue(sim.IsRock(area, slot) && !sim.CanChop(area, slot), "bare rock: no tree grows there");
+            var wall = Cell(6, ridge - 1, out var wallArea);
+            Assert.AreEqual(2, sim.TerrainHeight(area, slot) - sim.TerrainHeight(wallArea, wall), "walls of two blocks");
+            for (var along = ridge - 4; along <= ridge + 4; along++)
+            {
+                var a0 = Cell(0, along, out var aa);
+                var a1 = Cell(0, along + 1, out var ab);
+                Assert.LessOrEqual(Mathf.Abs(sim.TerrainHeight(aa, a0) - sim.TerrainHeight(ab, a1)), 1, $"the pass by the cliff climbs one block a step (along {along})");
+            }
+            Assert.AreEqual(3, sim.TerrainHeight(area, Cell(0, ridge, out _)), "the pass's top");
         }
 
         [Test]

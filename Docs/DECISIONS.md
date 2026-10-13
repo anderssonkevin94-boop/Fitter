@@ -752,3 +752,21 @@ This is an experiment for Kevin: mountains above ground to climb, or to cut thro
 - **Bigger plot and stumps (2026-10-13, Kevin; still the prototype, ahead of replacing the real forest).**
   - **The plot.** 48 × 48 cells of mountains from value noise: peaks up to seven blocks, slopes of one and of two, with forest valleys between them and an open, flat start. Only the cells in the screen's diamond (plus room for tall columns) are drawn.
   - **Stumps.** A felled tree leaves a stump. Facing it, the button clears it (one log), and a cleared spot never grows back. A stump left standing grows back into the same kind of tree after `RegrowSeconds` (60 s in the prototype), but not while the supplier stands on it.
+
+## The Forest has mountains, shadows and regrowing stumps (2026-10-13, Kevin)
+
+The forest-mountains prototype is now the real Forest; the prototype scene, its signpost and its test are removed.
+
+- **Terrain** (`ForestGrove.TerrainHeight`, from the world seed). Kept practical: most ground is flat, with small hills of 1–3 blocks.
+  - Every 24 tiles along the cliff (from tile 14) a ridge runs back from the edge. It is walls of two blocks rising to six, bare rock above four, where no tree grows (`IsRock`).
+  - By the cliff edge each ridge has a pass of one block a step (top at three), so the way along the edge can always be climbed.
+  - The cliff edge's own row has no hills.
+- **Digging the rock.** The Forest's blocks are the Mine's surface rock (`PlayerBreakSurface`), with its ore veins, straight into the carry. `ForestRockSpot` targets the wall faced (head, then legs), or the block underfoot when standing still; never under a tree or stump. Trees and stumps in reach usually win the button.
+- **Moving** (`ForestGridView.CanEnter` / `Commit`). The supplier steps up one block, drops any height, and is stopped by walls of two. They are drawn up on the blocks (`PlayerMotor.Elevation`) while the walking plane stays the ground; a teleport into rock puts them on top.
+- **Drawing.** The Forest's blocks, its trees and the supplier inside it sort on the Ground layer, above the town's tiles, by cell and level (`TerrainOrder` = 20000 + 4·(level − x − y)). Only the tiles in view are drawn.
+- **Shadows** (to read where blocks are). A surface just past a taller neighbour toward the light (up-left on screen) gets a soft shadow, stronger the taller the neighbour. Ground under an overhang (rock left above a dug space) gets a dark one.
+- **Stumps.**
+  - A felled tree's stump grows back into the same tree after `SiteDefinition.treeRegrowSeconds` (300 s); this runs in simulation time, so it also happens while you are away.
+  - Facing a stump with no tree in reach, the button offers "Clear": 0.8 s for a log, and that spot never grows back (`Cleared`).
+  - Saves keep `stumps` (felled-at times) and `cleared`.
+  - A routine cuts only standing trees; regrown ones count again.

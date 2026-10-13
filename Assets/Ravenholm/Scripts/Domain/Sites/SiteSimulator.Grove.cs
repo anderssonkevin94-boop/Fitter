@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Ravenholm.Domain.Sites
 {
@@ -37,7 +38,53 @@ namespace Ravenholm.Domain.Sites
 
         public bool IsFelled(int area, int slot) => ChopDone(area, slot) >= TreeDurabilityMicro(area, slot);
 
-        public bool CanChop(int area, int slot) => GroveMode && _c.Grove.InGrove(area, slot) && !IsFelled(area, slot);
+        public bool CanChop(int area, int slot) => GroveMode && _c.Grove.InGrove(area, slot) && !IsRock(area, slot) && !IsFelled(area, slot) && !IsCleared(area, slot);
+
+        /// <summary>How high the ground stands at a tree's spot (blocks above the floor), from the world seed.</summary>
+        public int TerrainHeight(int area, int slot) =>
+            GroveMode ? _c.Grove.TerrainHeight(_worldSeed ^ SiteMath.StableHash(_c.SiteId), _c.Grove.RowOf(slot), _c.Grove.AlongOf(area, slot)) : 0;
+
+        /// <summary>Bare rock (a ridge's heights): no tree grows there.</summary>
+        public bool IsRock(int area, int slot) => GroveMode && TerrainHeight(area, slot) >= _c.Grove.RockHeight;
+
+        /// <summary>A stump: felled and not yet pulled out (it grows back unless cleared).</summary>
+        public bool IsStump(int area, int slot) => !IsRock(area, slot) && IsFelled(area, slot) && !IsCleared(area, slot);
+
+        public bool IsCleared(int area, int slot) => _s.Cleared.Contains(new GroveCell(area, slot));
+
+        /// <summary>
+        /// The supplier pulls a stump out (hitting it further): one log, and the spot stays open for good. True when
+        /// there was a stump.
+        /// </summary>
+        public bool ClearStump(int area, int slot)
+        {
+            if (!GroveMode || !IsStump(area, slot)) return false;
+            var c = new GroveCell(area, slot);
+            _s.Cleared.Add(c);
+            _s.FelledAtMs.Remove(c);
+            TakeIntoCarry(_s.FacePending);
+            Release(SpeciesAt(area, slot), true);
+            FelledVersion++;
+            Resolve();
+            return true;
+        }
+
+        /// <summary>Stumps left standing long enough grow back into their trees (same species, uncut).</summary>
+        private void RegrowDue()
+        {
+            if (!GroveMode || _c.Grove.RegrowMs <= 0 || _s.FelledAtMs.Count == 0) return;
+            List<GroveCell> due = null;
+            foreach (var kv in _s.FelledAtMs)
+                if (_s.SimMs - kv.Value >= _c.Grove.RegrowMs) (due ??= new List<GroveCell>()).Add(kv.Key);
+            if (due == null) return;
+            foreach (var c in due)
+            {
+                _s.FelledAtMs.Remove(c);
+                if (_s.Cleared.Contains(c)) continue;
+                _s.Chopped.Remove(c);
+                FelledVersion++;
+            }
+        }
 
         public float ChopProgress(int area, int slot) =>
             Math.Min(1f, (float)ChopDone(area, slot) / Math.Max(1, TreeDurabilityMicro(area, slot)));
@@ -112,6 +159,7 @@ namespace Ravenholm.Domain.Sites
             {
                 FelledVersion++;
                 _s.LastChop = c;
+                _s.FelledAtMs[c] = _s.SimMs;
             }
             return to - from;
         }
