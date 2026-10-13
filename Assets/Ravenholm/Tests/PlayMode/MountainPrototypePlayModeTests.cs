@@ -42,7 +42,7 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
-        public IEnumerator ClimbChopAndDigThroughTheRidge()
+        public IEnumerator ABiggerPlotOfMountainsStumpsRegrowOrAreCleared()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);
             yield return Until(() => GameRoot.Instance != null && SandboxSceneController.Current != null, 10f, () => "town loaded");
@@ -53,32 +53,68 @@ namespace Ravenholm.Tests
             yield return Until(() => MountainPrototype.Current != null, 10f, () => "prototype loaded");
             yield return null;
             var p = MountainPrototype.Current;
-            Assert.Greater(p.DrawnBlocks, 100);
             Assert.AreEqual(1, p.Feet, "starts on the forest floor");
+            Assert.Greater(p.DrawnBlocks, 100);
+            Assert.Less(p.DrawnBlocks, MountainPrototype.Size * MountainPrototype.Size, "only the area around the camera is drawn");
 
-            // The pass climbs one block a step; the ridge elsewhere is walls of two or more.
+            // Mountains: peaks up to seven blocks, slopes of one (climbable) and of two or more (walls).
+            int high = 0, gentle = 0, walls = 0;
             for (var x = 0; x < MountainPrototype.Size - 1; x++)
-                Assert.LessOrEqual(Mathf.Abs(p.TopOf(x + 1, 4) - p.TopOf(x, 4)), 1, $"the pass at x {x}");
-            var steep = false;
-            for (var x = 0; x < MountainPrototype.Size - 1; x++) steep |= Mathf.Abs(p.TopOf(x + 1, 9) - p.TopOf(x, 9)) >= 2;
-            Assert.IsTrue(steep, "the ridge has walls");
+            for (var y = 0; y < MountainPrototype.Size; y++)
+            {
+                if (p.TopOf(x, y) >= 6) high++;
+                var step = Mathf.Abs(p.TopOf(x + 1, y) - p.TopOf(x, y));
+                if (step == 1) gentle++;
+                if (step >= 2) walls++;
+            }
+            Assert.Greater(high, 40, "real mountains");
+            Assert.Greater(gentle, 50, "slopes you can climb");
+            Assert.Greater(walls, 50, "and walls to dig through or go around");
 
-            // Walk toward the ridge (up-right on screen) with the button held: trees are chopped, walls dug, steps climbed.
+            // Stumps: one left standing grows back; one hit again is cleared and never grows back.
+            MountainPrototype.RegrowSeconds = 1.5f;
+            Vector2Int tree = default, stand = default, face = default;
+            var found = false;
+            for (var x = 2; x < MountainPrototype.Size - 2 && !found; x++)
+            for (var y = 2; y < MountainPrototype.Size - 2 && !found; y++)
+            {
+                if (!p.HasTree(x, y)) continue;
+                foreach (var d in new[] { Vector2Int.right, Vector2Int.left, Vector2Int.up, Vector2Int.down })
+                {
+                    var s = new Vector2Int(x, y) - d;
+                    if (p.HasTree(s.x, s.y) || p.HasStump(s.x, s.y) || p.TopOf(s.x, s.y) != p.TopOf(x, y)) continue;
+                    tree = new Vector2Int(x, y); stand = s; face = d; found = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(found, "a tree to stand beside");
+            p.PutAt(stand, face);
+            p.ScriptedWork = true;
+            yield return Until(() => !p.HasTree(tree.x, tree.y), 10f, () => "the tree is felled");
+            p.ScriptedWork = false;
+            Assert.IsTrue(p.HasStump(tree.x, tree.y), "leaving a stump");
+            yield return Until(() => p.HasTree(tree.x, tree.y), 5f, () => "the stump grows back into a tree");
+            p.ScriptedWork = true;
+            yield return Until(() => p.HasStump(tree.x, tree.y), 10f, () => "felled again");
+            yield return null;
+            Assert.AreEqual(tree, p.StumpTarget, "the button now offers to clear the stump");
+            yield return Until(() => p.IsCleared(tree.x, tree.y), 5f, () => "hit again, the stump is pulled out");
+            p.ScriptedWork = false;
+            yield return new WaitForSeconds(2.5f);
+            Assert.IsFalse(p.HasTree(tree.x, tree.y) || p.HasStump(tree.x, tree.y), "a cleared stump never grows back");
+            MountainPrototype.RegrowSeconds = 60f;
+
+            // A long walk across the plot with the button held: trees chopped, walls dug, slopes climbed.
+            p.PutAt(MountainPrototype.StartCell, Vector2Int.right);
             var router = GameRoot.Instance.InputRouter;
             router.ScriptedMove = new Vector2(2f, 1f).normalized;
             p.ScriptedWork = true;
-            var highest = p.Feet;
-            yield return Until(() =>
-            {
-                highest = Mathf.Max(highest, p.Feet);
-                return p.Position.x > MountainPrototype.RidgeX + 4.5f;
-            }, 90f, () => $"through the ridge (at {p.Position}, feet {p.Feet}, target {p.Target}, tree {p.TreeTarget}, clip {p.Clip})");
+            yield return Until(() => p.Position.x > MountainPrototype.StartCell.x + 24f, 150f,
+                () => $"across the plot (at {p.Position}, feet {p.Feet}, target {p.Target}, tree {p.TreeTarget}, clip {p.Clip})");
             p.ScriptedWork = false;
             router.ScriptedMove = null;
-            Assert.Greater(p.DugCount, 0, "dug through rock");
             Assert.Greater(p.Tally.Count, 0);
             yield return new WaitForSeconds(0.5f);
-            Assert.AreEqual(p.TopOf(p.Cell.x, p.Cell.y), p.Feet, "standing on the ground beyond");
             yield return Capture.Take("mountain_prototype");
 
             p.BackToTown();

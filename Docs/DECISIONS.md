@@ -749,3 +749,6 @@ This is an experiment for Kevin: mountains above ground to climb, or to cut thro
 - **The button.** It chops the tree faced. Otherwise it digs the wall faced (head height, then legs), or, standing still, the block underfoot. What is gathered is only tallied (no economy).
 - **Seeing.** Blocks and trees drawn in front of the supplier that overlap them on screen turn see-through (35%); nothing is hidden.
 - **Animation.** It uses the supplier's painted clips (walk, idle, mine, mine down, chop).
+- **Bigger plot and stumps (2026-10-13, Kevin; still the prototype, ahead of replacing the real forest).**
+  - **The plot.** 48 × 48 cells of mountains from value noise: peaks up to seven blocks, slopes of one and of two, with forest valleys between them and an open, flat start. Only the cells in the screen's diamond (plus room for tall columns) are drawn.
+  - **Stumps.** A felled tree leaves a stump. Facing it, the button clears it (one log), and a cleared spot never grows back. A stump left standing grows back into the same kind of tree after `RegrowSeconds` (60 s in the prototype), but not while the supplier stands on it.

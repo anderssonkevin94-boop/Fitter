@@ -8,19 +8,20 @@ using UnityEngine.UI;
 namespace Ravenholm.Presentation
 {
     /// <summary>
-    /// PROTOTYPE ("forest mountains", 2026-10-13): a small plot of forest with height, on the same isometric grid.
+    /// PROTOTYPE ("forest mountains", 2026-10-13): a plot of forest with height, on the same isometric grid.
     ///
-    /// The ground is blocks (half a level tall, like the Mine's). A ridge of rock runs across the plot, up to seven blocks
-    /// above the forest floor; past it is a pocket of forest reached only over or through it. The supplier steps up one
-    /// block at a time and drops down any height; two or more is a wall to walk around, climb by the gentler pass, or dig
-    /// through. The button digs the wall faced (head height, then legs), or, standing still, the block underfoot; facing a
-    /// tree, it chops it. Ore shows in the rock. Self-contained: nothing here touches the company save.
+    /// The ground is blocks (half a level tall, like the Mine's). Mountains rise up to seven blocks above the forest
+    /// floor, with valleys of forest between them; their slopes rise in steps of one (climbable) or two (walls). The
+    /// supplier steps up one block at a time and drops down any height. The button chops the tree faced, clears the
+    /// stump faced, digs the wall faced (head height, then legs), or, standing still, the block underfoot. A stump left
+    /// standing grows back into a tree after a while; a cleared one never does. Ore shows in the rock. Only the area
+    /// around the camera is drawn. Self-contained: nothing here touches the company save.
     /// </summary>
     public sealed class MountainPrototype : MonoBehaviour
     {
         public const string SceneName = "MountainPrototype";
         public const string TownSceneName = "DebugSandbox";
-        public const int Size = 20;          // cells each way
+        public const int Size = 48;          // cells each way
         public const int MaxHeight = 9;      // blocks (z 0..8)
         public const float RowHeight = 0.5f;
         private const float WalkSpeed = 3.2f;
@@ -63,6 +64,15 @@ namespace Ravenholm.Presentation
         private readonly bool[,,] _solid = new bool[Size, Size, MaxHeight];
         private readonly Dictionary<Vector2Int, bool> _trees = new Dictionary<Vector2Int, bool>();   // cell -> leafy?
         private readonly HashSet<Vector2Int> _stumps = new HashSet<Vector2Int>();
+        private readonly Dictionary<Vector2Int, float> _felledAt = new Dictionary<Vector2Int, float>();
+        private readonly Dictionary<Vector2Int, bool> _wasLeafy = new Dictionary<Vector2Int, bool>();
+        private readonly HashSet<Vector2Int> _cleared = new HashSet<Vector2Int>();
+
+        /// <summary>Seconds before a stump left standing grows back into a tree (short, to see it in the prototype).</summary>
+        public static float RegrowSeconds = 60f;
+
+        public bool HasStump(int x, int y) => _stumps.Contains(new Vector2Int(x, y));
+        public bool IsCleared(int x, int y) => _cleared.Contains(new Vector2Int(x, y));
         private readonly Dictionary<Vector3Int, int> _ore = new Dictionary<Vector3Int, int>();      // voxel -> ore index
         private readonly Dictionary<string, int> _tally = new Dictionary<string, int>();
 
@@ -76,10 +86,6 @@ namespace Ravenholm.Presentation
         public int DugCount { get; private set; }
         public IReadOnlyDictionary<string, int> Tally => _tally;
 
-        /// <summary>The ridge's centre line (x) and the pass rows (a gentler climb, one block a step).</summary>
-        public const int RidgeX = 10;
-        public static bool PassRow(int y) => y == 4 || y == 5;
-
         private static float Hash(int x, int y, int salt)
         {
             unchecked
@@ -90,39 +96,50 @@ namespace Ravenholm.Presentation
             }
         }
 
+        /// <summary>Smooth value noise in 0..1 on a grid of <paramref name="scale"/> cells.</summary>
+        private static float Noise(float x, float y, float scale, int salt)
+        {
+            float fx = x / scale, fy = y / scale;
+            int x0 = Mathf.FloorToInt(fx), y0 = Mathf.FloorToInt(fy);
+            float tx = Mathf.SmoothStep(0f, 1f, fx - x0), ty = Mathf.SmoothStep(0f, 1f, fy - y0);
+            return Mathf.Lerp(Mathf.Lerp(Hash(x0, y0, salt), Hash(x0 + 1, y0, salt), tx),
+                              Mathf.Lerp(Hash(x0, y0 + 1, salt), Hash(x0 + 1, y0 + 1, salt), tx), ty);
+        }
+
+        /// <summary>The ground's top (first free level) from the mountains' shape: flat floor, hills, peaks of seven.</summary>
+        private static int Height(int x, int y)
+        {
+            var n = 0.65f * Noise(x, y, 11f, 11) + 0.35f * Noise(x, y, 5f, 12);
+            var m = Mathf.Clamp01((n - 0.42f) / 0.36f);
+            var start = Vector2.Distance(new Vector2(x, y), StartCell) < 6f;   // open, flat ground where the supplier starts
+            var edge = Mathf.Min(Mathf.Min(x, y), Mathf.Min(Size - 1 - x, Size - 1 - y)) < 2;
+            return start || edge ? 1 : 1 + Mathf.RoundToInt(m * (MaxHeight - 2));
+        }
+
         private void Generate()
         {
             for (var x = 0; x < Size; x++)
             for (var y = 0; y < Size; y++)
             {
-                var d = Mathf.Abs(x - RidgeX);
-                int top;
-                if (PassRow(y)) top = 1 + Mathf.Max(0, 4 - d);   // the pass: one block per step
-                else
-                {
-                    // The ridge: steep (two blocks a step), seven blocks above the floor at its crest, a little uneven.
-                    var h = d >= 4 ? 0 : 2 * (3 - d) + 1 + (Hash(x, y, 1) < 0.3f ? 1 : 0);
-                    top = 1 + Mathf.Clamp(h, 0, MaxHeight - 2);
-                }
+                var top = Height(x, y);
                 for (var z = 0; z < top; z++)
                 {
                     _solid[x, y, z] = true;
                     if (z >= 1 && z < top - 1 && Hash(x * 7 + z, y, 2) < 0.12f) _ore[new Vector3Int(x, y, z)] = (int)(Hash(x, y + z, 3) * oreBlocks.Length) % Mathf.Max(1, oreBlocks.Length);
                 }
             }
-            // Forest: thick on both sides of the ridge, thinner on its slopes; open ground where the supplier starts.
+            // Forest: thick in the valleys, thinner up the mountains; open ground where the supplier starts.
             for (var x = 0; x < Size; x++)
             for (var y = 0; y < Size; y++)
             {
-                var d = Mathf.Abs(x - RidgeX);
-                var start = Mathf.Abs(x - StartCell.x) <= 1 && Mathf.Abs(y - StartCell.y) <= 1;
-                if (start || PassRow(y)) continue;
-                var chance = d >= 4 ? 0.42f : 0.12f;
-                if (Hash(x, y, 4) < chance) _trees[new Vector2Int(x, y)] = x > RidgeX && Hash(x, y, 5) < 0.6f;   // leafy trees beyond the ridge
+                if (Vector2.Distance(new Vector2(x, y), StartCell) < 2.5f) continue;
+                var top = TopOf(x, y);
+                var chance = top <= 2 ? 0.42f : top <= 4 ? 0.2f : 0.08f;
+                if (Hash(x, y, 4) < chance) _trees[new Vector2Int(x, y)] = Noise(x, y, 9f, 13) > 0.55f;   // leafy groves here and there
             }
         }
 
-        public static readonly Vector2Int StartCell = new Vector2Int(3, 9);
+        public static readonly Vector2Int StartCell = new Vector2Int(6, 20);
 
         // ------------------------------------------------------------------ drawing
 
@@ -167,7 +184,7 @@ namespace Ravenholm.Presentation
 
         private void DrawVoxel(int x, int y, int z)
         {
-            if (!Inside(x, y)) return;
+            if (!Inside(x, y) || !InArea(x, y)) return;
             var key = new Vector3Int(x, y, z);
             var show = Solid(x, y, z) && Visible(x, y, z);
             if (!show)
@@ -266,6 +283,8 @@ namespace Ravenholm.Presentation
 
         private Vector3Int? _target;       // a block to dig
         private Vector2Int? _treeTarget;   // or a tree to chop
+        private Vector2Int? _stumpTarget;  // or a stump to clear
+        public Vector2Int? StumpTarget => _stumpTarget;
         private float _progress;
         private Vector3Int? _progressOn;
         private HoldSensor _button;
@@ -285,7 +304,10 @@ namespace Ravenholm.Presentation
             var a = c + _facing;
             _target = null;
             _treeTarget = null;
+            _stumpTarget = null;
             if (Inside(a.x, a.y) && HasTree(a.x, a.y) && Mathf.Abs(TopOf(a.x, a.y) - _feet) <= 1) { _treeTarget = a; return; }
+            if (Inside(a.x, a.y) && HasStump(a.x, a.y) && Mathf.Abs(TopOf(a.x, a.y) - _feet) <= 1) { _stumpTarget = a; return; }
+            if (HasStump(c.x, c.y) && still) { _stumpTarget = c; return; }   // the stump underfoot
             if (Solid(a.x, a.y, _feet + 1)) _target = new Vector3Int(a.x, a.y, _feet + 1);
             else if (Solid(a.x, a.y, _feet)) _target = new Vector3Int(a.x, a.y, _feet);
             else if (still && _feet - 1 >= 1 && Solid(c.x, c.y, _feet - 1)) _target = new Vector3Int(c.x, c.y, _feet - 1);
@@ -305,9 +327,28 @@ namespace Ravenholm.Presentation
                 var leafy = _trees[c];
                 _trees.Remove(c);
                 _stumps.Add(c);
+                _felledAt[c] = Time.time;
+                _wasLeafy[c] = leafy;
                 DrawTree(c);
                 Add(leafy ? "resource.maple_log" : "resource.cedar_log", 3);
                 _progress = 0f;
+                FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
+                return;
+            }
+            if (_stumpTarget.HasValue)
+            {
+                // Hitting a stump further pulls it out: the spot stays open for good.
+                var sc = _stumpTarget.Value;
+                var skey = new Vector3Int(sc.x, sc.y, -2);
+                if (_progressOn != skey) { _progressOn = skey; _progress = 0f; }
+                _progress += Time.deltaTime / 0.8f;
+                if (_progress < 1f) return;
+                _progress = 0f;
+                _stumps.Remove(sc);
+                _felledAt.Remove(sc);
+                _cleared.Add(sc);
+                DrawTree(sc);
+                Add(_wasLeafy.TryGetValue(sc, out var lf) && lf ? "resource.maple_log" : "resource.cedar_log", 1);
                 FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
                 return;
             }
@@ -334,6 +375,31 @@ namespace Ravenholm.Presentation
             FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
         }
 
+        /// <summary>Stumps left standing grow back into trees after a while (never under the supplier).</summary>
+        private void Regrow()
+        {
+            if (_felledAt.Count == 0) return;
+            foreach (var kv in new List<KeyValuePair<Vector2Int, float>>(_felledAt))
+            {
+                if (Time.time - kv.Value < RegrowSeconds || kv.Key == Cell) continue;
+                _felledAt.Remove(kv.Key);
+                _stumps.Remove(kv.Key);
+                _trees[kv.Key] = _wasLeafy.TryGetValue(kv.Key, out var leafy) && leafy;
+                DrawTree(kv.Key);
+                _revealKey = "";
+            }
+        }
+
+        /// <summary>Tests: put the supplier on a cell, facing a direction.</summary>
+        public void PutAt(Vector2Int cell, Vector2Int facing)
+        {
+            _p = cell;
+            _feet = TopOf(cell.x, cell.y);
+            _drawFeet = _feet;
+            _facing = facing;
+            Place();
+        }
+
         private void Add(string id, int n) => _tally[id] = (_tally.TryGetValue(id, out var k) ? k : 0) + n;
 
         // ------------------------------------------------------------------ lifecycle
@@ -355,12 +421,6 @@ namespace Ravenholm.Presentation
             _root3 = new GameObject("Plot").transform;
             _root3.SetParent(transform, false);
             Generate();
-            for (var x = 0; x < Size; x++)
-            for (var y = 0; y < Size; y++)
-            {
-                for (var z = 0; z < MaxHeight; z++) DrawVoxel(x, y, z);
-                DrawTree(new Vector2Int(x, y));
-            }
             _highlight = NewRenderer("Target", highlightSprite);
             _highlight.color = new Color(1f, 0.92f, 0.45f, 0.45f);
             _crack = NewRenderer("Crack", null);
@@ -373,6 +433,48 @@ namespace Ravenholm.Presentation
             Place();
             worldCamera.orthographicSize = FollowCamera.OrthoSizeForWidth(9f, worldCamera.aspect);
             worldCamera.transform.position = player.position + new Vector3(0f, 0.4f, -10f);
+            DrawArea(true);
+        }
+
+        // ------------------------------------------------------------------ drawing only around the camera
+
+        private Vector2Int _areaCentre = new Vector2Int(-999, -999);
+        private int _sumReach = 30, _diffReach = 20;   // the screen as a diamond of cells: tall (x + y) and narrow (x − y)
+
+        /// <summary>The camera's cell on the floor (its centre, ignoring height).</summary>
+        private Vector2Int CameraCell()
+        {
+            var c = (Vector2)worldCamera.transform.position;
+            float sum = (c.y - 0.25f - RowHeight) * 4f, diff = c.x * 2f;
+            return new Vector2Int(Mathf.RoundToInt((sum + diff) * 0.5f), Mathf.RoundToInt((sum - diff) * 0.5f));
+        }
+
+        private bool InArea(int x, int y) =>
+            Mathf.Abs(x + y - _areaCentre.x - _areaCentre.y) <= _sumReach && Mathf.Abs(x - y - _areaCentre.x + _areaCentre.y) <= _diffReach;
+
+        private void DrawArea(bool force)
+        {
+            var c = CameraCell();
+            if (!force && Mathf.Abs(c.x - _areaCentre.x) + Mathf.Abs(c.y - _areaCentre.y) < 3) return;
+            _areaCentre = c;
+            // Screen height in cells of x + y (a quarter unit each), plus room for the tallest columns; width in x − y.
+            var halfH = worldCamera.orthographicSize + 1f;
+            _sumReach = Mathf.CeilToInt(halfH * 4f) + 2 * MaxHeight + 2;
+            _diffReach = Mathf.CeilToInt((halfH * worldCamera.aspect + 1f) * 2f) + 2;
+            foreach (var k in new List<Vector3Int>(_blocks.Keys))
+                if (!InArea(k.x, k.y)) { Destroy(_blocks[k].gameObject); _blocks.Remove(k); }
+            foreach (var k in new List<Vector2Int>(_treeSprites.Keys))
+                if (!InArea(k.x, k.y)) { Destroy(_treeSprites[k].gameObject); _treeSprites.Remove(k); }
+            var reach = (_sumReach + _diffReach) / 2 + 1;
+            for (var x = c.x - reach; x <= c.x + reach; x++)
+            for (var y = c.y - reach; y <= c.y + reach; y++)
+            {
+                if (!Inside(x, y) || !InArea(x, y)) continue;
+                for (var z = 0; z < MaxHeight; z++)
+                    if (!_blocks.ContainsKey(new Vector3Int(x, y, z))) DrawVoxel(x, y, z);
+                if (!_treeSprites.ContainsKey(new Vector2Int(x, y))) DrawTree(new Vector2Int(x, y));
+            }
+            _revealKey = "";
         }
 
         private void Update()
@@ -386,10 +488,12 @@ namespace Ravenholm.Presentation
             Place();
             Animate(moving);
             Highlight();
+            DrawArea(false);
+            Regrow();
             Reveal();
             worldCamera.orthographicSize = FollowCamera.OrthoSizeForWidth(9f, worldCamera.aspect);
             worldCamera.transform.position = Vector3.Lerp(worldCamera.transform.position, player.position + new Vector3(0f, 0.4f, -10f), 1f - Mathf.Exp(-6f * Time.deltaTime));
-            if (_buttonLabel != null) _buttonLabel.text = _treeTarget.HasValue ? "Chop" : "Dig";
+            if (_buttonLabel != null) _buttonLabel.text = _treeTarget.HasValue ? "Chop" : _stumpTarget.HasValue ? "Clear" : "Dig";
             if (_status != null) _status.text = StatusText();
         }
 
@@ -451,7 +555,7 @@ namespace Ravenholm.Presentation
             var back = _heading.y > 0.02f;
             var mirrored = _heading.x > 0f;
             string name;
-            if (Working && _treeTarget.HasValue) name = FacingView("chop", out back, out mirrored);
+            if (Working && (_treeTarget.HasValue || _stumpTarget.HasValue)) name = FacingView("chop", out back, out mirrored);
             else if (Working && _target.HasValue) name = _target.Value.z < _feet ? "mine_down_front" : FacingView("mine", out back, out mirrored);
             else if (moving) name = back ? "walk_back" : "walk_front";
             else name = back ? "idle_back" : "idle_front";
@@ -483,7 +587,7 @@ namespace Ravenholm.Presentation
         {
             var parts = new List<string>();
             foreach (var kv in _tally) parts.Add($"{UnitVisuals.DisplayName(kv.Key)} {kv.Value}");
-            var where = _p.x > RidgeX + 3 ? "beyond the ridge" : _feet > 1 ? $"{_feet - 1} blocks up" : "on the forest floor";
+            var where = _feet > 1 ? $"{_feet - 1} blocks up" : "on the forest floor";
             return $"<b>{where}</b> · " + (parts.Count == 0 ? "nothing gathered yet" : string.Join(" · ", parts));
         }
 
@@ -507,7 +611,7 @@ namespace Ravenholm.Presentation
             var card = ui.Panel("Card", safe, theme.panel);
             UiFactory.Place(card.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(1100f, 300f));
             var title = ui.Text("Title", card.transform,
-                "<b>Prototype: forest mountains</b>\nStep up one block at a time, drop down any height. Two or more is a wall: find the gentler pass, or dig through. The button digs the wall you face, or chops the tree you face; stand still to dig down.",
+                "<b>Prototype: forest mountains</b>\nStep up one block at a time, drop down any height; two or more is a wall to go around or dig through. The button chops the tree you face, clears a stump (it won't grow back), or digs; stand still to dig down. Stumps left standing regrow.",
                 theme.smallSize - 6f, theme.ink, TextAlignmentOptions.TopLeft);
             UiFactory.Place(title.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -20f), new Vector2(1040f, 200f));
             _status = ui.Text("Status", card.transform, "", theme.smallSize - 6f, theme.ink, TextAlignmentOptions.BottomLeft);
