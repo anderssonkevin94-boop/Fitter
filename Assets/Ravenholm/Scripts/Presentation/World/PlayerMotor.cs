@@ -132,7 +132,7 @@ namespace Ravenholm.Presentation
             var axes = set != null ? set.WalkAxes : Vector2.zero;
             if (axes.x <= 0f || axes.y <= 0f) return move * _root.Config.Balance.walkSpeed;
             var size = visual != null ? Mathf.Abs(visual.localScale.y) : 1f;
-            return new Vector2(move.x * axes.x, move.y * axes.y) * (set.walkPlaybackRate * size);
+            return new Vector2(move.x * axes.x, move.y * axes.y) * (set.walkPlaybackRate * set.walkGroundFactor * size);
         }
         /// <summary>Underground the supplier is drawn a little smaller so a two-block tunnel fits them (the art is one unit tall).</summary>
         public const float UndergroundScale = 0.9f;

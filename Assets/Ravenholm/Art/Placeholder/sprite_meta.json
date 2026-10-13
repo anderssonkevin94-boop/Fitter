@@ -197,28 +197,28 @@
   },
   "Characters/Supplier/dwarf_walk_E_0.png": {
    "pivot": [
-    0.4095,
+    0.4015,
     0.1004
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_E_1.png": {
    "pivot": [
-    0.4216,
-    0.0837
+    0.4914,
+    0.0756
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_E_2.png": {
    "pivot": [
-    0.4216,
-    0.0841
+    0.3909,
+    0.0759
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_E_3.png": {
    "pivot": [
-    0.4216,
+    0.4841,
     0.1004
    ],
    "ppu": 240
@@ -232,28 +232,28 @@
   },
   "Characters/Supplier/dwarf_walk_NE_0.png": {
    "pivot": [
-    0.4406,
-    0.0965
+    0.4384,
+    0.1121
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_NE_1.png": {
    "pivot": [
-    0.4476,
-    0.0793
+    0.4452,
+    0.0913
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_NE_2.png": {
    "pivot": [
-    0.4565,
-    0.0372
+    0.4532,
+    0.019
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_NE_3.png": {
    "pivot": [
-    0.442,
+    0.4932,
     0.055
    ],
    "ppu": 240
@@ -267,28 +267,28 @@
   },
   "Characters/Supplier/dwarf_walk_NW_0.png": {
    "pivot": [
-    0.5594,
-    0.0965
+    0.5616,
+    0.1121
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_NW_1.png": {
    "pivot": [
-    0.5524,
-    0.0793
+    0.5548,
+    0.0913
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_NW_2.png": {
    "pivot": [
-    0.5435,
-    0.0372
+    0.5468,
+    0.019
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_NW_3.png": {
    "pivot": [
-    0.558,
+    0.5068,
     0.055
    ],
    "ppu": 240
@@ -302,29 +302,29 @@
   },
   "Characters/Supplier/dwarf_walk_N_0.png": {
    "pivot": [
-    0.5062,
-    0.0636
+    0.5031,
+    0.0885
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_N_1.png": {
    "pivot": [
-    0.5217,
-    0.0459
+    0.5188,
+    0.0673
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_N_2.png": {
    "pivot": [
-    0.5123,
-    0.0461
+    0.5122,
+    0.0633
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_N_3.png": {
    "pivot": [
-    0.4969,
-    0.0759
+    0.497,
+    0.1154
    ],
    "ppu": 240
   },
@@ -337,29 +337,29 @@
   },
   "Characters/Supplier/dwarf_walk_SE_0.png": {
    "pivot": [
-    0.4897,
-    0.0679
+    0.4615,
+    0.0636
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_SE_1.png": {
    "pivot": [
-    0.4762,
-    0.0459
+    0.4899,
+    0.0189
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_SE_2.png": {
    "pivot": [
-    0.4934,
-    0.0881
+    0.5032,
+    0.1
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_SE_3.png": {
    "pivot": [
-    0.5033,
-    0.1043
+    0.5064,
+    0.1234
    ],
    "ppu": 240
   },
@@ -372,29 +372,29 @@
   },
   "Characters/Supplier/dwarf_walk_SW_0.png": {
    "pivot": [
-    0.5103,
-    0.0679
+    0.5385,
+    0.0636
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_SW_1.png": {
    "pivot": [
-    0.5238,
-    0.0459
+    0.5101,
+    0.0189
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_SW_2.png": {
    "pivot": [
-    0.5066,
-    0.0881
+    0.4968,
+    0.1
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_SW_3.png": {
    "pivot": [
-    0.4967,
-    0.1043
+    0.4936,
+    0.1234
    ],
    "ppu": 240
   },
@@ -407,29 +407,29 @@
   },
   "Characters/Supplier/dwarf_walk_S_0.png": {
    "pivot": [
-    0.4882,
-    0.0762
+    0.4912,
+    0.1159
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_S_1.png": {
    "pivot": [
-    0.497,
-    0.0502
+    0.5,
+    0.0631
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_S_2.png": {
    "pivot": [
-    0.497,
-    0.0461
+    0.5,
+    0.0676
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_S_3.png": {
    "pivot": [
-    0.479,
-    0.0633
+    0.4788,
+    0.0921
    ],
    "ppu": 240
   },
@@ -442,28 +442,28 @@
   },
   "Characters/Supplier/dwarf_walk_W_0.png": {
    "pivot": [
-    0.5905,
+    0.5985,
     0.1004
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_W_1.png": {
    "pivot": [
-    0.5784,
-    0.0837
+    0.5086,
+    0.0756
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_W_2.png": {
    "pivot": [
-    0.5784,
-    0.0841
+    0.6091,
+    0.0759
    ],
    "ppu": 240
   },
   "Characters/Supplier/dwarf_walk_W_3.png": {
    "pivot": [
-    0.5784,
+    0.5159,
     0.1004
    ],
    "ppu": 240

@@ -806,3 +806,9 @@ Astra's dwarf (`ArtSource/dwarf-v1`, imported by `Tools/ArtImport/import_dwarf.p
   - A diagonal push on the stick moves along a grid axis and faces the diagonal clip.
   - Playback follows the ground actually covered: a half push plays half as fast, so the feet stay planted. Turning while walking keeps the step's phase.
   - **Known:** the feet are exact at frame boundaries. Between them a held frame glides with the continuous movement (by Astra's note).
+- **The longer stride (2026-10-13, Kevin: "too slow with too many steps"; supersedes the 2× note above).**
+  - Astra's v2 steps cover only about 0.14 units. Planted feet at a decent speed meant about 9 steps a second.
+  - The walk is re-rendered from her cutout rig with twice the stride, a higher lift and more arm swing (`ArtSource/dwarf-v3-stride`, `render_v.py` with `STRIDE=80 LIFT=18 ARM=1.8`). Her standing poses are unchanged.
+  - Playback is 1.3× (69 ms frames, about 5.8 steps a second).
+  - `walkGroundFactor` 1.25 lets the ground run a quarter ahead of the planted feet. That gives about 2.0 units/s sideways and 1.0 up or down.
+  - Both factors are tunable on `SupplierAnimations.asset`.

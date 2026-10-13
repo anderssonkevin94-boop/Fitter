@@ -30,8 +30,10 @@ namespace Ravenholm.Presentation
 
         public List<Clip> clips = new List<Clip>();
 
-        [Tooltip("How much faster than painted the walk plays at full stick. Movement speed scales with it, so the feet stay planted (2026-10-13, Kevin: 2x, a 225 ms loop).")]
-        [Min(0.1f)] public float walkPlaybackRate = 2f;
+        [Tooltip("How much faster than painted the walk plays at full stick. Movement speed scales with it (the longer-stride walk, 2026-10-13: 1.3, a 346 ms loop).")]
+        [Min(0.1f)] public float walkPlaybackRate = 1.3f;
+        [Tooltip("Ground covered over what keeps the feet planted (1 = planted; 1.25: a quarter more, a little slide for a brisker walk).")]
+        [Min(0.1f)] public float walkGroundFactor = 1.25f;
 
         /// <summary>
         /// The walk's full-stick speeds at painted timing (units/s): sideways (x) and up or down the screen (y), from the

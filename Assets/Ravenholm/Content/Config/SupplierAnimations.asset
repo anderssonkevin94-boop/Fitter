@@ -29,7 +29,7 @@ MonoBehaviour:
     - 0.09
     - 0.09
     carry: []
-    velocity: {x: 0, y: 0.30864}
+    velocity: {x: 0, y: 0.61728}
   - name: idle_N
     fps: 1
     loop: 1
@@ -55,7 +55,7 @@ MonoBehaviour:
     - 0.09
     - 0.09
     carry: []
-    velocity: {x: 0.43642, y: 0.21821}
+    velocity: {x: 0.87284, y: 0.43642}
   - name: idle_NE
     fps: 1
     loop: 1
@@ -81,7 +81,7 @@ MonoBehaviour:
     - 0.09
     - 0.09
     carry: []
-    velocity: {x: 0.61728, y: 0}
+    velocity: {x: 1.23457, y: 0}
   - name: idle_E
     fps: 1
     loop: 1
@@ -107,7 +107,7 @@ MonoBehaviour:
     - 0.09
     - 0.09
     carry: []
-    velocity: {x: 0.43642, y: -0.21821}
+    velocity: {x: 0.87284, y: -0.43642}
   - name: idle_SE
     fps: 1
     loop: 1
@@ -133,7 +133,7 @@ MonoBehaviour:
     - 0.09
     - 0.09
     carry: []
-    velocity: {x: 0, y: -0.30864}
+    velocity: {x: 0, y: -0.61728}
   - name: idle_S
     fps: 1
     loop: 1
@@ -159,7 +159,7 @@ MonoBehaviour:
     - 0.09
     - 0.09
     carry: []
-    velocity: {x: -0.43642, y: -0.21821}
+    velocity: {x: -0.87284, y: -0.43642}
   - name: idle_SW
     fps: 1
     loop: 1
@@ -185,7 +185,7 @@ MonoBehaviour:
     - 0.09
     - 0.09
     carry: []
-    velocity: {x: -0.61728, y: 0}
+    velocity: {x: -1.23457, y: 0}
   - name: idle_W
     fps: 1
     loop: 1
@@ -211,7 +211,7 @@ MonoBehaviour:
     - 0.09
     - 0.09
     carry: []
-    velocity: {x: -0.43642, y: 0.21821}
+    velocity: {x: -0.87284, y: 0.43642}
   - name: idle_NW
     fps: 1
     loop: 1
@@ -221,4 +221,5 @@ MonoBehaviour:
     - 1
     carry: []
     velocity: {x: 0, y: 0}
-  walkPlaybackRate: 2
+  walkPlaybackRate: 1.3
+  walkGroundFactor: 1.25

@@ -131,7 +131,7 @@ namespace Ravenholm.Tests
             var motor = player.GetComponent<PlayerMotor>();
             var anim = player.GetComponentInChildren<SupplierAnimator>();
             var set = anim.Set;
-            Assert.AreEqual(2f, set.walkPlaybackRate, "Kevin's choice: twice the painted speed");
+            var rate = set.walkPlaybackRate;
             var start = (Vector2)player.position;
             string[] dirs = { "E", "NE", "N", "NW", "W", "SW", "S", "SE" };
             for (var k = 0; k < 8; k++)
@@ -148,10 +148,10 @@ namespace Ravenholm.Tests
                 yield return new WaitForSeconds(0.45f);
                 var v = ((Vector2)player.position - p0) / (Time.time - t0);
                 var clip = set.Get("walk_" + dirs[k]);
-                var planted = clip.velocity * anim.PlaybackRate;    // the ground the painted feet cover at this playback
+                var planted = clip.velocity * anim.PlaybackRate * set.walkGroundFactor;    // the painted feet's ground at this playback (and slide)
                 Assert.Less((v - planted).magnitude, 0.05f * planted.magnitude + 0.01f,
                     $"{dirs[k]}: feet planted (moves {v}, painted {planted} at {anim.PlaybackRate:F2}x)");
-                Assert.AreEqual(2f, anim.PlaybackRate, 0.1f, $"{dirs[k]}: full stick plays at twice the painted timing");
+                Assert.AreEqual(rate, anim.PlaybackRate, 0.1f, $"{dirs[k]}: full stick plays at the set's playback rate");
                 Assert.IsFalse(anim.GetComponentInChildren<SpriteRenderer>().flipX, "never mirrored");
                 if (dirs[k] == "SE") yield return Capture.Take("dwarf_walk_SE");
             }
@@ -168,7 +168,7 @@ namespace Ravenholm.Tests
             // A half push walks at half speed with half-speed steps (still planted).
             Stick(new Vector2(1f, 1f).normalized * 0.5f);
             yield return new WaitForSeconds(0.4f);
-            Assert.AreEqual(1f, anim.PlaybackRate, 0.15f, "half the playback");
+            Assert.AreEqual(rate * 0.5f, anim.PlaybackRate, 0.15f, "half the playback");
 
             // Stopping stands, facing the way it walked.
             Stick(null);

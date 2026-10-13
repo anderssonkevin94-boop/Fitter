@@ -309,7 +309,7 @@ namespace Ravenholm.Presentation
         private float ComputeWalkRate(CharacterAnimationSet.Clip clip)
         {
             if (!clip.name.Contains("walk")) return 1f;
-            var painted = clip.velocity.magnitude * Mathf.Abs(transform.lossyScale.y);
+            var painted = clip.velocity.magnitude * set.walkGroundFactor * Mathf.Abs(transform.lossyScale.y);
             if (painted <= 0f) return set.walkPlaybackRate;
             if (_speed < 0.02f) return set.walkPlaybackRate;
             return Mathf.Clamp(_speed / painted, 0.25f, set.walkPlaybackRate * 1.5f);
