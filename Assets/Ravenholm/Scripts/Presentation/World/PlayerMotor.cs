@@ -52,7 +52,7 @@ namespace Ravenholm.Presentation
             }
             SetHidden(false);
             if (slab != null && slab.PlayerInside) slab.UpdatePlayer(move);
-            else if (move.sqrMagnitude > 0.0001f) WalkTown(move, slab);
+            else if (move.sqrMagnitude > 0.0001f || _walkVel.sqrMagnitude > 0.0004f) WalkTown(move, slab);   // easing to a stop too
 
             if (visual != null && _animator != null)
             {
@@ -146,7 +146,12 @@ namespace Ravenholm.Presentation
             Vector2 old = transform.position;
             // Standing over thin air (an old save, or ground that moved): back to the Mine's entry rather than stuck.
             if (mine != null && !mine.OnGround(old)) { Teleport(mine.BesideEntry); return; }
-            var delta = WalkVelocity(move) * Time.deltaTime;
+            // Ease into and out of walking (a tenth of a second to full speed, a little longer to stop), so starts
+            // and stops aren't instant.
+            var target = WalkVelocity(move);
+            var rate = target.sqrMagnitude >= _walkVel.sqrMagnitude ? WalkAcceleration : WalkAcceleration * 0.7f;
+            _walkVel = Vector2.MoveTowards(_walkVel, target, rate * Time.deltaTime);
+            var delta = _walkVel * Time.deltaTime;
             var p = Slide(old, delta, balance.playerFootprintRadius, _blockerMask);
             var b = _root.Config.SandboxSettings.WorldBounds;
             p.x = Mathf.Clamp(p.x, b.xMin + 0.4f, b.xMax - 0.4f);
@@ -168,6 +173,8 @@ namespace Ravenholm.Presentation
                 p = SlideOnCells(old, p - old, q => (mine == null || mine.SurfaceWalkable(q)) && (forest == null || forest.CanEnter(old, q))
                                                     && (Pressing(q, Open) & ~pressed) == 0);
             if (forest != null) forest.Commit(old, p);
+            // Blocked or slid: carry on with the speed actually made.
+            if (Time.deltaTime > 0f) { var made = (p - old) / Time.deltaTime; if (made.sqrMagnitude < _walkVel.sqrMagnitude) _walkVel = made; }
             transform.position = new Vector3(p.x, p.y, 0f);
             _root.Services.Sandbox.ReportPlayerPosition(p.x, p.y);
         }
@@ -178,6 +185,10 @@ namespace Ravenholm.Presentation
         /// cliff or a trunk.
         /// </summary>
         public const float BodyClearance = 0.3f;
+
+        /// <summary>How fast walking speeds up (units/s each second): about a tenth of a second to full speed.</summary>
+        public const float WalkAcceleration = 20f;
+        private Vector2 _walkVel;
 
         private static readonly Vector2 CellX = new Vector2(0.5f, 0.25f), CellY = new Vector2(-0.5f, 0.25f);
 
@@ -269,6 +280,7 @@ namespace Ravenholm.Presentation
         public void Teleport(Vector2 position)
         {
             MineSlabView.Current?.Leave();   // always onto the town's plane (out of the Mine)
+            _walkVel = Vector2.zero;
             transform.position = new Vector3(position.x, position.y, 0f);
             if (_root != null) _root.Services.Sandbox.ReportPlayerPosition(position.x, position.y);
         }

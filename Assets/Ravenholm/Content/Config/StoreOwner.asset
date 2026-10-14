@@ -98,8 +98,8 @@ MonoBehaviour:
   packWidth: 0.04
   shelfDepth: 0.17
   limbMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
-  stride: 0.62
+  stride: 0.9
   footLift: 0.06
-  bounce: 0.025
-  armSwing: 0.07
+  bounce: 0.035
+  armSwing: 0.1
   bow: 0.55

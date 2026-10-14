@@ -47,6 +47,26 @@ namespace Ravenholm.Presentation
         private Transform _rig;
         private SpriteRenderer _body, _bootL, _bootR, _handL, _handR, _tool;
         private Transform _toolPivot;
+        private Vector2 _handLp, _handLv, _handRp, _handRv;
+        private float _squash = 1f, _footRollL, _footRollR, _turn;
+        private string _lastView = "";
+
+        /// <summary>A damped spring toward a target (snaps when far, e.g. after a big jump).</summary>
+        private Vector2 Spring(ref Vector2 p, ref Vector2 vel, Vector2 target, float dt)
+        {
+            if ((p - target).sqrMagnitude > 0.09f || dt <= 0f) { p = target; vel = Vector2.zero; return p; }
+            var w = 2f * Mathf.PI * definition.armSpringHz;
+            var z = definition.armSpringDamping;
+            var steps = Mathf.Max(1, Mathf.CeilToInt(dt / 0.008f));   // stable at low frame rates
+            var h = dt / steps;
+            for (var i = 0; i < steps; i++)
+            {
+                var acc = w * w * (target - p) - 2f * z * w * vel;
+                vel += acc * h;
+                p += vel * h;
+            }
+            return p;
+        }
         private bool _toolFront;
         private float _lean;
         private Tube _armL, _armR, _legL, _legR, _packBar, _packShelf, _packLip, _sleeveL, _sleeveR;
@@ -157,29 +177,50 @@ namespace Ravenholm.Presentation
             var side = ViewName == "S" || ViewName == "N";
             var back = ViewName == "N" || ViewName == "NE";
 
-            // --- the walk: the phase follows the ground covered, so the supporting foot stays put
+            // --- the walk (a bouncy cartoon walk built on the four classic poses: contact, down, passing, up). The phase
+            // follows the ground covered, so the supporting foot stays planted at any speed.
             var walking = pose == Pose.Walk || pose == Pose.Carry && moved > 0.0001f;   // carrying walks like walking (the pile is on his back)
             var speed = dt > 0f ? moved / dt : 0f;
-            var stride = definition.stride * Mathf.Clamp(0.75f + 0.125f * speed, 0.75f, 1.15f);
-            if (walking) { _phase = Mathf.Repeat(_phase + moved / stride, 1f); _settle = 1f; }
-            else _settle = Mathf.MoveTowards(_settle, 0f, dt * 6f);   // feet come back together when stopping
-            var amp = 0.3f * stride * _settle;
-            float Travel(float t, out float lift)
+            var stride = definition.stride * Mathf.Clamp(0.8f + 0.1f * speed, 0.8f, 1.1f);
+            if (walking) _phase = Mathf.Repeat(_phase + moved / stride, 1f);
+            _settle = Mathf.MoveTowards(_settle, walking ? 1f : 0f, dt * (walking ? 8f : 5f));   // ease into and out of the walk
+            var s = Mathf.SmoothStep(0f, 1f, _settle);
+            var duty = definition.duty;
+            var amp = duty * stride * 0.5f * s;   // the stance foot travels exactly the ground covered: planted
+            float Travel(float t, out float lift, out float roll)
             {
                 t = Mathf.Repeat(t, 1f);
-                if (t < 0.6f) { lift = 0f; return 1f - t / 0.3f; }   // stance: from in front to behind, planted
-                var u = (t - 0.6f) / 0.4f;
+                if (t < duty)
+                {
+                    lift = 0f;
+                    var k = t / duty;
+                    roll = k < 0.2f ? 1f - k / 0.2f : k > 0.75f ? -(k - 0.75f) / 0.25f : 0f;   // toe up at strike, heel up at push-off
+                    return 1f - 2f * k;
+                }
+                var u = (t - duty) / (1f - duty);
                 lift = Mathf.Sin(Mathf.PI * u);
-                return -Mathf.Cos(Mathf.PI * u);                    // swing: back to the front, lifted
+                roll = Mathf.Lerp(-1f, 1f, Mathf.SmoothStep(0f, 1f, u));
+                return -Mathf.Cos(Mathf.PI * u);
             }
-            var trL = Travel(_phase, out var liftL);
-            var trR = Travel(_phase + 0.5f, out var liftR);
-            liftL *= _settle;
-            liftR *= _settle;
-            var footL = f * (trL * amp) + Vector2.up * (liftL * definition.footLift);
-            var footR = f * (trR * amp) + Vector2.up * (liftR * definition.footLift);
-            var bounce = definition.bounce * _settle * Mathf.Abs(Mathf.Sin(2f * Mathf.PI * _phase));
-            var bodyY = bounce;
+            var trL = Travel(_phase, out var liftL, out var rollL);
+            var trR = Travel(_phase + 0.5f, out var liftR, out var rollR);
+            var footL = f * (trL * amp) + Vector2.up * (liftL * definition.footLift * s);
+            var footR = f * (trR * amp) + Vector2.up * (liftR * definition.footLift * s);
+            // Down just after each heel strike, up at passing: a smooth double bob, with squash and stretch.
+            var wave = -Mathf.Cos(4f * Mathf.PI * (_phase - 0.06f)) * s;   // -1 down .. +1 up
+            var bodyY = definition.bounce * wave;
+            _squash = 1f + definition.squash * wave;
+            // Weight over the supporting foot (left during the first half), a forward lean, a side-to-side tilt.
+            var g0 = GroundFacing(ViewName);
+            var leftGround = new Vector2(-g0.y, g0.x);
+            var leftScreen = new Vector2(leftGround.x, leftGround.y * 0.5f);
+            var swayX = leftScreen * (definition.sway * s * Mathf.Cos(2f * Mathf.PI * (_phase - 0.25f)));
+            var walkLean = -Mathf.Sign(f.x) * definition.walkLean * s * Mathf.Abs(f.x)
+                           + definition.walkTilt * s * Mathf.Sin(2f * Mathf.PI * _phase) * (1f - Mathf.Abs(f.x));
+            _footRollL = rollL * definition.footRoll * s * Mathf.Sign(f.x) * Mathf.Abs(f.x);
+            _footRollR = rollR * definition.footRoll * s * Mathf.Sign(f.x) * Mathf.Abs(f.x);
+            if (ViewName != _lastView) { _turn = 1f; _lastView = ViewName; }   // a quick squash covers the turn
+            _turn = Mathf.MoveTowards(_turn, 0f, dt * 8f);
 
             // --- work and other poses
             Vector2 wristL = v.wristLeft, wristR = v.wristRight;
@@ -188,9 +229,9 @@ namespace Ravenholm.Presentation
             Sprite handSpriteL = HandOpen(), handSpriteR = HandOpen();
             _tool.enabled = false;
             CarryAnchor = null;
-            var shoulderL = v.shoulderLeft + Vector2.up * bodyY;
-            var shoulderR = v.shoulderRight + Vector2.up * bodyY;
-            _lean = 0f;
+            var shoulderL = v.shoulderLeft + Vector2.up * bodyY + swayX;
+            var shoulderR = v.shoulderRight + Vector2.up * bodyY + swayX;
+            _lean = working ? 0f : walkLean;
             if (working)
             {
                 // The swing (after references on swing animation: a held wind-up leaning back, a fast strike, a short
@@ -256,11 +297,20 @@ namespace Ravenholm.Presentation
             }
             else
             {
-                // Hands swing against the feet; standing, a slow breath.
-                var breath = walking ? 0f : Mathf.Sin(Time.time * 2.2f) * 0.006f;
-                wristL = v.wristLeft + depth * (-trL * definition.armSwing * _settle) + Vector2.up * (bodyY + breath);
-                wristR = v.wristRight + depth * (-trR * definition.armSwing * _settle) + Vector2.up * (bodyY + breath);
+                // Big arm arcs against the legs (rising at the ends of the swing), followed through springs so they
+                // trail the body and overshoot a little. Standing, a slow breath.
+                var breath = Mathf.Sin(Time.time * 2.2f) * 0.006f * (1f - s);
+                var swingL = -Mathf.Cos(2f * Mathf.PI * (_phase - 0.04f)) * s;
+                var swingR = -swingL;
+                Vector2 Arm(Vector2 rest, float sw) => rest + swayX + Vector2.up * (bodyY + breath)
+                    + depth * (sw * definition.armSwing) + Vector2.up * (sw * sw * definition.armSwing * 0.35f);
+                wristL = Spring(ref _handLp, ref _handLv, Arm(v.wristLeft, swingL), dt);
+                wristR = Spring(ref _handRp, ref _handRv, Arm(v.wristRight, swingR), dt);
                 bodyY += breath;
+            }
+            if (working || pose == Pose.Pickup || pose == Pose.Fall || pose == Pose.Climb)
+            {
+                _handLp = wristL; _handRp = wristR; _handLv = _handRv = Vector2.zero;   // posed directly; springs pick up from here
             }
 
             // --- place the painted parts
@@ -269,11 +319,15 @@ namespace Ravenholm.Presentation
             var hipsAt = (v.hipLeft + v.hipRight) * 0.5f;
             var leanRot = Quaternion.Euler(0f, 0f, _lean);
             _body.transform.localRotation = leanRot;
-            _body.transform.localPosition = (Vector3)(hipsAt - (Vector2)(leanRot * hipsAt)) + new Vector3(0f, bodyY, 0f);
+            _body.transform.localPosition = (Vector3)(hipsAt - (Vector2)(leanRot * hipsAt)) + new Vector3(swayX.x, bodyY + swayX.y, 0f);
+            var turnSquash = 1f - 0.08f * Mathf.Sin(_turn * Mathf.PI);
+            _body.transform.localScale = new Vector3((2f - _squash) * turnSquash, _squash, 1f);
             _bootL.sprite = v.bootLeft;
             _bootR.sprite = v.bootRight;
             _bootL.transform.localPosition = footL;
             _bootR.transform.localPosition = footR;
+            _bootL.transform.localRotation = Quaternion.Euler(0f, 0f, _footRollL);
+            _bootR.transform.localRotation = Quaternion.Euler(0f, 0f, _footRollR);
             LeftFoot = v.ankleLeft + footL;
             RightFoot = v.ankleRight + footR;
             _handL.sprite = handSpriteL;
@@ -284,8 +338,8 @@ namespace Ravenholm.Presentation
 
             // --- the hoses
             var outline = OutlineWidth();
-            var hipL = v.hipLeft + Vector2.up * bodyY;
-            var hipR = v.hipRight + Vector2.up * bodyY;
+            var hipL = v.hipLeft + Vector2.up * bodyY + swayX;
+            var hipR = v.hipRight + Vector2.up * bodyY + swayX;
             var legLen = Vector2.Distance(v.hipLeft, v.ankleLeft);
             var armLen = Vector2.Distance(v.shoulderLeft, v.wristLeft);
             var kneeDir = side ? Vector2.zero : f;   // knees bow forward; head-on they bow slightly outward
@@ -410,7 +464,10 @@ namespace Ravenholm.Presentation
             var normal = new Vector2(-along.y, along.x);
             if (bowDir.sqrMagnitude > 0.0001f && Vector2.Dot(normal, bowDir) < 0f) normal = -normal;
             // (A rest length of 0 draws it straight: the pack.)
-            var bow = bowDir.sqrMagnitude > 0.0001f ? definition.bow * Mathf.Sqrt(Mathf.Max(0f, restLength * restLength - d * d)) * 0.5f + restLength * 0.06f : restLength * 0.04f;
+            // The bow grows smoothly as the ends come together (no snap as the hose straightens); a stretched hose keeps a
+            // slight curve, the rubber-hose look.
+            var compress = restLength > 0f ? Mathf.Clamp01(1f - d / restLength) : 0f;
+            var bow = bowDir.sqrMagnitude > 0.0001f ? restLength * (definition.bow * 0.9f * compress + 0.07f) : restLength * 0.04f;
             var c1 = a + (b - a) / 3f + normal * bow * 1.33f;
             var c2 = a + (b - a) * (2f / 3f) + normal * bow * 1.33f;
             _path.Clear();

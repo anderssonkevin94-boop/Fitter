@@ -54,15 +54,30 @@ namespace Ravenholm.Presentation
 
         [Header("Motion")]
         [Tooltip("Stride (ground covered per two steps) at walking speed, in units; it grows a little with speed.")]
-        [Min(0.05f)] public float stride = 0.62f;
+        [Min(0.05f)] public float stride = 0.9f;
         [Tooltip("How high a swinging boot lifts, in units.")]
         [Min(0f)] public float footLift = 0.06f;
         [Tooltip("The body's bounce over each step, in units.")]
-        [Min(0f)] public float bounce = 0.025f;
+        [Min(0f)] public float bounce = 0.035f;
         [Tooltip("How far the hands swing forward and back while walking, in units.")]
-        [Min(0f)] public float armSwing = 0.07f;
+        [Min(0f)] public float armSwing = 0.1f;
         [Tooltip("How far a hose bows when its ends come closer than its length (0 = straight, 1 = a half circle).")]
         [Range(0f, 1f)] public float bow = 0.55f;
+
+        [Header("Walk feel (the bouncy cartoon walk, 2026-10-14)")]
+        [Tooltip("Share of the cycle each foot is on the ground (0.5: no double support, a springy gait).")]
+        [Range(0.4f, 0.7f)] public float duty = 0.5f;
+        [Tooltip("How far the body shifts toward the supporting foot, in units.")]
+        [Min(0f)] public float sway = 0.02f;
+        [Tooltip("Squash at the bottom of each step and stretch at the top (fraction of height).")]
+        [Range(0f, 0.15f)] public float squash = 0.04f;
+        [Tooltip("Forward lean while walking (side views), and side-to-side tilt head-on, in degrees.")]
+        [Min(0f)] public float walkLean = 5f, walkTilt = 3f;
+        [Tooltip("How much the boots roll: toe up at heel strike, heel up at push-off (degrees).")]
+        [Min(0f)] public float footRoll = 16f;
+        [Tooltip("How quickly the hands follow their swing (spring frequency, Hz) and how bouncy (damping ratio, 1 = none).")]
+        [Min(1f)] public float armSpringHz = 3.2f;
+        [Range(0.2f, 1f)] public float armSpringDamping = 0.55f;
 
         public View Get(string name)
         {

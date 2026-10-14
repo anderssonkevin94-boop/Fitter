@@ -910,3 +910,14 @@ The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): fla
   - The painted sleeves are taken off the body pieces (`Tools/ArtImport/strip_sleeves.py`): cream outside each view's torso core is removed. In profile, where the sleeve was painted over his back, it is flattened into plain shirt. Astra's originals stay in `ArtSource/storeowner-v1`.
   - Each arm draws its sleeve as the top 36% of the hose: wider, in shirt cream, outlined (`sleeveColor`, `sleeveWidth`, `sleeveLength`). The sleeve moves with the arm.
   - Head-on and from behind, the arms hang beside his body, over its edges, instead of behind it. The hands no longer stick out of a painted sleeve with no arm attached.
+- **The bouncy cartoon walk (2026-10-14, Kevin: the walk felt "stiff and unnatural", he chose bouncy cartoon).**
+  - **Poses.** The walk is built on the four classic poses (contact, down, passing, up).
+  - **Gait.** Each foot is down half the cycle (`duty` 0.5) and stays planted (the phase follows the ground covered). The stride is 0.9 units (scaled 0.8–1.1× with speed), about 4.4 steps a second at walking speed instead of 6.
+  - **Body.**
+    - A smooth double bob (`bounce` 0.035): lowest just after each heel strike, highest at passing, with squash and stretch (`squash` 4%).
+    - Weight shifts toward the supporting foot (`sway`).
+    - A 5° forward lean in the side views, and a 3° side-to-side tilt head-on.
+  - **Feet.** The boots roll: toe up at heel strike, heel up at push-off (`footRoll` 16°).
+  - **Arms.** Bigger arcs (`armSwing` 0.1) that rise at the ends, following springs (3.2 Hz, damping 0.55) so they trail and overshoot.
+  - **Legs.** The hose bow grows linearly as the ends come together, so it no longer snaps as a leg straightens.
+  - **Starts, stops and turns.** He eases into and out of the walk (the rig settles in about 0.13 s). The motor accelerates at 20 units/s² and stops at 70% of that. A quick squash covers a change of view.
