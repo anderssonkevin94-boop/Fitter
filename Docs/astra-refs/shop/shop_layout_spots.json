@@ -1,0 +1,98 @@
+{
+ "about": "Shop layout (5 x 4 tiles). Tile coords: x along the front-right edge (0..5), y along the front-left edge (0..4). Template pixel = (524 + (x-y)*128, 1151 - (x+y)*64 - z*256), z in units up; 256 px per unit.",
+ "spots": {
+  "W1": {
+   "wall": "back_left",
+   "tile": [
+    0.8,
+    3.65
+   ]
+  },
+  "W2": {
+   "wall": "back_left",
+   "tile": [
+    1.9,
+    3.65
+   ]
+  },
+  "W3": {
+   "wall": "back_left",
+   "tile": [
+    3.0,
+    3.65
+   ]
+  },
+  "W4": {
+   "wall": "back_right",
+   "tile": [
+    4.65,
+    1.4
+   ]
+  },
+  "W5": {
+   "wall": "back_right",
+   "tile": [
+    4.65,
+    2.5
+   ]
+  },
+  "stockroom_door": {
+   "wall": "back_left",
+   "tile": [
+    4.25,
+    3.65
+   ]
+  },
+  "F1": {
+   "floor": true,
+   "tile": [
+    0.9,
+    0.9
+   ]
+  },
+  "F2": {
+   "floor": true,
+   "tile": [
+    1.4,
+    2.4
+   ]
+  },
+  "F3": {
+   "floor": true,
+   "tile": [
+    2.6,
+    2.4
+   ]
+  },
+  "F4": {
+   "floor": true,
+   "tile": [
+    2.4,
+    1.2
+   ]
+  },
+  "F5": {
+   "floor": true,
+   "tile": [
+    3.6,
+    2.4
+   ]
+  },
+  "desk": {
+   "tile": [
+    3.9,
+    0.45
+   ],
+   "size": [
+    2,
+    1
+   ]
+  },
+  "customer": {
+   "tile": [
+    3.9,
+    -0.6
+   ]
+  }
+ }
+}
