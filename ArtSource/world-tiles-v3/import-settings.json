@@ -1,0 +1,818 @@
+{
+  "name": "Ravenholm Ground and Blocks",
+  "source_templates": "Original Docs/astra-refs/blocks PNGs",
+  "assets": [
+    {
+      "name": "ground_grass_plain",
+      "file": "Ground/ground_grass_plain.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#94a16e",
+        "#879562",
+        "#a0ab7c"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "ground_grass_tufts",
+      "file": "Ground/ground_grass_tufts.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#94a16e",
+        "#7d8e5c",
+        "#a0ab7c"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "ground_grass_flowers",
+      "file": "Ground/ground_grass_flowers.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#94a16e",
+        "#f0dba5",
+        "#d0b76b"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "ground_forest_grass",
+      "file": "Ground/ground_forest_grass.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#839570",
+        "#708363",
+        "#96a181"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "ground_path_plain",
+      "file": "Ground/ground_path_plain.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#d2bc91",
+        "#c3ad84",
+        "#dfcca8"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "ground_path_pebbles",
+      "file": "Ground/ground_path_pebbles.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#d2bc91",
+        "#b8a180",
+        "#e0cdaa"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "ground_path_footprints",
+      "file": "Ground/ground_path_footprints.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#d2bc91",
+        "#bfa780",
+        "#dfcca8"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "ground_cobble",
+      "file": "Ground/ground_cobble.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#b8b5a1",
+        "#aaa793",
+        "#cac6b2"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "ground_cobble_grass",
+      "file": "Ground/ground_cobble_grass.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#b8b5a1",
+        "#cac6b2",
+        "#8e9d71"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "ground_dirt_dug",
+      "file": "Ground/ground_dirt_dug.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#b99b7c",
+        "#a88b6e",
+        "#c8ad90"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "ground_planks",
+      "file": "Ground/ground_planks.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#b59a79",
+        "#a58b6e",
+        "#c5ab88"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "ground_soil_mossy",
+      "file": "Ground/ground_soil_mossy.png",
+      "canvas": [
+        256,
+        152
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#a39478",
+        "#839368",
+        "#92a078"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_grass",
+      "file": "Blocks/block_grass.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#94a16e",
+        "#7d8e5c",
+        "#a0ab7c"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_topsoil",
+      "file": "Blocks/block_topsoil.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#b99b7c",
+        "#a98b6e",
+        "#c6ac8d"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_topsoil_pebbles",
+      "file": "Blocks/block_topsoil_pebbles.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#b99b7c",
+        "#a98b6e",
+        "#d0c4aa"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_sandy",
+      "file": "Blocks/block_sandy.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#d0bb92",
+        "#bea981",
+        "#decca9"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_sandstone",
+      "file": "Blocks/block_sandstone.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#c6b18c",
+        "#b5a07c",
+        "#d3c09e"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_ochre",
+      "file": "Blocks/block_ochre.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#b7a17c",
+        "#a48e6b",
+        "#c6b28f"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_red_clay",
+      "file": "Blocks/block_red_clay.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#ab9283",
+        "#9b8276",
+        "#baa394"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_limestone",
+      "file": "Blocks/block_limestone.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#9da39b",
+        "#8c938d",
+        "#acb2aa"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_slate",
+      "file": "Blocks/block_slate.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#8d9698",
+        "#7f888b",
+        "#9ea6a7"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_mossy",
+      "file": "Blocks/block_mossy.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#7d8c85",
+        "#708079",
+        "#929d87"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_basalt",
+      "file": "Blocks/block_basalt.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#6c7982",
+        "#606e78",
+        "#7b8790"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_purple",
+      "file": "Blocks/block_purple.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#686d85",
+        "#5c627a",
+        "#777c94"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_ore_copper",
+      "file": "Blocks/block_ore_copper.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#8d9698",
+        "#c68d64",
+        "#d9ab80"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_ore_iron",
+      "file": "Blocks/block_ore_iron.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#8d9698",
+        "#687e92",
+        "#a0b4c2"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_ore_coal",
+      "file": "Blocks/block_ore_coal.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#8d9698",
+        "#3f464c",
+        "#596169"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_ore_gold",
+      "file": "Blocks/block_ore_gold.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#8d9698",
+        "#d5b564",
+        "#e6ce8e"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    },
+    {
+      "name": "block_ore_moonsilver",
+      "file": "Blocks/block_ore_moonsilver.png",
+      "canvas": [
+        256,
+        260
+      ],
+      "pixels_per_unit": 256,
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pivot_pixel_top_left": [
+        128,
+        64.5
+      ],
+      "outline": false,
+      "top_palette": [
+        "#8d9698",
+        "#a8cedb",
+        "#d5e7e8"
+      ],
+      "face_shading": [
+        1,
+        0.82,
+        0.66
+      ]
+    }
+  ]
+}

@@ -1166,176 +1166,205 @@
   "Painted/Blocks/block_basalt.png": {
    "pivot": [
     0.5,
-    0.7594
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_grass.png": {
    "pivot": [
     0.5,
-    0.7538
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_limestone.png": {
    "pivot": [
     0.5,
-    0.7576
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_mossy.png": {
    "pivot": [
     0.5,
-    0.7557
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_ochre.png": {
    "pivot": [
     0.5,
-    0.7594
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_ore_coal.png": {
    "pivot": [
     0.5,
-    0.7594
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_ore_copper.png": {
    "pivot": [
     0.5,
-    0.7576
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_ore_gold.png": {
    "pivot": [
     0.5,
-    0.7576
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_ore_iron.png": {
    "pivot": [
     0.5,
-    0.7576
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_ore_moonsilver.png": {
    "pivot": [
     0.5,
-    0.7576
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_purple.png": {
    "pivot": [
     0.5,
-    0.7594
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_red_clay.png": {
    "pivot": [
     0.5,
-    0.7576
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_sandstone.png": {
    "pivot": [
     0.5,
-    0.7557
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_sandy.png": {
    "pivot": [
     0.5,
-    0.7557
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_slate.png": {
    "pivot": [
     0.5,
-    0.7557
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_topsoil.png": {
    "pivot": [
     0.5,
-    0.7576
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_topsoil_pebbles.png": {
    "pivot": [
     0.5,
-    0.7576
-   ]
+    0.75192
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_cobble.png": {
    "pivot": [
     0.5,
-    0.5844
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_cobble_grass.png": {
    "pivot": [
     0.5,
-    0.5844
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_dirt_dug.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_forest_grass.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_grass_flowers.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_grass_plain.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_grass_tufts.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_path_footprints.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_path_pebbles.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_path_plain.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_planks.png": {
    "pivot": [
     0.5,
-    0.5844
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Ground/ground_soil_mossy.png": {
    "pivot": [
     0.5,
-    0.5844
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Painted/Nature/boulder.png": {
    "pivot": [
@@ -1945,8 +1974,9 @@
   "Tiles/tile_dirt.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Tiles/tile_fleck.png": {
    "pivot": [
@@ -1963,32 +1993,37 @@
   "Tiles/tile_forest_floor.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Tiles/tile_forest_floor_b.png": {
    "pivot": [
     0.5,
-    0.5844
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Tiles/tile_grass_a.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Tiles/tile_grass_b.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Tiles/tile_grass_c.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Tiles/tile_halfblock_0.png": {
    "pivot": [
@@ -2029,26 +2064,30 @@
   "Tiles/tile_path.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Tiles/tile_path_b.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Tiles/tile_path_c.png": {
    "pivot": [
     0.5,
-    0.5789
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Tiles/tile_plaza.png": {
    "pivot": [
     0.5,
-    0.5844
-   ]
+    0.57566
+   ],
+   "ppu": 256
   },
   "Tiles/tile_sill.png": {
    "pivot": [

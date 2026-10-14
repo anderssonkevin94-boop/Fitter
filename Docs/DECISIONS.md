@@ -944,3 +944,14 @@ The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): fla
 - **Front and back views reworked (2026-10-14, Kevin: the moved shoulders detached and looked like a princess dress, and the hands shouldn't grow).**
   - The shoulders are back at the shoulder line. Head-on, the sleeves and arms draw behind the body, so the apron straps lie over the sleeves as in the painting.
   - The hand-size change is removed. The swing moves the hand 8% toward his middle, and the hand passes in front of the body only when it comes toward the camera.
+
+## Ground tiles and blocks in the store owner's style (2026-10-14)
+
+Astra's 29 sprites (`ArtSource/world-tiles-v3`, imported by `Tools/ArtImport/import_world_tiles.py`) replace the painted ground and blocks under the same names. The .meta files and GUIDs are kept.
+
+- **Scale.** 256 px per unit, pivot at the top face's centre (image 128, 64.5): the same world size and anchor as before.
+- **Mesh.** Full rect, so neighbours meet without gaps.
+- **No outline.** None of them get the game outline.
+- **Town tiles.** The town's tile copies (grass, path, forest floor, dirt, plaza) take the same art.
+- **Test.** `WorldTileTests` checks size, scale, pivot, mesh and that they are not outlined.
+- **Still in the old painted style:** trees, bushes, flower decals and buildings.

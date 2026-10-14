@@ -1,0 +1,457 @@
+{
+  "status": "passed",
+  "inventory": {
+    "ground": 12,
+    "blocks": 17,
+    "total": 29
+  },
+  "template_alpha_exact": true,
+  "binary_alpha": true,
+  "edge_border_min_px": 8,
+  "lighting_rgb_multipliers": {
+    "top": 1,
+    "left": 0.82,
+    "right": 0.66
+  },
+  "files": {
+    "ground_grass_plain": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 3,
+      "decorative_components_top_left_right": [
+        0,
+        0,
+        0
+      ]
+    },
+    "ground_grass_tufts": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 5,
+      "decorative_components_top_left_right": [
+        2,
+        0,
+        0
+      ]
+    },
+    "ground_grass_flowers": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 5,
+      "decorative_components_top_left_right": [
+        3,
+        0,
+        0
+      ]
+    },
+    "ground_forest_grass": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 5,
+      "decorative_components_top_left_right": [
+        3,
+        0,
+        0
+      ]
+    },
+    "ground_path_plain": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 3,
+      "decorative_components_top_left_right": [
+        0,
+        0,
+        0
+      ]
+    },
+    "ground_path_pebbles": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 5,
+      "decorative_components_top_left_right": [
+        3,
+        0,
+        0
+      ]
+    },
+    "ground_path_footprints": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 4,
+      "decorative_components_top_left_right": [
+        3,
+        0,
+        0
+      ]
+    },
+    "ground_cobble": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 4,
+      "decorative_components_top_left_right": [
+        4,
+        0,
+        0
+      ]
+    },
+    "ground_cobble_grass": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 5,
+      "decorative_components_top_left_right": [
+        4,
+        0,
+        0
+      ]
+    },
+    "ground_dirt_dug": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 5,
+      "decorative_components_top_left_right": [
+        3,
+        0,
+        0
+      ]
+    },
+    "ground_planks": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 5,
+      "decorative_components_top_left_right": [
+        3,
+        0,
+        0
+      ]
+    },
+    "ground_soil_mossy": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 5,
+      "decorative_components_top_left_right": [
+        3,
+        0,
+        0
+      ]
+    },
+    "block_grass": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 7,
+      "decorative_components_top_left_right": [
+        2,
+        4,
+        3
+      ]
+    },
+    "block_topsoil": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 6,
+      "decorative_components_top_left_right": [
+        4,
+        4,
+        3
+      ]
+    },
+    "block_topsoil_pebbles": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 6,
+      "decorative_components_top_left_right": [
+        3,
+        3,
+        3
+      ]
+    },
+    "block_sandy": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        3,
+        3,
+        3
+      ]
+    },
+    "block_sandstone": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        2,
+        2,
+        2
+      ]
+    },
+    "block_ochre": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        3,
+        3,
+        3
+      ]
+    },
+    "block_red_clay": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        3,
+        3,
+        3
+      ]
+    },
+    "block_limestone": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        2,
+        2,
+        2
+      ]
+    },
+    "block_slate": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        2,
+        2,
+        2
+      ]
+    },
+    "block_mossy": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 6,
+      "decorative_components_top_left_right": [
+        3,
+        3,
+        3
+      ]
+    },
+    "block_basalt": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        2,
+        2,
+        2
+      ]
+    },
+    "block_purple": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        2,
+        2,
+        2
+      ]
+    },
+    "block_ore_copper": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        3,
+        3,
+        3
+      ]
+    },
+    "block_ore_iron": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        3,
+        3,
+        3
+      ]
+    },
+    "block_ore_coal": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        3,
+        3,
+        3
+      ]
+    },
+    "block_ore_gold": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        3,
+        3,
+        3
+      ]
+    },
+    "block_ore_moonsilver": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_mismatch_pixels": 0,
+      "partial_alpha_pixels": 0,
+      "edge_border_violations": 0,
+      "colour_count": 9,
+      "decorative_components_top_left_right": [
+        3,
+        3,
+        3
+      ]
+    }
+  },
+  "ground_material_adjacency_checks": 288,
+  "adjacency_note": "All borders are plain respective material base. Different material colours meet as an intentional colour boundary, with no outlines, texture cuts or transparent gaps.",
+  "tiled_surface_transparent_gaps": 0,
+  "readback_verified_files": 29
+}
