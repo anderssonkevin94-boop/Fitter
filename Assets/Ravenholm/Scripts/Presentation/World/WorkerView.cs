@@ -212,11 +212,21 @@ namespace Ravenholm.Presentation
                     : sim.Config.Kind == SiteKind.Mine ? SupplierAnimator.Activity.Mine : SupplierAnimator.Activity.Chop;
             else visual.localRotation = Quaternion.Euler(0f, 0f, swinging ? Mathf.Sin(Time.time * 9f) * 9f : 0f);
 
+            var packY = 0f;
+            var packPrev = 0f;
             for (var i = 0; i < _packPieces.Count; i++)
             {
                 var on = i < w.Pack.Count && _alpha > 0.5f;
                 _packPieces[i].gameObject.SetActive(on);
-                if (on) _packPieces[i].sprite = UnitVisuals.StackSprite(CarryUnit.Material(w.Pack[i]));
+                if (!on) continue;
+                var unit = CarryUnit.Material(w.Pack[i]);
+                _packPieces[i].sprite = UnitVisuals.StackSprite(unit);
+                // As in the carried pile: each piece on top of the one below, as high as that piece's step (this pack
+                // is a little tighter: 0.11 for a full-height piece).
+                var step = UnitVisuals.StackStep(unit) * (0.11f / UnitVisuals.DefaultStackStep);
+                if (i > 0) packY += packPrev;
+                packPrev = step;
+                _packPieces[i].transform.localPosition = new Vector3(0f, packY, 0f);
             }
 
             UpdateBubble(sim, w);

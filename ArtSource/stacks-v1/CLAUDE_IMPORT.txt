@@ -1,0 +1,64 @@
+CARRIED ITEM SPRITES — SETS 3 AND 4
+
+Copy the 41 PNGs in Stacks/ into Art/Placeholder/Stacks/.
+Each filename is stack_<id>.png, using the exact ids from ART_BRIEF_STACKS.md.
+
+Unity import settings:
+Texture Type: Sprite (2D and UI)
+Sprite Mode: Single
+Pixels Per Unit: 512
+Mesh Type: Full Rect
+Pivot: Custom, X=0.5, Y=0.0833333333
+Alpha Is Transparency: enabled
+Wrap Mode: Clamp
+Filter Mode: Bilinear
+Mipmaps: disabled for this sprite use
+Use lossless/uncompressed textures initially; check phone compression visually.
+
+All canvases are 256 x 192 transparent RGBA PNGs. The object ends at the
+boundary y=176 in top-origin image coordinates, leaving 16 clear pixels
+below. The artwork is uniformly scaled; canvases must not be auto-trimmed.
+Keep the existing 1.25 pile scale, .13 world-unit piece spacing and
+alternating local X offsets of -.02 / +.02. One sprite represents one unit;
+the game repeats sprites, up to 8 visible pieces. No direction variants,
+rotation or mirroring are required. Existing drop-off animations can remain.
+
+A NOTE ABOUT OVERLAP
+When each higher piece draws in front of the lower piece, the lower front
+portion of a covered piece remains visible, not necessarily its top third.
+The pile previews use that order and the code's .13 step. Item colours,
+outline shapes and lower-front details help distinguish covered items.
+Heavy overlap still hides details; use the quantity badge/game inventory
+for exact identification in mixed piles.
+
+Preview files:
+contact-sheet.png — all 41 objects on mid-grey, full canvas size.
+pile-contact-sheet.png — four repeated units per item, actual relative spacing.
+mixed-piles-preview.png — eight mixed pieces above the approved dwarf.
+checks/80px-readability.png — 80-pixel canvas width on light/dark backgrounds.
+
+No carry pose is added in this package. The existing head anchor still
+applies until the character has forearm carry anchors. Square UI icons
+should be derived by reframing this same art; none are delivered here.
+
+Generation: built-in image_gen. generation.json records the shared prompt,
+each item prompt, source files and export bounding sizes. Original generated
+images are retained in sources/. build.py performs uniform size/pivot export;
+review.py produces review sheets and geometric validation. No atlas needed.
+
+OPTIONAL SPACING IMPROVEMENT — REVIEW BEFORE APPLYING
+The existing .13 step can leave visible air between thin pieces such as
+planks, blades and bows. This is a consequence of a single step applied
+to silhouettes with very different thicknesses, not missing alpha data.
+All delivered sprites still conform to the requested canvas and pivot.
+
+suggested-spacing.json provides conservative per-item local spacing values,
+measured against visible silhouettes with the existing alternating offset.
+For mixed piles, start with min(step[previousId], step[currentId]) and
+accumulate Y rather than using index * .13. Keep parent scale 1.25. These
+are proposed values, not changes already applied to the game. Review mixed
+combinations at the actual game camera zoom before adopting them.
+
+suggested-spacing-preview.png shows repeated items with those values;
+pile-contact-sheet.png retains the CURRENT .13 behaviour for comparison.
+This spacing suggestion does not alter the carry pose or anchor.

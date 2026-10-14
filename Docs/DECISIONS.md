@@ -831,3 +831,12 @@ The painted dwarf was unreadable in game, so he is replaced by Astra's approved 
   - The camera's view widths are now 6, 7 (the default) and 8.5 units, instead of 7, 8.5 and 10. The default is about 20% closer, so the supplier is a bigger part of the screen at the same scale as the world.
   - The walk (`ArtSource/dwarf-v6-hip-swing`) swings each leg from the hip, built from Astra's separate thigh, shin and foot parts, with a knee bend on the swing.
   - The legs walk on a narrower track in the front and back views, so he no longer straddles.
+
+## Carried-item art and pile spacing (2026-10-14)
+
+- **Art.** Astra's 41 stack sprites (`ArtSource/stacks-v1`) replace the placeholders under the same filenames, so every material and crafted item keeps its mapping. They are 256 × 192 canvases at 512 px per unit (the same size on screen as before), pivot (0.5, 1/12), full-rect mesh, bilinear, clamp, no mipmaps, compressed HQ. The same sprites show in the carried pile, on the racks, in containers and staging, in the routine figure's pack and on delivery arcs.
+- **Per-item spacing.**
+  - Each definition has a `stackStep`, filled by setup from `Stacks/stack_spacing.json` (Astra's measured values; bulky pieces 0.13, planks about 0.09, blades about 0.08, bows down to 0.048).
+  - Pile heights accumulate. Each piece sits on top of the one below, as high as that lower piece's step.
+  - Astra's suggested starting rule, the smaller of the two steps, was tried in game. It sank bulky pieces into thin ones (a coat on a bow) and thin pieces into bulky ones, so it was replaced.
+- **Unchanged.** One sprite per unit, the 8-piece display limit, the count badge, the ±0.02 offsets, the 1.25 pile scale, delivery arcs and the 10% drop-off enlargement. The pile still rides on the head until a carrying pose exists.

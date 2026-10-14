@@ -26,3 +26,4 @@ MonoBehaviour:
   traderBuyValue: 8
   icon: {fileID: 21300000, guid: 4ef34bcd787b94d9e8a727b2079b200e, type: 3}
   stackSprite: {fileID: 21300000, guid: b4e5ee6387e834c4a9aca0c5f07d41d0, type: 3}
+  stackStep: 0.08809

@@ -90,6 +90,7 @@ namespace Ravenholm.EditorTools
             EnsureOreBlocks();
             EnsureScaffoldMaterials();
             EnsureSupplierAnimations();
+            EnsureStackSteps();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
             var boot = EnsureAsset<BootConfig>(ConfigDir + "BootConfig.asset");
             if (boot.Catalogue == null || boot.SandboxSettings == null || boot.UiTheme == null || boot.Balance == null)
@@ -809,6 +810,26 @@ namespace Ravenholm.EditorTools
         /// The supplier's animation clips, rebuilt from Characters/Supplier/animations.json (written by
         /// Tools/ArtImport/import_character_strips.py): generated data, so it is replaced, not merged.
         /// </summary>
+        /// <summary>
+        /// Each carried piece's pile spacing, from the stack art's spacing file (Stacks/stack_spacing.json: Astra's
+        /// measured values, 2026-10-14). The file is the source: rerunning setup reapplies it.
+        /// </summary>
+        public static void EnsureStackSteps()
+        {
+            var json = PlaceholderSpriteImporter.ArtRoot + "Stacks/stack_spacing.json";
+            if (!File.Exists(json)) return;
+            var steps = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(json))["perItem"];
+            foreach (var p in steps)
+            {
+                var step = (float)p.Value;
+                var res = AssetDatabase.LoadAssetAtPath<ResourceDefinition>(ResourceDir + "resource_" + p.Key + ".asset");
+                if (res != null) { res.EditorSetStackStep(step); EditorUtility.SetDirty(res); continue; }
+                var item = AssetDatabase.LoadAssetAtPath<ItemDefinition>(ItemDir + "item_" + p.Key + ".asset");
+                if (item != null) { item.EditorSetStackStep(step); EditorUtility.SetDirty(item); continue; }
+                Debug.LogWarning($"[Setup] Stack spacing for unknown id {p.Key}");
+            }
+        }
+
         public static CharacterAnimationSet EnsureSupplierAnimations()
         {
             var set = EnsureAsset<CharacterAnimationSet>(SupplierAnimationsPath);

@@ -19,7 +19,7 @@ namespace Ravenholm.EditorTools
         private static Dictionary<string, (Vector2 pivot, Vector4 border, bool hasBorder, float ppu)> _meta;
         private static float _ppu = 128f;
 
-        public override uint GetVersion() => 5;
+        public override uint GetVersion() => 6;
 
         private void OnPreprocessTexture()
         {
@@ -54,6 +54,8 @@ namespace Ravenholm.EditorTools
             }
             // Tiles must be full-rect so neighbouring diamonds meet without mesh gaps.
             if (rel.StartsWith("Tiles/")) settings.spriteMeshType = SpriteMeshType.FullRect;
+            // Carried pieces keep their whole canvas too (Astra's stack sprites: no trimming, the pivot on the floor line).
+            if (rel.StartsWith("Stacks/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             ti.SetTextureSettings(settings);
         }
 

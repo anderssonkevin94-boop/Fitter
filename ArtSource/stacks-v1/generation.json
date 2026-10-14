@@ -1,0 +1,459 @@
+{
+  "tool": "built-in image_gen",
+  "basePrompt": "Use case: stylized-concept. Asset type: one production 2D carried-item sprite for an isometric dwarf supply shop game. Create exactly ONE isolated object, NOT a sheet, NOT a pile of multiple objects. True transparent alpha background. Match the provided dwarf reference ONLY for its art style: chunky simple shapes, bold clean even dark-brown outlines, flat base colour plus one shadow tone and a very small highlight, no painted gradients or texture. Consistent orthographic 2:1 isometric view seen from above and front-left; top and front side visible, lighting upper-left. Friendly practical fantasy game item, readable at 80 pixels wide. Large clear silhouette with equally readable lower-front edge because sprites overlap vertically. Object centred and fully visible with generous transparent margin, no ground plane, no cast shadow, no UI, no text, no letters, no numbers, no border, no pedestal, no person. Wide landscape composition where appropriate. Keep the object compact and chunky, no fine details. Subject: ",
+  "items": [
+    {
+      "id": "cedar_log",
+      "group": "Logs",
+      "prompt": "ONE short stout cedar log lying horizontally on an isometric ground plane, reddish cinnamon bark with three simple broad grooves, large warm salmon-orange cut end facing front-left and two bold growth rings. A single log, no bundle.",
+      "maxWidth": 224,
+      "maxHeight": 130
+    },
+    {
+      "id": "maple_log",
+      "group": "Logs",
+      "prompt": "ONE short stout maple log lying horizontally on an isometric ground plane, light golden-brown smooth bark, pale honey cut end facing front-left with two bold rings and one small branch nub. A single log, no bundle.",
+      "maxWidth": 224,
+      "maxHeight": 130
+    },
+    {
+      "id": "ironwood_log",
+      "group": "Logs",
+      "prompt": "ONE short stout ironwood log lying horizontally on an isometric ground plane, dark desaturated plum-brown rugged bark with broad angular ridges, muted mauve cut end facing front-left with two bold rings. A single log, no bundle.",
+      "maxWidth": 224,
+      "maxHeight": 130
+    },
+    {
+      "id": "cedar_lumber",
+      "group": "Lumber",
+      "prompt": "ONE thick rectangular sawn cedar timber plank, warm red-orange wood, lying flat horizontally from lower-left to upper-right at a shallow isometric angle, visible broad top and squared end, two simple long grain lines. SINGLE plank, not a bundle.",
+      "maxWidth": 226,
+      "maxHeight": 112
+    },
+    {
+      "id": "maple_lumber",
+      "group": "Lumber",
+      "prompt": "ONE thick rectangular sawn maple timber plank, pale honey-gold wood, lying flat horizontally from lower-left to upper-right at a shallow isometric angle, visible broad top and squared end, one simple oval grain mark. SINGLE plank, not a bundle.",
+      "maxWidth": 226,
+      "maxHeight": 112
+    },
+    {
+      "id": "ironwood_lumber",
+      "group": "Lumber",
+      "prompt": "ONE thick rectangular sawn ironwood timber plank, dark plum-brown wood with muted mauve top plane, lying flat horizontally from lower-left to upper-right at a shallow isometric angle, visible broad top and squared end, two simple angular grain marks. SINGLE plank, not a bundle.",
+      "maxWidth": 226,
+      "maxHeight": 112
+    },
+    {
+      "id": "copper_ore",
+      "group": "Ore",
+      "prompt": "ONE low broad angular dark warm-grey ore rock with three LARGE embedded orange-copper mineral facets visible on both its top and front lower face. Broad irregular boulder silhouette, not a crystal, not a pile.",
+      "maxWidth": 210,
+      "maxHeight": 142
+    },
+    {
+      "id": "iron_ore",
+      "group": "Ore",
+      "prompt": "ONE low broad angular brown-grey ore rock with three LARGE slate-blue iron mineral facets visible on both its top and front lower face. Broad irregular boulder silhouette, not a crystal, not a pile.",
+      "maxWidth": 210,
+      "maxHeight": 142
+    },
+    {
+      "id": "coal",
+      "group": "Ore",
+      "prompt": "ONE low broad jagged charcoal-black coal lump, chunky angular broken silhouette, two large cool grey highlight planes, almost black front face with broad grey edge. No sparkles, no pile.",
+      "maxWidth": 210,
+      "maxHeight": 140
+    },
+    {
+      "id": "moonsilver_ore",
+      "group": "Ore",
+      "prompt": "ONE low broad angular muted violet ore rock with three LARGE icy turquoise-white embedded silver mineral facets visible on both top and front lower face. An irregular boulder with embedded angular mineral areas, not a freestanding crystal, no glow aura.",
+      "maxWidth": 210,
+      "maxHeight": 145
+    },
+    {
+      "id": "copper_ingot",
+      "group": "Ingots",
+      "prompt": "ONE squat trapezoidal cast copper ingot, warm saturated copper-orange top, reddish burnt-orange front, broad bevelled edges, lying horizontally, three clean flat geometric planes. No text, no stamps, no pile.",
+      "maxWidth": 214,
+      "maxHeight": 110
+    },
+    {
+      "id": "iron_ingot",
+      "group": "Ingots",
+      "prompt": "ONE squat trapezoidal cast iron ingot, muted medium slate-grey top, dark warm-grey front, broad bevelled edges, lying horizontally, three clean flat geometric planes. One broad recessed groove across the top to distinguish it from steel. No text, no pile.",
+      "maxWidth": 214,
+      "maxHeight": 110
+    },
+    {
+      "id": "steel_ingot",
+      "group": "Ingots",
+      "prompt": "ONE squat trapezoidal polished steel ingot, pale cool blue-grey top, medium blue-grey front, bright narrow white-blue bevel along the lower front edge, lying horizontally. Three flat planes. No text, no pile.",
+      "maxWidth": 214,
+      "maxHeight": 110
+    },
+    {
+      "id": "moonsilver_ingot",
+      "group": "Ingots",
+      "prompt": "ONE squat trapezoidal moonsilver ingot, very pale icy turquoise top, lavender-blue front, broad silver-white edge, one small crescent-shaped dark inset on front lower face, lying horizontally. Flat colours, no floating glow, no text, no pile.",
+      "maxWidth": 214,
+      "maxHeight": 110
+    },
+    {
+      "id": "gem",
+      "group": "Other",
+      "prompt": "ONE broad cut amethyst gemstone resting on its flat bottom, squat hexagonal jewel silhouette with a wide purple crown and tapered lower lavender facets, four large flat facets, single small pale highlight. No base, no sparkles outside the gem.",
+      "maxWidth": 178,
+      "maxHeight": 146
+    },
+    {
+      "id": "herb",
+      "group": "Other",
+      "prompt": "ONE small compact tied sprig of meadow herb, broad mint and fresh-green oval leaves fanning horizontally, three large leaves and two small cream flower heads, short stems bound together with a simple ochre cord at lower centre. Readable broad leaf silhouette, no pot, no bag.",
+      "maxWidth": 198,
+      "maxHeight": 150
+    },
+    {
+      "id": "fur",
+      "group": "Other",
+      "prompt": "ONE compact folded tawny fur pelt, broad low rectangular folded silhouette, clearly shaggy cream fur edge along the top AND lower front hem, chocolate leather underside visible at one fold. No animal head, face, claws or body, no pile.",
+      "maxWidth": 216,
+      "maxHeight": 124
+    },
+    {
+      "id": "rope",
+      "group": "Other",
+      "prompt": "ONE compact coil of thick golden hemp rope lying flat, three large oval concentric loops with a clear centre hole, one short tucked rope end on front lower edge. Bold smooth bands, no tiny strand texture, no pile.",
+      "maxWidth": 208,
+      "maxHeight": 126
+    },
+    {
+      "id": "arcane_dust",
+      "group": "Other",
+      "prompt": "ONE squat wide clear glass jar filled with saturated violet arcane dust, low flat cork lid, broad near-square glass body, a large pale four-point star motif on front lower half of purple contents. Glass indicated by one crisp pale edge, opaque coloured contents. No text, no floating particles or aura.",
+      "maxWidth": 170,
+      "maxHeight": 150
+    },
+    {
+      "id": "iron_dagger",
+      "group": "Weapons",
+      "prompt": "ONE short broad iron dagger lying flat almost horizontally, handle at lower-left and point at upper-right, a stout slate-grey leaf-shaped blade, plain dark-brown short grip and simple rectangular iron guard. Entire weapon visible, strong thick silhouette, no sheath.",
+      "maxWidth": 228,
+      "maxHeight": 100
+    },
+    {
+      "id": "iron_sword",
+      "group": "Weapons",
+      "prompt": "ONE iron arming sword lying flat almost horizontally, handle at lower-left and point at upper-right, broad straight muted slate-grey blade, simple straight dark iron crossguard and brown grip, square pommel. Entire weapon visible, no sheath.",
+      "maxWidth": 232,
+      "maxHeight": 108
+    },
+    {
+      "id": "steel_sword",
+      "group": "Weapons",
+      "prompt": "ONE steel sword lying flat almost horizontally, handle at lower-left and point at upper-right, broad pale blue-silver blade with single lighter edge, slightly swept blue-grey crossguard, cobalt blue grip and round silver pommel. Entire weapon visible, no sheath.",
+      "maxWidth": 232,
+      "maxHeight": 110
+    },
+    {
+      "id": "steel_stiletto",
+      "group": "Weapons",
+      "prompt": "ONE steel stiletto lying flat almost horizontally, handle at lower-left and point at upper-right, slim but readable pointed triangular ice-blue blade, compact S-shaped dark steel guard, deep blue grip and faceted steel pommel. Entire weapon visible, no sheath.",
+      "maxWidth": 230,
+      "maxHeight": 94
+    },
+    {
+      "id": "steel_maul",
+      "group": "Weapons",
+      "prompt": "ONE steel maul lying flat almost horizontally, short thick dark-blue wrapped handle at lower-left and large rectangular steel hammer head at upper-right. Broad pale-blue steel head with bevelled dark faces and one central dark band. Entire weapon visible, no extra tools.",
+      "maxWidth": 226,
+      "maxHeight": 134
+    },
+    {
+      "id": "moonsilver_blade",
+      "group": "Weapons",
+      "prompt": "ONE moonsilver blade lying flat almost horizontally, grip at lower-left and tip at upper-right. A broad gently curved icy turquoise-white single-edge blade with lavender shadow, a distinctive crescent-shaped pale-metal guard and dark violet grip. Entire weapon visible, no aura, no sheath.",
+      "maxWidth": 232,
+      "maxHeight": 115
+    },
+    {
+      "id": "cedar_bow",
+      "group": "Weapons",
+      "prompt": "ONE short cedar bow lying flat in an isometric plane, its overall long axis nearly horizontal, warm red-orange simple single C-curve stave, cream taut bowstring clearly joining both tips and ochre central grip. String taut straight between tips. No arrows, no quiver.",
+      "maxWidth": 230,
+      "maxHeight": 132
+    },
+    {
+      "id": "maple_longbow",
+      "group": "Weapons",
+      "prompt": "ONE maple longbow lying flat in an isometric plane, overall long axis nearly horizontal, pale honey-gold elongated graceful single C-curve stave, dark brown central grip, cream taut bowstring clearly joining both tips. String straight between tips. No arrows, no quiver.",
+      "maxWidth": 232,
+      "maxHeight": 124
+    },
+    {
+      "id": "ironwood_greatbow",
+      "group": "Weapons",
+      "prompt": "ONE ironwood greatbow lying flat in an isometric plane, overall long axis nearly horizontal, dark plum-brown thick recurved limbs with chunky pale-steel end caps, wide charcoal grip, cream taut bowstring clearly joining tips. Large powerful angular bow silhouette. No arrows, no quiver.",
+      "maxWidth": 232,
+      "maxHeight": 140
+    },
+    {
+      "id": "cedar_staff",
+      "group": "Weapons",
+      "prompt": "ONE short game-proportioned cedar staff lying flat nearly horizontally, butt at lower-left and head at upper-right, thick reddish cedar shaft ending in one simple curved natural wooden crook with a clear open notch. Ochre wrap near head. Entire staff visible, no magical effects.",
+      "maxWidth": 232,
+      "maxHeight": 108
+    },
+    {
+      "id": "copper_ward_staff",
+      "group": "Weapons",
+      "prompt": "ONE copper ward staff lying flat nearly horizontally, butt at lower-left and head at upper-right, thick russet shaft with two simple copper collars and a large closed circular copper ring head containing a single opaque teal disc. Strong readable ring silhouette, no magical effects.",
+      "maxWidth": 232,
+      "maxHeight": 125
+    },
+    {
+      "id": "moonsilver_focus",
+      "group": "Weapons",
+      "prompt": "ONE moonsilver magical focus wand lying flat nearly horizontally, grip at lower-left and head at upper-right, short deep-violet grip, broad pale icy-silver crescent cradle at head holding ONE large turquoise faceted crystal. Entire object visible, no magical aura or floating elements.",
+      "maxWidth": 226,
+      "maxHeight": 140
+    },
+    {
+      "id": "fur_brigandine",
+      "group": "Armour",
+      "prompt": "ONE folded fur-lined brigandine vest lying flat as a compact broad garment parcel seen from above isometrically. Brick-red leather main body with four large dark inset armour plates, thick cream fur collar and matching cream furry lower hem. Short folded-in sides, no person, no hanger, no mannequin.",
+      "maxWidth": 212,
+      "maxHeight": 146
+    },
+    {
+      "id": "riveted_coat",
+      "group": "Armour",
+      "prompt": "ONE folded riveted protective coat lying flat as a compact broad garment parcel seen from above isometrically. Warm ochre leather main body, dark chocolate shoulder/collar band, SIX large obvious silver rivet heads arranged on front, one broad dark lower hem. Folded-in sleeves, no person, hanger or mannequin.",
+      "maxWidth": 212,
+      "maxHeight": 146
+    },
+    {
+      "id": "steel_coat",
+      "group": "Armour",
+      "prompt": "ONE folded steel armour coat lying flat as a compact broad garment parcel seen from above isometrically. Broad cool blue-grey overlapping rectangular metal plates, pale steel collar, three broad horizontal plate rows, dark cobalt lower hem. Folded-in sleeves, no person, hanger or mannequin, no tiny chain links.",
+      "maxWidth": 212,
+      "maxHeight": 146
+    },
+    {
+      "id": "moonsilver_mail",
+      "group": "Armour",
+      "prompt": "ONE folded moonsilver mail shirt lying flat as a compact broad garment parcel seen from above isometrically. Pale icy turquoise body, lavender-blue collar and hem, a few large scalloped rows indicating linked mail instead of tiny texture, pale silver-white edging. Folded-in sleeves, no person, hanger or mannequin.",
+      "maxWidth": 212,
+      "maxHeight": 146
+    },
+    {
+      "id": "antidote",
+      "group": "Potions",
+      "prompt": "ONE squat potion bottle with low rounded square body, short neck and cork stopper, filled with vivid leaf-green liquid. A single cream LEAF pictogram directly on lower front, no label rectangle or lettering. Broad stable flat base, one small crisp glass highlight. No extra bottles.",
+      "maxWidth": 152,
+      "maxHeight": 152
+    },
+    {
+      "id": "recovery_tonic",
+      "group": "Potions",
+      "prompt": "ONE squat round potion bottle with short neck and cork stopper, filled with coral-red liquid. A single cream HEART pictogram directly on lower front, no label rectangle or lettering. Broad stable flat base, one small crisp glass highlight. No extra bottles.",
+      "maxWidth": 156,
+      "maxHeight": 152
+    },
+    {
+      "id": "strong_tonic",
+      "group": "Potions",
+      "prompt": "ONE squat broad square potion bottle with short neck and oversized cork stopper, filled with deep ruby-red liquid. A single cream DOUBLE CHEVRON pointing up directly on lower front, no label rectangle or lettering. Broad stable base, one small glass highlight. No extra bottles.",
+      "maxWidth": 170,
+      "maxHeight": 152
+    },
+    {
+      "id": "warding_draught",
+      "group": "Potions",
+      "prompt": "ONE squat hexagonal potion bottle with short neck and cork stopper, filled with cobalt-blue liquid. A single cream SHIELD pictogram directly on lower front, no label rectangle or lettering. Broad flat base, one small glass highlight. No extra bottles.",
+      "maxWidth": 162,
+      "maxHeight": 152
+    },
+    {
+      "id": "trapsense_draught",
+      "group": "Potions",
+      "prompt": "ONE squat broad round potion bottle with short neck and cork stopper, filled with warm amber-orange liquid. A single dark-brown EYE pictogram directly on lower front, no label rectangle or lettering. Broad flat base, one small glass highlight. No extra bottles.",
+      "maxWidth": 160,
+      "maxHeight": 152
+    },
+    {
+      "id": "pathfinder_draught",
+      "group": "Potions",
+      "prompt": "ONE squat broad pear-shaped potion bottle with short neck and cork stopper, filled with vivid teal liquid. A single cream FOUR-POINT COMPASS STAR pictogram directly on lower front, no label rectangle or lettering. Broad flat base, one small glass highlight. No extra bottles.",
+      "maxWidth": 164,
+      "maxHeight": 152
+    }
+  ],
+  "sources": [
+    {
+      "id": "cedar_log",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-63d6b438-0aa2-4d24-b91e-c848d1d96fb9.png"
+    },
+    {
+      "id": "maple_log",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-9ed57b78-4f5d-4726-8659-9cc7bf6a0bc9.png"
+    },
+    {
+      "id": "ironwood_log",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-e1ebf8b4-8773-41e4-bb7f-7281780b9f43.png"
+    },
+    {
+      "id": "cedar_lumber",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-32346fbd-e115-4e65-9a59-8bcacb29ad1e.png"
+    },
+    {
+      "id": "maple_lumber",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-0dfc1893-b4b7-4435-aa6e-3b8f3795c32a.png"
+    },
+    {
+      "id": "ironwood_lumber",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-14321a16-b34b-40f7-85ad-b2c256a166f8.png"
+    },
+    {
+      "id": "copper_ore",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-9b6109a1-5cb7-4402-85d7-8891883a2374.png"
+    },
+    {
+      "id": "iron_ore",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-d25e8e6c-744d-4a88-ad2f-0af3d471b093.png"
+    },
+    {
+      "id": "coal",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-410ae7a3-b717-425a-bc31-88e5ea7354dd.png"
+    },
+    {
+      "id": "moonsilver_ore",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-9af04c64-a07b-494b-bdb6-fd0fe9ef4e7b.png"
+    },
+    {
+      "id": "copper_ingot",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-e759259f-986d-4049-a6a8-31a31b0e3ee5.png"
+    },
+    {
+      "id": "iron_ingot",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-5c89445e-5b0b-4a62-860c-a7a12c1d9cbf.png"
+    },
+    {
+      "id": "steel_ingot",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-31e10d8b-252c-4958-9e95-99c076805e9c.png"
+    },
+    {
+      "id": "moonsilver_ingot",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-c1f347b2-ef83-48fa-bbf2-d1669b7a4423.png"
+    },
+    {
+      "id": "gem",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-90a64148-0274-4a7f-a4f1-9d0317485e4f.png"
+    },
+    {
+      "id": "herb",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-c8597bdf-bcae-448a-9ff4-7c0c274f1312.png"
+    },
+    {
+      "id": "fur",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-32281cc1-28f1-4df0-877b-748430e13393.png"
+    },
+    {
+      "id": "rope",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-2fef193c-34e5-4b6b-bebe-779f786ac8d7.png"
+    },
+    {
+      "id": "arcane_dust",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-69901b15-dde1-40f4-a6a2-9a928e20ec90.png"
+    },
+    {
+      "id": "iron_dagger",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-362fc2c7-b4cc-423a-8900-e2518e9acf51.png"
+    },
+    {
+      "id": "iron_sword",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-562c1cbe-35f2-4bca-8dd9-5be24b0e8f61.png"
+    },
+    {
+      "id": "steel_sword",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-86985291-477d-4cf5-a952-c2d997427685.png"
+    },
+    {
+      "id": "steel_stiletto",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-b368e33a-ce88-4df5-8745-21150180ecce.png"
+    },
+    {
+      "id": "steel_maul",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-022059fd-3906-4041-9b58-b7a078dc631b.png"
+    },
+    {
+      "id": "moonsilver_blade",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-91d67577-9822-4147-898a-0b352ba96659.png"
+    },
+    {
+      "id": "cedar_bow",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-d92c9a5a-01ec-410c-a4e6-4462abc1189f.png"
+    },
+    {
+      "id": "maple_longbow",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-b64b5d2f-5f28-4cdc-bedb-33841a094e0a.png"
+    },
+    {
+      "id": "ironwood_greatbow",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-d9e3ac0b-c12f-4fa2-820f-155321dd11f0.png"
+    },
+    {
+      "id": "cedar_staff",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-2f19fb78-f97e-4970-b7e1-9a6197a09e37.png"
+    },
+    {
+      "id": "copper_ward_staff",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-5b3195a9-c920-4fc9-b7cb-abc432378553.png"
+    },
+    {
+      "id": "moonsilver_focus",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-393a1e41-8dfc-4c64-835c-49e08cee5a18.png"
+    },
+    {
+      "id": "fur_brigandine",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-1776e3ec-841b-425d-a9a3-e4b33905a0bc.png"
+    },
+    {
+      "id": "riveted_coat",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-441707d5-bfd8-43a0-b232-1e5938245af7.png"
+    },
+    {
+      "id": "steel_coat",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-a7a8dde9-36c9-4e77-ac44-4b42801b2ea2.png"
+    },
+    {
+      "id": "moonsilver_mail",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-b93ebafd-87cb-43f2-a3ce-ad0c8f57ace9.png"
+    },
+    {
+      "id": "antidote",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-d6560adf-18df-476a-a5af-7f659e7f1af5.png"
+    },
+    {
+      "id": "recovery_tonic",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-fdf2d23d-8edd-4fc0-8811-4f12e47498eb.png"
+    },
+    {
+      "id": "strong_tonic",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-72fe0ba5-877a-4021-97fa-5626d19fe1f6.png"
+    },
+    {
+      "id": "warding_draught",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-ebd1a76b-4284-4161-8c99-2ec838646e1f.png"
+    },
+    {
+      "id": "trapsense_draught",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-2566de1d-49df-4f02-b775-77e85f9c5321.png"
+    },
+    {
+      "id": "pathfinder_draught",
+      "path": "/Users/kevinandersson/.codex/generated_images/01a132d1-0b93-7310-929d-45bb489ea856/exec-8a78f642-8a95-4765-b109-842946f217c8.png"
+    }
+  ]
+}

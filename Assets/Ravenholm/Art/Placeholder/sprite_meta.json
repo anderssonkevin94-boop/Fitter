@@ -1414,248 +1414,289 @@
   "Stacks/stack_antidote.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_arcane_dust.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_cedar_bow.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_cedar_log.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_cedar_lumber.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_cedar_staff.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_coal.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_copper_ingot.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_copper_ore.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_copper_ward_staff.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_fur.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_fur_brigandine.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_gem.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_herb.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_iron_dagger.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_iron_ingot.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_iron_ore.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_iron_sword.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_ironwood_greatbow.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_ironwood_log.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_ironwood_lumber.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_maple_log.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_maple_longbow.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_maple_lumber.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_moonsilver_blade.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_moonsilver_focus.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_moonsilver_ingot.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_moonsilver_mail.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_moonsilver_ore.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_pathfinder_draught.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_recovery_tonic.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_riveted_coat.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_rope.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_steel_coat.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_steel_ingot.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_steel_maul.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_steel_stiletto.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_steel_sword.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_strong_tonic.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_trapsense_draught.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Stacks/stack_warding_draught.png": {
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.0833333
+   ],
+   "ppu": 512
   },
   "Tiles/tile_block_0.png": {
    "pivot": [

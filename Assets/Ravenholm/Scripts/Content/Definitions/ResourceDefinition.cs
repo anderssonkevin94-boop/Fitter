@@ -39,6 +39,8 @@ namespace Ravenholm.Content
 
         [Tooltip("World piece used in carry stacks and piles.")]
         [SerializeField] private Sprite stackSprite;
+        [Tooltip("Height between this piece and the one above it in a carried pile (local units before the pile's scale). Thin pieces (planks, blades, bows) stack closer. From the art's suggested-spacing.json.")]
+        [Min(0.01f)] [SerializeField] private float stackStep = 0.13f;
 
         [Tooltip("Mine ore: the painted block shown where this ore sits in the rock, within the lamp's light (optional).")]
         [SerializeField] private Sprite mineBlock;
@@ -51,6 +53,7 @@ namespace Ravenholm.Content
         public ReceiverType AcceptedReceiver => acceptedReceiver;
         public Sprite Icon => icon;
         public Sprite StackSprite => stackSprite;
+        public float StackStep => stackStep;
         public Color MapTint => mapTint;
         public Sprite MineBlock => mineBlock;
 
@@ -73,6 +76,7 @@ namespace Ravenholm.Content
             icon = newIcon;
             stackSprite = newStack;
         }
+        public void EditorSetStackStep(float step) => stackStep = step;
 #endif
     }
 }

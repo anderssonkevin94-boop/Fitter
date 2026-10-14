@@ -19,3 +19,6 @@ MonoBehaviour:
   acceptedReceiver: 0
   icon: {fileID: 21300000, guid: e931624a9ae3444259fa709e741bec5a, type: 3}
   stackSprite: {fileID: 21300000, guid: beced3ac53e7d46aa831fa22594b59a3, type: 3}
+  stackStep: 0.08648
+  mineBlock: {fileID: 0}
+  mapTint: {r: 0.6, g: 0.6, b: 0.6, a: 1}

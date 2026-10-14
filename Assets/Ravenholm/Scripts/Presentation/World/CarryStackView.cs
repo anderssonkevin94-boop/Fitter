@@ -17,7 +17,6 @@ namespace Ravenholm.Presentation
         public const int MaxVisiblePieces = 8;
 
         [SerializeField] private Vector2 stackOrigin = new Vector2(0f, 1.04f);
-        [SerializeField] private float pieceStep = 0.13f;
         [SerializeField] private float pieceScale = 1.25f;
         [SerializeField] private int baseSortingOrder = 10;
         [SerializeField] private float arcSeconds = 0.2f;
@@ -95,7 +94,9 @@ namespace Ravenholm.Presentation
             ApplyVisibility();
             var n = carry.Count;
             _badge.text = n > 0 ? $"{n}/{_root.Services.Logistics.System.Capacity}" : "";
-            _badge.transform.localPosition = new Vector3(0f, _shown.Count * pieceStep + 0.16f, 0f);
+            // Each piece sits on top of the one below, as high as that piece's step (thin planks and blades stack closely).
+            _pileTop = UnitVisuals.PileHeights(_shown, _heights);
+            _badge.transform.localPosition = new Vector3(0f, _pileTop + 0.16f, 0f);
         }
 
         private void ApplyVisibility()
@@ -145,7 +146,7 @@ namespace Ravenholm.Presentation
                 var t = _pieces[i].transform;
                 var match = near != null && i < _shown.Count && sys.Accepts(near.Kind, _shown[i]);
                 var bob = match && !Feel.ReducedMotion ? Mathf.Abs(Mathf.Sin(Time.time * 7f + i * 0.6f)) * 0.05f : 0f;
-                t.localPosition = new Vector3(i % 2 == 0 ? -0.02f : 0.02f, i * pieceStep + bob, 0f);
+                t.localPosition = new Vector3(i % 2 == 0 ? -0.02f : 0.02f, _heights[i] + bob, 0f);
                 t.localScale = Vector3.one * (match ? 1.1f : 1f);
             }
 
@@ -154,7 +155,13 @@ namespace Ravenholm.Presentation
             _badge.color = Color.Lerp(new Color32(250, 242, 226, 255), new Color32(255, 140, 110, 255), _pulse);
         }
 
-        private Vector3 StackTop() => _stackRoot.TransformPoint(new Vector3(0f, Mathf.Min(_shown.Count, MaxVisiblePieces) * pieceStep, 0f));
+        private Vector3 StackTop() => _stackRoot.TransformPoint(new Vector3(0f, _pileTop, 0f));
+
+        private readonly float[] _heights = new float[MaxVisiblePieces];
+        private float _pileTop;
+
+        /// <summary>The pile's top above its base (local units; for tests and the badge).</summary>
+        public float PileTop => _pileTop;
 
         private void OnPickedUp(string containerId, CarryUnit unit)
         {
