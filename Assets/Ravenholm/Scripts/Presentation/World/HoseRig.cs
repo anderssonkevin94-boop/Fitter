@@ -231,8 +231,11 @@ namespace Ravenholm.Presentation
             var swayX = leftScreen * (definition.sway * s * Mathf.Cos(2f * Mathf.PI * (_phase - 0.25f)));
             var walkLean = -Mathf.Sign(g0.x) * definition.walkLean * s * Mathf.Abs(g0.x)
                            + definition.walkTilt * s * Mathf.Sin(2f * Mathf.PI * _phase) * (1f - Mathf.Abs(g0.x));
-            _footRollL = rollL * definition.footRoll * s * Mathf.Sign(g0.x) * Mathf.Abs(g0.x);
-            _footRollR = rollR * definition.footRoll * s * Mathf.Sign(g0.x) * Mathf.Abs(g0.x);
+            // Heel-toe roll, seen in the side and diagonal views (head-on the foot pitches toward or away from the camera):
+            // toe up (positive) pivots on the heel, heel up (negative) on the toe.
+            float Pitch(float roll) => (roll > 0f ? roll * definition.toeUpAngle : roll * definition.heelUpAngle) * s * Mathf.Abs(g0.x);
+            _footRollL = Pitch(rollL);
+            _footRollR = Pitch(rollR);
             if (ViewName != _lastView) { _turn = 1f; _lastView = ViewName; }   // a quick squash covers the turn
             _turn = Mathf.MoveTowards(_turn, 0f, dt * 8f);
 
@@ -338,12 +341,10 @@ namespace Ravenholm.Presentation
             _body.transform.localScale = new Vector3((2f - _squash) * turnSquash, _squash, 1f);
             _bootL.sprite = v.bootLeft;
             _bootR.sprite = v.bootRight;
-            _bootL.transform.localPosition = footL;
-            _bootR.transform.localPosition = footR;
-            _bootL.transform.localRotation = Quaternion.Euler(0f, 0f, _footRollL);
-            _bootR.transform.localRotation = Quaternion.Euler(0f, 0f, _footRollR);
-            LeftFoot = v.ankleLeft + footL;
-            RightFoot = v.ankleRight + footR;
+            var ankleL = PlaceBoot(_bootL, v.ankleLeft, footL, _footRollL, gf.x);
+            var ankleR = PlaceBoot(_bootR, v.ankleRight, footR, _footRollR, gf.x);
+            LeftFoot = ankleL;
+            RightFoot = ankleR;
             _handL.sprite = handSpriteL;
             _handR.sprite = handSpriteR;
             _handL.transform.localPosition = wristL;
@@ -375,9 +376,9 @@ namespace Ravenholm.Presentation
             var legLen = Vector2.Distance(v.hipLeft, v.ankleLeft);
             var armLen = Vector2.Distance(v.shoulderLeft, v.wristLeft);
             var kneeDir = side ? Vector2.zero : f;   // knees bow forward; head-on they bow slightly outward
-            LegStretch = Mathf.Max(Vector2.Distance(hipL, v.ankleLeft + footL), Vector2.Distance(hipR, v.ankleRight + footR)) / Mathf.Max(0.001f, legLen);
-            DrawTube(_legL, hipL, v.ankleLeft + footL, legLen, side ? Vector2.right * Mathf.Sign(v.hipLeft.x) : kneeDir, definition.legWidth, definition.legWidthEnd, definition.legColor, outline);
-            DrawTube(_legR, hipR, v.ankleRight + footR, legLen, side ? Vector2.right * Mathf.Sign(v.hipRight.x) : kneeDir, definition.legWidth, definition.legWidthEnd, definition.legColor, outline);
+            LegStretch = Mathf.Max(Vector2.Distance(hipL, ankleL), Vector2.Distance(hipR, ankleR)) / Mathf.Max(0.001f, legLen);
+            DrawTube(_legL, hipL, ankleL, legLen, side ? Vector2.right * Mathf.Sign(v.hipLeft.x) : kneeDir, definition.legWidth, definition.legWidthEnd, definition.legColor, outline);
+            DrawTube(_legR, hipR, ankleR, legLen, side ? Vector2.right * Mathf.Sign(v.hipRight.x) : kneeDir, definition.legWidth, definition.legWidthEnd, definition.legColor, outline);
             var elbowDir = side ? Vector2.zero : -f;
             DrawTube(_armL, shoulderL, wristL, armLen, side ? Vector2.right * Mathf.Sign(v.shoulderLeft.x) : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
             DrawSleeve(_sleeveL, outline);
@@ -448,6 +449,24 @@ namespace Ravenholm.Presentation
         }
 
         public const float SwingCycle = 0.46f;
+
+        /// <summary>
+        /// Places a boot moved by <paramref name="offset"/> and pitched by <paramref name="angle"/> (degrees, toe up
+        /// positive) about its heel (toe up) or toe (heel up) on the sole, and returns where its ankle ends up (the leg's
+        /// end). <paramref name="forwardX"/> is the view's forward on screen (1 profile, 0.7 diagonal, 0 head-on).
+        /// </summary>
+        private Vector2 PlaceBoot(SpriteRenderer boot, Vector2 ankle, Vector2 offset, float angle, float forwardX)
+        {
+            var sole = ankle.y - definition.ankleHeight;
+            var pivot = angle >= 0f
+                ? new Vector2(ankle.x - definition.heelLength * forwardX, sole)
+                : new Vector2(ankle.x + definition.toeLength * forwardX, sole);
+            var rot = Quaternion.Euler(0f, 0f, angle);
+            // The boot's art is placed from the character's ground point (the rig's origin): rotate it about the pivot.
+            boot.transform.localRotation = rot;
+            boot.transform.localPosition = (Vector3)(offset + pivot - (Vector2)(rot * pivot));
+            return offset + pivot + (Vector2)(rot * (ankle - pivot));
+        }
 
         private static float EaseOut(float x) => 1f - (1f - x) * (1f - x);
         private static float EaseIn(float x) => x * x;

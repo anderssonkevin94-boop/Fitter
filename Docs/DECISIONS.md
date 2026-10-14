@@ -931,3 +931,8 @@ The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): fla
   - **Gait.** 3.4 steps a second at full speed, a 1.0-unit ground stride, feet reaching at most 0.15 units from the hip.
   - **Motor.** The motor uses the rig's `walkSpeed`, with the stick's direction taken on the ground.
   - **Tests.** A spec test checks speed, cadence, reach and stretch in all 8 directions. A hand-rule test and a key-pose review sheet were added. The old frame-walk speed test is retired.
+- **Heel-toe roll (2026-10-14, Kevin: "tilt the foot so he doesn't raise his knee so far").**
+  - The swing lift drops from 0.06 to 0.025.
+  - The boots now roll about the sole: the heel peels up 30° at push-off, pivoting on the toe, and the toe tips up 15° before the heel lands, pivoting on the heel.
+  - The leg ends at the rolled ankle.
+  - Before this, the boots rotated about the character's ground point, so the roll barely showed.

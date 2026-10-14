@@ -33,7 +33,8 @@ This is the reference the walk is built and tested against. Every number below i
 | Squash and stretch | ±2.5% height, in step with the bob | by eye |
 | Weight shift | 0.02 units toward the supporting foot | by eye |
 | Lean | 5° forward in the side views; 3° side-to-side tilt head-on | by eye |
-| Foot roll | toe up 16° at heel strike, heel up at push-off (side views only) | by eye |
+| Foot roll | heel-toe roll: the heel peels up 30° at push-off pivoting on the toe; the toe tips up 15° before heel strike pivoting on the heel; the leg ends at the rolled ankle (side and diagonal views) | by eye |
+| Swing foot lift | 0.025 units (a real walk barely lifts the foot; the roll does the work) | by eye |
 | Arm swing | opposite the legs, ±0.1 ground units forward and back, through a spring (3.2 Hz, damping 0.55) | swings opposite the same-side leg |
 | Start and stop | 0.1 s to full speed; the walk eases in over about 0.13 s and settles to standing | by eye |
 

@@ -56,7 +56,7 @@ namespace Ravenholm.Presentation
         [Tooltip("Stride (ground covered per two steps) at walking speed, in units; it grows a little with speed.")]
         [Min(0.05f)] public float stride = 1.1f;
         [Tooltip("How high a swinging boot lifts, in units.")]
-        [Min(0f)] public float footLift = 0.06f;
+        [Min(0f)] public float footLift = 0.025f;
         [Tooltip("The body's bounce over each step, in units.")]
         [Min(0f)] public float bounce = 0.022f;
         [Tooltip("How far the hands swing forward and back while walking, in units.")]
@@ -83,8 +83,14 @@ namespace Ravenholm.Presentation
         [Range(0f, 0.15f)] public float squash = 0.025f;
         [Tooltip("Forward lean while walking (side views), and side-to-side tilt head-on, in degrees.")]
         [Min(0f)] public float walkLean = 5f, walkTilt = 3f;
-        [Tooltip("How much the boots roll: toe up at heel strike, heel up at push-off (degrees).")]
+        [Tooltip("How much the boots roll: toe up at heel strike, heel up at push-off (degrees). Unused since the heel-toe roll.")]
         [Min(0f)] public float footRoll = 16f;
+        [Tooltip("Heel-toe roll (a real walk, 2026-10-14): the heel peels up this far at push-off, pivoting on the toe...")]
+        [Min(0f)] public float heelUpAngle = 30f;
+        [Tooltip("... and the toe tips up this far before the heel lands, pivoting on the heel (degrees).")]
+        [Min(0f)] public float toeUpAngle = 15f;
+        [Tooltip("The boot's toe ahead of and heel behind the ankle, and the ankle above the sole (units, from the side-view art).")]
+        [Min(0f)] public float toeLength = 0.14f, heelLength = 0.065f, ankleHeight = 0.12f;
         [Tooltip("How quickly the hands follow their swing (spring frequency, Hz) and how bouncy (damping ratio, 1 = none).")]
         [Min(1f)] public float armSpringHz = 3.2f;
         [Range(0.2f, 1f)] public float armSpringDamping = 0.55f;
