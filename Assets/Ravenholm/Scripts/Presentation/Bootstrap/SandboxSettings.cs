@@ -48,7 +48,7 @@ namespace Ravenholm.Presentation
 
         [Header("Camera")]
         [Tooltip("Visible world width in units. The debug panel cycles through these to compare framing; the game itself has no zoom (locked).")]
-        public float[] viewWidthOptions = { 7f, 8.5f, 10f };
+        public float[] viewWidthOptions = { 6f, 7f, 8.5f };
         [Min(0)] public int defaultViewWidthIndex = 1;
         [Tooltip("Shifts the camera up so the player sits slightly below centre, leaving thumb room.")]
         public float cameraLookAheadY = 0.6f;

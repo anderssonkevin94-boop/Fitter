@@ -827,3 +827,7 @@ The painted dwarf was unreadable in game, so he is replaced by Astra's approved 
 - **Size.** He is drawn about one unit tall (210 px per unit, about 15% bigger than before) so he reads on a phone.
 - **Speed.** `walkPlaybackRate` 1.4 (about 6 steps a second) and `walkGroundFactor` 1.25 give about 2.0 units/s sideways and 1.0 up or down, as before.
 - **Unchanged.** Idle keeps the last facing. Work poses are still the procedural lean on the standing pose. The pile rides on his head.
+- **A closer camera and hip-swinging legs (2026-10-14, Kevin).**
+  - The camera's view widths are now 6, 7 (the default) and 8.5 units, instead of 7, 8.5 and 10. The default is about 20% closer, so the supplier is a bigger part of the screen at the same scale as the world.
+  - The walk (`ArtSource/dwarf-v6-hip-swing`) swings each leg from the hip, built from Astra's separate thigh, shin and foot parts, with a knee bend on the swing.
+  - The legs walk on a narrower track in the front and back views, so he no longer straddles.

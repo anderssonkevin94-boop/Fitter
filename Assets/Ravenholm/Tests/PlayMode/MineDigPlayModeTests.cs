@@ -121,6 +121,10 @@ namespace Ravenholm.Tests
             var slab = MineSlabView.Current;
             Assert.NotNull(slab, "the Mine is a dig slab");
             Assert.IsTrue(Mine.DigMode);
+            // Only what the camera sees is drawn: stand by the quarry first.
+            Motor.Teleport(slab.Top(0f, 1f, 0f));
+            SandboxSceneController.Current.SnapPlayerToSavedPosition();
+            yield return new WaitForSeconds(0.3f);
             Assert.Greater(slab.DrawnBlocks, 0, "the town's cliff edges are drawn as blocks");
             S.Sites.SpeedMultiplier = 20f;
 

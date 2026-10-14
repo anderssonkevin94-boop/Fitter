@@ -220,9 +220,11 @@ namespace Ravenholm.Presentation
             // Pushing straight into a wall along a grid axis stops: the screen axes would slide it sideways along it.
             var len = delta.magnitude;
             var intoWall = len > 1e-6f && (Mathf.Abs(Vector2.Dot(delta, SlideAxes[0])) > 0.96f * len || Mathf.Abs(Vector2.Dot(delta, SlideAxes[1])) > 0.96f * len);
+            // The grid's two axes are not perpendicular on screen: sliding a push along one onto the other would run
+            // sideways along the wall at 60% speed. Straight into a wall stops.
+            if (intoWall) return from;
             for (var a = 0; a < SlideAxes.Length; a++)
             {
-                if (intoWall && a >= 2) break;
                 var axis = SlideAxes[a];
                 var d = axis * Vector2.Dot(delta, axis);
                 if (d.sqrMagnitude > bestLen && ok(from + d)) { best = from + d; bestLen = d.sqrMagnitude; }
