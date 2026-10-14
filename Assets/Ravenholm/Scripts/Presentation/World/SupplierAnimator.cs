@@ -54,6 +54,7 @@ namespace Ravenholm.Presentation
         {
             get
             {
+                if (_rig != null) return _rig.HeadTop;
                 if (body == null || body.sprite == null) return 1f;
                 var bt = body.transform;
                 return transform.localPosition.y + (bt.localPosition.y + body.sprite.bounds.max.y * bt.localScale.y) * Mathf.Abs(transform.localScale.y);
@@ -72,6 +73,7 @@ namespace Ravenholm.Presentation
         {
             _root = GameRoot.Instance;
             _motor = GetComponentInParent<PlayerMotor>();
+            _rig = GetComponent<HoseRig>();
             _rootTransform = transform.parent != null ? transform.parent : transform;
             _lastPos = _rootTransform.position;
             if (_motor != null && _root != null)
@@ -110,6 +112,12 @@ namespace Ravenholm.Presentation
             if (_motor != null && MineSlabView.Current != null && MineSlabView.Current.Riding) moving = false;   // riding is not walking
             var name = _motor != null ? PlayerClip(moving, out var advance) : FigureClip(moving, out advance);
             Play(name, advance ? dt : 0f);
+            if (_rig != null)
+            {
+                // The rubber-hose character draws itself from what the animator decided (pose, facing, ground covered).
+                _rig.Drive(Dir, PoseOf(Requested, moving), delta.magnitude, dt, transform.localPosition, Mathf.Abs(transform.localScale.y));
+                CarryAnchor = _rig.CarryAnchor;
+            }
         }
 
         private static readonly string[] Dirs = { "E", "NE", "N", "NW", "W", "SW", "S", "SE" };
@@ -296,6 +304,23 @@ namespace Ravenholm.Presentation
         }
 
         private float _motionTime, _motionGap;
+        private HoseRig _rig;
+
+        /// <summary>The rubber-hose rig drawing this character, if it has one.</summary>
+        public HoseRig Rig => _rig;
+
+        private static HoseRig.Pose PoseOf(string requested, bool moving)
+        {
+            if (requested.StartsWith("mine_down")) return HoseRig.Pose.MineDown;
+            if (requested.StartsWith("mine_up")) return HoseRig.Pose.MineUp;
+            if (requested.StartsWith("mine")) return HoseRig.Pose.Mine;
+            if (requested.StartsWith("chop")) return HoseRig.Pose.Chop;
+            if (requested.StartsWith("carry")) return HoseRig.Pose.Carry;
+            if (requested.StartsWith("pickup")) return HoseRig.Pose.Pickup;
+            if (requested.StartsWith("fall")) return HoseRig.Pose.Fall;
+            if (requested.StartsWith("climb")) return HoseRig.Pose.Climb;
+            return moving && requested.Contains("walk") ? HoseRig.Pose.Walk : HoseRig.Pose.Idle;
+        }
         private float _speed;
 
         /// <summary>

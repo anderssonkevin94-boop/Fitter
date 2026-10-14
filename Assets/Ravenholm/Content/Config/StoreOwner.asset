@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f781b935ca562410189d54db9fda5c0b, type: 3}
+  m_Name: StoreOwner
+  m_EditorClassIdentifier: Ravenholm.Presentation::Ravenholm.Presentation.HoseCharacterDefinition
+  views:
+  - name: S
+    body: {fileID: 21300000, guid: 3613958e95a3e4c3a9226f3375f91363, type: 3}
+    bootLeft: {fileID: 21300000, guid: d22177d85c1dd44059ce259501d78bef, type: 3}
+    bootRight: {fileID: 21300000, guid: 153c427ef06b14e0ea8b5dcdbd60d771, type: 3}
+    shoulderLeft: {x: 0.21764706, y: 0.55588233}
+    shoulderRight: {x: -0.21764706, y: 0.55588233}
+    hipLeft: {x: 0.11176471, y: 0.2882353}
+    hipRight: {x: -0.11176471, y: 0.2882353}
+    ankleLeft: {x: 0.11176471, y: 0.120588236}
+    ankleRight: {x: -0.11176471, y: 0.120588236}
+    wristLeft: {x: 0.25882354, y: 0.3382353}
+    wristRight: {x: -0.25882354, y: 0.3382353}
+  - name: SE
+    body: {fileID: 21300000, guid: db87d94bf98a04f548c454131d335dc9, type: 3}
+    bootLeft: {fileID: 21300000, guid: 24968fa7952c3456da8266774ae5532a, type: 3}
+    bootRight: {fileID: 21300000, guid: 543c34c1dcb6048a8825e4f7a030d9ae, type: 3}
+    shoulderLeft: {x: 0.21470588, y: 0.5205882}
+    shoulderRight: {x: -0.18529412, y: 0.5294118}
+    hipLeft: {x: 0.10294118, y: 0.2882353}
+    hipRight: {x: -0.08529412, y: 0.2882353}
+    ankleLeft: {x: 0.105882354, y: 0.120588236}
+    ankleRight: {x: -0.09411765, y: 0.120588236}
+    wristLeft: {x: 0.24705882, y: 0.3382353}
+    wristRight: {x: -0.22647059, y: 0.3382353}
+  - name: E
+    body: {fileID: 21300000, guid: 6c8085de5a0c74cb3ac0fa2dae1fc3d3, type: 3}
+    bootLeft: {fileID: 21300000, guid: d2473e225b55944eb866e5bcdc6fa775, type: 3}
+    bootRight: {fileID: 21300000, guid: b0846e23acd9345b18e8b9c89d27906e, type: 3}
+    shoulderLeft: {x: 0.038235296, y: 0.57058823}
+    shoulderRight: {x: -0.15588236, y: 0.5352941}
+    hipLeft: {x: 0.032352943, y: 0.2882353}
+    hipRight: {x: -0.032352943, y: 0.2882353}
+    ankleLeft: {x: 0.032352943, y: 0.120588236}
+    ankleRight: {x: -0.038235296, y: 0.120588236}
+    wristLeft: {x: 0.032352943, y: 0.4117647}
+    wristRight: {x: -0.22352941, y: 0.3382353}
+  - name: NE
+    body: {fileID: 21300000, guid: ceaf05f69b30d41c3bcaa5a14a894148, type: 3}
+    bootLeft: {fileID: 21300000, guid: dc82049dfb4534ef2be924957d67be14, type: 3}
+    bootRight: {fileID: 21300000, guid: 749f2ed884a1747718992c2087c715a7, type: 3}
+    shoulderLeft: {x: -0.2, y: 0.55}
+    shoulderRight: {x: 0.20294118, y: 0.55}
+    hipLeft: {x: -0.1, y: 0.2882353}
+    hipRight: {x: 0.1, y: 0.2882353}
+    ankleLeft: {x: -0.1, y: 0.120588236}
+    ankleRight: {x: 0.1, y: 0.120588236}
+    wristLeft: {x: -0.24117647, y: 0.3382353}
+    wristRight: {x: 0.25, y: 0.3382353}
+  - name: N
+    body: {fileID: 21300000, guid: 70d6cd5dca50641ee8ac1d78ff99369b, type: 3}
+    bootLeft: {fileID: 21300000, guid: db223932559484458ad0467e0ad50dc7, type: 3}
+    bootRight: {fileID: 21300000, guid: cf4530558ac7a4078a51a59e4cc92e38, type: 3}
+    shoulderLeft: {x: -0.21470588, y: 0.56764704}
+    shoulderRight: {x: 0.21470588, y: 0.56764704}
+    hipLeft: {x: -0.11176471, y: 0.2882353}
+    hipRight: {x: 0.11176471, y: 0.2882353}
+    ankleLeft: {x: -0.11176471, y: 0.120588236}
+    ankleRight: {x: 0.11176471, y: 0.120588236}
+    wristLeft: {x: -0.25882354, y: 0.3382353}
+    wristRight: {x: 0.25882354, y: 0.3382353}
+  handOpenFront: {fileID: 21300000, guid: 2f2e9f895829b427d8c47048bbdafb05, type: 3}
+  handOpenSide: {fileID: 21300000, guid: 635633d49ab9b4747ab64b9cc5685440, type: 3}
+  handOpenBack: {fileID: 21300000, guid: 9904df0224d8d476988487d015dbdfa5, type: 3}
+  handGripFront: {fileID: 21300000, guid: 8e519bc06faa641708bd44ad44504d03, type: 3}
+  handGripSide: {fileID: 21300000, guid: 6879da60d137442f6a11f8667483ea0d, type: 3}
+  handGripBack: {fileID: 21300000, guid: 18df1bbc86fc9437195f8ea273de4df3, type: 3}
+  handPointFront: {fileID: 21300000, guid: 35024889f3eac4ba4998ffe973689593, type: 3}
+  handPointSide: {fileID: 21300000, guid: 429fa63853b334a60adfe5a1012c7f6a, type: 3}
+  handPointBack: {fileID: 21300000, guid: 6604e38267e0e4e46ae11af0b859bc2b, type: 3}
+  pickaxe: {fileID: 21300000, guid: c4a48764802264b7db5ee82900b2e85e, type: 3}
+  axe: {fileID: 21300000, guid: a273d555ca9574960bac9800d6787f39, type: 3}
+  armColor: {r: 0.85490197, g: 0.5294118, b: 0.35686275, a: 1}
+  legColor: {r: 0.30980393, g: 0.32941177, b: 0.34509805, a: 1}
+  armWidth: 0.052941177
+  legWidth: 0.05882353
+  limbMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  stride: 0.62
+  footLift: 0.06
+  bounce: 0.025
+  armSwing: 0.07
+  bow: 0.55

@@ -863,6 +863,14 @@ namespace Ravenholm.EditorTools
             var overlay = visual.Find("Overlay");
             if (overlay != null) overlay.gameObject.SetActive(false);
             visual.gameObject.AddComponent<SupplierAnimator>().EditorSetup(set, body);
+            // The rubber-hose supplier (2026-10-14): drawn live from painted parts; the frame body is kept hidden for
+            // the animator's bookkeeping (clips, timing).
+            var hose = AssetDatabase.LoadAssetAtPath<HoseCharacterDefinition>(ProjectSetup.StoreOwnerPath);
+            if (hose != null)
+            {
+                visual.gameObject.AddComponent<HoseRig>().EditorSetup(hose);
+                body.enabled = false;
+            }
         }
 
         private static void AddLabel(Transform target, string text, float height)

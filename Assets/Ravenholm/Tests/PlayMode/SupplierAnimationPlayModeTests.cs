@@ -73,16 +73,16 @@ namespace Ravenholm.Tests
             Stick(null);
             yield return Until(() => anim.Clip == "idle_SE", 2f, Now);
 
-            // Carrying: no carry pose painted yet, so the pile rides on his head, just above it.
+            // Carrying: the rubber-hose supplier holds his hands out in front and the pile rests on them.
             var sys = GameRoot.Instance.Services.Logistics.System;
+            sys.RecordCreated("resource.iron_ore");
             Assert.IsTrue(sys.TryCarry("resource.iron_ore"));
             yield return Until(() => anim.Requested == "carry_idle_front", 2f, Now);
             yield return null;
-            Assert.IsFalse(anim.CarryAnchor.HasValue, "no painted forearms to hold it");
+            Assert.IsTrue(anim.CarryAnchor.HasValue, "the hands hold the pile");
             var stack = player.Find("CarryStack");
             Assert.NotNull(stack);
-            Assert.Less(Mathf.Abs(stack.localPosition.x), 0.05f, "centred over him");
-            Assert.That(stack.localPosition.y, Is.InRange(anim.HeadTop - 0.06f, anim.HeadTop + 0.03f), "on top of his head");
+            Assert.Less(stack.localPosition.y, anim.HeadTop - 0.2f, "at hand height, below his hat");
             Stick(new Vector2(0.8f, -0.6f));
             yield return Until(() => anim.Requested == "carry_walk_front" && anim.Clip == "walk_SE", 3f, Now);
             Stick(null);

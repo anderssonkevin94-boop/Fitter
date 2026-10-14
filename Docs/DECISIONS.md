@@ -854,3 +854,26 @@ New art is drawn without outlines. The game draws one outline around everything,
 - **Switched on per sprite.** Only sprites flagged `"outline": true` in `sprite_meta.json` are outlined (setup collects them into the settings). Today none are; the existing art keeps its painted lines until outline-free versions replace it. The supplier and his routine figure already carry the component, for the coming character.
 - **Art requirements.** Outline-free art needs a transparent margin around each piece (Astra's brief asks for 12 px) and a full-rect mesh, because the line is drawn inside the sprite's rectangle.
 - **Known.** Where two pieces of one object overlap with soft (anti-aliased) edges, a hairline seam can show faintly.
+
+## The rubber-hose supplier (2026-10-14, Kevin chose Astra's General Store Owner)
+
+The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): flat colours, no painted outlines. The game draws his arms and legs live as bendy hoses (`HoseRig`, `HoseCharacterDefinition`, `Content/Config/StoreOwner.asset`, built by setup from `points.json`).
+
+- **Parts.**
+  - 5 painted views (S, SE, E, NE, N; SW, W and NW are mirrors), 10 boots, 9 hands, a pickaxe and an axe. All share one scale of 340 px per unit, so he stands about 1.07 units tall.
+  - Pivots: the ground point (256, 444) for bodies and boots, the wrist for hands, the grip for tools.
+  - All of them get the game's outline. The hoses draw their own outline at the same thickness, at the back of his sorting group, so only his outer silhouette is lined.
+- **Walking.**
+  - The phase follows the ground actually covered, so the supporting foot stays planted at any speed (the PlayMode test measures it).
+  - The stride is 0.62 units, scaled 0.75–1.15× with speed. At 2 units/s that is about 6 steps a second.
+  - His legs are short (0.17 units from hip to ankle), so the hoses stretch a little at full stride, the rubber-hose way, and bow (knees forward, elbows back) when compressed.
+  - The body bounces over each step, and the hands swing against the feet.
+- **Poses.**
+  - Carry: hands out at belly height; the pile rests on them through `CarryAnchor`, the existing anchor path.
+  - Mining and chopping: the tool swings from the near hand (a 0.26 s wind-up, then a 0.14 s strike).
+  - Also pick-up, fall and climb.
+- **Integration.** `SupplierAnimator` still decides the pose and facing (its clip names, timing and tests are unchanged) and drives the rig. The old frame body is kept hidden for that bookkeeping. The routine figure uses the same rig.
+- **Known.**
+  - The hands are small natural hands, not the big gloves the brief asked for.
+  - A full 8-piece pile hides his face from the front.
+  - The hoses' bow and stretch, and the poses, are first-pass tuning.

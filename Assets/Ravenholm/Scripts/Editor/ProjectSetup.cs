@@ -92,6 +92,7 @@ namespace Ravenholm.EditorTools
             EnsureSupplierAnimations();
             EnsureStackSteps();
             EnsureOutlines(settings);
+            EnsureStoreOwner();
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
             var boot = EnsureAsset<BootConfig>(ConfigDir + "BootConfig.asset");
             if (boot.Catalogue == null || boot.SandboxSettings == null || boot.UiTheme == null || boot.Balance == null)
@@ -811,6 +812,56 @@ namespace Ravenholm.EditorTools
         /// The supplier's animation clips, rebuilt from Characters/Supplier/animations.json (written by
         /// Tools/ArtImport/import_character_strips.py): generated data, so it is replaced, not merged.
         /// </summary>
+        public const string StoreOwnerPath = ConfigDir + "StoreOwner.asset";
+        private const string UnlitSpriteMaterialPath = "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat";
+
+        /// <summary>
+        /// The rubber-hose supplier (Astra's General Store Owner, Phase 2; 2026-10-14): his parts and anchor points, from
+        /// Characters/StoreOwner/points.json. Positions become units from the ground point (256, 444), y up, at the
+        /// parts' shared 340 px per unit. Motion tunables on the asset are kept when edited.
+        /// </summary>
+        public static HoseCharacterDefinition EnsureStoreOwner()
+        {
+            const string dir = "Characters/StoreOwner/";
+            var json = PlaceholderSpriteImporter.ArtRoot + dir + "points.json";
+            if (!File.Exists(json)) return null;
+            const float ppu = 340f;
+            var p = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(json));
+            Vector2 U(Newtonsoft.Json.Linq.JToken xy) => new Vector2(((float)xy[0] - 256f) / ppu, (444f - (float)xy[1]) / ppu);
+            var def = EnsureAsset<HoseCharacterDefinition>(StoreOwnerPath);
+            var views = new List<HoseCharacterDefinition.View>();
+            foreach (var name in new[] { "S", "SE", "E", "NE", "N" })
+            {
+                var b = p["body_" + name];
+                var wrists = p["_meta"]["preview"]["wrist_targets"][name];
+                views.Add(new HoseCharacterDefinition.View
+                {
+                    name = name,
+                    body = LoadSprite(dir + "body_" + name),
+                    bootLeft = LoadSprite(dir + "boot_" + name + "_left"),
+                    bootRight = LoadSprite(dir + "boot_" + name + "_right"),
+                    shoulderLeft = U(b["shoulder_left"]), shoulderRight = U(b["shoulder_right"]),
+                    hipLeft = U(b["hip_left"]), hipRight = U(b["hip_right"]),
+                    ankleLeft = U(p["boot_" + name + "_left"]["ankle"]), ankleRight = U(p["boot_" + name + "_right"]["ankle"]),
+                    wristLeft = U(wrists["left"]), wristRight = U(wrists["right"]),
+                });
+            }
+            def.views = views.ToArray();
+            def.handOpenFront = LoadSprite(dir + "hand_open_front"); def.handOpenSide = LoadSprite(dir + "hand_open_side"); def.handOpenBack = LoadSprite(dir + "hand_open_back");
+            def.handGripFront = LoadSprite(dir + "hand_grip_front"); def.handGripSide = LoadSprite(dir + "hand_grip_side"); def.handGripBack = LoadSprite(dir + "hand_grip_back");
+            def.handPointFront = LoadSprite(dir + "hand_point_front"); def.handPointSide = LoadSprite(dir + "hand_point_side"); def.handPointBack = LoadSprite(dir + "hand_point_back");
+            def.pickaxe = LoadSprite(dir + "pickaxe");
+            def.axe = LoadSprite(dir + "axe");
+            var limbs = p["limbs"];
+            def.armColor = ColorUtility.TryParseHtmlString((string)limbs["arm_colour"], out var ac) ? ac : def.armColor;
+            def.legColor = ColorUtility.TryParseHtmlString((string)limbs["leg_colour"], out var lc) ? lc : def.legColor;
+            def.armWidth = (float)limbs["arm_width_px"] / ppu;
+            def.legWidth = (float)limbs["leg_width_px"] / ppu;
+            def.limbMaterial = AssetDatabase.LoadAssetAtPath<Material>(UnlitSpriteMaterialPath);
+            EditorUtility.SetDirty(def);
+            return def;
+        }
+
         public const string OutlineSettingsPath = ConfigDir + "OutlineSettings.asset";
         public const string OutlineMaterialPath = ConfigDir + "OutlineSilhouette.mat";
 

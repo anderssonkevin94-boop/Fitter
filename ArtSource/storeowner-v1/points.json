@@ -1,0 +1,399 @@
+{
+  "body_S": {
+    "shoulder_left": [
+      330,
+      255
+    ],
+    "shoulder_right": [
+      182,
+      255
+    ],
+    "hip_left": [
+      294,
+      346
+    ],
+    "hip_right": [
+      218,
+      346
+    ]
+  },
+  "body_SE": {
+    "shoulder_left": [
+      329,
+      267
+    ],
+    "shoulder_right": [
+      193,
+      264
+    ],
+    "hip_left": [
+      291,
+      346
+    ],
+    "hip_right": [
+      227,
+      346
+    ]
+  },
+  "body_E": {
+    "shoulder_left": [
+      269,
+      250
+    ],
+    "shoulder_right": [
+      203,
+      262
+    ],
+    "hip_left": [
+      267,
+      346
+    ],
+    "hip_right": [
+      245,
+      346
+    ]
+  },
+  "body_NE": {
+    "shoulder_left": [
+      188,
+      257
+    ],
+    "shoulder_right": [
+      325,
+      257
+    ],
+    "hip_left": [
+      222,
+      346
+    ],
+    "hip_right": [
+      290,
+      346
+    ]
+  },
+  "body_N": {
+    "shoulder_left": [
+      183,
+      251
+    ],
+    "shoulder_right": [
+      329,
+      251
+    ],
+    "hip_left": [
+      218,
+      346
+    ],
+    "hip_right": [
+      294,
+      346
+    ]
+  },
+  "boot_S_left": {
+    "ankle": [
+      294,
+      403
+    ]
+  },
+  "boot_S_right": {
+    "ankle": [
+      218,
+      403
+    ]
+  },
+  "boot_SE_left": {
+    "ankle": [
+      292,
+      403
+    ]
+  },
+  "boot_SE_right": {
+    "ankle": [
+      224,
+      403
+    ]
+  },
+  "boot_E_left": {
+    "ankle": [
+      267,
+      403
+    ]
+  },
+  "boot_E_right": {
+    "ankle": [
+      243,
+      403
+    ]
+  },
+  "boot_NE_left": {
+    "ankle": [
+      222,
+      403
+    ]
+  },
+  "boot_NE_right": {
+    "ankle": [
+      290,
+      403
+    ]
+  },
+  "boot_N_left": {
+    "ankle": [
+      218,
+      403
+    ]
+  },
+  "boot_N_right": {
+    "ankle": [
+      294,
+      403
+    ]
+  },
+  "hand_open_front": {
+    "wrist": [
+      128,
+      128
+    ]
+  },
+  "hand_open_side": {
+    "wrist": [
+      128,
+      128
+    ]
+  },
+  "hand_open_back": {
+    "wrist": [
+      128,
+      128
+    ]
+  },
+  "hand_grip_front": {
+    "wrist": [
+      128,
+      128
+    ],
+    "grip": [
+      129,
+      147
+    ]
+  },
+  "hand_grip_side": {
+    "wrist": [
+      128,
+      128
+    ],
+    "grip": [
+      134,
+      147
+    ]
+  },
+  "hand_grip_back": {
+    "wrist": [
+      128,
+      128
+    ],
+    "grip": [
+      126,
+      147
+    ]
+  },
+  "hand_point_front": {
+    "wrist": [
+      128,
+      128
+    ]
+  },
+  "hand_point_side": {
+    "wrist": [
+      128,
+      128
+    ]
+  },
+  "hand_point_back": {
+    "wrist": [
+      128,
+      128
+    ]
+  },
+  "pickaxe": {
+    "grip": [
+      242,
+      267
+    ]
+  },
+  "axe": {
+    "grip": [
+      236,
+      262
+    ]
+  },
+  "limbs": {
+    "arm_colour": "#DA875B",
+    "leg_colour": "#4F5458",
+    "arm_width_px": 18,
+    "leg_width_px": 20
+  },
+  "_meta": {
+    "schema_version": 1,
+    "coordinate_origin": "top-left",
+    "coordinate_units": "pixels",
+    "pixel_coordinates": "zero-based integer pixel centres",
+    "left_right": "character anatomical left/right",
+    "canvas_sizes": {
+      "body": [
+        512,
+        512
+      ],
+      "boot": [
+        512,
+        512
+      ],
+      "hand": [
+        256,
+        256
+      ],
+      "tool": [
+        512,
+        512
+      ]
+    },
+    "ground": [
+      256,
+      444
+    ],
+    "body_top_y": 80,
+    "apron_bottom_y": 352,
+    "visible_leg_zone_px": 92,
+    "standing_height_px": 365,
+    "body_and_boot_pivot_pixels": [
+      256,
+      444
+    ],
+    "mirror_x_rule": "x_mirrored = canvas_width - 1 - x",
+    "palette": {
+      "skin": "#DA875B",
+      "skinShadow": "#CA6642",
+      "cream": "#E9D2B3",
+      "creamShadow": "#D0B99C",
+      "hat": "#A57A57",
+      "hatShadow": "#73533A",
+      "brown": "#73533A",
+      "darkBrown": "#5A4335",
+      "eye": "#30261F",
+      "leg": "#4F5458",
+      "metal": "#4F5458",
+      "edge": "#8B8D88"
+    },
+    "tool_geometry": {
+      "pickaxe": {
+        "handle_angle_degrees_image": -45,
+        "measured_angle_degrees": -44.87742621141723,
+        "handle_length_px": 154
+      },
+      "axe": {
+        "handle_angle_degrees_image": -45,
+        "measured_angle_degrees": -44.914001451976745,
+        "handle_length_px": 145
+      }
+    },
+    "preview": {
+      "view_order": [
+        "S",
+        "SE",
+        "E",
+        "NE",
+        "N"
+      ],
+      "cell_size": [
+        512,
+        512
+      ],
+      "canvas_size": [
+        2560,
+        512
+      ],
+      "wrist_targets": {
+        "S": {
+          "left": [
+            344,
+            329
+          ],
+          "right": [
+            168,
+            329
+          ]
+        },
+        "SE": {
+          "left": [
+            340,
+            329
+          ],
+          "right": [
+            179,
+            329
+          ]
+        },
+        "E": {
+          "left": [
+            267,
+            304
+          ],
+          "right": [
+            180,
+            329
+          ]
+        },
+        "NE": {
+          "left": [
+            174,
+            329
+          ],
+          "right": [
+            341,
+            329
+          ]
+        },
+        "N": {
+          "left": [
+            168,
+            329
+          ],
+          "right": [
+            344,
+            329
+          ]
+        }
+      },
+      "hand_flip_about_wrist": true
+    },
+    "files": [
+      "body_S.png",
+      "body_SE.png",
+      "body_E.png",
+      "body_NE.png",
+      "body_N.png",
+      "boot_S_left.png",
+      "boot_S_right.png",
+      "boot_SE_left.png",
+      "boot_SE_right.png",
+      "boot_E_left.png",
+      "boot_E_right.png",
+      "boot_NE_left.png",
+      "boot_NE_right.png",
+      "boot_N_left.png",
+      "boot_N_right.png",
+      "hand_open_front.png",
+      "hand_open_side.png",
+      "hand_open_back.png",
+      "hand_grip_front.png",
+      "hand_grip_side.png",
+      "hand_grip_back.png",
+      "hand_point_front.png",
+      "hand_point_side.png",
+      "hand_point_back.png",
+      "pickaxe.png",
+      "axe.png",
+      "preview.png"
+    ]
+  }
+}

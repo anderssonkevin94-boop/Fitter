@@ -55,6 +55,214 @@
     0.2521
    ]
   },
+  "Characters/StoreOwner/axe.png": {
+   "outline": true,
+   "pivot": [
+    0.46191,
+    0.4873
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/body_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/body_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/body_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/body_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/body_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/boot_E_left.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/boot_E_right.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/boot_NE_left.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/boot_NE_right.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/boot_N_left.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/boot_N_right.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/boot_SE_left.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/boot_SE_right.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/boot_S_left.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/boot_S_right.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/hand_grip_back.png": {
+   "outline": true,
+   "pivot": [
+    0.50195,
+    0.49805
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/hand_grip_front.png": {
+   "outline": true,
+   "pivot": [
+    0.50195,
+    0.49805
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/hand_grip_side.png": {
+   "outline": true,
+   "pivot": [
+    0.50195,
+    0.49805
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/hand_open_back.png": {
+   "outline": true,
+   "pivot": [
+    0.50195,
+    0.49805
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/hand_open_front.png": {
+   "outline": true,
+   "pivot": [
+    0.50195,
+    0.49805
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/hand_open_side.png": {
+   "outline": true,
+   "pivot": [
+    0.50195,
+    0.49805
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/hand_point_back.png": {
+   "outline": true,
+   "pivot": [
+    0.50195,
+    0.49805
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/hand_point_front.png": {
+   "outline": true,
+   "pivot": [
+    0.50195,
+    0.49805
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/hand_point_side.png": {
+   "outline": true,
+   "pivot": [
+    0.50195,
+    0.49805
+   ],
+   "ppu": 340
+  },
+  "Characters/StoreOwner/pickaxe.png": {
+   "outline": true,
+   "pivot": [
+    0.47363,
+    0.47754
+   ],
+   "ppu": 340
+  },
   "Characters/Supplier/carry_idle_back_0.png": {
    "pivot": [
     0.6235,

@@ -146,10 +146,10 @@ namespace Ravenholm.Tests
             Assert.AreEqual(0, off.ActiveOutlines, "art that isn't switched on keeps its own look");
             Assert.AreEqual(0, LineRun(tex, pOff), "no game outline on it");
 
-            // The player has the component, and nothing on him is switched on yet (his art still has painted lines).
+            // The supplier's rubber-hose parts are outline-free art: they get the game's outline.
             var player = SandboxSceneController.Current.Player.GetComponent<SpriteOutline>();
-            Assert.NotNull(player, "the supplier is ready for outline-free art");
-            Assert.AreEqual(0, player.ActiveOutlines);
+            Assert.NotNull(player, "the supplier is outlined by the game");
+            Assert.GreaterOrEqual(player.ActiveOutlines, 4, "body, boots and hands");
             Object.Destroy(tex);
             rt.Release();
         }
