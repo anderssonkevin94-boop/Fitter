@@ -38,6 +38,8 @@ namespace Ravenholm.Presentation
         /// <summary>The walk's phase (0..1 for two steps), and the tool's angle (degrees) while working.</summary>
         public float Phase => _phase;
         public float ToolAngle { get; private set; }
+        /// <summary>The swing's angle (degrees): 0 hands down, negative raised behind him, positive brought down in front.</summary>
+        public float SwingAngle { get; private set; }
         /// <summary>The supporting boot's position this frame (rig space; for tests of planted feet).</summary>
         public Vector2 LeftFoot { get; private set; }
         public Vector2 RightFoot { get; private set; }
@@ -181,23 +183,27 @@ namespace Ravenholm.Presentation
             var shoulderR = v.shoulderRight + Vector2.up * bodyY;
             if (working)
             {
-                // A wind-up held (0.26 s, the tool raised behind), then a fast strike (0.14 s) down in front.
+                // A two-handed overhead swing: the tool is raised up behind his head (the wind-up, held 0.26 s), then
+                // brought down in front in a fast strike (0.14 s) - at a wall, at the floor, or up at a block above.
                 var t = Mathf.Repeat(_work, 0.4f);
-                float start = -150f, end = pose == Pose.MineDown ? 130f : pose == Pose.MineUp ? 40f : 95f;
-                var a = t < 0.26f ? Mathf.Lerp(-40f, start, Mathf.SmoothStep(0f, 1f, t / 0.26f))
-                                  : Mathf.Lerp(start, end, Mathf.SmoothStep(0f, 1f, (t - 0.26f) / 0.14f));
-                // The near hand (right in the painted views) holds the tool; the arm reaches from the shoulder.
-                var reach = 0.2f;
-                var dirArm = depth.normalized * Mathf.Sin(a * Mathf.Deg2Rad) * (depth.magnitude) + Vector2.down * Mathf.Cos(a * Mathf.Deg2Rad);
-                wristR = shoulderR + dirArm * reach;
-                wristL = Vector2.Lerp(v.wristLeft + Vector2.up * bodyY, wristR, 0.5f);   // the other hand helps
+                float raised = -160f, end = pose == Pose.MineDown ? 150f : pose == Pose.MineUp ? 55f : 100f;
+                var a = t < 0.26f ? Mathf.Lerp(-30f, raised, Mathf.SmoothStep(0f, 1f, t / 0.26f))
+                                  : Mathf.Lerp(raised, end, Mathf.SmoothStep(0f, 1f, (t - 0.26f) / 0.14f));
+                SwingAngle = a;
+                var swing = depth * Mathf.Sin(a * Mathf.Deg2Rad) + Vector2.down * Mathf.Cos(a * Mathf.Deg2Rad);
+                var handle = swing.sqrMagnitude > 0.0001f ? swing.normalized : Vector2.down;
+                var pivot = (shoulderL + shoulderR) * 0.5f + Vector2.up * 0.02f;
+                wristR = pivot + swing * 0.28f;                // the leading hand, at the tool's grip (raised, the head clears his hat)
+                wristL = wristR - handle * 0.075f;             // the other hand further down the handle
                 handSpriteR = handSpriteL = HandGrip();
                 _tool.enabled = true;
                 _tool.sprite = pose == Pose.Chop ? definition.axe : definition.pickaxe;
-                var ang = Mathf.Atan2(dirArm.y, dirArm.x) * Mathf.Rad2Deg;
+                var ang = Mathf.Atan2(handle.y, handle.x) * Mathf.Rad2Deg;
                 ToolAngle = ang;
                 _tool.transform.localPosition = wristR;
-                _tool.transform.localRotation = Quaternion.Euler(0f, 0f, ang - 45f);   // the handle is painted at 45 degrees
+                // The handle is painted pointing up-right from the grip, the pick's point and the axe's blade on its
+                // clockwise side: the side that leads in this downward swing.
+                _tool.transform.localRotation = Quaternion.Euler(0f, 0f, ang - 45f);
             }
             else if (pose == Pose.Pickup)
             {
@@ -263,6 +269,7 @@ namespace Ravenholm.Presentation
             var seat = barBottom + backward * (definition.shelfDepth * 0.5f);
             DrawTube(_packLip, seat - lateral * 0.1f, seat + lateral * 0.1f, 0f, Vector2.zero, definition.packWidth, definition.packWidth, definition.packColor, outline);
             seat += Vector2.up * (definition.packWidth * 0.5f);
+            foreach (var part in new[] { _packBar, _packShelf, _packLip }) { part.Fill.enabled = carrying; part.Outline.enabled &= carrying; }   // worn only while carrying
             CarryAnchor = parentOffset + new Vector2(Mirrored ? -seat.x : seat.x, seat.y) * parentScale;
             PileBehind = !back;   // his back faces the camera only in the N and NE views (and their mirrors)
 
@@ -288,12 +295,23 @@ namespace Ravenholm.Presentation
             }
             _body.sortingOrder = 6;
             _tool.sortingOrder = 8;
+            if (working)
+            {
+                // The swing shows: in front of him, except while the tool is raised behind his head. Seen from behind,
+                // the other way round: the wind-up comes toward the camera, the strike goes away from it.
+                var raisedBehind = SwingAngle < -60f;
+                var front = back ? raisedBehind : !raisedBehind;
+                Order(_armL, front ? 7 : 0); Order(_armR, front ? 7 : 0);
+                _tool.sortingOrder = front ? 8 : -1;
+                _handL.sortingOrder = front ? 9 : 1; _handR.sortingOrder = front ? 9 : 1;
+            }
 
             var top = v.body != null ? v.body.bounds.max.y : 1f;
             HeadTop = parentOffset.y + (bodyY + top) * parentScale;
         }
 
-        private Sprite HandOpen() => ViewName == "E" ? definition.handOpenSide : ViewName == "N" || ViewName == "NE" ? definition.handOpenBack : definition.handOpenFront;
+        /// <summary>Relaxed hands hang at his sides: seen thumb edge on from every side (not palms out).</summary>
+        private Sprite HandOpen() => definition.handOpenSide;
         private Sprite HandGrip() => ViewName == "E" ? definition.handGripSide : ViewName == "N" || ViewName == "NE" ? definition.handGripBack : definition.handGripFront;
 
         private static void Order(Tube t, int order) => t.Fill.sortingOrder = order;

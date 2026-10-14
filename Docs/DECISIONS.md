@@ -882,3 +882,11 @@ The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): fla
   - His hands stay free, so he walks, swings and gathers while carrying.
   - The pile draws behind his body, except when his back faces the camera (N and NE and their mirrors).
   - The hoses are wider and taper. Arms go from 1.45× the art's width at the shoulder to 0.85× at the wrist (26 to 15 px), legs from 1.5× at the hip to 0.85× at the ankle (30 to 17 px). Setup applies this once, and later edits are kept.
+- **Playtest fixes (2026-10-14, Kevin).**
+  - Relaxed hands hang thumb edge on in every view; palms no longer face out.
+  - The pack shows only while he carries something.
+  - The side view's arms come out of the painted sleeve's opening and hang straight down, a touch forward. Her anchors hung the near arm behind his back; setup overrides them for the E view.
+  - Mining and chopping are a two-handed overhead swing: the near hand at the tool's grip, the other further down the handle.
+    - The tool is raised up behind his head (held 0.26 s), with enough reach that its head clears his hat from the front, then brought down in front in a fast strike (0.14 s): to the wall, to the floor (mining down) or up at a block.
+    - The pick's point and the axe's blade lead the downward swing.
+    - The swing draws in front of him except while the tool is raised behind his head. Seen from behind, it is the other way round: the wind-up comes toward the camera and stays visible.

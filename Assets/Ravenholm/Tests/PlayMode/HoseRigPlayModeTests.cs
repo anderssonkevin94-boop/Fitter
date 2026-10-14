@@ -124,6 +124,34 @@ namespace Ravenholm.Tests
             if (follow != null) follow.enabled = true;
         }
 
+        /// <summary>One mining swing (and one chop) in five views, eight moments each: a sheet to check the swing reads.</summary>
+        [UnityTest]
+        public IEnumerator SwingFrames()
+        {
+            yield return Boot();
+            var def = SandboxSceneController.Current.Player.GetComponentInChildren<HoseRig>().Definition;
+            string[] views = { "E", "SE", "S", "NE", "N" };
+            var origin = new Vector2(4000f, 4000f);
+            var rigs = new List<(HoseRig rig, float t, HoseRig.Pose pose)>();
+            float[] moments = { 0.05f, 0.13f, 0.2f, 0.26f, 0.29f, 0.32f, 0.36f, 0.39f };
+            for (var r = 0; r < views.Length + 1; r++)
+            for (var c = 0; c < moments.Length; c++)
+                rigs.Add((MakeRig(def, origin + new Vector2(c * 1.0f, -r * 1.35f)), moments[c], r < views.Length ? HoseRig.Pose.Mine : HoseRig.Pose.Chop));
+            var raisedBehind = false;
+            for (var i = 0; i < rigs.Count; i++)
+            {
+                var (rig, t, pose) = rigs[i];
+                var view = i / moments.Length < views.Length ? views[i / moments.Length] : "E";
+                var steps = Mathf.RoundToInt(t / 0.01f);
+                for (var k = 0; k < steps; k++) rig.Drive(view, pose, 0f, 0.01f, Vector2.zero, 1f);
+                if (rig.SwingAngle < -120f) raisedBehind = true;
+            }
+            Assert.IsTrue(raisedBehind, "the wind-up raises the tool behind his head");
+            yield return null;
+            yield return Shoot("hose_swing_sheet", origin + new Vector2(3.5f, -3.3f), 4.4f, 1600, 1760);
+            foreach (var (rig, _, _) in rigs) Object.Destroy(rig.transform.parent.gameObject);
+        }
+
         private static IEnumerator Shoot(string name, Vector2 centre, float ortho, int w, int h)
         {
             HideHud(true);
