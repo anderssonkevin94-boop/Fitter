@@ -846,16 +846,19 @@ namespace Ravenholm.EditorTools
                     wristLeft = U(wrists["left"]), wristRight = U(wrists["right"]),
                 });
             }
-            // The side view's arms (Kevin, 2026-10-14: "fix the arm placement from the side"): the anchors hung the near arm
-            // behind his back. The near (right) arm comes out of the sleeve's opening and hangs straight down, a touch
-            // forward; the far arm hangs just behind the torso's front, hidden by it.
-            var side = views.Find(v => v.name == "E");
-            if (side != null)
+            // Calibrated joints (rig_calibration.json) override the delivered anchors: shoulders at the real shoulder line,
+            // wrists hanging straight down (see the file's note).
+            var calPath = PlaceholderSpriteImporter.ArtRoot + dir + "rig_calibration.json";
+            if (File.Exists(calPath))
             {
-                side.shoulderRight = U(new Newtonsoft.Json.Linq.JArray(222, 284));
-                side.wristRight = U(new Newtonsoft.Json.Linq.JArray(230, 352));
-                side.shoulderLeft = U(new Newtonsoft.Json.Linq.JArray(262, 272));
-                side.wristLeft = U(new Newtonsoft.Json.Linq.JArray(268, 345));
+                var cal = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(calPath));
+                foreach (var v in views)
+                {
+                    var c = cal[v.name];
+                    if (c == null) continue;
+                    v.shoulderLeft = U(c["shoulder_left"]); v.shoulderRight = U(c["shoulder_right"]);
+                    v.wristLeft = U(c["wrist_left"]); v.wristRight = U(c["wrist_right"]);
+                }
             }
             def.views = views.ToArray();
             def.handOpenFront = LoadSprite(dir + "hand_open_front"); def.handOpenSide = LoadSprite(dir + "hand_open_side"); def.handOpenBack = LoadSprite(dir + "hand_open_back");

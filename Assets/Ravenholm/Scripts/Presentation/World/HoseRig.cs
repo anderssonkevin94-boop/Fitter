@@ -339,7 +339,25 @@ namespace Ravenholm.Presentation
             _handR.sprite = handSpriteR;
             _handL.transform.localPosition = wristL;
             _handR.transform.localPosition = wristR;
-            _handL.flipX = true;   // the hands are painted as right hands; the left one is their mirror
+            // Which way each hand's thumb points (the spec's rule; the art is a right hand, its thumb to screen right):
+            // relaxed, head-on, both thumbs point toward his centre line; in the side views the hands show their back
+            // with the thumb pointing the way he faces (the rig's mirroring turns that for SW, W, NW).
+            var centreX = (v.hipLeft.x + v.hipRight.x) * 0.5f;
+            if (handSpriteL == HandOpen() && side)
+            {
+                _handL.flipX = wristL.x > centreX;
+                _handR.flipX = wristR.x > centreX;
+            }
+            else if (handSpriteL == HandOpen())
+            {
+                _handL.flipX = false;
+                _handR.flipX = false;
+            }
+            else
+            {
+                _handL.flipX = true;   // gripping: the left hand is the right hand's mirror
+                _handR.flipX = false;
+            }
 
             // --- the hoses
             var outline = OutlineWidth();
@@ -434,8 +452,8 @@ namespace Ravenholm.Presentation
             }
         }
 
-        /// <summary>Relaxed hands hang at his sides: seen thumb edge on from every side (not palms out).</summary>
-        private Sprite HandOpen() => definition.handOpenSide;
+        /// <summary>Relaxed hands: thumb edge on from the front and back, the back of the hand from the side.</summary>
+        private Sprite HandOpen() => ViewName == "S" || ViewName == "N" ? definition.handOpenSide : definition.handOpenBack;
         private Sprite HandGrip() => ViewName == "E" ? definition.handGripSide : ViewName == "N" || ViewName == "NE" ? definition.handGripBack : definition.handGripFront;
 
         private static void Order(Tube t, int order) => t.Fill.sortingOrder = order;

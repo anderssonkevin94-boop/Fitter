@@ -227,7 +227,7 @@ namespace Ravenholm.Tests
                 if (pose == HoseRig.Pose.Carry) Assert.IsTrue(rig.CarryAnchor.HasValue, "carrying holds the hands out for the pile");
                 if (pose == HoseRig.Pose.Mine || pose == HoseRig.Pose.Chop) Assert.AreNotEqual(0f, rig.ToolAngle, "the tool swings");
             }
-            yield return Shoot("hose_sheet_ingame", origin + new Vector2(3.5f, -2.8f), 3.6f, 1600, 1440);
+            yield return Shoot("hose_sheet_ingame", origin + new Vector2(3.5f, -2.4f), 4.0f, 1600, 1600);
             foreach (var (rig, _, _) in rigs) Object.Destroy(rig.transform.parent.gameObject);
         }
 
