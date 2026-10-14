@@ -399,9 +399,12 @@ namespace Ravenholm.Presentation
             // Head-on an arm swinging toward or away from the camera foreshortens: drawn straight, never bowing out sideways.
             var restArmL = side ? Vector2.Distance(shoulderL, wristL) : armLen;
             var restArmR = side ? Vector2.Distance(shoulderR, wristR) : armLen;
-            DrawTube(_armL, shoulderL, wristL, restArmL, side ? Vector2.zero : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
+            // In the diagonal and profile views his left arm is the far one: smaller with distance (arm, sleeve, hand).
+            var far = side ? 1f : definition.farLimbScale;
+            DrawTube(_armL, shoulderL, wristL, restArmL, side ? Vector2.zero : elbowDir, definition.armWidth * far, definition.armWidthEnd * far, definition.armColor, outline);
             _armEndL = _path[_path.Count - 1] - _path[_path.Count - 2];
-            DrawSleeve(_sleeveL, outline);
+            DrawSleeve(_sleeveL, outline, far);
+            if (!side) _handL.transform.localScale = Vector3.one * far;
             DrawTube(_armR, shoulderR, wristR, restArmR, side ? Vector2.zero : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
             _armEndR = _path[_path.Count - 1] - _path[_path.Count - 2];
             DrawSleeve(_sleeveR, outline);
@@ -575,12 +578,12 @@ namespace Ravenholm.Presentation
         }
 
         /// <summary>The sleeve: the first stretch of the arm just drawn (its path is still in _path), wider, in shirt cream.</summary>
-        private void DrawSleeve(Tube t, float outline)
+        private void DrawSleeve(Tube t, float outline, float scale = 1f)
         {
             var keep = Mathf.Clamp(Mathf.RoundToInt((_path.Count - 1) * definition.sleeveLength) + 1, 2, _path.Count);
             _path.RemoveRange(keep, _path.Count - keep);
-            Fill(t.FillMesh, definition.sleeveWidth, definition.sleeveWidthEnd, definition.sleeveColor);
-            Fill(t.OutlineMesh, definition.sleeveWidth + 2f * outline, definition.sleeveWidthEnd + 2f * outline,
+            Fill(t.FillMesh, definition.sleeveWidth * scale, definition.sleeveWidthEnd * scale, definition.sleeveColor);
+            Fill(t.OutlineMesh, definition.sleeveWidth * scale + 2f * outline, definition.sleeveWidthEnd * scale + 2f * outline,
                 GameRoot.Instance != null && GameRoot.Instance.Config.SandboxSettings.outlines != null ? GameRoot.Instance.Config.SandboxSettings.outlines.color : Color.black);
             t.Outline.enabled = outline > 0f;
         }

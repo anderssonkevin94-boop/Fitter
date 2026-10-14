@@ -38,6 +38,7 @@ This is the reference the walk is built and tested against. Every number below i
 | Arm swing | opposite the legs, ±0.1 ground units forward and back, through a spring (3.2 Hz, damping 0.55) | swings opposite the same-side leg |
 | Head-on arm swing | toward and away from the camera: the arm is drawn straight and foreshortened, never bowing out sideways; a hand coming forward moves 8% toward his middle and passes in front of his body when coming toward the camera (no size change) | by eye |
 | Hand angle | relaxed hands follow the end of their arm, so the wrist never kinks | by eye |
+| Far arm | in the diagonal and profile views the far arm, its sleeve and hand are drawn at 78% (`farLimbScale`): further from the camera | by eye |
 | Start and stop | 0.1 s to full speed; the walk eases in over about 0.13 s and settles to standing | by eye |
 
 **Why the feet must glide.** He covers ground fast for his size: 1.6 body heights a second, where a person walking covers about 0.8. With 0.17-unit legs, fully planted feet would need about 6 steps a second (a scurry) or legs stretched to about 2× (they look too long). The spec takes 3.4 steps a second with a short reach (planted for about 60% of each step), and the feet glide the difference.

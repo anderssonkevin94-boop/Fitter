@@ -90,6 +90,7 @@ MonoBehaviour:
   legWidth: 0.11
   armWidthEnd: 0.062
   legWidthEnd: 0.07
+  farLimbScale: 0.78
   sleeveColor: {r: 0.9137255, g: 0.8235294, b: 0.7019608, a: 1}
   sleeveWidth: 0.13
   sleeveWidthEnd: 0.118

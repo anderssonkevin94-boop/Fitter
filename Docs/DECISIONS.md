@@ -955,3 +955,4 @@ Astra's 29 sprites (`ArtSource/world-tiles-v3`, imported by `Tools/ArtImport/imp
 - **Town tiles.** The town's tile copies (grass, path, forest floor, dirt, plaza) take the same art.
 - **Test.** `WorldTileTests` checks size, scale, pivot, mesh and that they are not outlined.
 - **Still in the old painted style:** trees, bushes, flower decals and buildings.
+- **Far arm smaller in the diagonals (2026-10-14, Kevin).** The far arm, its sleeve and hand are drawn at 78% (`farLimbScale`) in the diagonal and profile views: they are further from the camera.
