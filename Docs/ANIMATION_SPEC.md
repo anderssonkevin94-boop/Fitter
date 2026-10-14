@@ -23,10 +23,10 @@ This is the reference the walk is built and tested against. Every number below i
 
 | | Value | Test |
 |---|---|---|
-| Ground speed at full stick | 1.7 units/s (`walkSpeed`), the stick's direction taken on the ground | ✓ |
-| Cadence at full speed | **3.4 steps/s in all 8 directions** | equal to within 5% |
-| Cadence vs speed | scales with speed (a half push gives about 1.7 steps/s) | ✓ |
-| Foot reach ahead of or behind the hip | at most ±0.15 ground units (`maxFootReach`) | ✓ |
+| Ground speed at full stick | 2.04 units/s (`walkSpeed`; 1.7 until Kevin asked for +20%, 2026-10-15), the stick's direction taken on the ground | ✓ |
+| Cadence at full speed | **3.7 steps/s in all 8 directions** | equal to within 5% |
+| Cadence vs speed | scales with speed (a half push gives about 1.85 steps/s) | ✓ |
+| Foot reach ahead of or behind the hip | at most ±0.16 ground units (`maxFootReach`) | ✓ |
 | Leg stretch | at most 1.3 × rest length | ✓ |
 | Supporting foot | planted for the first part of the stance, then glides the rest (Kevin's choice: glide rather than over-long legs) | glide ≤ 50% of the ground covered |
 | Body bob | 2 per cycle (one per step), 0.02 units: lowest just after heel strike, highest at passing | ✓ |

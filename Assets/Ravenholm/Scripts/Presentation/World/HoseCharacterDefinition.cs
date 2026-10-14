@@ -72,12 +72,12 @@ namespace Ravenholm.Presentation
         [Range(0.4f, 0.7f)] public float duty = 0.5f;
         [Tooltip("The longest a leg may stretch, as a share of its length. His legs are short, so at full stride the feet glide a little rather than the legs stretching further (Kevin, 2026-10-14).")]
         [Range(1f, 2f)] public float maxLegStretch = 1.3f;
-        [Tooltip("Walking speed at full stick, ground units per second (the spec: 1.7).")]
-        [Min(0.1f)] public float walkSpeed = 1.7f;
-        [Tooltip("Steps per second at full speed, the same in every direction (the spec: 3.4).")]
-        [Min(0.5f)] public float cadence = 3.4f;
-        [Tooltip("How far a foot reaches ahead of or behind the hip, ground units (the spec: 0.15).")]
-        [Min(0.02f)] public float maxFootReach = 0.15f;
+        [Tooltip("Walking speed at full stick, ground units per second (the spec: 2.04).")]
+        [Min(0.1f)] public float walkSpeed = 2.04f;
+        [Tooltip("Steps per second at full speed, the same in every direction (the spec: 3.7).")]
+        [Min(0.5f)] public float cadence = 3.7f;
+        [Tooltip("How far a foot reaches ahead of or behind the hip, ground units (the spec: 0.16).")]
+        [Min(0.02f)] public float maxFootReach = 0.16f;
         [Tooltip("How much lower his hips ride while walking (a slight knee bend): the legs reach further without stretching.")]
         [Min(0f)] public float walkCrouch = 0.025f;
         [Tooltip("How far the body shifts toward the supporting foot, in units.")]
