@@ -17,8 +17,8 @@ MonoBehaviour:
     body: {fileID: 21300000, guid: 3613958e95a3e4c3a9226f3375f91363, type: 3}
     bootLeft: {fileID: 21300000, guid: d22177d85c1dd44059ce259501d78bef, type: 3}
     bootRight: {fileID: 21300000, guid: 153c427ef06b14e0ea8b5dcdbd60d771, type: 3}
-    shoulderLeft: {x: 0.1764706, y: 0.59117645}
-    shoulderRight: {x: -0.18235295, y: 0.5882353}
+    shoulderLeft: {x: 0.22941177, y: 0.59117645}
+    shoulderRight: {x: -0.22941177, y: 0.5882353}
     hipLeft: {x: 0.11176471, y: 0.2882353}
     hipRight: {x: -0.11176471, y: 0.2882353}
     ankleLeft: {x: 0.11176471, y: 0.120588236}
@@ -29,13 +29,13 @@ MonoBehaviour:
     body: {fileID: 21300000, guid: db87d94bf98a04f548c454131d335dc9, type: 3}
     bootLeft: {fileID: 21300000, guid: 24968fa7952c3456da8266774ae5532a, type: 3}
     bootRight: {fileID: 21300000, guid: 543c34c1dcb6048a8825e4f7a030d9ae, type: 3}
-    shoulderLeft: {x: 0.16176471, y: 0.55588233}
+    shoulderLeft: {x: 0.19411765, y: 0.5470588}
     shoulderRight: {x: -0.17352942, y: 0.57058823}
     hipLeft: {x: 0.10294118, y: 0.2882353}
     hipRight: {x: -0.08529412, y: 0.2882353}
     ankleLeft: {x: 0.105882354, y: 0.120588236}
     ankleRight: {x: -0.09411765, y: 0.120588236}
-    wristLeft: {x: 0.28235295, y: 0.34411764}
+    wristLeft: {x: 0.2647059, y: 0.33529413}
     wristRight: {x: -0.22941177, y: 0.35}
   - name: E
     body: {fileID: 21300000, guid: 6c8085de5a0c74cb3ac0fa2dae1fc3d3, type: 3}
@@ -53,20 +53,20 @@ MonoBehaviour:
     body: {fileID: 21300000, guid: ceaf05f69b30d41c3bcaa5a14a894148, type: 3}
     bootLeft: {fileID: 21300000, guid: dc82049dfb4534ef2be924957d67be14, type: 3}
     bootRight: {fileID: 21300000, guid: 749f2ed884a1747718992c2087c715a7, type: 3}
-    shoulderLeft: {x: -0.12941177, y: 0.5852941}
-    shoulderRight: {x: 0.15294118, y: 0.5735294}
+    shoulderLeft: {x: -0.16470589, y: 0.5647059}
+    shoulderRight: {x: 0.18235295, y: 0.5735294}
     hipLeft: {x: -0.1, y: 0.2882353}
     hipRight: {x: 0.1, y: 0.2882353}
     ankleLeft: {x: -0.1, y: 0.120588236}
     ankleRight: {x: 0.1, y: 0.120588236}
-    wristLeft: {x: -0.25882354, y: 0.35}
+    wristLeft: {x: -0.24117647, y: 0.33529413}
     wristRight: {x: 0.23529412, y: 0.34411764}
   - name: N
     body: {fileID: 21300000, guid: 70d6cd5dca50641ee8ac1d78ff99369b, type: 3}
     bootLeft: {fileID: 21300000, guid: db223932559484458ad0467e0ad50dc7, type: 3}
     bootRight: {fileID: 21300000, guid: cf4530558ac7a4078a51a59e4cc92e38, type: 3}
-    shoulderLeft: {x: -0.14117648, y: 0.5852941}
-    shoulderRight: {x: 0.1382353, y: 0.5852941}
+    shoulderLeft: {x: -0.22941177, y: 0.5852941}
+    shoulderRight: {x: 0.22941177, y: 0.5852941}
     hipLeft: {x: -0.11176471, y: 0.2882353}
     hipRight: {x: 0.11176471, y: 0.2882353}
     ankleLeft: {x: -0.11176471, y: 0.120588236}
@@ -114,5 +114,10 @@ MonoBehaviour:
   walkLean: 5
   walkTilt: 3
   footRoll: 16
+  heelUpAngle: 30
+  toeUpAngle: 15
+  toeLength: 0.14
+  heelLength: 0.065
+  ankleHeight: 0.12
   armSpringHz: 3.2
   armSpringDamping: 0.55

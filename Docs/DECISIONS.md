@@ -936,3 +936,8 @@ The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): fla
   - The boots now roll about the sole: the heel peels up 30° at push-off, pivoting on the toe, and the toe tips up 15° before the heel lands, pivoting on the heel.
   - The leg ends at the rolled ankle.
   - Before this, the boots rotated about the character's ground point, so the roll barely showed.
+- **Arm fixes (2026-10-14, Kevin).**
+  - Relaxed hands follow the end of their arm, so the wrist no longer kinks in the diagonals. The far arm in the diagonals hangs from the torso's back edge, with only the hand peeking out.
+  - Head-on, the arms swing toward and away from the camera: drawn straight and foreshortened, the hand moving in and growing as it comes forward. Before, the hoses bowed out sideways, so the elbows stuck out.
+  - Head-on, the shoulders sit just outside the apron straps, so the sleeves no longer cover the suspenders.
+- **Ground-block brief for Astra** (`Docs/ART_BRIEF_BLOCKS.md`): 12 ground tiles and 17 blocks in the store owner's flat style, with no outlines and exact templates.

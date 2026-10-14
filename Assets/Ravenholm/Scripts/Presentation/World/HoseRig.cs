@@ -55,7 +55,8 @@ namespace Ravenholm.Presentation
         private SpriteRenderer _body, _bootL, _bootR, _handL, _handR, _tool;
         private Transform _toolPivot;
         private Vector2 _handLp, _handLv, _handRp, _handRv;
-        private float _squash = 1f, _footRollL, _footRollR, _turn;
+        private float _squash = 1f, _footRollL, _footRollR, _turn, _handScaleL = 1f, _handScaleR = 1f;
+        private Vector2 _armEndL, _armEndR;
         private string _lastView = "";
 
         /// <summary>A damped spring toward a target (snaps when far, e.g. after a big jump).</summary>
@@ -323,6 +324,17 @@ namespace Ravenholm.Presentation
                     + depth * (sw * definition.armSwing) + Vector2.up * (sw * sw * definition.armSwing * 0.35f);
                 wristL = Spring(ref _handLp, ref _handLv, Arm(v.wristLeft, swingL), dt);
                 wristR = Spring(ref _handRp, ref _handRv, Arm(v.wristRight, swingR), dt);
+                if (side)
+                {
+                    // Head-on the swing goes toward and away from the camera: a hand coming forward moves in a little
+                    // toward his middle and looks bigger (nearer), going back it looks smaller (spec section 3).
+                    var centre = (v.hipLeft.x + v.hipRight.x) * 0.5f;
+                    var toward = back ? -1f : 1f;
+                    wristL.x += (centre - wristL.x) * 0.18f * Mathf.Max(0f, swingL);
+                    wristR.x += (centre - wristR.x) * 0.18f * Mathf.Max(0f, swingR);
+                    _handScaleL = 1f + 0.14f * swingL * toward;
+                    _handScaleR = 1f + 0.14f * swingR * toward;
+                }
                 bodyY += breath;
             }
             if (working || pose == Pose.Pickup || pose == Pose.Fall || pose == Pose.Climb)
@@ -349,6 +361,9 @@ namespace Ravenholm.Presentation
             _handR.sprite = handSpriteR;
             _handL.transform.localPosition = wristL;
             _handR.transform.localPosition = wristR;
+            _handL.transform.localScale = Vector3.one * _handScaleL;
+            _handR.transform.localScale = Vector3.one * _handScaleR;
+            _handScaleL = _handScaleR = 1f;
             // Which way each hand's thumb points (the spec's rule; the art is a right hand, its thumb to screen right):
             // relaxed, head-on, both thumbs point toward his centre line; in the side views the hands show their back
             // with the thumb pointing the way he faces (the rig's mirroring turns that for SW, W, NW).
@@ -380,10 +395,27 @@ namespace Ravenholm.Presentation
             DrawTube(_legL, hipL, ankleL, legLen, side ? Vector2.right * Mathf.Sign(v.hipLeft.x) : kneeDir, definition.legWidth, definition.legWidthEnd, definition.legColor, outline);
             DrawTube(_legR, hipR, ankleR, legLen, side ? Vector2.right * Mathf.Sign(v.hipRight.x) : kneeDir, definition.legWidth, definition.legWidthEnd, definition.legColor, outline);
             var elbowDir = side ? Vector2.zero : -f;
-            DrawTube(_armL, shoulderL, wristL, armLen, side ? Vector2.right * Mathf.Sign(v.shoulderLeft.x) : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
+            // Head-on an arm swinging toward or away from the camera foreshortens: drawn straight, never bowing out sideways.
+            var restArmL = side ? Vector2.Distance(shoulderL, wristL) : armLen;
+            var restArmR = side ? Vector2.Distance(shoulderR, wristR) : armLen;
+            DrawTube(_armL, shoulderL, wristL, restArmL, side ? Vector2.zero : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
+            _armEndL = _path[_path.Count - 1] - _path[_path.Count - 2];
             DrawSleeve(_sleeveL, outline);
-            DrawTube(_armR, shoulderR, wristR, armLen, side ? Vector2.right * Mathf.Sign(v.shoulderRight.x) : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
+            DrawTube(_armR, shoulderR, wristR, restArmR, side ? Vector2.zero : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
+            _armEndR = _path[_path.Count - 1] - _path[_path.Count - 2];
             DrawSleeve(_sleeveR, outline);
+            // Relaxed hands follow the end of their arm (the art hangs straight down), so the wrist never kinks.
+            if (!working)
+            {
+                float Align(Vector2 end) => end.sqrMagnitude < 1e-8f ? 0f : Mathf.Atan2(end.y, end.x) * Mathf.Rad2Deg + 90f;
+                _handL.transform.localRotation = Quaternion.Euler(0f, 0f, Align(_armEndL));
+                _handR.transform.localRotation = Quaternion.Euler(0f, 0f, Align(_armEndR));
+            }
+            else
+            {
+                _handL.transform.localRotation = Quaternion.identity;
+                _handR.transform.localRotation = Quaternion.identity;
+            }
 
             // --- the pack: an L on his back, a bar from the hips to the shoulders and a shelf sticking out behind
             // at the bottom. The carried pile rests on the shelf, so his hands stay free to work.

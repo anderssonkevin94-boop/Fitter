@@ -15,7 +15,7 @@ This is the reference the walk is built and tested against. Every number below i
 |---|---|
 | Height | 1.07 units (365 px at 340 px/unit) |
 | Leg, hip to ankle | 0.17 units (a quarter of his height is below the apron) |
-| Shoulder joints | under the top of each sleeve (`rig_calibration.json`) |
+| Shoulder joints | under the top of each sleeve, just outside the apron straps head-on so the sleeves never cover them; in the diagonals the far arm hangs from the torso's back edge (`rig_calibration.json`) |
 | Resting wrists | just outside his outline at hand height, the arms angled out along the apron's flare (front, back and diagonal views); at his side in profile (tested) |
 | Limb widths | arms 0.10 units at the shoulder tapering to 0.062 at the wrist; legs 0.11 to 0.07; sleeves 0.13 |
 
@@ -36,6 +36,8 @@ This is the reference the walk is built and tested against. Every number below i
 | Foot roll | heel-toe roll: the heel peels up 30° at push-off pivoting on the toe; the toe tips up 15° before heel strike pivoting on the heel; the leg ends at the rolled ankle (side and diagonal views) | by eye |
 | Swing foot lift | 0.025 units (a real walk barely lifts the foot; the roll does the work) | by eye |
 | Arm swing | opposite the legs, ±0.1 ground units forward and back, through a spring (3.2 Hz, damping 0.55) | swings opposite the same-side leg |
+| Head-on arm swing | toward and away from the camera: the arm is drawn straight and foreshortened, never bowing out sideways; a hand coming forward moves 18% toward his middle and grows 14% (shrinks going back) | by eye |
+| Hand angle | relaxed hands follow the end of their arm, so the wrist never kinks | by eye |
 | Start and stop | 0.1 s to full speed; the walk eases in over about 0.13 s and settles to standing | by eye |
 
 **Why the feet must glide.** He covers ground fast for his size: 1.6 body heights a second, where a person walking covers about 0.8. With 0.17-unit legs, fully planted feet would need about 6 steps a second (a scurry) or legs stretched to about 2× (they look too long). The spec takes 3.4 steps a second with a short reach (planted for about 60% of each step), and the feet glide the difference.
