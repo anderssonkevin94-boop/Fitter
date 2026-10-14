@@ -17,8 +17,8 @@ MonoBehaviour:
     body: {fileID: 21300000, guid: 3613958e95a3e4c3a9226f3375f91363, type: 3}
     bootLeft: {fileID: 21300000, guid: d22177d85c1dd44059ce259501d78bef, type: 3}
     bootRight: {fileID: 21300000, guid: 153c427ef06b14e0ea8b5dcdbd60d771, type: 3}
-    shoulderLeft: {x: 0.22941177, y: 0.59117645}
-    shoulderRight: {x: -0.22941177, y: 0.5882353}
+    shoulderLeft: {x: 0.1764706, y: 0.59117645}
+    shoulderRight: {x: -0.18235295, y: 0.5882353}
     hipLeft: {x: 0.11176471, y: 0.2882353}
     hipRight: {x: -0.11176471, y: 0.2882353}
     ankleLeft: {x: 0.11176471, y: 0.120588236}
@@ -54,7 +54,7 @@ MonoBehaviour:
     bootLeft: {fileID: 21300000, guid: dc82049dfb4534ef2be924957d67be14, type: 3}
     bootRight: {fileID: 21300000, guid: 749f2ed884a1747718992c2087c715a7, type: 3}
     shoulderLeft: {x: -0.16470589, y: 0.5647059}
-    shoulderRight: {x: 0.18235295, y: 0.5735294}
+    shoulderRight: {x: 0.15294118, y: 0.5735294}
     hipLeft: {x: -0.1, y: 0.2882353}
     hipRight: {x: 0.1, y: 0.2882353}
     ankleLeft: {x: -0.1, y: 0.120588236}
@@ -65,8 +65,8 @@ MonoBehaviour:
     body: {fileID: 21300000, guid: 70d6cd5dca50641ee8ac1d78ff99369b, type: 3}
     bootLeft: {fileID: 21300000, guid: db223932559484458ad0467e0ad50dc7, type: 3}
     bootRight: {fileID: 21300000, guid: cf4530558ac7a4078a51a59e4cc92e38, type: 3}
-    shoulderLeft: {x: -0.22941177, y: 0.5852941}
-    shoulderRight: {x: 0.22941177, y: 0.5852941}
+    shoulderLeft: {x: -0.14117648, y: 0.5852941}
+    shoulderRight: {x: 0.1382353, y: 0.5852941}
     hipLeft: {x: -0.11176471, y: 0.2882353}
     hipRight: {x: 0.11176471, y: 0.2882353}
     ankleLeft: {x: -0.11176471, y: 0.120588236}

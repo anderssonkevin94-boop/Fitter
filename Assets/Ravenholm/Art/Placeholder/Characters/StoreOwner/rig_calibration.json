@@ -1,12 +1,12 @@
 {
- "_about": "Calibrated joints for the rubber-hose rig (2026-10-14), in the body art's pixels (top-left origin, 512 canvas, ground at 256,444). They override points.json. Shoulders: the arm's joint, centred under the top of each sleeve (sleeve top + 18 px, the sleeve tube's radius), measured from Astra's original art. Wrists: where the hands hang at rest, just outside the body's outline at hand height (the apron flares, so the arms angle out along it) in the front, back and diagonal views; the side view's near hand hangs at his side, over the body. Left/right are his own. Head-on (S, N) and on the near side of the back three-quarter (NE right), the shoulders sit just outside the apron straps so the sleeves don't cover them (strap edges measured at 200-220 and 292-312 px). Diagonals: the far arm (behind the body) hangs from the torso's back edge nearly straight down, so only its hand peeks out beside the hip.",
+ "_about": "Calibrated joints for the rubber-hose rig (2026-10-14), in the body art's pixels (top-left origin, 512 canvas, ground at 256,444). They override points.json. Shoulders: the arm's joint, centred under the top of each sleeve (sleeve top + 18 px, the sleeve tube's radius), measured from Astra's original art. Wrists: where the hands hang at rest, just outside the body's outline at hand height (the apron flares, so the arms angle out along it) in the front, back and diagonal views; the side view's near hand hangs at his side, over the body. Left/right are his own. Head-on the sleeves and upper arms are drawn behind the body, so the apron straps lie over them as in the original painting (Kevin preferred this silhouette to shoulders moved outside the straps). Diagonals: the far arm (behind the body) hangs from the torso's back edge nearly straight down, so only its hand peeks out beside the hip.",
  "S": {
   "shoulder_left": [
-   334,
+   316,
    243
   ],
   "shoulder_right": [
-   178,
+   194,
    244
   ],
   "wrist_left": [
@@ -60,7 +60,7 @@
    252
   ],
   "shoulder_right": [
-   318,
+   308,
    249
   ],
   "wrist_left": [
@@ -74,11 +74,11 @@
  },
  "N": {
   "shoulder_left": [
-   178,
+   208,
    245
   ],
   "shoulder_right": [
-   334,
+   303,
    245
   ],
   "wrist_left": [

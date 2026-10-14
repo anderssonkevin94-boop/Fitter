@@ -941,3 +941,6 @@ The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): fla
   - Head-on, the arms swing toward and away from the camera: drawn straight and foreshortened, the hand moving in and growing as it comes forward. Before, the hoses bowed out sideways, so the elbows stuck out.
   - Head-on, the shoulders sit just outside the apron straps, so the sleeves no longer cover the suspenders.
 - **Ground-block brief for Astra** (`Docs/ART_BRIEF_BLOCKS.md`): 12 ground tiles and 17 blocks in the store owner's flat style, with no outlines and exact templates.
+- **Front and back views reworked (2026-10-14, Kevin: the moved shoulders detached and looked like a princess dress, and the hands shouldn't grow).**
+  - The shoulders are back at the shoulder line. Head-on, the sleeves and arms draw behind the body, so the apron straps lie over the sleeves as in the painting.
+  - The hand-size change is removed. The swing moves the hand 8% toward his middle, and the hand passes in front of the body only when it comes toward the camera.

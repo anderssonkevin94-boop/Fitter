@@ -56,6 +56,7 @@ namespace Ravenholm.Presentation
         private Transform _toolPivot;
         private Vector2 _handLp, _handLv, _handRp, _handRv;
         private float _squash = 1f, _footRollL, _footRollR, _turn, _handScaleL = 1f, _handScaleR = 1f;
+        private bool _handNearL, _handNearR;
         private Vector2 _armEndL, _armEndR;
         private string _lastView = "";
 
@@ -326,14 +327,14 @@ namespace Ravenholm.Presentation
                 wristR = Spring(ref _handRp, ref _handRv, Arm(v.wristRight, swingR), dt);
                 if (side)
                 {
-                    // Head-on the swing goes toward and away from the camera: a hand coming forward moves in a little
-                    // toward his middle and looks bigger (nearer), going back it looks smaller (spec section 3).
+                    // Head-on the swing goes toward and away from the camera: a hand coming forward moves in a touch
+                    // toward his middle and passes in front of his body when it comes toward the camera (spec section 3).
                     var centre = (v.hipLeft.x + v.hipRight.x) * 0.5f;
                     var toward = back ? -1f : 1f;
-                    wristL.x += (centre - wristL.x) * 0.18f * Mathf.Max(0f, swingL);
-                    wristR.x += (centre - wristR.x) * 0.18f * Mathf.Max(0f, swingR);
-                    _handScaleL = 1f + 0.14f * swingL * toward;
-                    _handScaleR = 1f + 0.14f * swingR * toward;
+                    wristL.x += (centre - wristL.x) * 0.08f * Mathf.Max(0f, swingL);
+                    wristR.x += (centre - wristR.x) * 0.08f * Mathf.Max(0f, swingR);
+                    _handNearL = swingL * toward > 0.15f;
+                    _handNearR = swingR * toward > 0.15f;
                 }
                 bodyY += breath;
             }
@@ -444,10 +445,12 @@ namespace Ravenholm.Presentation
             Order(_packLip, back ? 7 : -3);
             if (side)
             {
-                // Head-on the arms hang beside his body: in front of its edges seen from the front, behind them seen
-                // from the back (the hands rest just outside his outline, so they show either way).
-                Order(_armL, back ? 0 : 7); Order(_armR, back ? 0 : 7);
-                _handL.sortingOrder = back ? 1 : 9; _handR.sortingOrder = back ? 1 : 9;
+                // Head-on the arms hang beside his body, behind it, so the apron straps lie over the sleeves as painted
+                // (the hands rest just outside his outline, so they show). A hand swinging toward the camera passes
+                // in front of the body.
+                Order(_armL, 0); Order(_armR, 0);
+                _handL.sortingOrder = _handNearL ? 9 : 1; _handR.sortingOrder = _handNearR ? 9 : 1;
+                _handNearL = _handNearR = false;
                 Order(_legL, 2); Order(_legR, 2);
                 _bootL.sortingOrder = 3; _bootR.sortingOrder = 3;
             }
