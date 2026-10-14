@@ -242,22 +242,26 @@ namespace Ravenholm.Tests
             GameRoot.Instance.InputRouter.ScriptedMove = Vector2.right;
             yield return new WaitForSeconds(0.4f);
             Assert.AreEqual(HoseRig.Pose.Walk, rig.Current, "walking");
-            // While the left foot supports him (the first 60% of the phase), it doesn't move on the ground.
+            // While the left foot supports him (the first half of the phase) it glides far less than he walks: his legs
+            // are short, so at full stride the feet glide a little rather than stretch the legs (Kevin's choice).
             var samples = 0;
-            var worst = 0f;
-            Vector2? planted = null;
+            float footDrift = 0f, bodyMoved = 0f;
+            Vector2? footStart = null, bodyStart = null;
             for (var i = 0; i < 90 && samples < 6; i++)
             {
                 yield return null;
-                var inStance = rig.Phase > 0.05f && rig.Phase < 0.55f;
-                var world = (Vector2)rig.transform.Find("HoseRig").TransformPoint(rig.LeftFoot);
-                if (!inStance) { planted = null; continue; }
-                if (planted == null) { planted = world; continue; }
-                worst = Mathf.Max(worst, Mathf.Abs(world.x - planted.Value.x));
+                var inStance = rig.Phase > 0.05f && rig.Phase < rig.Definition.duty - 0.05f;
+                var foot = (Vector2)rig.transform.Find("HoseRig").TransformPoint(rig.LeftFoot);
+                var body = (Vector2)player.position;
+                if (!inStance) { footStart = null; continue; }
+                if (footStart == null) { footStart = foot; bodyStart = body; continue; }
+                footDrift = Mathf.Abs(foot.x - footStart.Value.x);
+                bodyMoved = Mathf.Abs(body.x - bodyStart.Value.x);
                 samples++;
             }
             Assert.Greater(samples, 3, "sampled a stance");
-            Assert.Less(worst, 0.02f, "the supporting foot stays put while the body walks over it");
+            Assert.Greater(bodyMoved, 0.05f, "he walked");
+            Assert.Less(footDrift, bodyMoved * 0.5f, $"the supporting foot mostly stays put (glided {footDrift:F3} while he walked {bodyMoved:F3})");
             yield return Capture.Take("hose_walk_town");
             GameRoot.Instance.InputRouter.ScriptedMove = null;
 

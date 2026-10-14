@@ -54,11 +54,11 @@ namespace Ravenholm.Presentation
 
         [Header("Motion")]
         [Tooltip("Stride (ground covered per two steps) at walking speed, in units; it grows a little with speed.")]
-        [Min(0.05f)] public float stride = 0.9f;
+        [Min(0.05f)] public float stride = 1.1f;
         [Tooltip("How high a swinging boot lifts, in units.")]
         [Min(0f)] public float footLift = 0.06f;
         [Tooltip("The body's bounce over each step, in units.")]
-        [Min(0f)] public float bounce = 0.035f;
+        [Min(0f)] public float bounce = 0.022f;
         [Tooltip("How far the hands swing forward and back while walking, in units.")]
         [Min(0f)] public float armSwing = 0.1f;
         [Tooltip("How far a hose bows when its ends come closer than its length (0 = straight, 1 = a half circle).")]
@@ -67,10 +67,14 @@ namespace Ravenholm.Presentation
         [Header("Walk feel (the bouncy cartoon walk, 2026-10-14)")]
         [Tooltip("Share of the cycle each foot is on the ground (0.5: no double support, a springy gait).")]
         [Range(0.4f, 0.7f)] public float duty = 0.5f;
+        [Tooltip("The longest a leg may stretch, as a share of its length. His legs are short, so at full stride the feet glide a little rather than the legs stretching further (Kevin, 2026-10-14).")]
+        [Range(1f, 2f)] public float maxLegStretch = 1.3f;
+        [Tooltip("How much lower his hips ride while walking (a slight knee bend): the legs reach further without stretching.")]
+        [Min(0f)] public float walkCrouch = 0.025f;
         [Tooltip("How far the body shifts toward the supporting foot, in units.")]
         [Min(0f)] public float sway = 0.02f;
         [Tooltip("Squash at the bottom of each step and stretch at the top (fraction of height).")]
-        [Range(0f, 0.15f)] public float squash = 0.04f;
+        [Range(0f, 0.15f)] public float squash = 0.025f;
         [Tooltip("Forward lean while walking (side views), and side-to-side tilt head-on, in degrees.")]
         [Min(0f)] public float walkLean = 5f, walkTilt = 3f;
         [Tooltip("How much the boots roll: toe up at heel strike, heel up at push-off (degrees).")]

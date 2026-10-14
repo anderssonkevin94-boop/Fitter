@@ -921,3 +921,8 @@ The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): fla
   - **Arms.** Bigger arcs (`armSwing` 0.1) that rise at the ends, following springs (3.2 Hz, damping 0.55) so they trail and overshoot.
   - **Legs.** The hose bow grows linearly as the ends come together, so it no longer snaps as a leg straightens.
   - **Starts, stops and turns.** He eases into and out of the walk (the rig settles in about 0.13 s). The motor accelerates at 20 units/s² and stops at 70% of that. A quick squash covers a change of view.
+- **Shorter-looking legs, fewer bounces (2026-10-14, Kevin; he chose to let the feet glide a little).**
+  - A leg may stretch to at most 1.3× its length (`maxLegStretch`). Beyond that the feet reach no further and glide a little; before, they stretched to about 1.6×.
+  - His hips ride slightly lower while walking (`walkCrouch` 0.025, a small knee bend), so the legs reach further without stretching.
+  - The stride is 1.1 units: about 3.6 steps (and bobs) a second at walking speed instead of 4.4. The bob is gentler too (`bounce` 0.022, `squash` 2.5%).
+  - The planted-feet test now checks that the supporting foot glides less than half as far as he walks.

@@ -186,7 +186,12 @@ namespace Ravenholm.Presentation
             _settle = Mathf.MoveTowards(_settle, walking ? 1f : 0f, dt * (walking ? 8f : 5f));   // ease into and out of the walk
             var s = Mathf.SmoothStep(0f, 1f, _settle);
             var duty = definition.duty;
-            var amp = duty * stride * 0.5f * s;   // the stance foot travels exactly the ground covered: planted
+            var amp = duty * stride * 0.5f * s;   // the stance foot travels exactly the ground covered: planted ...
+            // ... unless that would stretch his short legs too far: then the feet reach no further and glide a little.
+            var legDrop = ((v.hipLeft.y - v.ankleLeft.y) + (v.hipRight.y - v.ankleRight.y)) * 0.5f - definition.bounce - definition.walkCrouch;
+            var legRest = Vector2.Distance(v.hipLeft, v.ankleLeft);
+            var reachMax = Mathf.Sqrt(Mathf.Max(0f, Mathf.Pow(legRest * definition.maxLegStretch, 2f) - legDrop * legDrop));
+            amp = Mathf.Min(amp, reachMax / Mathf.Max(0.3f, f.magnitude));
             float Travel(float t, out float lift, out float roll)
             {
                 t = Mathf.Repeat(t, 1f);
@@ -208,7 +213,7 @@ namespace Ravenholm.Presentation
             var footR = f * (trR * amp) + Vector2.up * (liftR * definition.footLift * s);
             // Down just after each heel strike, up at passing: a smooth double bob, with squash and stretch.
             var wave = -Mathf.Cos(4f * Mathf.PI * (_phase - 0.06f)) * s;   // -1 down .. +1 up
-            var bodyY = definition.bounce * wave;
+            var bodyY = definition.bounce * wave - definition.walkCrouch * s;   // a slight knee bend while walking
             _squash = 1f + definition.squash * wave;
             // Weight over the supporting foot (left during the first half), a forward lean, a side-to-side tilt.
             var g0 = GroundFacing(ViewName);
