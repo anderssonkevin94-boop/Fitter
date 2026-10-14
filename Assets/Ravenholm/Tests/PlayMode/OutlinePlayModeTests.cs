@@ -55,6 +55,7 @@ namespace Ravenholm.Tests
             var root = new GameObject(name);
             root.transform.position = at;
             root.transform.localScale = Vector3.one * scale;
+            root.AddComponent<UnityEngine.Rendering.SortingGroup>();   // one object: a single silhouette line
             var o = root.AddComponent<SpriteOutline>();
             o.OutlineAll = outlineAll;
             var i = 0;

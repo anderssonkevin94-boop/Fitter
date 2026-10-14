@@ -212,6 +212,7 @@ namespace Ravenholm.Tests
         {
             var root = new GameObject("HoseTest");
             root.transform.position = at;
+            root.AddComponent<SortingGroup>();
             root.AddComponent<SpriteOutline>();
             var visual = new GameObject("Visual");
             visual.transform.SetParent(root.transform, false);

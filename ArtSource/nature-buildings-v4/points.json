@@ -1,0 +1,1275 @@
+{
+  "coordinate_system": "pixels from top-left; x right, y down; anchor is a point between pixels, not a painted marker",
+  "assets": {
+    "ground_grass_plain": {
+      "file": "Ground/ground_grass_plain.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "ground_grass_tufts": {
+      "file": "Ground/ground_grass_tufts.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "ground_grass_flowers": {
+      "file": "Ground/ground_grass_flowers.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "ground_forest_grass": {
+      "file": "Ground/ground_forest_grass.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "ground_path_plain": {
+      "file": "Ground/ground_path_plain.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "ground_path_pebbles": {
+      "file": "Ground/ground_path_pebbles.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "ground_path_footprints": {
+      "file": "Ground/ground_path_footprints.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "ground_cobble": {
+      "file": "Ground/ground_cobble.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "ground_cobble_grass": {
+      "file": "Ground/ground_cobble_grass.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "ground_dirt_dug": {
+      "file": "Ground/ground_dirt_dug.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "ground_planks": {
+      "file": "Ground/ground_planks.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "ground_soil_mossy": {
+      "file": "Ground/ground_soil_mossy.png",
+      "canvas_px": [
+        256,
+        152
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.575657894736842
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_grass": {
+      "file": "Blocks/block_grass.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_topsoil": {
+      "file": "Blocks/block_topsoil.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_topsoil_pebbles": {
+      "file": "Blocks/block_topsoil_pebbles.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_sandy": {
+      "file": "Blocks/block_sandy.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_sandstone": {
+      "file": "Blocks/block_sandstone.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_ochre": {
+      "file": "Blocks/block_ochre.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_red_clay": {
+      "file": "Blocks/block_red_clay.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_limestone": {
+      "file": "Blocks/block_limestone.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_slate": {
+      "file": "Blocks/block_slate.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_mossy": {
+      "file": "Blocks/block_mossy.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_basalt": {
+      "file": "Blocks/block_basalt.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_purple": {
+      "file": "Blocks/block_purple.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_ore_copper": {
+      "file": "Blocks/block_ore_copper.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_ore_iron": {
+      "file": "Blocks/block_ore_iron.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_ore_coal": {
+      "file": "Blocks/block_ore_coal.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_ore_gold": {
+      "file": "Blocks/block_ore_gold.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "block_ore_moonsilver": {
+      "file": "Blocks/block_ore_moonsilver.png",
+      "canvas_px": [
+        256,
+        260
+      ],
+      "ground_point_px": [
+        128,
+        64.5
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.7519230769230769
+      ],
+      "pixels_per_unit": 256
+    },
+    "pine_small": {
+      "file": "Nature/pine_small.png",
+      "canvas_px": [
+        256,
+        400
+      ],
+      "ground_point_px": [
+        128.92,
+        388
+      ],
+      "pivot_normalized_bottom_left": [
+        0.50359375,
+        0.030000000000000027
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        128,
+        200
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.03
+      ],
+      "content_bbox_ltrb": [
+        12,
+        35,
+        243,
+        387
+      ]
+    },
+    "pine_medium": {
+      "file": "Nature/pine_medium.png",
+      "canvas_px": [
+        352,
+        540
+      ],
+      "ground_point_px": [
+        187.23,
+        528
+      ],
+      "pivot_normalized_bottom_left": [
+        0.531903409090909,
+        0.022222222222222254
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        176,
+        270
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.0222
+      ],
+      "content_bbox_ltrb": [
+        12,
+        24,
+        339,
+        527
+      ]
+    },
+    "pine_tall": {
+      "file": "Nature/pine_tall.png",
+      "canvas_px": [
+        438,
+        660
+      ],
+      "ground_point_px": [
+        217.73,
+        648
+      ],
+      "pivot_normalized_bottom_left": [
+        0.49710045662100455,
+        0.018181818181818188
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        219,
+        330
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.0182
+      ],
+      "content_bbox_ltrb": [
+        12,
+        15,
+        425,
+        647
+      ]
+    },
+    "pine_bent": {
+      "file": "Nature/pine_bent.png",
+      "canvas_px": [
+        424,
+        620
+      ],
+      "ground_point_px": [
+        182.85,
+        608
+      ],
+      "pivot_normalized_bottom_left": [
+        0.43124999999999997,
+        0.01935483870967747
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        212,
+        310
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.0194
+      ],
+      "content_bbox_ltrb": [
+        12,
+        12,
+        410,
+        607
+      ]
+    },
+    "leafy_tree": {
+      "file": "Nature/leafy_tree.png",
+      "canvas_px": [
+        512,
+        600
+      ],
+      "ground_point_px": [
+        265.5,
+        588
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5185546875,
+        0.020000000000000018
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        256,
+        300
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.02
+      ],
+      "content_bbox_ltrb": [
+        12,
+        15,
+        499,
+        587
+      ]
+    },
+    "bush_small": {
+      "file": "Nature/bush_small.png",
+      "canvas_px": [
+        178,
+        160
+      ],
+      "ground_point_px": [
+        89,
+        148
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.07499999999999996
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        89,
+        80
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.075
+      ],
+      "content_bbox_ltrb": [
+        12,
+        21,
+        165,
+        147
+      ]
+    },
+    "bush_big": {
+      "file": "Nature/bush_big.png",
+      "canvas_px": [
+        288,
+        240
+      ],
+      "ground_point_px": [
+        144,
+        228
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.050000000000000044
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        144,
+        120
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.05
+      ],
+      "content_bbox_ltrb": [
+        12,
+        25,
+        275,
+        227
+      ]
+    },
+    "bush_herb": {
+      "file": "Nature/bush_herb.png",
+      "canvas_px": [
+        178,
+        160
+      ],
+      "ground_point_px": [
+        89,
+        148
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.07499999999999996
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        89,
+        80
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.075
+      ],
+      "content_bbox_ltrb": [
+        12,
+        20,
+        165,
+        147
+      ]
+    },
+    "fern": {
+      "file": "Nature/fern.png",
+      "canvas_px": [
+        248,
+        180
+      ],
+      "ground_point_px": [
+        123.5,
+        168
+      ],
+      "pivot_normalized_bottom_left": [
+        0.49798387096774194,
+        0.06666666666666665
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        124,
+        90
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.0667
+      ],
+      "content_bbox_ltrb": [
+        14,
+        12,
+        232,
+        167
+      ]
+    },
+    "grass_tuft": {
+      "file": "Nature/grass_tuft.png",
+      "canvas_px": [
+        116,
+        88
+      ],
+      "ground_point_px": [
+        58,
+        76
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.13636363636363635
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        58,
+        44
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.0909
+      ],
+      "content_bbox_ltrb": [
+        12,
+        17,
+        103,
+        75
+      ]
+    },
+    "flowers": {
+      "file": "Nature/flowers.png",
+      "canvas_px": [
+        138,
+        96
+      ],
+      "ground_point_px": [
+        69,
+        84
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.125
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        69,
+        48
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.0833
+      ],
+      "content_bbox_ltrb": [
+        12,
+        18,
+        125,
+        83
+      ]
+    },
+    "boulder": {
+      "file": "Nature/boulder.png",
+      "canvas_px": [
+        278,
+        240
+      ],
+      "ground_point_px": [
+        139.5,
+        228
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5017985611510791,
+        0.050000000000000044
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        139,
+        120
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.05
+      ],
+      "content_bbox_ltrb": [
+        13,
+        27,
+        265,
+        227
+      ]
+    },
+    "rocks_small": {
+      "file": "Nature/rocks_small.png",
+      "canvas_px": [
+        170,
+        112
+      ],
+      "ground_point_px": [
+        84.5,
+        100
+      ],
+      "pivot_normalized_bottom_left": [
+        0.4970588235294118,
+        0.1071428571428571
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        85,
+        56
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.0893
+      ],
+      "content_bbox_ltrb": [
+        16,
+        12,
+        152,
+        99
+      ]
+    },
+    "stump": {
+      "file": "Nature/stump.png",
+      "canvas_px": [
+        200,
+        144
+      ],
+      "ground_point_px": [
+        99.5,
+        132
+      ],
+      "pivot_normalized_bottom_left": [
+        0.4975,
+        0.08333333333333337
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        100,
+        72
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.0833
+      ],
+      "content_bbox_ltrb": [
+        12,
+        12,
+        186,
+        131
+      ]
+    },
+    "log_fallen": {
+      "file": "Nature/log_fallen.png",
+      "canvas_px": [
+        232,
+        140
+      ],
+      "ground_point_px": [
+        115.5,
+        128
+      ],
+      "pivot_normalized_bottom_left": [
+        0.4978448275862069,
+        0.08571428571428574
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        116,
+        70
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.0857
+      ],
+      "content_bbox_ltrb": [
+        16,
+        12,
+        214,
+        127
+      ]
+    },
+    "log_piece": {
+      "file": "Nature/log_piece.png",
+      "canvas_px": [
+        120,
+        96
+      ],
+      "ground_point_px": [
+        60,
+        84
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.125
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        60,
+        48
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.0833
+      ],
+      "content_bbox_ltrb": [
+        12,
+        15,
+        107,
+        83
+      ]
+    },
+    "log_stack": {
+      "file": "Nature/log_stack.png",
+      "canvas_px": [
+        214,
+        180
+      ],
+      "ground_point_px": [
+        107,
+        168
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.06666666666666665
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        107,
+        90
+      ],
+      "anchor_meaning": "bottom centre of grounded trunk/object",
+      "original_pivot": [
+        0.5,
+        0.0667
+      ],
+      "content_bbox_ltrb": [
+        12,
+        19,
+        201,
+        167
+      ]
+    },
+    "bld_store": {
+      "file": "Buildings/bld_store.png",
+      "canvas_px": [
+        888,
+        810
+      ],
+      "ground_point_px": [
+        443.4672,
+        571.374
+      ],
+      "pivot_normalized_bottom_left": [
+        0.4994,
+        0.2946
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        444,
+        405
+      ],
+      "anchor_meaning": "centre of original footprint",
+      "original_pivot": [
+        0.4994,
+        0.2946
+      ],
+      "content_bbox_ltrb": [
+        47,
+        12,
+        839,
+        761
+      ]
+    },
+    "bld_workbench": {
+      "file": "Buildings/bld_workbench.png",
+      "canvas_px": [
+        504,
+        526
+      ],
+      "ground_point_px": [
+        251.496,
+        393.3954
+      ],
+      "pivot_normalized_bottom_left": [
+        0.499,
+        0.2521
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        252,
+        263
+      ],
+      "anchor_meaning": "centre of original footprint",
+      "original_pivot": [
+        0.499,
+        0.2521
+      ],
+      "content_bbox_ltrb": [
+        46,
+        12,
+        455,
+        449
+      ]
+    },
+    "bld_forge": {
+      "file": "Buildings/bld_forge.png",
+      "canvas_px": [
+        632,
+        606
+      ],
+      "ground_point_px": [
+        315.4944,
+        442.38
+      ],
+      "pivot_normalized_bottom_left": [
+        0.4992,
+        0.27
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        316,
+        303
+      ],
+      "anchor_meaning": "centre of original footprint",
+      "original_pivot": [
+        0.4992,
+        0.27
+      ],
+      "content_bbox_ltrb": [
+        46,
+        12,
+        583,
+        569
+      ]
+    },
+    "bld_smelter": {
+      "file": "Buildings/bld_smelter.png",
+      "canvas_px": [
+        632,
+        820
+      ],
+      "ground_point_px": [
+        315.4944,
+        656.41
+      ],
+      "pivot_normalized_bottom_left": [
+        0.4992,
+        0.1995
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        316,
+        410
+      ],
+      "anchor_meaning": "centre of original footprint",
+      "original_pivot": [
+        0.4992,
+        0.1995
+      ],
+      "content_bbox_ltrb": [
+        43,
+        12,
+        609,
+        783
+      ]
+    },
+    "bld_lumbermill": {
+      "file": "Buildings/bld_lumbermill.png",
+      "canvas_px": [
+        734,
+        694
+      ],
+      "ground_point_px": [
+        366.4862,
+        519.3896
+      ],
+      "pivot_normalized_bottom_left": [
+        0.4993,
+        0.25160000000000005
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        367,
+        347
+      ],
+      "anchor_meaning": "centre of original footprint",
+      "original_pivot": [
+        0.4993,
+        0.2516
+      ],
+      "content_bbox_ltrb": [
+        70,
+        12,
+        667,
+        661
+      ]
+    },
+    "bld_apothecary": {
+      "file": "Buildings/bld_apothecary.png",
+      "canvas_px": [
+        632,
+        602
+      ],
+      "ground_point_px": [
+        315.4944,
+        426.3966
+      ],
+      "pivot_normalized_bottom_left": [
+        0.4992,
+        0.29170000000000007
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        316,
+        301
+      ],
+      "anchor_meaning": "centre of original footprint",
+      "original_pivot": [
+        0.4992,
+        0.2917
+      ],
+      "content_bbox_ltrb": [
+        43,
+        12,
+        589,
+        589
+      ]
+    },
+    "bld_trader_pad": {
+      "file": "Buildings/bld_trader_pad.png",
+      "canvas_px": [
+        632,
+        670
+      ],
+      "ground_point_px": [
+        315.4944,
+        507.39099999999996
+      ],
+      "pivot_normalized_bottom_left": [
+        0.4992,
+        0.24270000000000003
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        316,
+        335
+      ],
+      "anchor_meaning": "centre of original footprint",
+      "original_pivot": [
+        0.4992,
+        0.2427
+      ],
+      "content_bbox_ltrb": [
+        50,
+        13,
+        581,
+        633
+      ]
+    },
+    "bld_mine_mouth": {
+      "file": "Buildings/bld_mine_mouth.png",
+      "canvas_px": [
+        1054,
+        838
+      ],
+      "ground_point_px": [
+        520.0436,
+        711.9648
+      ],
+      "pivot_normalized_bottom_left": [
+        0.49339999999999995,
+        0.1504000000000001
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        527,
+        419
+      ],
+      "anchor_meaning": "centre of original footprint",
+      "original_pivot": [
+        0.4934,
+        0.1504
+      ],
+      "content_bbox_ltrb": [
+        13,
+        12,
+        1041,
+        825
+      ]
+    },
+    "bld_forest_gate": {
+      "file": "Buildings/bld_forest_gate.png",
+      "canvas_px": [
+        556,
+        504
+      ],
+      "ground_point_px": [
+        277.4996,
+        430.61760000000004
+      ],
+      "pivot_normalized_bottom_left": [
+        0.4991,
+        0.14559999999999995
+      ],
+      "pixels_per_unit": 256,
+      "source_canvas_px": [
+        278,
+        252
+      ],
+      "anchor_meaning": "centre of original footprint",
+      "original_pivot": [
+        0.4991,
+        0.1456
+      ],
+      "content_bbox_ltrb": [
+        12,
+        12,
+        543,
+        429
+      ]
+    }
+  }
+}

@@ -2,58 +2,76 @@
  "ppu": 128,
  "sprites": {
   "Buildings/bld_apothecary.png": {
+   "outline": true,
    "pivot": [
     0.4992,
     0.2917
-   ]
+   ],
+   "ppu": 256
   },
   "Buildings/bld_forest_gate.png": {
+   "outline": true,
    "pivot": [
     0.4991,
     0.1456
-   ]
+   ],
+   "ppu": 256
   },
   "Buildings/bld_forge.png": {
+   "outline": true,
    "pivot": [
     0.4992,
     0.27
-   ]
+   ],
+   "ppu": 256
   },
   "Buildings/bld_lumbermill.png": {
+   "outline": true,
    "pivot": [
     0.4993,
     0.2516
-   ]
+   ],
+   "ppu": 256
   },
   "Buildings/bld_mine_mouth.png": {
+   "outline": true,
    "pivot": [
     0.4934,
     0.1504
-   ]
+   ],
+   "ppu": 256
   },
   "Buildings/bld_smelter.png": {
+   "outline": true,
    "pivot": [
     0.4992,
     0.1995
-   ]
+   ],
+   "ppu": 256
   },
   "Buildings/bld_store.png": {
+   "outline": true,
    "pivot": [
     0.4994,
     0.2946
-   ]
+   ],
+   "ppu": 256
   },
   "Buildings/bld_trader_pad.png": {
+   "outline": true,
    "pivot": [
     0.4992,
     0.2427
-   ]
+   ],
+   "ppu": 256
   },
   "Buildings/bld_workbench.png": {
+   "outline": true,
    "pivot": [
     0.499,
     0.2521
-   ]
+   ],
+   "ppu": 256
   },
   "Characters/StoreOwner/axe.png": {
    "outline": true,
@@ -1116,10 +1134,12 @@
    ]
   },
   "Nature/bush_herb.png": {
+   "outline": true,
    "pivot": [
     0.5,
     0.075
-   ]
+   ],
+   "ppu": 256
   },
   "Nature/rock_copper.png": {
    "pivot": [
@@ -1134,34 +1154,44 @@
    ]
   },
   "Nature/rock_stone.png": {
+   "outline": true,
    "pivot": [
-    0.5,
+    0.5018,
     0.05
-   ]
+   ],
+   "ppu": 256
   },
   "Nature/tree_cedar.png": {
+   "outline": true,
    "pivot": [
-    0.5,
-    0.0182
-   ]
+    0.4971,
+    0.01818
+   ],
+   "ppu": 256
   },
   "Nature/tree_ironwood.png": {
+   "outline": true,
    "pivot": [
-    0.5,
-    0.0194
-   ]
+    0.43125,
+    0.01935
+   ],
+   "ppu": 256
   },
   "Nature/tree_maple.png": {
+   "outline": true,
    "pivot": [
-    0.5,
+    0.51855,
     0.02
-   ]
+   ],
+   "ppu": 256
   },
   "Nature/tree_stump.png": {
+   "outline": true,
    "pivot": [
-    0.5,
-    0.0833
-   ]
+    0.4975,
+    0.08333
+   ],
+   "ppu": 256
   },
   "Painted/Blocks/block_basalt.png": {
    "pivot": [
@@ -1367,100 +1397,132 @@
    "ppu": 256
   },
   "Painted/Nature/boulder.png": {
+   "outline": true,
    "pivot": [
-    0.5,
+    0.5018,
     0.05
-   ]
+   ],
+   "ppu": 256
   },
   "Painted/Nature/bush_big.png": {
+   "outline": true,
    "pivot": [
     0.5,
     0.05
-   ]
+   ],
+   "ppu": 256
   },
   "Painted/Nature/bush_small.png": {
+   "outline": true,
    "pivot": [
     0.5,
     0.075
-   ]
+   ],
+   "ppu": 256
   },
   "Painted/Nature/fern.png": {
+   "outline": true,
    "pivot": [
-    0.5,
-    0.0667
-   ]
+    0.49798,
+    0.06667
+   ],
+   "ppu": 256
   },
   "Painted/Nature/flowers.png": {
+   "outline": true,
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.125
+   ],
+   "ppu": 256
   },
   "Painted/Nature/grass_tuft.png": {
+   "outline": true,
    "pivot": [
     0.5,
-    0.0909
-   ]
+    0.13636
+   ],
+   "ppu": 256
   },
   "Painted/Nature/leafy_tree.png": {
+   "outline": true,
    "pivot": [
-    0.5,
+    0.51855,
     0.02
-   ]
+   ],
+   "ppu": 256
   },
   "Painted/Nature/log_fallen.png": {
+   "outline": true,
    "pivot": [
-    0.5,
-    0.0857
-   ]
+    0.49784,
+    0.08571
+   ],
+   "ppu": 256
   },
   "Painted/Nature/log_piece.png": {
+   "outline": true,
    "pivot": [
     0.5,
-    0.0833
-   ]
+    0.125
+   ],
+   "ppu": 256
   },
   "Painted/Nature/log_stack.png": {
+   "outline": true,
    "pivot": [
     0.5,
-    0.0667
-   ]
+    0.06667
+   ],
+   "ppu": 256
   },
   "Painted/Nature/pine_bent.png": {
+   "outline": true,
    "pivot": [
-    0.5,
-    0.0194
-   ]
+    0.43125,
+    0.01935
+   ],
+   "ppu": 256
   },
   "Painted/Nature/pine_medium.png": {
+   "outline": true,
    "pivot": [
-    0.5,
-    0.0222
-   ]
+    0.5319,
+    0.02222
+   ],
+   "ppu": 256
   },
   "Painted/Nature/pine_small.png": {
+   "outline": true,
    "pivot": [
-    0.5,
+    0.50359,
     0.03
-   ]
+   ],
+   "ppu": 256
   },
   "Painted/Nature/pine_tall.png": {
+   "outline": true,
    "pivot": [
-    0.5,
-    0.0182
-   ]
+    0.4971,
+    0.01818
+   ],
+   "ppu": 256
   },
   "Painted/Nature/rocks_small.png": {
+   "outline": true,
    "pivot": [
-    0.5,
-    0.0893
-   ]
+    0.49706,
+    0.10714
+   ],
+   "ppu": 256
   },
   "Painted/Nature/stump.png": {
+   "outline": true,
    "pivot": [
-    0.5,
-    0.0833
-   ]
+    0.4975,
+    0.08333
+   ],
+   "ppu": 256
   },
   "Props/blob_shadow.png": {
    "pivot": [

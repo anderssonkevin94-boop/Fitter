@@ -1,0 +1,1175 @@
+{
+  "status": "passed",
+  "inventory": {
+    "Ground": 12,
+    "Blocks": 17,
+    "Nature": 17,
+    "Buildings": 9
+  },
+  "object_count": 26,
+  "terrain_count": 29,
+  "objects": {
+    "pine_small": {
+      "size": [
+        256,
+        400
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        35,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#92b342",
+        "#5b9347",
+        "#2d6747",
+        "#6e4e30",
+        "#976432",
+        "#bb8848"
+      ],
+      "ground_point": [
+        128.92,
+        388
+      ]
+    },
+    "pine_medium": {
+      "size": [
+        352,
+        540
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        24,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#92b342",
+        "#5b9347",
+        "#2d6747",
+        "#6e4e30",
+        "#976432",
+        "#bb8848"
+      ],
+      "ground_point": [
+        187.23,
+        528
+      ]
+    },
+    "pine_tall": {
+      "size": [
+        438,
+        660
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        15,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#92b342",
+        "#5b9347",
+        "#2d6747",
+        "#976432",
+        "#6e4e30",
+        "#bb8848"
+      ],
+      "ground_point": [
+        217.73,
+        648
+      ]
+    },
+    "pine_bent": {
+      "size": [
+        424,
+        620
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        12,
+        13,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#92b342",
+        "#5b9347",
+        "#2d6747",
+        "#6e4e30",
+        "#976432",
+        "#bb8848"
+      ],
+      "ground_point": [
+        182.85,
+        608
+      ]
+    },
+    "leafy_tree": {
+      "size": [
+        512,
+        600
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        15,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#92b342",
+        "#5b9347",
+        "#2d6747",
+        "#6e4e30",
+        "#976432",
+        "#bb8848"
+      ],
+      "ground_point": [
+        265.5,
+        588
+      ]
+    },
+    "bush_small": {
+      "size": [
+        178,
+        160
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        21,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#92b342",
+        "#5b9347",
+        "#2d6747"
+      ],
+      "ground_point": [
+        89,
+        148
+      ]
+    },
+    "bush_big": {
+      "size": [
+        288,
+        240
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        25,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#92b342",
+        "#5b9347",
+        "#2d6747"
+      ],
+      "ground_point": [
+        144,
+        228
+      ]
+    },
+    "bush_herb": {
+      "size": [
+        178,
+        160
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        20,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#92b342",
+        "#5b9347",
+        "#f3e2ba",
+        "#2d6747"
+      ],
+      "ground_point": [
+        89,
+        148
+      ]
+    },
+    "fern": {
+      "size": [
+        248,
+        180
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        14,
+        12,
+        15,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#92b342",
+        "#5b9347",
+        "#2d6747"
+      ],
+      "ground_point": [
+        123.5,
+        168
+      ]
+    },
+    "grass_tuft": {
+      "size": [
+        116,
+        88
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        17,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#92b342",
+        "#5b9347",
+        "#2d6747"
+      ],
+      "ground_point": [
+        58,
+        76
+      ]
+    },
+    "flowers": {
+      "size": [
+        138,
+        96
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        18,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#92b342",
+        "#5b9347",
+        "#fff1d1",
+        "#2d6747",
+        "#f3be45"
+      ],
+      "ground_point": [
+        69,
+        84
+      ]
+    },
+    "boulder": {
+      "size": [
+        278,
+        240
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        13,
+        27,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#c5bda3",
+        "#747f7b",
+        "#97998c"
+      ],
+      "ground_point": [
+        139.5,
+        228
+      ]
+    },
+    "rocks_small": {
+      "size": [
+        170,
+        112
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        16,
+        12,
+        17,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#c5bda3",
+        "#97998c",
+        "#747f7b"
+      ],
+      "ground_point": [
+        84.5,
+        100
+      ]
+    },
+    "stump": {
+      "size": [
+        200,
+        144
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        12,
+        13,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#976432",
+        "#e8bb76",
+        "#c39454",
+        "#6e4e30",
+        "#2d6747",
+        "#92b342",
+        "#5b9347"
+      ],
+      "ground_point": [
+        99.5,
+        132
+      ]
+    },
+    "log_fallen": {
+      "size": [
+        232,
+        140
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        16,
+        12,
+        17,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#bb8848",
+        "#976432",
+        "#6e4e30",
+        "#e8bb76",
+        "#c39454"
+      ],
+      "ground_point": [
+        115.5,
+        128
+      ]
+    },
+    "log_piece": {
+      "size": [
+        120,
+        96
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        15,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#976432",
+        "#bb8848",
+        "#6e4e30",
+        "#e8bb76",
+        "#c39454"
+      ],
+      "ground_point": [
+        60,
+        84
+      ]
+    },
+    "log_stack": {
+      "size": [
+        214,
+        180
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        19,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#bb8848",
+        "#976432",
+        "#6e4e30",
+        "#e8bb76",
+        "#c39454"
+      ],
+      "ground_point": [
+        107,
+        168
+      ]
+    },
+    "bld_store": {
+      "size": [
+        888,
+        810
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        47,
+        12,
+        48,
+        48
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#77b0b0",
+        "#4f9297",
+        "#376e75",
+        "#c6b398",
+        "#a29480",
+        "#e9d2b3",
+        "#a57a57",
+        "#6e4e30",
+        "#cca16e"
+      ],
+      "ground_point": [
+        443.4672,
+        571.374
+      ]
+    },
+    "bld_workbench": {
+      "size": [
+        504,
+        526
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        46,
+        12,
+        48,
+        76
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#a57a57",
+        "#6e4e30",
+        "#d4aa50",
+        "#b38b3e",
+        "#cca16e",
+        "#e9c16a",
+        "#e9d2b3"
+      ],
+      "ground_point": [
+        251.496,
+        393.3954
+      ]
+    },
+    "bld_forge": {
+      "size": [
+        632,
+        606
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        46,
+        12,
+        48,
+        36
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#747f92",
+        "#a57a57",
+        "#555e70",
+        "#cca16e",
+        "#6e4e30",
+        "#e9d2b3",
+        "#c6b398",
+        "#413e38",
+        "#fe9e3b"
+      ],
+      "ground_point": [
+        315.4944,
+        442.38
+      ]
+    },
+    "bld_smelter": {
+      "size": [
+        632,
+        820
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        43,
+        12,
+        22,
+        36
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#c6b398",
+        "#a29480",
+        "#914f3b",
+        "#e9d2b3",
+        "#a57a57",
+        "#bc654b",
+        "#6e4e30",
+        "#484037",
+        "#7d8796",
+        "#f4a441",
+        "#ffc46b"
+      ],
+      "ground_point": [
+        315.4944,
+        656.41
+      ]
+    },
+    "bld_lumbermill": {
+      "size": [
+        734,
+        694
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        70,
+        12,
+        66,
+        32
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#cca16e",
+        "#a57a57",
+        "#6e4e30",
+        "#91b865",
+        "#6d954a",
+        "#446a39",
+        "#e9d2b3",
+        "#c6b398"
+      ],
+      "ground_point": [
+        366.4862,
+        519.3896
+      ]
+    },
+    "bld_apothecary": {
+      "size": [
+        632,
+        602
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        43,
+        12,
+        42,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#5b9347",
+        "#3d633a",
+        "#e9d2b3",
+        "#6e4e30",
+        "#cca16e",
+        "#a57a57",
+        "#f7e9b9",
+        "#c6b398",
+        "#92b342"
+      ],
+      "ground_point": [
+        315.4944,
+        426.3966
+      ]
+    },
+    "bld_trader_pad": {
+      "size": [
+        632,
+        670
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        50,
+        13,
+        50,
+        36
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#cc534c",
+        "#e9d2b3",
+        "#963b36",
+        "#cca16e",
+        "#6e4e30",
+        "#a57a57",
+        "#c6b398",
+        "#a29480"
+      ],
+      "ground_point": [
+        315.4944,
+        507.39099999999996
+      ]
+    },
+    "bld_mine_mouth": {
+      "size": [
+        1054,
+        838
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        13,
+        12,
+        12,
+        12
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#c6b398",
+        "#a29480",
+        "#8b806e",
+        "#8e9695",
+        "#cd8752",
+        "#484037",
+        "#cca16e",
+        "#a57a57"
+      ],
+      "ground_point": [
+        520.0436,
+        711.9648
+      ]
+    },
+    "bld_forest_gate": {
+      "size": [
+        556,
+        504
+      ],
+      "twice_original": true,
+      "margins_ltrb": [
+        12,
+        12,
+        12,
+        74
+      ],
+      "partial_alpha_pixels": 0,
+      "colours": [
+        "#cca16e",
+        "#6e4e30",
+        "#a57a57",
+        "#e9d2b3",
+        "#5b9347",
+        "#2d6747"
+      ],
+      "ground_point": [
+        277.4996,
+        430.61760000000004
+      ]
+    }
+  },
+  "terrain": {
+    "ground_grass_plain": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#94a16e": "#9dba5a",
+        "1:#987f66": "#a48260",
+        "2:#7a6652": "#84694d"
+      }
+    },
+    "ground_grass_tufts": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#94a16e": "#9dba5a",
+        "0:#a0ab7c": "#adbf77",
+        "0:#7d8e5c": "#829b4e",
+        "1:#987f66": "#a48260",
+        "2:#7a6652": "#84694d"
+      }
+    },
+    "ground_grass_flowers": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#94a16e": "#9dba5a",
+        "0:#f0dba5": "#ffe39b",
+        "0:#d0b76b": "#e1bf58",
+        "1:#987f66": "#a48260",
+        "2:#7a6652": "#84694d"
+      }
+    },
+    "ground_forest_grass": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#839570": "#89a16f",
+        "0:#708363": "#748d62",
+        "1:#987f66": "#a48260",
+        "2:#7a6652": "#84694d",
+        "0:#96a181": "#9fae83"
+      }
+    },
+    "ground_path_plain": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#d2bc91": "#ddbf85",
+        "1:#ac9a77": "#b59d6d",
+        "2:#8b7c60": "#927e58"
+      }
+    },
+    "ground_path_pebbles": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#d2bc91": "#ddbf85",
+        "0:#e0cdaa": "#f2d8a9",
+        "0:#b8a180": "#c7a87b",
+        "1:#ac9a77": "#b59d6d",
+        "2:#8b7c60": "#927e58"
+      }
+    },
+    "ground_path_footprints": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#d2bc91": "#ddbf85",
+        "0:#bfa780": "#ceae79",
+        "1:#ac9a77": "#b59d6d",
+        "2:#8b7c60": "#927e58"
+      }
+    },
+    "ground_cobble": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#b8b5a1": "#c7c3a8",
+        "0:#cac6b2": "#dad5ba",
+        "1:#979484": "#a3a08a",
+        "2:#79776a": "#83816f"
+      }
+    },
+    "ground_cobble_grass": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#b8b5a1": "#c7c3a8",
+        "0:#cac6b2": "#dad5ba",
+        "0:#8e9d71": "#95aa6e",
+        "1:#987f66": "#a48260",
+        "2:#7a6652": "#84694d"
+      }
+    },
+    "ground_dirt_dug": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#b99b7c": "#c89f75",
+        "0:#a88b6e": "#b58e67",
+        "0:#c8ad90": "#d8b48c",
+        "1:#987f66": "#a48260",
+        "2:#7a6652": "#84694d"
+      }
+    },
+    "ground_planks": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#b59a79": "#c39f72",
+        "0:#a58b6e": "#b28f68",
+        "0:#c5ab88": "#d5b282",
+        "1:#947e63": "#a0825d",
+        "2:#776650": "#81694b"
+      }
+    },
+    "ground_soil_mossy": {
+      "canvas": [
+        256,
+        152
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#a39478": "#b09c76",
+        "0:#839368": "#899f65",
+        "0:#92a078": "#9aad77",
+        "1:#987f66": "#a48260",
+        "2:#7a6652": "#84694d"
+      }
+    },
+    "block_grass": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#94a16e": "#9dba5a",
+        "0:#7d8e5c": "#829b4e",
+        "0:#a0ab7c": "#adbf77",
+        "1:#987f66": "#a48260",
+        "2:#7a6652": "#84694d",
+        "1:#8b725a": "#967454",
+        "2:#705c49": "#795e44"
+      }
+    },
+    "block_topsoil": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#b99b7c": "#c89f75",
+        "0:#a98b6e": "#b78e67",
+        "1:#987f66": "#a48260",
+        "2:#7a6652": "#84694d",
+        "1:#8b725a": "#967454",
+        "2:#705c49": "#795e44"
+      }
+    },
+    "block_topsoil_pebbles": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#b99b7c": "#c89f75",
+        "0:#d0c4aa": "#e1d0ad",
+        "1:#987f66": "#a48260",
+        "2:#7a6652": "#84694d",
+        "1:#aba18b": "#b9ab8e",
+        "2:#898170": "#958972"
+      }
+    },
+    "block_sandy": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#d0bb92": "#e1c48d",
+        "0:#bea981": "#cdb17b",
+        "0:#decca9": "#f0d7a8",
+        "1:#ab9978": "#b9a174",
+        "2:#897b60": "#95815d",
+        "2:#938770": "#9e8e6f",
+        "1:#b6a78b": "#c5b08a",
+        "1:#9c8b6a": "#a89165",
+        "2:#7d7055": "#877551"
+      }
+    },
+    "block_sandstone": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#c6b18c": "#d6b988",
+        "0:#d3c09e": "#e4ca9c",
+        "0:#b5a07c": "#c3a777",
+        "1:#a29173": "#af9870",
+        "2:#83755c": "#8d7a5a",
+        "2:#8b7f68": "#968567",
+        "1:#ad9d82": "#bba680",
+        "1:#948366": "#a08962",
+        "2:#776a52": "#816e4f"
+      }
+    },
+    "block_ochre": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#b7a17c": "#c6a876",
+        "0:#c6b28f": "#d6bb8c",
+        "1:#968466": "#a28a61",
+        "2:#796a52": "#836f4e",
+        "0:#a48e6b": "#b19364",
+        "1:#a29275": "#af9973",
+        "2:#83755e": "#8d7b5c",
+        "2:#6c5e47": "#756142",
+        "1:#867458": "#917952"
+      }
+    },
+    "block_red_clay": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#ab9283": "#b99783",
+        "0:#baa394": "#c9aa96",
+        "1:#8c786b": "#987c6b",
+        "2:#716056": "#7a6456",
+        "0:#9b8276": "#a78675",
+        "1:#998679": "#a58b7b",
+        "2:#7b6c62": "#857063",
+        "2:#66564e": "#6e584d",
+        "1:#7f6b61": "#896e60"
+      }
+    },
+    "block_limestone": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#9da39b": "#a8b0a5",
+        "0:#acb2aa": "#b8c0b5",
+        "1:#81867f": "#8a9087",
+        "2:#686c66": "#6f746d",
+        "0:#8c938d": "#959f97",
+        "1:#8d928b": "#979d94",
+        "2:#727570": "#797f77",
+        "2:#5c615d": "#626964",
+        "1:#737974": "#7a827c"
+      }
+    },
+    "block_slate": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#8d9698": "#95a1a4",
+        "0:#9ea6a7": "#a8b3b4",
+        "1:#747b7d": "#7a8486",
+        "2:#5d6364": "#626a6c",
+        "0:#7f888b": "#869296",
+        "1:#828889": "#8a9394",
+        "2:#686e6e": "#6f7677",
+        "2:#545a5c": "#586063",
+        "1:#687072": "#6e787b"
+      }
+    },
+    "block_mossy": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#7d8c85": "#83978e",
+        "0:#929d87": "#9baa8c",
+        "1:#67736d": "#6b7c74",
+        "2:#535c58": "#56645e",
+        "2:#606859": "#66705c",
+        "1:#78816f": "#7f8b73"
+      }
+    },
+    "block_basalt": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#6c7982": "#6f808c",
+        "0:#7b8790": "#7f8f9c",
+        "1:#59636b": "#5b6973",
+        "2:#475056": "#49545c",
+        "0:#606e78": "#617482",
+        "1:#656f76": "#687580",
+        "2:#51595f": "#545e67",
+        "2:#3f494f": "#404d56",
+        "1:#4f5a62": "#505f6b"
+      }
+    },
+    "block_purple": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#686d85": "#686f90",
+        "0:#777c94": "#797fa0",
+        "1:#55596d": "#555b76",
+        "2:#454858": "#45495f",
+        "0:#5c627a": "#5b6384",
+        "1:#626679": "#636883",
+        "2:#4f5262": "#50546a",
+        "2:#3d4151": "#3c4157",
+        "1:#4b5064": "#4b516c"
+      }
+    },
+    "block_ore_copper": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#8d9698": "#95a1a4",
+        "0:#c68d64": "#d68952",
+        "0:#d9ab80": "#eaac72",
+        "1:#747b7d": "#7a8486",
+        "2:#5d6364": "#626a6c",
+        "2:#835d42": "#8d5a36",
+        "2:#8f7154": "#9a724b",
+        "1:#b28c69": "#c08d5d",
+        "1:#a27452": "#af7043"
+      }
+    },
+    "block_ore_iron": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#8d9698": "#95a1a4",
+        "0:#687e92": "#65839e",
+        "0:#a0b4c2": "#a4bfd2",
+        "1:#747b7d": "#7a8486",
+        "2:#5d6364": "#626a6c",
+        "2:#6a7780": "#6c7e8b",
+        "2:#455360": "#435668",
+        "1:#556778": "#536b82",
+        "1:#83949f": "#869dac"
+      }
+    },
+    "block_ore_coal": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#8d9698": "#95a1a4",
+        "0:#3f464c": "#414a52",
+        "0:#596169": "#5c6771",
+        "1:#747b7d": "#7a8486",
+        "2:#5d6364": "#626a6c",
+        "1:#34393e": "#353d43",
+        "1:#495056": "#4b545d",
+        "2:#3b4045": "#3d444b",
+        "2:#2a2e32": "#2b3136"
+      }
+    },
+    "block_ore_gold": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#8d9698": "#95a1a4",
+        "0:#e6ce8e": "#f8d882",
+        "0:#d5b564": "#e6bb4d",
+        "1:#747b7d": "#7a8486",
+        "2:#5d6364": "#626a6c",
+        "1:#bda974": "#cbb16b",
+        "1:#af9452": "#bd993f",
+        "2:#98885e": "#a48f56",
+        "2:#8d7742": "#987b33"
+      }
+    },
+    "block_ore_moonsilver": {
+      "canvas": [
+        256,
+        260
+      ],
+      "alpha_changed_pixels": 0,
+      "geometry": "same per-pixel face and colour-region masks as V3",
+      "colour_mapping": {
+        "0:#8d9698": "#95a1a4",
+        "0:#a8cedb": "#a8dbed",
+        "0:#d5e7e8": "#e1f9fb",
+        "1:#747b7d": "#7a8486",
+        "2:#5d6364": "#626a6c",
+        "1:#afbdbe": "#b9ccce",
+        "1:#8aa9b4": "#8ab4c2",
+        "2:#6f8891": "#6f919c",
+        "2:#8d9899": "#95a4a6"
+      }
+    }
+  }
+}

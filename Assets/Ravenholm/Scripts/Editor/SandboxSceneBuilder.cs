@@ -380,6 +380,7 @@ namespace Ravenholm.EditorTools
             string description, string phase, Vector2? footprint, ReceiverKind? station = null, string siteId = null, string stationId = null)
         {
             var sr = Sprite(parent, title, "Buildings/" + sprite, pos);
+            sr.gameObject.AddComponent<SpriteOutline>();   // the game's outline (outline-free art)
             var col = sr.gameObject.AddComponent<BoxCollider2D>();
             col.isTrigger = true;
             col.size = tapSize;
@@ -526,6 +527,7 @@ namespace Ravenholm.EditorTools
         {
             var sr = Sprite(parent, title, sprite, pos);
             sr.transform.localScale = Vector3.one * scale;
+            sr.gameObject.AddComponent<SpriteOutline>();   // outlined only if its sprite is outline-free art
             var col = sr.gameObject.AddComponent<BoxCollider2D>();
             col.isTrigger = true;
             var bounds = sr.sprite.bounds;

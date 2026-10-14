@@ -11,8 +11,11 @@ namespace Ravenholm.Presentation
     /// pieces cover each other's inner edges and only the object's outer silhouette shows a line.
     /// Pieces are outlined when their sprite is listed in the settings (or always, with <see cref="OutlineAll"/>).
     /// </summary>
+    /// <remarks>
+    /// On an object without a sorting group (a single tree, prop or building sprite), each outline sorts just behind
+    /// its own piece instead (its order minus one, same layer and sort point).
+    /// </remarks>
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(SortingGroup))]
     public sealed class SpriteOutline : MonoBehaviour
     {
         /// <summary>Inside the object's sorting group, behind every piece.</summary>
@@ -32,6 +35,7 @@ namespace Ravenholm.Presentation
         private readonly HashSet<SpriteRenderer> _isCopy = new HashSet<SpriteRenderer>();
         private readonly List<SpriteRenderer> _pieces = new List<SpriteRenderer>();
         private OutlineSettings _settings;
+        private bool _grouped;
 
         /// <summary>The settings in use (from the sandbox settings unless set, e.g. by a test).</summary>
         public OutlineSettings Settings
@@ -61,6 +65,7 @@ namespace Ravenholm.Presentation
             var s = Settings;
             if (s == null || s.material == null) return;
             ApplyGlobals(s);
+            _grouped = GetComponentInParent<SortingGroup>() != null;
             GetComponentsInChildren(true, _pieces);
             var active = 0;
             foreach (var sr in _pieces)
@@ -79,7 +84,8 @@ namespace Ravenholm.Presentation
                 copy.flipX = sr.flipX;
                 copy.flipY = sr.flipY;
                 copy.sortingLayerID = sr.sortingLayerID;
-                copy.sortingOrder = OutlineOrder;
+                copy.sortingOrder = _grouped ? OutlineOrder : sr.sortingOrder - 1;
+                copy.spriteSortPoint = sr.spriteSortPoint;
                 copy.color = new Color(1f, 1f, 1f, sr.color.a);   // fades with its piece
                 active++;
             }

@@ -314,6 +314,7 @@ namespace Ravenholm.Presentation
                 go.transform.SetParent(transform, false);
                 sr = go.AddComponent<SpriteRenderer>();
                 sr.spriteSortPoint = SpriteSortPoint.Pivot;   // sorted by the trunk's foot, like everything standing in the world
+                go.AddComponent<SpriteOutline>();            // the game's outline (outline-free art)
                 if (spriteMaterial != null) sr.sharedMaterial = spriteMaterial;
                 go.transform.localScale = Vector3.one * treeScale;
             }

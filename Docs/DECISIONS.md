@@ -958,3 +958,15 @@ Astra's 29 sprites (`ArtSource/world-tiles-v3`, imported by `Tools/ArtImport/imp
 - **Far arm smaller in the diagonals (2026-10-14, Kevin).** The far arm, its sleeve and hand are drawn at 78% (`farLimbScale`) in the diagonal and profile views: they are further from the camera.
 - **Far arm: shorter, not smaller (2026-10-14, Kevin: the thinner far arm looked wrong).** `farLimbScale` is back to 1. The far arm in the diagonals keeps its full width and hand size; its resting hand sits 16 px higher, so the arm is a little shorter.
 - **Faster walk (2026-10-15, Kevin: +20%).** `walkSpeed` 1.7 → 2.04 units/s; `cadence` 3.4 → 3.7 steps/s (a 1.1-unit stride), foot reach 0.15 → 0.16 so the feet still glide under half the ground covered.
+
+## Nature, buildings and brighter ground (2026-10-15, Astra's v4)
+
+`ArtSource/nature-buildings-v4`, imported by `Tools/ArtImport/import_nature_buildings.py`. 70 sprites are replaced under their existing names; the .meta files and GUIDs are kept.
+
+- **What was replaced.**
+  - The recoloured ground, blocks and town tiles.
+  - The 16 nature sprites in `Painted/Nature`, plus the game's nature copies: cedar = tall pine, maple = leafy tree, ironwood = bent pine, the stump, the herb bush and the stone face.
+  - The 9 buildings.
+- **Import.** All at 256 px per unit with Astra's pivots. Canvases doubled, so world sizes are unchanged. Nature and buildings use a full-rect mesh.
+- **Outline.** Nature and buildings get the game outline (57 outlined sprites). `SpriteOutline` now also works on a single sprite without a sorting group: the outline sorts just behind its own piece. Forest trees, buildings and props carry it.
+- **Still old placeholders:** `rock_iron` and `rock_copper`.
