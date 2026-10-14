@@ -890,3 +890,19 @@ The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): fla
     - The tool is raised up behind his head (held 0.26 s), with enough reach that its head clears his hat from the front, then brought down in front in a fast strike (0.14 s): to the wall, to the floor (mining down) or up at a block.
     - The pick's point and the axe's blade lead the downward swing.
     - The swing draws in front of him except while the tool is raised behind his head. Seen from behind, it is the other way round: the wind-up comes toward the camera and stays visible.
+- **The swing, rebuilt from references (2026-10-14, Kevin: "the swing motion doesn't make sense").**
+  - **The bug.** The old arc went from raised-behind down through hanging-down to the front: an underhand pendulum, not an overhead chop.
+  - **The arc.** The angle is now measured from straight up, so the strike passes over his head. It rests low in front (150°), is lifted up behind his head (-35°), then comes over the top to the wall (95°), the floor (135°) or a block above (55°).
+  - **3D swing plane.** The swing runs in his own space (forward, his right, up) and is projected into the view. The tool foreshortens along its handle as it points toward or away from the camera, instead of spinning flat on screen (the LPC review's point).
+    - It draws in front of his body when its head is nearer the camera than his middle.
+    - Chopping tips the plane 50° toward his right: a diagonal stroke from over the shoulder into the trunk.
+  - **Timing** (a 0.46 s cycle; "put your back into it"):
+    - wind-up 0.2 s, leaning back;
+    - strike 0.07 s;
+    - hold at impact 0.07 s, with a small shake and a dip;
+    - recovery 0.12 s.
+  - **Body.** It leans back 6° on the wind-up and into the strike, about the hips (side views).
+  - **References.**
+    - OpenGameArt, "LPC improved animations for axe, pickaxe, warhammer": chop is a top-to-bottom smash; the tool needs 3D perspective, not 2D rotation; facing the camera is the hard direction.
+    - Aseprite community, a mining-animation critique: lean back, swing down and forward, add recovery.
+    - Slynyrd Pixelblog 9, melee attacks: a slower wind-up for heavy tools, and the follow-through held a beat.

@@ -133,7 +133,7 @@ namespace Ravenholm.Tests
             string[] views = { "E", "SE", "S", "NE", "N" };
             var origin = new Vector2(4000f, 4000f);
             var rigs = new List<(HoseRig rig, float t, HoseRig.Pose pose)>();
-            float[] moments = { 0.05f, 0.13f, 0.2f, 0.26f, 0.29f, 0.32f, 0.36f, 0.39f };
+            float[] moments = { 0.04f, 0.1f, 0.2f, 0.225f, 0.25f, 0.28f, 0.36f, 0.44f };   // wind-up .. strike .. hold .. recover
             for (var r = 0; r < views.Length + 1; r++)
             for (var c = 0; c < moments.Length; c++)
                 rigs.Add((MakeRig(def, origin + new Vector2(c * 1.0f, -r * 1.35f)), moments[c], r < views.Length ? HoseRig.Pose.Mine : HoseRig.Pose.Chop));
@@ -144,7 +144,7 @@ namespace Ravenholm.Tests
                 var view = i / moments.Length < views.Length ? views[i / moments.Length] : "E";
                 var steps = Mathf.RoundToInt(t / 0.01f);
                 for (var k = 0; k < steps; k++) rig.Drive(view, pose, 0f, 0.01f, Vector2.zero, 1f);
-                if (rig.SwingAngle < -120f) raisedBehind = true;
+                if (rig.SwingAngle < -20f) raisedBehind = true;
             }
             Assert.IsTrue(raisedBehind, "the wind-up raises the tool behind his head");
             yield return null;
