@@ -29,8 +29,10 @@ namespace Ravenholm.Presentation
         public string ViewName { get; private set; } = "S";
         public bool Mirrored { get; private set; }
         public Pose Current { get; private set; }
-        /// <summary>Where the carried pile sits (in the animator's parent space, like its own anchor), while carrying.</summary>
+        /// <summary>Where the carried pile sits: on his pack's shelf (in the animator's parent space).</summary>
         public Vector2? CarryAnchor { get; private set; }
+        /// <summary>Whether the pile is behind his body (his back turned from the camera) or in front of it.</summary>
+        public bool PileBehind { get; private set; } = true;
         /// <summary>The top of the head (hat), in the animator's parent space.</summary>
         public float HeadTop { get; private set; } = 1f;
         /// <summary>The walk's phase (0..1 for two steps), and the tool's angle (degrees) while working.</summary>
@@ -42,7 +44,7 @@ namespace Ravenholm.Presentation
 
         private Transform _rig;
         private SpriteRenderer _body, _bootL, _bootR, _handL, _handR, _tool;
-        private Tube _armL, _armR, _legL, _legR;
+        private Tube _armL, _armR, _legL, _legR, _packBar, _packShelf, _packLip;
         private float _phase, _work, _settle;
         private bool _built;
 
@@ -70,6 +72,9 @@ namespace Ravenholm.Presentation
             _armR = MakeTube("ArmRight");
             _legL = MakeTube("LegLeft");
             _legR = MakeTube("LegRight");
+            _packBar = MakeTube("PackBar");
+            _packShelf = MakeTube("PackShelf");
+            _packLip = MakeTube("PackLip");
         }
 
         private SpriteRenderer Part(string name)
@@ -126,7 +131,7 @@ namespace Ravenholm.Presentation
         /// the ground covered since the last frame (units), <paramref name="parentOffset"/> where the rig sits in the
         /// animator's parent space (for the carry anchor and head top).
         /// </summary>
-        public void Drive(string dir8, Pose pose, float moved, float dt, Vector2 parentOffset, float parentScale)
+        public void Drive(string dir8, Pose pose, float moved, float dt, Vector2 parentOffset, float parentScale, bool carrying = false)
         {
             Build();
             if (!_built) return;
@@ -142,7 +147,7 @@ namespace Ravenholm.Presentation
             var back = ViewName == "N" || ViewName == "NE";
 
             // --- the walk: the phase follows the ground covered, so the supporting foot stays put
-            var walking = pose == Pose.Walk || pose == Pose.Carry && moved > 0.0001f;
+            var walking = pose == Pose.Walk || pose == Pose.Carry && moved > 0.0001f;   // carrying walks like walking (the pile is on his back)
             var speed = dt > 0f ? moved / dt : 0f;
             var stride = definition.stride * Mathf.Clamp(0.75f + 0.125f * speed, 0.75f, 1.15f);
             if (walking) { _phase = Mathf.Repeat(_phase + moved / stride, 1f); _settle = 1f; }
@@ -167,7 +172,6 @@ namespace Ravenholm.Presentation
 
             // --- work and other poses
             Vector2 wristL = v.wristLeft, wristR = v.wristRight;
-            var carrying = pose == Pose.Carry;
             var working = pose == Pose.Mine || pose == Pose.MineDown || pose == Pose.MineUp || pose == Pose.Chop;
             _work = working ? _work + dt : 0f;
             Sprite handSpriteL = HandOpen(), handSpriteR = HandOpen();
@@ -175,18 +179,7 @@ namespace Ravenholm.Presentation
             CarryAnchor = null;
             var shoulderL = v.shoulderLeft + Vector2.up * bodyY;
             var shoulderR = v.shoulderRight + Vector2.up * bodyY;
-            if (carrying)
-            {
-                // Hands out in front at belly height, a little apart: the pile rests on them.
-                var chest = (v.shoulderLeft + v.shoulderRight) * 0.5f + Vector2.up * (bodyY - 0.15f);   // belly height: the pile clears his face
-                var across = side ? 0.075f : 0.05f;
-                wristL = chest + depth * 0.13f + new Vector2(side ? across : 0f, side ? 0f : 0.01f);
-                wristR = chest + depth * 0.13f + new Vector2(side ? -across : 0f, side ? 0f : -0.01f);
-                handSpriteL = handSpriteR = HandGrip();
-                var mid = (wristL + wristR) * 0.5f + Vector2.up * 0.03f;
-                CarryAnchor = parentOffset + new Vector2(Mirrored ? -mid.x : mid.x, mid.y) * parentScale;
-            }
-            else if (working)
+            if (working)
             {
                 // A wind-up held (0.26 s, the tool raised behind), then a fast strike (0.14 s) down in front.
                 var t = Mathf.Repeat(_work, 0.4f);
@@ -248,14 +241,36 @@ namespace Ravenholm.Presentation
             var legLen = Vector2.Distance(v.hipLeft, v.ankleLeft);
             var armLen = Vector2.Distance(v.shoulderLeft, v.wristLeft);
             var kneeDir = side ? Vector2.zero : f;   // knees bow forward; head-on they bow slightly outward
-            DrawTube(_legL, hipL, v.ankleLeft + footL, legLen, side ? Vector2.right * Mathf.Sign(v.hipLeft.x) : kneeDir, definition.legWidth, definition.legColor, outline);
-            DrawTube(_legR, hipR, v.ankleRight + footR, legLen, side ? Vector2.right * Mathf.Sign(v.hipRight.x) : kneeDir, definition.legWidth, definition.legColor, outline);
+            DrawTube(_legL, hipL, v.ankleLeft + footL, legLen, side ? Vector2.right * Mathf.Sign(v.hipLeft.x) : kneeDir, definition.legWidth, definition.legWidthEnd, definition.legColor, outline);
+            DrawTube(_legR, hipR, v.ankleRight + footR, legLen, side ? Vector2.right * Mathf.Sign(v.hipRight.x) : kneeDir, definition.legWidth, definition.legWidthEnd, definition.legColor, outline);
             var elbowDir = side ? Vector2.zero : -f;
-            DrawTube(_armL, shoulderL, wristL, armLen, side ? Vector2.right * Mathf.Sign(v.shoulderLeft.x) : elbowDir, definition.armWidth, definition.armColor, outline);
-            DrawTube(_armR, shoulderR, wristR, armLen, side ? Vector2.right * Mathf.Sign(v.shoulderRight.x) : elbowDir, definition.armWidth, definition.armColor, outline);
+            DrawTube(_armL, shoulderL, wristL, armLen, side ? Vector2.right * Mathf.Sign(v.shoulderLeft.x) : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
+            DrawTube(_armR, shoulderR, wristR, armLen, side ? Vector2.right * Mathf.Sign(v.shoulderRight.x) : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
 
-            // --- draw order inside the character's sorting group (the carried pile sits above, from 10)
-            var armsFront = carrying && !back;
+            // --- the pack: an L on his back, a bar from the hips to the shoulders and a shelf sticking out behind
+            // at the bottom. The carried pile rests on the shelf, so his hands stay free to work.
+            var hipMid = (hipL + hipR) * 0.5f;
+            var shoulderMid = (shoulderL + shoulderR) * 0.5f;
+            var backward = -depth;   // behind him, as drawn
+            var barBottom = new Vector2(hipMid.x, hipMid.y - 0.03f) + backward * 0.21f;   // just outside his back in profile
+            var barTop = new Vector2(barBottom.x, shoulderMid.y + 0.03f);
+            var shelfEnd = barBottom + backward * definition.shelfDepth;
+            DrawTube(_packBar, barBottom, barTop, 0f, Vector2.zero, definition.packWidth, definition.packWidth, definition.packColor, outline);
+            DrawTube(_packShelf, barBottom, shelfEnd, 0f, Vector2.zero, definition.packWidth, definition.packWidth, definition.packColor, outline);
+            // The shelf's crosspiece across his back (seen end-on in profile, full width from the front or back), so
+            // the shelf reads as a little platform from every side.
+            var lateral = new Vector2(-depth.y * 2f, depth.x * 0.5f) * (1f - 0.85f * Mathf.Abs(f.x));   // end-on in profile
+            var seat = barBottom + backward * (definition.shelfDepth * 0.5f);
+            DrawTube(_packLip, seat - lateral * 0.1f, seat + lateral * 0.1f, 0f, Vector2.zero, definition.packWidth, definition.packWidth, definition.packColor, outline);
+            seat += Vector2.up * (definition.packWidth * 0.5f);
+            CarryAnchor = parentOffset + new Vector2(Mirrored ? -seat.x : seat.x, seat.y) * parentScale;
+            PileBehind = !back;   // his back faces the camera only in the N and NE views (and their mirrors)
+
+            // --- draw order inside the character's sorting group (a pile in front sits above, from 10; behind, below)
+            var armsFront = false;
+            Order(_packBar, back ? 7 : -3);
+            Order(_packShelf, back ? 7 : -3);
+            Order(_packLip, back ? 7 : -3);
             if (side)
             {
                 Order(_armL, armsFront ? 7 : 0); Order(_armR, armsFront ? 7 : 0);
@@ -305,12 +320,13 @@ namespace Ravenholm.Presentation
         /// A hose from a to b: as long as it is at rest it bows sideways (toward <paramref name="bowDir"/>) to keep its
         /// length; pulled further it stretches straight.
         /// </summary>
-        private void DrawTube(Tube t, Vector2 a, Vector2 b, float restLength, Vector2 bowDir, float width, Color color, float outline)
+        private void DrawTube(Tube t, Vector2 a, Vector2 b, float restLength, Vector2 bowDir, float width, float widthEnd, Color color, float outline)
         {
             var d = Vector2.Distance(a, b);
             var along = d > 0.0001f ? (b - a) / d : Vector2.down;
             var normal = new Vector2(-along.y, along.x);
             if (bowDir.sqrMagnitude > 0.0001f && Vector2.Dot(normal, bowDir) < 0f) normal = -normal;
+            // (A rest length of 0 draws it straight: the pack.)
             var bow = bowDir.sqrMagnitude > 0.0001f ? definition.bow * Mathf.Sqrt(Mathf.Max(0f, restLength * restLength - d * d)) * 0.5f + restLength * 0.06f : restLength * 0.04f;
             var c1 = a + (b - a) / 3f + normal * bow * 1.33f;
             var c2 = a + (b - a) * (2f / 3f) + normal * bow * 1.33f;
@@ -322,23 +338,23 @@ namespace Ravenholm.Presentation
                 var u = 1f - s;
                 _path.Add(u * u * u * a + 3f * u * u * s * c1 + 3f * u * s * s * c2 + s * s * s * b);
             }
-            Fill(t.FillMesh, width, color);
-            Fill(t.OutlineMesh, width + 2f * outline, GameRoot.Instance != null && GameRoot.Instance.Config.SandboxSettings.outlines != null
+            Fill(t.FillMesh, width, widthEnd, color);
+            Fill(t.OutlineMesh, width + 2f * outline, widthEnd + 2f * outline, GameRoot.Instance != null && GameRoot.Instance.Config.SandboxSettings.outlines != null
                 ? GameRoot.Instance.Config.SandboxSettings.outlines.color : Color.black);
             t.Outline.enabled = outline > 0f;
         }
 
-        /// <summary>A strip along the path with round caps at both ends.</summary>
-        private void Fill(Mesh mesh, float width, Color color)
+        /// <summary>A strip along the path, tapering from one width to the other, with round caps at both ends.</summary>
+        private void Fill(Mesh mesh, float width, float widthEnd, Color color)
         {
             _verts.Clear();
             _colors.Clear();
             _tris.Clear();
             // Mesh colours are not converted for the linear colour space by Unity (sprite textures are): convert here.
             Color32 c = QualitySettings.activeColorSpace == ColorSpace.Linear ? color.linear : color;
-            var h = width * 0.5f;
             for (var i = 0; i < _path.Count; i++)
             {
+                var h = Mathf.Lerp(width, widthEnd, i / (float)(_path.Count - 1)) * 0.5f;
                 var prev = _path[Mathf.Max(0, i - 1)];
                 var next = _path[Mathf.Min(_path.Count - 1, i + 1)];
                 var tan = (next - prev).normalized;
@@ -354,8 +370,8 @@ namespace Ravenholm.Presentation
                     _tris.Add(k - 1); _tris.Add(k); _tris.Add(k + 1);
                 }
             }
-            Cap(_path[0], h, c);
-            Cap(_path[_path.Count - 1], h, c);
+            Cap(_path[0], width * 0.5f, c);
+            Cap(_path[_path.Count - 1], widthEnd * 0.5f, c);
             mesh.Clear();
             mesh.SetVertices(_verts);
             mesh.SetColors(_colors);

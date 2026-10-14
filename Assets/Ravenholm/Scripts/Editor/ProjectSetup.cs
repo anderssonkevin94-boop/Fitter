@@ -855,8 +855,15 @@ namespace Ravenholm.EditorTools
             var limbs = p["limbs"];
             def.armColor = ColorUtility.TryParseHtmlString((string)limbs["arm_colour"], out var ac) ? ac : def.armColor;
             def.legColor = ColorUtility.TryParseHtmlString((string)limbs["leg_colour"], out var lc) ? lc : def.legColor;
-            def.armWidth = (float)limbs["arm_width_px"] / ppu;
-            def.legWidth = (float)limbs["leg_width_px"] / ppu;
+            // Hoses a little wider than the art's straight preview tubes, tapering to the wrist and ankle (Kevin,
+            // 2026-10-14). Set once; edits on the asset are kept.
+            if (def.armWidthEnd <= 0f || def.armWidth <= 0.0531f && def.armWidth >= 0.0529f)
+            {
+                def.armWidth = (float)limbs["arm_width_px"] * 1.45f / ppu;
+                def.armWidthEnd = (float)limbs["arm_width_px"] * 0.85f / ppu;
+                def.legWidth = (float)limbs["leg_width_px"] * 1.5f / ppu;
+                def.legWidthEnd = (float)limbs["leg_width_px"] * 0.85f / ppu;
+            }
             def.limbMaterial = AssetDatabase.LoadAssetAtPath<Material>(UnlitSpriteMaterialPath);
             EditorUtility.SetDirty(def);
             return def;

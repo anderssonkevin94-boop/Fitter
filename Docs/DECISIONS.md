@@ -877,3 +877,8 @@ The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): fla
   - The hands are small natural hands, not the big gloves the brief asked for.
   - A full 8-piece pile hides his face from the front.
   - The hoses' bow and stretch, and the poses, are first-pass tuning.
+- **The pile on his back, and tapered hoses (2026-10-14, Kevin).**
+  - The carried pile rests on a minimal L pack he always wears: a bar up his back and a shelf behind him at hip height, with a crosspiece. All of it is drawn as straight outlined tubes in wood brown (`packColor`, `packWidth`, `shelfDepth`).
+  - His hands stay free, so he walks, swings and gathers while carrying.
+  - The pile draws behind his body, except when his back faces the camera (N and NE and their mirrors).
+  - The hoses are wider and taper. Arms go from 1.45× the art's width at the shoulder to 0.85× at the wrist (26 to 15 px), legs from 1.5× at the hip to 0.85× at the ankle (30 to 17 px). Setup applies this once, and later edits are kept.

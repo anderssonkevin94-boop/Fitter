@@ -115,7 +115,8 @@ namespace Ravenholm.Presentation
             if (_rig != null)
             {
                 // The rubber-hose character draws itself from what the animator decided (pose, facing, ground covered).
-                _rig.Drive(Dir, PoseOf(Requested, moving), delta.magnitude, dt, transform.localPosition, Mathf.Abs(transform.localScale.y));
+                var carrying = _motor != null && _root != null && _root.Services.Logistics.System.CarryCount > 0;
+                _rig.Drive(Dir, PoseOf(Requested, moving), delta.magnitude, dt, transform.localPosition, Mathf.Abs(transform.localScale.y), carrying);
                 CarryAnchor = _rig.CarryAnchor;
             }
         }
@@ -308,6 +309,9 @@ namespace Ravenholm.Presentation
 
         /// <summary>The rubber-hose rig drawing this character, if it has one.</summary>
         public HoseRig Rig => _rig;
+
+        /// <summary>Whether the carried pile is drawn behind the body (on his back, his back turned away).</summary>
+        public bool PileBehind => _rig != null ? _rig.PileBehind : Back;
 
         private static HoseRig.Pose PoseOf(string requested, bool moving)
         {

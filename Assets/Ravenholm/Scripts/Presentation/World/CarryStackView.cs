@@ -125,7 +125,7 @@ namespace Ravenholm.Presentation
             // On the head: just above the painted head when there is one (characters differ in height).
             _stackRoot.localPosition = onArms ? _animator.CarryAnchor.Value
                 : _animator != null ? new Vector2(stackOrigin.x, _animator.HeadTop - 0.03f) : stackOrigin;
-            var behind = onArms && _animator.Back;
+            var behind = onArms && _animator.PileBehind;
             if (_behind != behind)
             {
                 _behind = behind;

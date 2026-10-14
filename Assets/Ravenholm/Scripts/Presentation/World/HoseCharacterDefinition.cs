@@ -33,8 +33,15 @@ namespace Ravenholm.Presentation
         [Header("Limbs")]
         public Color armColor = new Color32(0xDA, 0x87, 0x5B, 255);
         public Color legColor = new Color32(0x4F, 0x54, 0x58, 255);
-        [Tooltip("Tube widths in units.")]
-        [Min(0.005f)] public float armWidth = 0.053f, legWidth = 0.059f;
+        [Tooltip("Hose widths in units at the shoulder and hip; they taper to the End widths at the wrist and ankle.")]
+        [Min(0.005f)] public float armWidth = 0.077f, legWidth = 0.088f;
+        [Min(0.005f)] public float armWidthEnd = 0.045f, legWidthEnd = 0.05f;
+
+        [Header("Pack (an L: a bar up his back and a shelf the carried pile rests on)")]
+        public Color packColor = new Color32(0x8B, 0x5E, 0x3C, 255);
+        [Min(0.005f)] public float packWidth = 0.04f;
+        [Tooltip("How far the shelf sticks out behind his back, in units.")]
+        [Min(0.02f)] public float shelfDepth = 0.17f;
         [Tooltip("An unlit sprite material (vertex colours) for the tubes.")]
         public Material limbMaterial;
 

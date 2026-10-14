@@ -86,8 +86,13 @@ MonoBehaviour:
   axe: {fileID: 21300000, guid: a273d555ca9574960bac9800d6787f39, type: 3}
   armColor: {r: 0.85490197, g: 0.5294118, b: 0.35686275, a: 1}
   legColor: {r: 0.30980393, g: 0.32941177, b: 0.34509805, a: 1}
-  armWidth: 0.052941177
-  legWidth: 0.05882353
+  armWidth: 0.07676471
+  legWidth: 0.0882353
+  armWidthEnd: 0.045
+  legWidthEnd: 0.05
+  packColor: {r: 0.54509807, g: 0.36862746, b: 0.23529412, a: 1}
+  packWidth: 0.04
+  shelfDepth: 0.17
   limbMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
   stride: 0.62
   footLift: 0.06
