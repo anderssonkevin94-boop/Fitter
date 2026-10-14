@@ -906,3 +906,7 @@ The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): fla
     - OpenGameArt, "LPC improved animations for axe, pickaxe, warhammer": chop is a top-to-bottom smash; the tool needs 3D perspective, not 2D rotation; facing the camera is the hard direction.
     - Aseprite community, a mining-animation critique: lean back, swing down and forward, add recovery.
     - Slynyrd Pixelblog 9, melee attacks: a slower wind-up for heavy tools, and the follow-through held a beat.
+- **Sleeves are part of the arms (2026-10-14, Kevin).**
+  - The painted sleeves are taken off the body pieces (`Tools/ArtImport/strip_sleeves.py`): cream outside each view's torso core is removed. In profile, where the sleeve was painted over his back, it is flattened into plain shirt. Astra's originals stay in `ArtSource/storeowner-v1`.
+  - Each arm draws its sleeve as the top 36% of the hose: wider, in shirt cream, outlined (`sleeveColor`, `sleeveWidth`, `sleeveLength`). The sleeve moves with the arm.
+  - Head-on and from behind, the arms hang beside his body, over its edges, instead of behind it. The hands no longer stick out of a painted sleeve with no arm attached.

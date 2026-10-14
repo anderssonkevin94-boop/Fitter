@@ -49,7 +49,7 @@ namespace Ravenholm.Presentation
         private Transform _toolPivot;
         private bool _toolFront;
         private float _lean;
-        private Tube _armL, _armR, _legL, _legR, _packBar, _packShelf, _packLip;
+        private Tube _armL, _armR, _legL, _legR, _packBar, _packShelf, _packLip, _sleeveL, _sleeveR;
         private float _phase, _work, _settle;
         private bool _built;
 
@@ -81,6 +81,8 @@ namespace Ravenholm.Presentation
             _armR = MakeTube("ArmRight");
             _legL = MakeTube("LegLeft");
             _legR = MakeTube("LegRight");
+            _sleeveL = MakeTube("SleeveLeft");
+            _sleeveR = MakeTube("SleeveRight");
             _packBar = MakeTube("PackBar");
             _packShelf = MakeTube("PackShelf");
             _packLip = MakeTube("PackLip");
@@ -291,7 +293,9 @@ namespace Ravenholm.Presentation
             DrawTube(_legR, hipR, v.ankleRight + footR, legLen, side ? Vector2.right * Mathf.Sign(v.hipRight.x) : kneeDir, definition.legWidth, definition.legWidthEnd, definition.legColor, outline);
             var elbowDir = side ? Vector2.zero : -f;
             DrawTube(_armL, shoulderL, wristL, armLen, side ? Vector2.right * Mathf.Sign(v.shoulderLeft.x) : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
+            DrawSleeve(_sleeveL, outline);
             DrawTube(_armR, shoulderR, wristR, armLen, side ? Vector2.right * Mathf.Sign(v.shoulderRight.x) : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
+            DrawSleeve(_sleeveR, outline);
 
             // --- the pack: an L on his back, a bar from the hips to the shoulders and a shelf sticking out behind
             // at the bottom. The carried pile rests on the shelf, so his hands stay free to work.
@@ -320,8 +324,9 @@ namespace Ravenholm.Presentation
             Order(_packLip, back ? 7 : -3);
             if (side)
             {
-                Order(_armL, armsFront ? 7 : 0); Order(_armR, armsFront ? 7 : 0);
-                _handL.sortingOrder = armsFront ? 8 : 1; _handR.sortingOrder = armsFront ? 9 : 1;
+                // Head-on, the arms hang beside his body, over its edges (the sleeves are part of the arms).
+                Order(_armL, 7); Order(_armR, 7);
+                _handL.sortingOrder = 9; _handR.sortingOrder = 9;
                 Order(_legL, 2); Order(_legR, 2);
                 _bootL.sortingOrder = 3; _bootR.sortingOrder = 3;
             }
@@ -335,12 +340,15 @@ namespace Ravenholm.Presentation
             }
             _body.sortingOrder = 6;
             _tool.sortingOrder = 8;
+            Order(_sleeveL, _armL.Fill.sortingOrder + 1);
+            Order(_sleeveR, _armR.Fill.sortingOrder + 1);
             if (working)
             {
                 // The swing shows: in front of him, except while the tool is raised behind his head. Seen from behind,
                 // the other way round: the wind-up comes toward the camera, the strike goes away from it.
                 var front = _toolFront;
                 Order(_armL, front ? 7 : 0); Order(_armR, front ? 7 : 0);
+                Order(_sleeveL, front ? 8 : 1); Order(_sleeveR, front ? 8 : 1);
                 _tool.sortingOrder = front ? 8 : -1;
                 _handL.sortingOrder = front ? 9 : 1; _handR.sortingOrder = front ? 9 : 1;
             }
@@ -416,6 +424,17 @@ namespace Ravenholm.Presentation
             Fill(t.FillMesh, width, widthEnd, color);
             Fill(t.OutlineMesh, width + 2f * outline, widthEnd + 2f * outline, GameRoot.Instance != null && GameRoot.Instance.Config.SandboxSettings.outlines != null
                 ? GameRoot.Instance.Config.SandboxSettings.outlines.color : Color.black);
+            t.Outline.enabled = outline > 0f;
+        }
+
+        /// <summary>The sleeve: the first stretch of the arm just drawn (its path is still in _path), wider, in shirt cream.</summary>
+        private void DrawSleeve(Tube t, float outline)
+        {
+            var keep = Mathf.Clamp(Mathf.RoundToInt((_path.Count - 1) * definition.sleeveLength) + 1, 2, _path.Count);
+            _path.RemoveRange(keep, _path.Count - keep);
+            Fill(t.FillMesh, definition.sleeveWidth, definition.sleeveWidthEnd, definition.sleeveColor);
+            Fill(t.OutlineMesh, definition.sleeveWidth + 2f * outline, definition.sleeveWidthEnd + 2f * outline,
+                GameRoot.Instance != null && GameRoot.Instance.Config.SandboxSettings.outlines != null ? GameRoot.Instance.Config.SandboxSettings.outlines.color : Color.black);
             t.Outline.enabled = outline > 0f;
         }
 

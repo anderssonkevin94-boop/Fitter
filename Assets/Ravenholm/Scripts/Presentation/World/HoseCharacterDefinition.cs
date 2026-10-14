@@ -37,6 +37,13 @@ namespace Ravenholm.Presentation
         [Min(0.005f)] public float armWidth = 0.077f, legWidth = 0.088f;
         [Min(0.005f)] public float armWidthEnd = 0.045f, legWidthEnd = 0.05f;
 
+        [Header("Sleeves (the top of each arm: the body art has none, so they move with the arm)")]
+        public Color sleeveColor = new Color32(0xE9, 0xD2, 0xB3, 255);
+        [Tooltip("Sleeve width at the shoulder and at its hem, in units.")]
+        [Min(0.005f)] public float sleeveWidth = 0.11f, sleeveWidthEnd = 0.095f;
+        [Tooltip("How much of the arm the sleeve covers, from the shoulder.")]
+        [Range(0.1f, 0.8f)] public float sleeveLength = 0.36f;
+
         [Header("Pack (an L: a bar up his back and a shelf the carried pile rests on)")]
         public Color packColor = new Color32(0x8B, 0x5E, 0x3C, 255);
         [Min(0.005f)] public float packWidth = 0.04f;

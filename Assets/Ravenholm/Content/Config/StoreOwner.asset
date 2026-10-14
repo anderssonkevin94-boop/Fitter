@@ -90,6 +90,10 @@ MonoBehaviour:
   legWidth: 0.0882353
   armWidthEnd: 0.045
   legWidthEnd: 0.05
+  sleeveColor: {r: 0.9137255, g: 0.8235294, b: 0.7019608, a: 1}
+  sleeveWidth: 0.11
+  sleeveWidthEnd: 0.095
+  sleeveLength: 0.36
   packColor: {r: 0.54509807, g: 0.36862746, b: 0.23529412, a: 1}
   packWidth: 0.04
   shelfDepth: 0.17
