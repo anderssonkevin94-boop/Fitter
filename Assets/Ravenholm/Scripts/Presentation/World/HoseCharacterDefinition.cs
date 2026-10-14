@@ -37,8 +37,8 @@ namespace Ravenholm.Presentation
         [Min(0.005f)] public float armWidth = 0.1f, legWidth = 0.11f;
         [Min(0.005f)] public float armWidthEnd = 0.062f, legWidthEnd = 0.07f;
 
-        [Tooltip("The far arm in the diagonal and profile views (arm, sleeve and hand) is drawn this much smaller: it is further from the camera.")]
-        [Range(0.5f, 1f)] public float farLimbScale = 0.78f;
+        [Tooltip("The far arm in the diagonal and profile views (arm, sleeve and hand) drawn smaller; 1 = full size (Kevin preferred a shorter far arm to a thinner one, 2026-10-14).")]
+        [Range(0.5f, 1f)] public float farLimbScale = 1f;
 
         [Header("Sleeves (the top of each arm: the body art has none, so they move with the arm)")]
         public Color sleeveColor = new Color32(0xE9, 0xD2, 0xB3, 255);

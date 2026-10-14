@@ -35,7 +35,7 @@ MonoBehaviour:
     hipRight: {x: -0.08529412, y: 0.2882353}
     ankleLeft: {x: 0.105882354, y: 0.120588236}
     ankleRight: {x: -0.09411765, y: 0.120588236}
-    wristLeft: {x: 0.2647059, y: 0.33529413}
+    wristLeft: {x: 0.2647059, y: 0.38235295}
     wristRight: {x: -0.22941177, y: 0.35}
   - name: E
     body: {fileID: 21300000, guid: 6c8085de5a0c74cb3ac0fa2dae1fc3d3, type: 3}
@@ -59,7 +59,7 @@ MonoBehaviour:
     hipRight: {x: 0.1, y: 0.2882353}
     ankleLeft: {x: -0.1, y: 0.120588236}
     ankleRight: {x: 0.1, y: 0.120588236}
-    wristLeft: {x: -0.24117647, y: 0.33529413}
+    wristLeft: {x: -0.24117647, y: 0.38235295}
     wristRight: {x: 0.23529412, y: 0.34411764}
   - name: N
     body: {fileID: 21300000, guid: 70d6cd5dca50641ee8ac1d78ff99369b, type: 3}
@@ -90,7 +90,7 @@ MonoBehaviour:
   legWidth: 0.11
   armWidthEnd: 0.062
   legWidthEnd: 0.07
-  farLimbScale: 0.78
+  farLimbScale: 1
   sleeveColor: {r: 0.9137255, g: 0.8235294, b: 0.7019608, a: 1}
   sleeveWidth: 0.13
   sleeveWidthEnd: 0.118

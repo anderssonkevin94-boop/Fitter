@@ -956,3 +956,4 @@ Astra's 29 sprites (`ArtSource/world-tiles-v3`, imported by `Tools/ArtImport/imp
 - **Test.** `WorldTileTests` checks size, scale, pivot, mesh and that they are not outlined.
 - **Still in the old painted style:** trees, bushes, flower decals and buildings.
 - **Far arm smaller in the diagonals (2026-10-14, Kevin).** The far arm, its sleeve and hand are drawn at 78% (`farLimbScale`) in the diagonal and profile views: they are further from the camera.
+- **Far arm: shorter, not smaller (2026-10-14, Kevin: the thinner far arm looked wrong).** `farLimbScale` is back to 1. The far arm in the diagonals keeps its full width and hand size; its resting hand sits 16 px higher, so the arm is a little shorter.
