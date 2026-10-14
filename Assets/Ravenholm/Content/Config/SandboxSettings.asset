@@ -18,12 +18,24 @@ MonoBehaviour:
     y: -9
     width: 24
     height: 18
+  townCells:
+    x: -20
+    y: -16
+    width: 48
+    height: 37
+  mineCell: {x: -20, y: 17}
+  frontierLengthCells: 100
+  frontierWidthCells: 30
   viewWidthOptions:
   - 6
   - 7
   - 8.5
   defaultViewWidthIndex: 1
   cameraLookAheadY: 0.6
+  outlines: {fileID: 11400000, guid: 36cdc70b21ff54dce9702649a6388c68, type: 2}
+  cameraDeadZone: {x: 0.45, y: 0.7}
+  cameraSmoothTime: 0.18
+  movementAreaHeight: 0.72
   dragDeadZonePoints: 8
   dragRadiusPoints: 60
   tapMaxSeconds: 0.3

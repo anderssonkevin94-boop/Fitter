@@ -192,6 +192,7 @@ namespace Ravenholm.EditorTools
             Animate(player.Find("Visual"));
             player.gameObject.AddComponent<PlayerMotor>().EditorSetup(player.Find("Visual"));
             player.gameObject.AddComponent<CarryStackView>();
+            player.gameObject.AddComponent<SpriteOutline>();   // the game-drawn outline, for outline-free art
 
             // --- camera and controller ---
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
@@ -666,7 +667,11 @@ namespace Ravenholm.EditorTools
             col.isTrigger = true;
             col.size = new Vector2(0.7f, 1.1f);
             col.offset = new Vector2(0f, 0.5f);
-            if (workerId == Ravenholm.Domain.Sites.SiteSimulator.PlayerId) Animate(visual);   // the supplier's own figure on a routine
+            if (workerId == Ravenholm.Domain.Sites.SiteSimulator.PlayerId)
+            {
+                Animate(visual);   // the supplier's own figure on a routine
+                root.AddComponent<SpriteOutline>();
+            }
             var view = root.AddComponent<WorkerView>();
             view.EditorSetup(siteId, workerId, visual, staging, workPoint, pocket, bubble, icon,
                 ProjectSetup.LoadSprite("UI/Icons/ic_unknown"), ProjectSetup.LoadSprite("UI/Icons/ic_warning"));

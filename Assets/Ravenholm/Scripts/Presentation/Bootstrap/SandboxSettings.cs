@@ -52,6 +52,8 @@ namespace Ravenholm.Presentation
         [Min(0)] public int defaultViewWidthIndex = 1;
         [Tooltip("Shifts the camera up so the player sits slightly below centre, leaving thumb room.")]
         public float cameraLookAheadY = 0.6f;
+        [Tooltip("The game-drawn outline: thickness, colour and which sprites get it.")]
+        public OutlineSettings outlines;
         [Tooltip("Half-size (units) of the box the player can move in before the camera follows.")]
         public Vector2 cameraDeadZone = new Vector2(0.45f, 0.7f);
         [Tooltip("Camera smoothing time in seconds (gentle damping, GDD 3).")]

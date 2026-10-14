@@ -840,3 +840,17 @@ The painted dwarf was unreadable in game, so he is replaced by Astra's approved 
   - Pile heights accumulate. Each piece sits on top of the one below, as high as that lower piece's step.
   - Astra's suggested starting rule, the smaller of the two steps, was tried in game. It sank bulky pieces into thin ones (a coat on a bow) and thin pieces into bulky ones, so it was replaced.
 - **Unchanged.** One sprite per unit, the 8-piece display limit, the count badge, the ±0.02 offsets, the 1.25 pile scale, delivery arcs and the 10% drop-off enlargement. The pile still rides on the head until a carrying pose exists.
+
+## The game-drawn outline (2026-10-14, Kevin)
+
+New art is drawn without outlines. The game draws one outline around everything, so its thickness is the same across all assets.
+
+- **How.**
+  - `SpriteOutline` (on an object with a sorting group) keeps, behind each outlined piece, a copy drawn with `Ravenholm/SpriteOutlineSilhouette`: the piece's silhouette grown by the outline's thickness, in one colour.
+  - All the copies sit at the very back of the object's sorting group, so the pieces cover each other's inner edges. Only the object's outer silhouette is lined, even for a character made of a body, boots, hands and rubber-hose limbs.
+- **Settings** (`OutlineSettings`, on `SandboxSettings`): colour (the world's dark brown, converted for the linear colour space) and thickness in screen pixels.
+  - The thickness is 4 px on a 2622 px tall screen, scaled with the world camera's pixel height.
+  - It is the same on every sprite whatever its resolution or size; the PlayMode test measures this.
+- **Switched on per sprite.** Only sprites flagged `"outline": true` in `sprite_meta.json` are outlined (setup collects them into the settings). Today none are; the existing art keeps its painted lines until outline-free versions replace it. The supplier and his routine figure already carry the component, for the coming character.
+- **Art requirements.** Outline-free art needs a transparent margin around each piece (Astra's brief asks for 12 px) and a full-rect mesh, because the line is drawn inside the sprite's rectangle.
+- **Known.** Where two pieces of one object overlap with soft (anti-aliased) edges, a hairline seam can show faintly.

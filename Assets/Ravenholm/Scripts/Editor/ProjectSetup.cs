@@ -91,6 +91,7 @@ namespace Ravenholm.EditorTools
             EnsureScaffoldMaterials();
             EnsureSupplierAnimations();
             EnsureStackSteps();
+            EnsureOutlines(settings);
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
             var boot = EnsureAsset<BootConfig>(ConfigDir + "BootConfig.asset");
             if (boot.Catalogue == null || boot.SandboxSettings == null || boot.UiTheme == null || boot.Balance == null)
@@ -810,6 +811,46 @@ namespace Ravenholm.EditorTools
         /// The supplier's animation clips, rebuilt from Characters/Supplier/animations.json (written by
         /// Tools/ArtImport/import_character_strips.py): generated data, so it is replaced, not merged.
         /// </summary>
+        public const string OutlineSettingsPath = ConfigDir + "OutlineSettings.asset";
+        public const string OutlineMaterialPath = ConfigDir + "OutlineSilhouette.mat";
+
+        /// <summary>
+        /// The game-drawn outline (2026-10-14): its material, its settings (thickness and colour are kept when edited),
+        /// and the list of outlined sprites, rebuilt from "outline": true in sprite_meta.json, the per-asset switch.
+        /// </summary>
+        public static OutlineSettings EnsureOutlines(SandboxSettings sandbox)
+        {
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(OutlineMaterialPath);
+            if (mat == null)
+            {
+                var shader = Shader.Find("Ravenholm/SpriteOutlineSilhouette");
+                if (shader == null) { Debug.LogError("[Setup] Outline shader missing."); return null; }
+                mat = new Material(shader) { name = "OutlineSilhouette" };
+                AssetDatabase.CreateAsset(mat, OutlineMaterialPath);
+            }
+            var outlines = EnsureAsset<OutlineSettings>(OutlineSettingsPath);
+            outlines.material = mat;
+            outlines.outlinedSprites.Clear();
+            var meta = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(PlaceholderSpriteImporter.ArtRoot + "sprite_meta.json"));
+            foreach (var p in (Newtonsoft.Json.Linq.JObject)meta["sprites"])
+            {
+                var flag = p.Value["outline"];
+                if (flag == null || !(bool)flag) continue;
+                var rel = p.Key;
+                var sprite = LoadSprite(rel.Substring(0, rel.Length - 4));
+                if (sprite != null) outlines.outlinedSprites.Add(sprite);
+                else Debug.LogWarning($"[Setup] Outlined sprite not found: {rel}");
+            }
+            EditorUtility.SetDirty(outlines);
+            if (sandbox != null && sandbox.outlines != outlines)
+            {
+                sandbox.outlines = outlines;
+                EditorUtility.SetDirty(sandbox);
+            }
+            Debug.Log($"[Setup] Outlines: {outlines.outlinedSprites.Count} sprites use the game's outline.");
+            return outlines;
+        }
+
         /// <summary>
         /// Each carried piece's pile spacing, from the stack art's spacing file (Stacks/stack_spacing.json: Astra's
         /// measured values, 2026-10-14). The file is the source: rerunning setup reapplies it.
