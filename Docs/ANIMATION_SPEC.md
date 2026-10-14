@@ -53,7 +53,7 @@ Tested per view.
 
 ## 5. Draw order (inside his sorting group, back to front)
 
-- **Front-facing views:** far-side limbs → body → near-side limbs.
+- **Diagonal and side views (front or back three-quarter):** far-side limbs → body → near-side limbs. The near arm is always in front of the body.
 - **Head-on:** both arms are drawn beside the body, in front of its edges from the front and behind them from the back (the sleeves are part of the arms).
 - **Pack and pile:** behind the body, except when his back faces the camera (N, NE, NW).
 - **Tools:** follow the tool's real depth.

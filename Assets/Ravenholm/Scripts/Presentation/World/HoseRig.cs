@@ -414,7 +414,9 @@ namespace Ravenholm.Presentation
                 Order(_armL, armsFront ? 7 : 0); _handL.sortingOrder = armsFront ? 8 : 1;
                 Order(_legL, 2); _bootL.sortingOrder = 3;
                 Order(_legR, 4); _bootR.sortingOrder = 5;
-                Order(_armR, armsFront || working || !back ? 7 : 0); _handR.sortingOrder = armsFront || working || !back ? 9 : 1;
+                // His right arm is the near one in every painted diagonal and profile (SE, E, NE): always in front of
+                // the body, back three-quarter view included (the far arm is the one behind).
+                Order(_armR, 7); _handR.sortingOrder = 9;
             }
             _body.sortingOrder = 6;
             _tool.sortingOrder = 8;
