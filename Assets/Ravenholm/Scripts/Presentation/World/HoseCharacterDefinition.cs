@@ -34,13 +34,13 @@ namespace Ravenholm.Presentation
         public Color armColor = new Color32(0xDA, 0x87, 0x5B, 255);
         public Color legColor = new Color32(0x4F, 0x54, 0x58, 255);
         [Tooltip("Hose widths in units at the shoulder and hip; they taper to the End widths at the wrist and ankle.")]
-        [Min(0.005f)] public float armWidth = 0.077f, legWidth = 0.088f;
-        [Min(0.005f)] public float armWidthEnd = 0.045f, legWidthEnd = 0.05f;
+        [Min(0.005f)] public float armWidth = 0.1f, legWidth = 0.11f;
+        [Min(0.005f)] public float armWidthEnd = 0.062f, legWidthEnd = 0.07f;
 
         [Header("Sleeves (the top of each arm: the body art has none, so they move with the arm)")]
         public Color sleeveColor = new Color32(0xE9, 0xD2, 0xB3, 255);
         [Tooltip("Sleeve width at the shoulder and at its hem, in units.")]
-        [Min(0.005f)] public float sleeveWidth = 0.11f, sleeveWidthEnd = 0.095f;
+        [Min(0.005f)] public float sleeveWidth = 0.13f, sleeveWidthEnd = 0.118f;
         [Tooltip("How much of the arm the sleeve covers, from the shoulder.")]
         [Range(0.1f, 0.8f)] public float sleeveLength = 0.36f;
 

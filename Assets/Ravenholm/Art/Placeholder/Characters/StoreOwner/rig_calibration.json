@@ -1,8 +1,93 @@
 {
- "_about": "Calibrated joints for the rubber-hose rig (2026-10-14), in the body art's pixels (top-left origin, 512 canvas, ground at 256,444). They override points.json. Shoulders: the arm's joint, centred under the top of each sleeve (sleeve top + 18 px, the sleeve tube's radius), measured from Astra's original art. Wrists: where the hands hang at rest, straight down from the shoulder, a touch outward (front/back views) or forward (side views). Left/right are his own.",
- "S":  { "shoulder_left": [316, 243], "shoulder_right": [194, 244], "wrist_left": [326, 329], "wrist_right": [184, 329] },
- "SE": { "shoulder_left": [311, 255], "shoulder_right": [197, 250], "wrist_left": [319, 335], "wrist_right": [186, 329] },
- "E":  { "shoulder_left": [248, 247], "shoulder_right": [226, 247], "wrist_left": [254, 326], "wrist_right": [232, 330] },
- "NE": { "shoulder_left": [212, 245], "shoulder_right": [308, 249], "wrist_left": [201, 329], "wrist_right": [318, 331] },
- "N":  { "shoulder_left": [208, 245], "shoulder_right": [303, 245], "wrist_left": [197, 329], "wrist_right": [314, 329] }
+ "_about": "Calibrated joints for the rubber-hose rig (2026-10-14), in the body art's pixels (top-left origin, 512 canvas, ground at 256,444). They override points.json. Shoulders: the arm's joint, centred under the top of each sleeve (sleeve top + 18 px, the sleeve tube's radius), measured from Astra's original art. Wrists: where the hands hang at rest, just outside the body's outline at hand height (the apron flares, so the arms angle out along it) in the front, back and diagonal views; the side view's near hand hangs at his side, over the body. Left/right are his own.",
+ "S": {
+  "shoulder_left": [
+   316,
+   243
+  ],
+  "shoulder_right": [
+   194,
+   244
+  ],
+  "wrist_left": [
+   347,
+   325
+  ],
+  "wrist_right": [
+   166,
+   325
+  ]
+ },
+ "SE": {
+  "shoulder_left": [
+   311,
+   255
+  ],
+  "shoulder_right": [
+   197,
+   250
+  ],
+  "wrist_left": [
+   352,
+   327
+  ],
+  "wrist_right": [
+   178,
+   325
+  ]
+ },
+ "E": {
+  "shoulder_left": [
+   248,
+   247
+  ],
+  "shoulder_right": [
+   226,
+   247
+  ],
+  "wrist_left": [
+   254,
+   326
+  ],
+  "wrist_right": [
+   232,
+   330
+  ]
+ },
+ "NE": {
+  "shoulder_left": [
+   212,
+   245
+  ],
+  "shoulder_right": [
+   308,
+   249
+  ],
+  "wrist_left": [
+   168,
+   325
+  ],
+  "wrist_right": [
+   336,
+   327
+  ]
+ },
+ "N": {
+  "shoulder_left": [
+   208,
+   245
+  ],
+  "shoulder_right": [
+   303,
+   245
+  ],
+  "wrist_left": [
+   166,
+   325
+  ],
+  "wrist_right": [
+   345,
+   325
+  ]
+ }
 }

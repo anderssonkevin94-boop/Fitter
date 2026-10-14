@@ -16,7 +16,8 @@ This is the reference the walk is built and tested against. Every number below i
 | Height | 1.07 units (365 px at 340 px/unit) |
 | Leg, hip to ankle | 0.17 units (a quarter of his height is below the apron) |
 | Shoulder joints | under the top of each sleeve (`rig_calibration.json`) |
-| Resting wrists | straight below the shoulders, at the apron's hem |
+| Resting wrists | just outside his outline at hand height, the arms angled out along the apron's flare (front, back and diagonal views); at his side in profile (tested) |
+| Limb widths | arms 0.10 units at the shoulder tapering to 0.062 at the wrist; legs 0.11 to 0.07; sleeves 0.13 |
 
 ## 3. Walk
 
@@ -53,7 +54,7 @@ Tested per view.
 ## 5. Draw order (inside his sorting group, back to front)
 
 - **Front-facing views:** far-side limbs → body → near-side limbs.
-- **Head-on:** both arms are drawn over the body's edges (the sleeves are part of the arms).
+- **Head-on:** both arms are drawn beside the body, in front of its edges from the front and behind them from the back (the sleeves are part of the arms).
 - **Pack and pile:** behind the body, except when his back faces the camera (N, NE, NW).
 - **Tools:** follow the tool's real depth.
 

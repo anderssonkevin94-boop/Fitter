@@ -401,9 +401,10 @@ namespace Ravenholm.Presentation
             Order(_packLip, back ? 7 : -3);
             if (side)
             {
-                // Head-on, the arms hang beside his body, over its edges (the sleeves are part of the arms).
-                Order(_armL, 7); Order(_armR, 7);
-                _handL.sortingOrder = 9; _handR.sortingOrder = 9;
+                // Head-on the arms hang beside his body: in front of its edges seen from the front, behind them seen
+                // from the back (the hands rest just outside his outline, so they show either way).
+                Order(_armL, back ? 0 : 7); Order(_armR, back ? 0 : 7);
+                _handL.sortingOrder = back ? 1 : 9; _handR.sortingOrder = back ? 1 : 9;
                 Order(_legL, 2); Order(_legR, 2);
                 _bootL.sortingOrder = 3; _bootR.sortingOrder = 3;
             }

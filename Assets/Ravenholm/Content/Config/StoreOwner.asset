@@ -23,8 +23,8 @@ MonoBehaviour:
     hipRight: {x: -0.11176471, y: 0.2882353}
     ankleLeft: {x: 0.11176471, y: 0.120588236}
     ankleRight: {x: -0.11176471, y: 0.120588236}
-    wristLeft: {x: 0.20588236, y: 0.3382353}
-    wristRight: {x: -0.21176471, y: 0.3382353}
+    wristLeft: {x: 0.26764706, y: 0.35}
+    wristRight: {x: -0.2647059, y: 0.35}
   - name: SE
     body: {fileID: 21300000, guid: db87d94bf98a04f548c454131d335dc9, type: 3}
     bootLeft: {fileID: 21300000, guid: 24968fa7952c3456da8266774ae5532a, type: 3}
@@ -35,8 +35,8 @@ MonoBehaviour:
     hipRight: {x: -0.08529412, y: 0.2882353}
     ankleLeft: {x: 0.105882354, y: 0.120588236}
     ankleRight: {x: -0.09411765, y: 0.120588236}
-    wristLeft: {x: 0.18529412, y: 0.32058823}
-    wristRight: {x: -0.20588236, y: 0.3382353}
+    wristLeft: {x: 0.28235295, y: 0.34411764}
+    wristRight: {x: -0.22941177, y: 0.35}
   - name: E
     body: {fileID: 21300000, guid: 6c8085de5a0c74cb3ac0fa2dae1fc3d3, type: 3}
     bootLeft: {fileID: 21300000, guid: d2473e225b55944eb866e5bcdc6fa775, type: 3}
@@ -59,8 +59,8 @@ MonoBehaviour:
     hipRight: {x: 0.1, y: 0.2882353}
     ankleLeft: {x: -0.1, y: 0.120588236}
     ankleRight: {x: 0.1, y: 0.120588236}
-    wristLeft: {x: -0.16176471, y: 0.3382353}
-    wristRight: {x: 0.18235295, y: 0.33235294}
+    wristLeft: {x: -0.25882354, y: 0.35}
+    wristRight: {x: 0.23529412, y: 0.34411764}
   - name: N
     body: {fileID: 21300000, guid: 70d6cd5dca50641ee8ac1d78ff99369b, type: 3}
     bootLeft: {fileID: 21300000, guid: db223932559484458ad0467e0ad50dc7, type: 3}
@@ -71,8 +71,8 @@ MonoBehaviour:
     hipRight: {x: 0.11176471, y: 0.2882353}
     ankleLeft: {x: -0.11176471, y: 0.120588236}
     ankleRight: {x: 0.11176471, y: 0.120588236}
-    wristLeft: {x: -0.17352942, y: 0.3382353}
-    wristRight: {x: 0.17058824, y: 0.3382353}
+    wristLeft: {x: -0.2647059, y: 0.35}
+    wristRight: {x: 0.2617647, y: 0.35}
   handOpenFront: {fileID: 21300000, guid: 2f2e9f895829b427d8c47048bbdafb05, type: 3}
   handOpenSide: {fileID: 21300000, guid: 635633d49ab9b4747ab64b9cc5685440, type: 3}
   handOpenBack: {fileID: 21300000, guid: 9904df0224d8d476988487d015dbdfa5, type: 3}
@@ -86,13 +86,13 @@ MonoBehaviour:
   axe: {fileID: 21300000, guid: a273d555ca9574960bac9800d6787f39, type: 3}
   armColor: {r: 0.85490197, g: 0.5294118, b: 0.35686275, a: 1}
   legColor: {r: 0.30980393, g: 0.32941177, b: 0.34509805, a: 1}
-  armWidth: 0.07676471
-  legWidth: 0.0882353
-  armWidthEnd: 0.045
-  legWidthEnd: 0.05
+  armWidth: 0.1
+  legWidth: 0.11
+  armWidthEnd: 0.062
+  legWidthEnd: 0.07
   sleeveColor: {r: 0.9137255, g: 0.8235294, b: 0.7019608, a: 1}
-  sleeveWidth: 0.11
-  sleeveWidthEnd: 0.095
+  sleeveWidth: 0.13
+  sleeveWidthEnd: 0.118
   sleeveLength: 0.36
   packColor: {r: 0.54509807, g: 0.36862746, b: 0.23529412, a: 1}
   packWidth: 0.04
