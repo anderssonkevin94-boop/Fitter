@@ -926,3 +926,8 @@ The supplier is now Astra's General Store Owner (`ArtSource/storeowner-v1`): fla
   - His hips ride slightly lower while walking (`walkCrouch` 0.025, a small knee bend), so the legs reach further without stretching.
   - The stride is 1.1 units: about 3.6 steps (and bobs) a second at walking speed instead of 4.4. The bob is gentler too (`bounce` 0.022, `squash` 2.5%).
   - The planted-feet test now checks that the supporting foot glides less than half as far as he walks.
+- **The walk rebuilt on the spec (2026-10-14; `Docs/ANIMATION_SPEC.md`; Kevin left the speed to Claude: 1.7 units/s).**
+  - **Ground space.** All motion is defined on the ground and projected once, so cadence, step length and bob are the same in every direction. This fixes the slow bob and huge steps walking up and down, and the short shuffling steps sideways.
+  - **Gait.** 3.4 steps a second at full speed, a 1.0-unit ground stride, feet reaching at most 0.15 units from the hip.
+  - **Motor.** The motor uses the rig's `walkSpeed`, with the stick's direction taken on the ground.
+  - **Tests.** A spec test checks speed, cadence, reach and stretch in all 8 directions. A hand-rule test and a key-pose review sheet were added. The old frame-walk speed test is retired.

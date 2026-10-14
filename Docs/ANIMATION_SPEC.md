@@ -1,4 +1,4 @@
-# Supplier animation spec (draft for Kevin's sign-off, 2026-10-14)
+# Supplier animation spec (2026-10-14; Kevin left the speed to Claude: 1.7 units/s)
 
 This is the reference the walk is built and tested against. Every number below is checked by an automated test, unless it is marked as reviewed by eye.
 
@@ -23,10 +23,10 @@ This is the reference the walk is built and tested against. Every number below i
 
 | | Value | Test |
 |---|---|---|
-| Ground speed at full stick | 2.0 units/s (1.9 body heights/s) | the existing speed test |
+| Ground speed at full stick | 1.7 units/s (`walkSpeed`), the stick's direction taken on the ground | ✓ |
 | Cadence at full speed | **3.4 steps/s in all 8 directions** | equal to within 5% |
 | Cadence vs speed | scales with speed (a half push gives about 1.7 steps/s) | ✓ |
-| Foot reach ahead of or behind the hip | at most ±0.12 ground units | ✓ |
+| Foot reach ahead of or behind the hip | at most ±0.15 ground units (`maxFootReach`) | ✓ |
 | Leg stretch | at most 1.3 × rest length | ✓ |
 | Supporting foot | planted for the first part of the stance, then glides the rest (Kevin's choice: glide rather than over-long legs) | glide ≤ 50% of the ground covered |
 | Body bob | 2 per cycle (one per step), 0.02 units: lowest just after heel strike, highest at passing | ✓ |
@@ -37,9 +37,9 @@ This is the reference the walk is built and tested against. Every number below i
 | Arm swing | opposite the legs, ±0.1 ground units forward and back, through a spring (3.2 Hz, damping 0.55) | swings opposite the same-side leg |
 | Start and stop | 0.1 s to full speed; the walk eases in over about 0.13 s and settles to standing | by eye |
 
-**Why the feet must glide.** He covers ground fast for his size: 1.9 body heights a second, where a person walking covers about 0.8. With 0.17-unit legs, fully planted feet would need about 6 steps a second (a scurry) or legs stretched to about 2× (they look too long). The spec takes 3.4 steps a second with a short reach, and the feet glide the difference.
+**Why the feet must glide.** He covers ground fast for his size: 1.6 body heights a second, where a person walking covers about 0.8. With 0.17-unit legs, fully planted feet would need about 6 steps a second (a scurry) or legs stretched to about 2× (they look too long). The spec takes 3.4 steps a second with a short reach (planted for about 60% of each step), and the feet glide the difference.
 
-**The alternative.** A slower walk (1.4 units/s) would plant better and look calmer. It is Kevin's call; one number changes it.
+**Chosen: 1.7 units/s.** It is calmer than 2.0, and the feet stay planted for about 60% of each step at 3.4 steps a second. Stride (two steps) = 2 × 1.7 / 3.4 = 1.0 ground unit. Each number is a field on `StoreOwner.asset`.
 
 ## 4. Hands
 

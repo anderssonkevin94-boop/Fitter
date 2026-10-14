@@ -128,6 +128,11 @@ namespace Ravenholm.Presentation
         public Vector2 WalkVelocity(Vector2 move)
         {
             if (move.sqrMagnitude > 1f) move.Normalize();
+            // The rubber-hose supplier: the spec's ground speed, the stick's direction taken on the ground (projected:
+            // up or down the screen covers the same ground in half the screen distance).
+            var rig = _animator != null ? _animator.Rig : null;
+            if (rig != null && rig.Definition != null)
+                return new Vector2(move.x, move.y * 0.5f) * (rig.Definition.walkSpeed * (visual != null ? Mathf.Abs(visual.localScale.y) : 1f));
             var set = _animator != null ? _animator.Set : null;
             var axes = set != null ? set.WalkAxes : Vector2.zero;
             if (axes.x <= 0f || axes.y <= 0f) return move * _root.Config.Balance.walkSpeed;

@@ -90,14 +90,15 @@ namespace Ravenholm.Tests
             cam.orthographicSize = 3.45f;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.86f, 0.8f, 0.66f, 1f);
-            // Walking speed as in game: 2 units/s sideways, 1 up or down (the camera looks down at the ground).
+            // The spec's walking speed on the ground, projected (up or down the screen is half the screen distance).
+            var v = def.walkSpeed;
             var walkers = new List<(HoseRig rig, string dir, Vector2 vel)>
             {
-                (MakeRig(def, origin + new Vector2(0f, 0f)), "E", new Vector2(2f, 0f)),
-                (MakeRig(def, origin + new Vector2(0f, -1.3f)), "SE", new Vector2(1.414f, -0.707f)),
-                (MakeRig(def, origin + new Vector2(1.6f, -2.6f)), "S", new Vector2(0f, -1f)),
-                (MakeRig(def, origin + new Vector2(0f, -4.6f)), "NE", new Vector2(1.414f, 0.707f)),
-                (MakeRig(def, origin + new Vector2(2.4f, -5.0f)), "N", new Vector2(0f, 1f)),
+                (MakeRig(def, origin + new Vector2(0f, 0f)), "E", new Vector2(v, 0f)),
+                (MakeRig(def, origin + new Vector2(0f, -1.3f)), "SE", new Vector2(0.707f, -0.354f) * v),
+                (MakeRig(def, origin + new Vector2(1.6f, -2.6f)), "S", new Vector2(0f, -0.5f) * v),
+                (MakeRig(def, origin + new Vector2(0f, -4.6f)), "NE", new Vector2(0.707f, 0.354f) * v),
+                (MakeRig(def, origin + new Vector2(2.4f, -5.0f)), "N", new Vector2(0f, 0.5f) * v),
             };
             var rt = new RenderTexture(900, 1500, 24);
             cam.targetTexture = rt;
@@ -150,6 +151,32 @@ namespace Ravenholm.Tests
             yield return null;
             yield return Shoot("hose_swing_sheet", origin + new Vector2(3.5f, -3.3f), 4.4f, 1600, 1760);
             foreach (var (rig, _, _) in rigs) Object.Destroy(rig.transform.parent.gameObject);
+        }
+
+        /// <summary>The spec's review sheet: all eight directions at four moments of a step (contact, down, passing, up).</summary>
+        [UnityTest]
+        public IEnumerator WalkKeyPoses()
+        {
+            yield return Boot();
+            var def = SandboxSceneController.Current.Player.GetComponentInChildren<HoseRig>().Definition;
+            string[] dirs = { "S", "SE", "E", "NE", "N", "NW", "W", "SW" };
+            float[] phases = { 0f, 0.1f, 0.25f, 0.35f };
+            var origin = new Vector2(5000f, 5000f);
+            var rigs = new List<HoseRig>();
+            for (var r = 0; r < phases.Length; r++)
+            for (var c = 0; c < dirs.Length; c++)
+            {
+                var rig = MakeRig(def, origin + new Vector2(c * 1.0f, -r * 1.4f));
+                rigs.Add(rig);
+                // Walk into a steady stride, then on to the wanted moment (small steps, one ground unit = depth on screen).
+                var depth = dirs[c] == "S" || dirs[c] == "N" ? 0.5f : dirs[c] == "E" || dirs[c] == "W" ? 1f : 0.79f;
+                for (var i = 0; i < 60; i++) rig.Drive(dirs[c], HoseRig.Pose.Walk, 0.01f * depth, 1f / 60f, Vector2.zero, 1f);
+                for (var i = 0; i < 400 && Mathf.Abs(Mathf.DeltaAngle(rig.Phase * 360f, phases[r] * 360f)) > 2f; i++)
+                    rig.Drive(dirs[c], HoseRig.Pose.Walk, 0.002f * depth, 1f / 300f, Vector2.zero, 1f);
+            }
+            yield return null;
+            yield return Shoot("walk_key_poses", origin + new Vector2(3.5f, -1.75f), 3.4f, 1600, 1360);
+            foreach (var rig in rigs) Object.Destroy(rig.transform.parent.gameObject);
         }
 
         private static IEnumerator Shoot(string name, Vector2 centre, float ortho, int w, int h)
@@ -222,6 +249,25 @@ namespace Ravenholm.Tests
                 }
                 yield return null;
             }
+            // The hand rule (spec section 4): relaxed and head-on, both thumbs toward his centre line (the art's thumb
+            // points to screen right, so a hand right of centre is mirrored); from the side, the back of the hand, unmirrored.
+            foreach (var (rig, dir, pose) in rigs)
+            {
+                if (pose != HoseRig.Pose.Idle) continue;
+                var hl = rig.transform.Find("HoseRig/HandLeft").GetComponent<SpriteRenderer>();
+                var hr = rig.transform.Find("HoseRig/HandRight").GetComponent<SpriteRenderer>();
+                if (dir == "S" || dir == "N")
+                {
+                    Assert.AreEqual(hl.transform.localPosition.x > 0f, hl.flipX, $"{dir}: left thumb toward the centre");
+                    Assert.AreEqual(hr.transform.localPosition.x > 0f, hr.flipX, $"{dir}: right thumb toward the centre");
+                    Assert.AreEqual(def.handOpenSide, hl.sprite, $"{dir}: thumb edge on");
+                }
+                else
+                {
+                    Assert.IsFalse(hl.flipX || hr.flipX, $"{dir}: thumbs the way he faces");
+                    Assert.AreEqual(def.handOpenBack, hl.sprite, $"{dir}: the back of the hand");
+                }
+            }
             foreach (var (rig, _, pose) in rigs)
             {
                 if (pose == HoseRig.Pose.Carry) Assert.IsTrue(rig.CarryAnchor.HasValue, "carrying holds the hands out for the pile");
@@ -229,6 +275,55 @@ namespace Ravenholm.Tests
             }
             yield return Shoot("hose_sheet_ingame", origin + new Vector2(3.5f, -2.4f), 4.0f, 1600, 1600);
             foreach (var (rig, _, _) in rigs) Object.Destroy(rig.transform.parent.gameObject);
+        }
+
+        /// <summary>
+        /// The spec (Docs/ANIMATION_SPEC.md, section 3) in all eight directions, walking in town: the ground speed,
+        /// the same cadence everywhere, the feet's reach and the legs' stretch.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator TheWalkMeetsTheSpecInEveryDirection()
+        {
+            yield return Boot();
+            var player = SandboxSceneController.Current.Player;
+            var motor = player.GetComponent<PlayerMotor>();
+            var rig = player.GetComponentInChildren<SupplierAnimator>().Rig;
+            var def = rig.Definition;
+            var start = (Vector2)player.position;
+            var cadences = new List<float>();
+            for (var k = 0; k < 8; k++)
+            {
+                motor.Teleport(start);
+                yield return new WaitForSeconds(0.25f);
+                var a = k * Mathf.PI / 4f;
+                GameRoot.Instance.InputRouter.ScriptedMove = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+                yield return new WaitForSeconds(0.35f);   // up to speed and into the walk
+                var p0 = (Vector2)player.position;
+                var t0 = Time.time;
+                var lastPhase = rig.Phase;
+                float phaseTravel = 0f, reach = 0f, stretch = 0f;
+                while (Time.time - t0 < 0.6f)
+                {
+                    yield return null;
+                    phaseTravel += Mathf.Repeat(rig.Phase - lastPhase, 1f);
+                    lastPhase = rig.Phase;
+                    reach = Mathf.Max(reach, rig.FootReach);
+                    stretch = Mathf.Max(stretch, rig.LegStretch);
+                }
+                var dt = Time.time - t0;
+                var screen = ((Vector2)player.position - p0) / dt;
+                var ground = new Vector2(screen.x, screen.y * 2f).magnitude;
+                var cadence = 2f * phaseTravel / dt;
+                cadences.Add(cadence);
+                var label = $"direction {k * 45} deg ({rig.ViewName}{(rig.Mirrored ? " mirrored" : "")})";
+                Assert.AreEqual(def.walkSpeed, ground, def.walkSpeed * 0.05f, $"{label}: ground speed");
+                Assert.AreEqual(def.cadence, cadence, def.cadence * 0.05f, $"{label}: cadence");
+                Assert.LessOrEqual(reach, def.maxFootReach + 0.002f, $"{label}: foot reach");
+                Assert.LessOrEqual(stretch, def.maxLegStretch + 0.01f, $"{label}: leg stretch");
+            }
+            GameRoot.Instance.InputRouter.ScriptedMove = null;
+            cadences.Sort();
+            Assert.Less(cadences[cadences.Count - 1] / cadences[0], 1.05f, "the same cadence in every direction");
         }
 
         [UnityTest]

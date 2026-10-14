@@ -38,6 +38,13 @@ namespace Ravenholm.Presentation
         /// <summary>The walk's phase (0..1 for two steps), and the tool's angle (degrees) while working.</summary>
         public float Phase => _phase;
         public float ToolAngle { get; private set; }
+        /// <summary>The walk's ground speed (units/s, smoothed), how far the feet reach from the hips (ground units) and the
+        /// longest a leg is stretched this frame (times its rest length): for the spec's tests.</summary>
+        public float GroundSpeed { get; private set; }
+        public float FootReach { get; private set; }
+        public float LegStretch { get; private set; }
+        /// <summary>Two steps, in ground units: the spec's walk speed over half its cadence.</summary>
+        public float Stride => definition != null ? 2f * definition.walkSpeed / Mathf.Max(0.1f, definition.cadence) : 1f;
         /// <summary>The swing's angle (degrees) from straight up: negative raised behind his head, positive brought forward and down.</summary>
         public float SwingAngle { get; private set; }
         /// <summary>The supporting boot's position this frame (rig space; for tests of planted feet).</summary>
@@ -173,25 +180,26 @@ namespace Ravenholm.Presentation
             _rig.localScale = new Vector3(Mirrored ? -1f : 1f, 1f, 1f);
             var v = definition.Get(ViewName);
             var f = Facing(ViewName);
-            var depth = new Vector2(f.x, f.y * 0.5f);   // forward on the ground, as drawn (the camera looks down)
+            var gf = GroundFacing(ViewName);
+            var depth = new Vector2(gf.x, gf.y * 0.5f);   // one ground unit forward, as drawn (the camera looks down)
             var side = ViewName == "S" || ViewName == "N";
             var back = ViewName == "N" || ViewName == "NE";
 
-            // --- the walk (a bouncy cartoon walk built on the four classic poses: contact, down, passing, up). The phase
-            // follows the ground covered, so the supporting foot stays planted at any speed.
+            // --- the walk (Docs/ANIMATION_SPEC.md). Everything is defined on the ground (x east, y north) and projected
+            // once (y halved), so cadence, step length and bob are the same in every direction. The phase follows the
+            // ground covered: the stride is fixed in ground units, so the cadence scales with speed.
             var walking = pose == Pose.Walk || pose == Pose.Carry && moved > 0.0001f;   // carrying walks like walking (the pile is on his back)
-            var speed = dt > 0f ? moved / dt : 0f;
-            var stride = definition.stride * Mathf.Clamp(0.8f + 0.1f * speed, 0.8f, 1.1f);
-            if (walking) _phase = Mathf.Repeat(_phase + moved / stride, 1f);
+            var screenPerGround = depth.magnitude;                       // this view's forward, as drawn, per ground unit
+            var groundMoved = moved / Mathf.Max(0.3f, screenPerGround);
+            var stride = Stride;                                         // two steps, ground units
+            if (walking) _phase = Mathf.Repeat(_phase + groundMoved / stride, 1f);
+            GroundSpeed = dt > 0f ? Mathf.Lerp(GroundSpeed, groundMoved / dt, Mathf.Clamp01(dt * 10f)) : GroundSpeed;
             _settle = Mathf.MoveTowards(_settle, walking ? 1f : 0f, dt * (walking ? 8f : 5f));   // ease into and out of the walk
             var s = Mathf.SmoothStep(0f, 1f, _settle);
             var duty = definition.duty;
-            var amp = duty * stride * 0.5f * s;   // the stance foot travels exactly the ground covered: planted ...
-            // ... unless that would stretch his short legs too far: then the feet reach no further and glide a little.
-            var legDrop = ((v.hipLeft.y - v.ankleLeft.y) + (v.hipRight.y - v.ankleRight.y)) * 0.5f - definition.bounce - definition.walkCrouch;
-            var legRest = Vector2.Distance(v.hipLeft, v.ankleLeft);
-            var reachMax = Mathf.Sqrt(Mathf.Max(0f, Mathf.Pow(legRest * definition.maxLegStretch, 2f) - legDrop * legDrop));
-            amp = Mathf.Min(amp, reachMax / Mathf.Max(0.3f, f.magnitude));
+            // The stance foot would travel the whole step to stay planted; it reaches at most maxFootReach either side
+            // of the hip (his legs are short) and glides the rest.
+            var amp = Mathf.Min(duty * stride * 0.5f, definition.maxFootReach) * s;
             float Travel(float t, out float lift, out float roll)
             {
                 t = Mathf.Repeat(t, 1f);
@@ -209,9 +217,10 @@ namespace Ravenholm.Presentation
             }
             var trL = Travel(_phase, out var liftL, out var rollL);
             var trR = Travel(_phase + 0.5f, out var liftR, out var rollR);
-            var footL = f * (trL * amp) + Vector2.up * (liftL * definition.footLift * s);
-            var footR = f * (trR * amp) + Vector2.up * (liftR * definition.footLift * s);
-            // Down just after each heel strike, up at passing: a smooth double bob, with squash and stretch.
+            FootReach = Mathf.Max(Mathf.Abs(trL), Mathf.Abs(trR)) * amp;   // ground units ahead of or behind the hip
+            var footL = depth * (trL * amp) + Vector2.up * (liftL * definition.footLift * s);
+            var footR = depth * (trR * amp) + Vector2.up * (liftR * definition.footLift * s);
+            // One bob per step: lowest just after each heel strike, highest at passing; squash and stretch with it.
             var wave = -Mathf.Cos(4f * Mathf.PI * (_phase - 0.06f)) * s;   // -1 down .. +1 up
             var bodyY = definition.bounce * wave - definition.walkCrouch * s;   // a slight knee bend while walking
             _squash = 1f + definition.squash * wave;
@@ -220,10 +229,10 @@ namespace Ravenholm.Presentation
             var leftGround = new Vector2(-g0.y, g0.x);
             var leftScreen = new Vector2(leftGround.x, leftGround.y * 0.5f);
             var swayX = leftScreen * (definition.sway * s * Mathf.Cos(2f * Mathf.PI * (_phase - 0.25f)));
-            var walkLean = -Mathf.Sign(f.x) * definition.walkLean * s * Mathf.Abs(f.x)
-                           + definition.walkTilt * s * Mathf.Sin(2f * Mathf.PI * _phase) * (1f - Mathf.Abs(f.x));
-            _footRollL = rollL * definition.footRoll * s * Mathf.Sign(f.x) * Mathf.Abs(f.x);
-            _footRollR = rollR * definition.footRoll * s * Mathf.Sign(f.x) * Mathf.Abs(f.x);
+            var walkLean = -Mathf.Sign(g0.x) * definition.walkLean * s * Mathf.Abs(g0.x)
+                           + definition.walkTilt * s * Mathf.Sin(2f * Mathf.PI * _phase) * (1f - Mathf.Abs(g0.x));
+            _footRollL = rollL * definition.footRoll * s * Mathf.Sign(g0.x) * Mathf.Abs(g0.x);
+            _footRollR = rollR * definition.footRoll * s * Mathf.Sign(g0.x) * Mathf.Abs(g0.x);
             if (ViewName != _lastView) { _turn = 1f; _lastView = ViewName; }   // a quick squash covers the turn
             _turn = Mathf.MoveTowards(_turn, 0f, dt * 8f);
 
@@ -366,6 +375,7 @@ namespace Ravenholm.Presentation
             var legLen = Vector2.Distance(v.hipLeft, v.ankleLeft);
             var armLen = Vector2.Distance(v.shoulderLeft, v.wristLeft);
             var kneeDir = side ? Vector2.zero : f;   // knees bow forward; head-on they bow slightly outward
+            LegStretch = Mathf.Max(Vector2.Distance(hipL, v.ankleLeft + footL), Vector2.Distance(hipR, v.ankleRight + footR)) / Mathf.Max(0.001f, legLen);
             DrawTube(_legL, hipL, v.ankleLeft + footL, legLen, side ? Vector2.right * Mathf.Sign(v.hipLeft.x) : kneeDir, definition.legWidth, definition.legWidthEnd, definition.legColor, outline);
             DrawTube(_legR, hipR, v.ankleRight + footR, legLen, side ? Vector2.right * Mathf.Sign(v.hipRight.x) : kneeDir, definition.legWidth, definition.legWidthEnd, definition.legColor, outline);
             var elbowDir = side ? Vector2.zero : -f;
