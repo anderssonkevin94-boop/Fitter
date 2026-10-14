@@ -818,3 +818,12 @@ Astra's dwarf (`ArtSource/dwarf-v1`, imported by `Tools/ArtImport/import_dwarf.p
   - The planted foot stays on its floor point, and the hips dip at the ends of the stride (the pendulum).
   - A small knee bend at mid-swing (the leg is 12% shorter) lets the boot clear the floor.
   - The stride, speeds and timing are unchanged from v3.
+
+## The redesigned supplier (2026-10-14, Kevin approved Astra's design)
+
+The painted dwarf was unreadable in game, so he is replaced by Astra's approved redesign (`ArtSource/dwarf-v5-approved`): an orange beanie, blue shirt, cream apron, flat colours and thick outlines, matching the world.
+
+- **Walk.** Her rig has separate thigh, shin and foot pieces, with two-bone knee bends in the side and diagonal views and depth overlap in the front and back views. It is re-rendered with 1.6× her stride (`STRIDE=64`). 2× overextends the knees.
+- **Size.** He is drawn about one unit tall (210 px per unit, about 15% bigger than before) so he reads on a phone.
+- **Speed.** `walkPlaybackRate` 1.4 (about 6 steps a second) and `walkGroundFactor` 1.25 give about 2.0 units/s sideways and 1.0 up or down, as before.
+- **Unchanged.** Idle keeps the last facing. Work poses are still the procedural lean on the standing pose. The pile rides on his head.

@@ -124,3 +124,49 @@ Files:
 ### Pose guides for the walk redo
 
 `ArtSource/guides/walk_cycle_guide.png` and `ArtSource/guides/carry_walk_cycle_guide.png` are stick-figure guides, made for this project, of the four walk poses. They use the same 4 equal cells, a green ground line, a blue head-top line and a red body-centre line. Blue limbs are his LEFT and orange his RIGHT. Attach the right guide together with `model-sheet.png` to each walk strip.
+
+---
+
+## Redesign v2: a readable supplier (2026-10-14)
+
+Why: the painted dwarf melts into the world. His brown leather, olive trousers and brown boots match the dirt and tree trunks, and his soft painterly rendering doesn't match the world's flat, outlined style.
+
+Attach a game screenshot (forest and town) as the style reference with prompt 1. Iterate on prompt 1 until the design is right, then run prompt 2 with the chosen sheet attached.
+
+### Prompt 1: design sheet
+
+> Character design sheet for a cozy isometric mobile game. Match the art style of the attached screenshot exactly: bold, even, dark-brown outlines; flat colours with one soft shadow tone and a small highlight; chunky, simple shapes; no texture noise, no fine detail. The character must stay readable when he is only 100 pixels tall.
+>
+> **Character:** a stocky, cheerful older dwarf who runs a supply business: mining, chopping wood, hauling goods.
+>
+> **Proportions:** a big head (about a third of his height), broad shoulders, a barrel chest, short sturdy legs, big boots and big gloved hands.
+>
+> **Clothes and colours:**
+> - A rolled-up knit miner's beanie in bright orange (#F0672E).
+> - A big fluffy white beard (#F7F3EA), bushy white eyebrows and a round rosy nose.
+> - A cobalt-blue short-sleeved work tunic (#3D72D6).
+> - A cream canvas apron with one big front pocket (#F4E3B5).
+> - A dark-brown belt with one chunky gold buckle.
+> - Charcoal trousers, chocolate-brown boots and tan leather gloves.
+>
+> No brown or green clothing: he must pop against green grass, tan dirt and dark forest.
+>
+> **Layout:** a plain light-cream background with the same character shown 4 times in a row, all full body, the same size, feet on one baseline:
+> 1. front three-quarter, facing down-right
+> 2. side profile, facing right
+> 3. back three-quarter, facing up-right
+> 4. straight front
+>
+> No tools, no backpack, no text, no labels, no ground shadow.
+
+### Prompt 2: eight-direction turnaround (once the design is chosen)
+
+> Using the attached character sheet as the exact design (same proportions, colours and outline weight), draw the character standing in 8 directions in one row, on a flat magenta (#FF00FF) background. Order: facing down (toward camera), down-right, right, up-right, up (away from camera), up-left, left, down-left. The camera is elevated, looking down at about 30°, like an isometric game. Every pose has the same height and scale, with feet on one shared baseline, arms relaxed at the sides and legs slightly apart, so each leg reads separately from hip to boot. No shadows, no text.
+
+### Prompt 3: walk parts (for the bending-knee walk)
+
+> Using the same character, draw only his parts, separated with space between them, on flat magenta (#FF00FF), for the side profile facing right: torso with head (no arms, no legs), near arm, far arm, near thigh, near shin with boot, far thigh, far shin with boot. Each part must overlap its neighbour at the joint by a little (round joint caps at the hip, knee and shoulder) so they can be rotated in a game engine. Same style, scale and outline as the sheet.
+
+Notes:
+- Ask for changes one at a time ("make the beanie smaller", "the beard longer") and keep re-attaching the best sheet. Image generators drift when asked to change several things at once.
+- When something is good, send me the files: I import the turnaround, rig the parts and build the walk.

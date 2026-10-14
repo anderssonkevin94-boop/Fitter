@@ -26,7 +26,7 @@ import sys
 from PIL import Image
 
 ORIGIN = (128, 222)       # the package's common ground point, from the top-left of a cell
-PPU = 240                 # the dwarf stands about 0.85 units tall: a little shorter than the tailor (1.0)
+PPU = 210                 # the redesigned dwarf stands about one unit tall (readable on a phone; 2026-10-14)
 PAD = 4
 
 

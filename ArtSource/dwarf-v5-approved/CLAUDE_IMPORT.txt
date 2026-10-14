@@ -1,0 +1,67 @@
+Implement the approved orange-beanie, blue-shirt dwarf supplier using the
+assets in this folder. Preserve the approved artwork and limb placement.
+
+PREFERRED IMPLEMENTATION: BAKED PNG FRAMES
+1. Load dwarf-walk.png as 256 x 256 cells: five columns and eight rows.
+   Row order: N, NE, E, SE, S, SW, W, NW. Use dwarf-walk.json or
+   sprite-data.json rather than inferring rectangles from visible bounds.
+2. Loop columns 0,1,2,3,4 at 90 ms per frame (450 ms total).
+3. Anchor every cell at pixel (128,222), normalized (0.5,0.8671875).
+   Do not individually recenter, resize or trim frames without retaining
+   their source offsets. All layers must use the same display scale.
+4. Use the corresponding 256 x 256 cell of dwarf-idle.png when stopped;
+   its eight columns use the same direction order and origin. Retain the
+   last facing direction. Preserve animation phase during direction changes.
+5. For matched foot motion, use screenVelocityPerSecond from sprite-data.json
+   multiplied by the sprite display scale and playback multiplier. Values
+   are already projected for an isometric world: E is (148.148,0) pixels/s;
+   N is (0,-74.074); NE is (104.757,-52.378). Read all directions from JSON.
+   If movement speed changes, change playback rate by the same factor.
+   Do not normalize these projected vectors back to equal screen lengths.
+6. Check projection against the game's map axes before mapping movement
+   inputs. Direction names here describe screen-facing compass directions.
+7. Do not add a second body bob, leg translation, squash, stretch or warp
+   to the baked frames. Their motion and slight sway are already rendered.
+8. At about 100 px character height, display the 256 px cells at roughly
+   0.47 scale; use the actual visible height for final in-game tuning.
+
+FOOT-PLANTING DETAIL
+Contact points match root movement at frame boundaries, including wrap.
+Smooth root translation between held sprite frames can still show small
+sliding within each 90 ms hold. For the exact stepped preview, advance
+root displacement with each animation tick, using screenMotionPerCycle/5.
+Choose continuous movement if that better suits the game's controls; do
+not claim fully continuous foot locking from five held bitmap frames.
+
+OPTIONAL ARTICULATED IMPLEMENTATION
+There are seven images for each direction: upper-body, upper-leg-left,
+lower-leg-left, foot-left, upper-leg-right, lower-leg-right, foot-right.
+The upper-body image includes both arms. Separate arm animation is not
+provided in this package.
+
+Use rig-parts/ on a 512 x 512 master canvas, or cropped-parts/ with the
+exact offsets in rig.json. All rig and motion coordinates use the 512 px
+master; divide by two to match the 256 px baked exports. The master ground
+origin is (255.5,444); the rounded export origin is (128,222).
+
+For each direction, rig.json gives legSides in back-to-front draw order.
+Draw the first leg's thigh, shin, foot, then the second leg's thigh, shin,
+foot, then upper-body. Use each leg's rest hip/knee/ankle as image pivots
+and motion.json's corresponding posed hip/knee/ankle as destinations.
+Angles are degrees using the image rotation convention in render.py;
+verify the sign if the engine's positive rotation convention differs.
+Use render.py as the reference implementation, including its mirrored
+views and whole-body pivot. Do not apply the body transform twice to
+posed leg joint coordinates; those coordinates already include it.
+
+Side and diagonal views use two-bone knee bends with fixed-length pieces.
+N/S views use depth overlap with zero in-plane leg rotation; do not force
+the front-facing knees to bend sideways. Feet remain level (footAngle=0).
+The apron hides the overlapping hip attachment. Do not remove the hidden
+part margins: they prevent joint gaps during rotation.
+
+VERIFY IN GAME
+Inspect all eight directions at the intended display size, including
+stopping, direction changes and the last-to-first frame transition.
+Check character contrast on both grass and dirt, and make sure the same
+origin is used for idle, walking, sorting, collision and interaction.
