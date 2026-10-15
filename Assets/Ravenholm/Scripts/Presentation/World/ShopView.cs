@@ -46,6 +46,7 @@ namespace Ravenholm.Presentation
         private const float WallSortBack = 0.2f;
 
         private GameRoot _root;
+        private Vector2 _laidOutOrigin;
         private Transform _shell, _plots, _marks, _furnitureRoot;
         private readonly Dictionary<string, FurnitureView> _views = new Dictionary<string, FurnitureView>();
         private string _stockKey = "";
@@ -159,10 +160,13 @@ namespace Ravenholm.Presentation
             _marks = Group("Marks");
             _furnitureRoot = Group("Furniture");
             _root.Services.Shop.Changed += Rebuild;
+            // The wagon shop goes where the camp is (the journey, step 4).
+            _laidOutOrigin = origin;
+            origin = _laidOutOrigin + _root.Services.Camp.Offset;
+            _root.Services.Camp.Moved += OnCampMoved;
             // The carpet grows only onto cleared ground: shop tile (a, b) is map cell (ox + a, oy + b).
-            var ox = Mathf.RoundToInt(origin.x + 2f * origin.y);
-            var oy = Mathf.RoundToInt(2f * origin.y - origin.x);
-            _root.Services.Shop.CarpetGround = (a, b) => _root.Services.Stations.LandProblem(ox + a, oy + b);
+            _root.Services.Shop.CarpetGround = (a, b) =>
+                _root.Services.Stations.LandProblem(Mathf.RoundToInt(origin.x + 2f * origin.y) + a, Mathf.RoundToInt(2f * origin.y - origin.x) + b);
             Rebuild();
         }
 
@@ -170,7 +174,15 @@ namespace Ravenholm.Presentation
         {
             if (Current == this) Current = null;
             if (_root != null) _root.Services.Shop.Changed -= Rebuild;
+            if (_root != null && _root.Services != null) _root.Services.Camp.Moved -= OnCampMoved;
             if (SandboxSceneController.TapOverride == HandleTap) SandboxSceneController.TapOverride = null;
+        }
+
+        private void OnCampMoved(int from, int to)
+        {
+            if (this == null) return;
+            origin = _laidOutOrigin + _root.Services.Camp.Offset;
+            Rebuild();
         }
 
         private Transform Group(string name)

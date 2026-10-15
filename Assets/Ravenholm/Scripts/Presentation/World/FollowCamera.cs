@@ -27,6 +27,9 @@ namespace Ravenholm.Presentation
 
         public void EditorSetup(Transform followTarget) => target = followTarget;
 
+        /// <summary>Followed instead of the player while set (the wagon on its drive to the next camp).</summary>
+        public Transform Override { get; set; }
+
         private void Awake() => _camera = GetComponent<Camera>();
 
         /// <summary>Jump straight to the target (after load, teleport, or framing change).</summary>
@@ -41,7 +44,7 @@ namespace Ravenholm.Presentation
             _viewWidthIndex = Mathf.Clamp(_viewWidthIndex, 0, s.viewWidthOptions.Length - 1);
             _camera.orthographicSize = OrthoSizeForWidth(s.viewWidthOptions[_viewWidthIndex], _camera.aspect);
 
-            var followed = target;
+            var followed = Override != null ? Override : target;
             var t = (Vector2)followed.position + new Vector2(0f, s.cameraLookAheadY);
             // The camera simply follows the player, into the Mine too (GDD 6); "Look down the shaft" frames the working
             // level until the player moves again. The view may reach below the town as deep as anyone can stand.

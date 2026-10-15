@@ -126,6 +126,17 @@ namespace Ravenholm.Presentation
 
         public void CloseShopBuild() => _shopBuild?.Close();
 
+        private MoveOnPanel _moveOn;
+        public MoveOnPanel MoveOn => _moveOn;
+
+        /// <summary>The moving-on panel (the journey, step 4): make camp at the next clearing.</summary>
+        public void ShowMoveOn()
+        {
+            HideInfo();
+            CloseShopBuild();
+            _moveOn.Open();
+        }
+
         public void ShowJobBoard()
         {
             HideInfo();
@@ -203,6 +214,7 @@ namespace Ravenholm.Presentation
             BuildJoystick();
             BuildInfoLayer(safe);
             _shopBuild = ShopBuildPanel.Create(safe, _ui, root);
+            _moveOn = MoveOnPanel.Create(safe, _ui, root);
             _stationPanel = StationPanel.Create(safe, _ui, root);
             _storePanel = StorePanel.Create(safe, _ui, root);
             _jobBoard = JobBoardPanel.Create(safe, _ui, root);

@@ -34,6 +34,15 @@ namespace Ravenholm.Content
             public bool rock;
         }
 
+        [Serializable]
+        public struct StopSpec
+        {
+            public string name;
+            [Tooltip("Cells ahead of camp 1 along the road.")]
+            [Min(10)] public int ahead;
+            [Min(4)] public float radius;
+        }
+
         [Min(1)] [SerializeField] private int order = 1;
         [Header("The camp's clearing (cells: x right-up, y left-up)")]
         [SerializeField] private Vector2 clearingCentre = new Vector2(-6, 3);
@@ -51,8 +60,11 @@ namespace Ravenholm.Content
         [Tooltip("Flat cells beside a clearing before the hills rise.")]
         [Min(0)] [SerializeField] private int flatMargin = 3;
         [SerializeField] private List<GateSpec> gates = new List<GateSpec>();
-        [Header("The next camp's clearing")]
-        [Min(10)] [SerializeField] private int nextCampAhead = 95;
+        [Header("The camps further on (the journey's stops after this camp)")]
+        [SerializeField] private List<StopSpec> stops = new List<StopSpec>();
+        [Tooltip("At camp 1, the middle of the camp's group (shop, Trader, applicants): it is set down on each later clearing's centre.")]
+        [SerializeField] private Vector2Int layoutAnchor = new Vector2Int(5, 2);
+        [Min(10)] [SerializeField] private int nextCampAhead = 95;   // (older assets: the first stop, before stops existed)
         [Min(4)] [SerializeField] private float nextCampRadius = 9f;
         [SerializeField] private int seed = 1;
 
@@ -63,7 +75,27 @@ namespace Ravenholm.Content
         public Vector2 ClearingCentre => clearingCentre;
         public IReadOnlyList<GateSpec> Gates => gates;
         public int StretchCount => stretches.Count;
-        public int NextCampAhead => nextCampAhead;
+        public int NextCampAhead => stops.Count > 0 ? stops[0].ahead : nextCampAhead;
+        public IReadOnlyList<StopSpec> Stops => stops;
+
+        /// <summary>Camps on the road: 0 is this camp, then each stop.</summary>
+        public int CampCount => 1 + stops.Count;
+
+        public string CampName(int index) => index <= 0 ? DisplayName : stops[Mathf.Min(index, stops.Count) - 1].name;
+
+        /// <summary>A camp's centre cell: camp 1's layout anchor (where its group stands), else the stop's clearing centre.</summary>
+        public Vector2 CampCentre(int index)
+        {
+            if (index <= 0) return layoutAnchor;
+            var r = Ridge;
+            var (x, y) = r.PointAt(r.CampS + stops[Mathf.Min(index, stops.Count) - 1].ahead);
+            return new Vector2((float)x, (float)y);
+        }
+
+        public float CampRadius(int index) => index <= 0 ? Mathf.Min(clearingRadii.x, clearingRadii.y) : stops[Mathf.Min(index, stops.Count) - 1].radius;
+
+        /// <summary>The camp's ahead distance from camp 1 along the road.</summary>
+        public int CampAhead(int index) => index <= 0 ? 0 : stops[Mathf.Min(index, stops.Count) - 1].ahead;
 
         /// <summary>The camp's land (built once from these settings; derived data, the asset is never changed).</summary>
         public RidgeLayout Ridge
@@ -83,7 +115,8 @@ namespace Ravenholm.Content
                 {
                     S = campS, HasCentre = true, CX = clearingCentre.x, CY = clearingCentre.y, RX = clearingRadii.x, RY = clearingRadii.y,
                 });
-                r.Clearings.Add(new RidgeLayout.Clearing { S = campS + nextCampAhead, RX = nextCampRadius, RY = nextCampRadius });
+                if (stops.Count == 0) r.Clearings.Add(new RidgeLayout.Clearing { S = campS + nextCampAhead, RX = nextCampRadius, RY = nextCampRadius });
+                foreach (var st in stops) r.Clearings.Add(new RidgeLayout.Clearing { S = campS + st.ahead, RX = st.radius, RY = st.radius });
                 foreach (var g in gates) r.Gates.Add(new RidgeLayout.Gate { S = campS + g.ahead, Thickness = g.thickness, Tier = g.tier, Rock = g.rock });
                 return _ridge = r;
             }
@@ -120,6 +153,14 @@ namespace Ravenholm.Content
             gates = gateList;
             nextCampAhead = nextAhead;
             nextCampRadius = nextRadius;
+            _ridge = null;
+        }
+
+        public void EditorSetStops(List<StopSpec> list, List<Stretch> line, List<GateSpec> gateList)
+        {
+            stops = list;
+            stretches = line;
+            gates = gateList;
             _ridge = null;
         }
 #endif

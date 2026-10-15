@@ -71,7 +71,7 @@ namespace Ravenholm.Tests
                 if (found) road++;
             }
             Assert.Greater(road, 60, "the old road runs on ahead");
-            Assert.AreEqual(1, camp.Gates.Count);
+            Assert.AreEqual(2, camp.Gates.Count, "the old trees before camp 2, a rock wall after it");
             var (gx, gy) = r.PointAt(r.CampS + camp.Gates[0].ahead);
             Assert.AreEqual(2, r.GateTierAt((int)gx, (int)gy), "the gate across the road needs the iron tool");
             Assert.IsTrue(r.FixedOpen(42, (int)gx, (int)gy, out var open) && !open, "solid: no gaps in the old trees");

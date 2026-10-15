@@ -32,6 +32,10 @@ MonoBehaviour:
     length: 34
   - upRight: 1
     length: 30
+  - upRight: 0
+    length: 36
+  - upRight: 1
+    length: 34
   halfWidth: 20
   widthWobble: 5
   edgeNoise: 3
@@ -44,6 +48,15 @@ MonoBehaviour:
     thickness: 4
     tier: 2
     rock: 0
+  - ahead: 150
+    thickness: 4
+    tier: 3
+    rock: 1
+  stops:
+  - name: River Bend
+    ahead: 95
+    radius: 13
+  layoutAnchor: {x: 5, y: 2}
   nextCampAhead: 95
   nextCampRadius: 9
   seed: 1

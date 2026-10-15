@@ -101,6 +101,7 @@ MonoBehaviour:
       quantity: 16
     - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
       quantity: 6
+  wagonCargo: 3c00000064000000a0000000f0000000
   wagonFurniture:
   - furniture: {fileID: 11400000, guid: 64fd6b84c0a4949178153588cf59dafa, type: 2}
     level: 1

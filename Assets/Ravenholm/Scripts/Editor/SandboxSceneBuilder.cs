@@ -95,6 +95,7 @@ namespace Ravenholm.EditorTools
             var traderPad = Building(buildings, "Trader Pad", "bld_trader_pad", new Vector2(3.0f, -2.1f), new Vector2(2.2f, 2.0f),
                 "A periodic visitor sets up here to sell external materials and buy Store goods at poor prices.", "", new Vector2(2f, 2f));
             TraderStall(traderPad);
+            traderPad.gameObject.AddComponent<CampAnchored>();   // the Trader comes along to each camp (the journey, step 4)
             MineDig(buildings);
 
             // --- nature ---
@@ -125,6 +126,7 @@ namespace Ravenholm.EditorTools
             // Phase 7: the Beacon trophy, hidden until the campaign finale succeeds.
             Prop(props, "Beacon Trophy", "Props/prop_beacon_trophy", new Vector2(-3.2f, 2.3f),
                 "The relit Beacon's flame, carried home by your contractors. Ravenholm remembers.", "").gameObject.AddComponent<TrophyView>();
+            props.Find("Beacon Trophy").gameObject.AddComponent<CampAnchored>();
             Flowers(props);
 
             // --- PHASE 1 FIXTURES: receivers, raw piles and output pads ---
@@ -145,6 +147,17 @@ namespace Ravenholm.EditorTools
                 "Crafted bows and staves appear here (holds 6).", null, null, 6);
             Container(logistics, "container.apothecary_pad", "Apothecary Output", ContainerKind.OutputPad, new Vector2(-3.85f, -2.45f),
                 "Crafted potions appear here (holds 6).", null, null, 6);
+            logistics.Find("Mine Staging").gameObject.AddComponent<CampAnchored>();
+            logistics.Find("Forest Staging").gameObject.AddComponent<CampAnchored>();
+            // Moving on (the journey, step 4): the sign in the next camp's clearing, and the drive up the road.
+            var sign = Sprite(world, "Camp Sign", "Wagon/camp_sign", Vector2.zero);
+            sign.gameObject.AddComponent<SpriteOutline>();
+            var signCol = sign.gameObject.AddComponent<BoxCollider2D>();
+            signCol.isTrigger = true;
+            signCol.size = new Vector2(1.2f, 1.6f);
+            signCol.offset = new Vector2(0f, 0.6f);
+            sign.gameObject.AddComponent<MakeCampSpot>();
+            new GameObject("Drive").AddComponent<DriveView>().EditorSetup(ProjectSetup.LoadSprite("Wagon/ox_walk"), _unlit);
             ProcessorBar(smelter.transform, "station.smelter", 2.75f);
             ProcessorBar(mill.transform, "station.lumbermill", 2.2f);
             // The journey, step 2 (2026-10-15): each station can be set up elsewhere at the camp, its marker and pad with it.

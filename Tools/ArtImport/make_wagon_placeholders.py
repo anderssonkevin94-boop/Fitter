@@ -132,6 +132,35 @@ for lvl, (base, pat, accent) in enumerate(CARPET, 1):
             d.line([(x, y), (x, y + 10)], fill=accent if lvl > 1 else shade(base, 0.8), width=3)
         save(e, f"Wagon/carpet_edge_{lvl}_{axis}.png", (80, 48), False)
 
+# ---------------------------------------------------------------- the ox (walking, facing right) and the camp sign
+
+ox = Image.new("RGBA", (420, 300), (0, 0, 0, 0))
+d = ImageDraw.Draw(ox)
+hide, dark, horn = (150, 102, 66), (104, 70, 46), (236, 226, 196)
+for x in (110, 150, 270, 310):   # legs
+    d.rectangle((x - 12, 190, x + 12, 268), fill=dark)
+    d.rectangle((x - 14, 262, x + 14, 274), fill=(60, 44, 32))
+d.ellipse((70, 110, 340, 230), fill=hide)          # body
+d.ellipse((90, 100, 210, 170), fill=shade(hide, 1.08))   # shoulder hump
+d.polygon([(300, 130), (390, 120), (400, 190), (330, 200)], fill=hide)   # head
+d.ellipse((370, 160, 410, 200), fill=(196, 150, 130))   # muzzle
+d.polygon([(330, 120), (300, 84), (318, 82), (346, 118)], fill=horn)
+d.polygon([(372, 118), (396, 80), (412, 84), (388, 122)], fill=horn)
+d.ellipse((352, 140, 364, 152), fill=(30, 24, 20))   # eye
+d.line([(72, 150), (40, 196)], fill=dark, width=8)   # tail
+d.line([(250, 140), (300, 190)], fill=(90, 62, 40), width=10)   # the harness
+save(ox, "Wagon/ox_walk.png", (210, 272), True)
+
+sign = Image.new("RGBA", (200, 300), (0, 0, 0, 0))
+d = ImageDraw.Draw(sign)
+d.rectangle((92, 90, 108, 286), fill=(120, 84, 54))
+d.polygon([(20, 60), (180, 40), (180, 120), (20, 140)], fill=(176, 134, 94))
+d.polygon([(20, 60), (180, 40), (180, 52), (20, 72)], fill=(196, 160, 116))
+for k in range(3):
+    d.line([(40, 82 + k * 18), (160, 66 + k * 18)], fill=(110, 76, 48), width=5)
+d.ellipse((70, 276, 130, 296), fill=(0, 0, 0, 50))
+save(sign, "Wagon/camp_sign.png", (100, 288), True)
+
 # ---------------------------------------------------------------- free-standing racks and shelves
 
 pts_path = os.path.join(ART, "Furniture", "points.json")

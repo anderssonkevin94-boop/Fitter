@@ -46,6 +46,8 @@ namespace Ravenholm.Content
         [SerializeField] private List<Vector2Int> carpetSizes = new List<Vector2Int>();
         [Tooltip("The price of each wagon upgrade: to level 2, 3, ...")]
         [SerializeField] private List<Cost> wagonCosts = new List<Cost>();
+        [Tooltip("What the wagon carries between camps at each level: Store goods plus materials, in units.")]
+        [SerializeField] private List<int> wagonCargo = new List<int>();
         [Tooltip("The wagon shop's starting furniture (on the level-1 carpet).")]
         [SerializeField] private List<StartingPiece> wagonFurniture = new List<StartingPiece>();
 
@@ -69,6 +71,7 @@ namespace Ravenholm.Content
         /// <summary>The shop is the wagon's fold-out carpet (no walls), grown by upgrading the wagon.</summary>
         public bool Wagon => carpetSizes.Count > 0;
         public int WagonMaxLevel => carpetSizes.Count;
+        public int WagonCargo(int level) => wagonCargo.Count == 0 ? int.MaxValue : wagonCargo[Mathf.Clamp(level - 1, 0, wagonCargo.Count - 1)];
         public Vector2Int CarpetSize(int level) => carpetSizes.Count == 0 ? Vector2Int.zero : carpetSizes[Mathf.Clamp(level - 1, 0, carpetSizes.Count - 1)];
         /// <summary>The price of upgrading the wagon to <paramref name="level"/> (2 and up).</summary>
         public Cost WagonCost(int level) => wagonCosts.Count == 0 ? new Cost() : wagonCosts[Mathf.Clamp(level - 2, 0, wagonCosts.Count - 1)];
@@ -95,6 +98,8 @@ namespace Ravenholm.Content
         }
 
         public bool EditorHasWagon => carpetSizes.Count > 0;
+        public bool EditorHasCargo => wagonCargo.Count > 0;
+        public void EditorSetCargo(List<int> cargo) => wagonCargo = cargo;
 
         public void EditorSetLayout(List<Vector2Int> start, Vector2Int entrance, int width, List<StartingPiece> furniture)
         {

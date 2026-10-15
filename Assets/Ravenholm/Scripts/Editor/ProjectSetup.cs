@@ -841,6 +841,21 @@ namespace Ravenholm.EditorTools
                 mill.EditorSetFootprint(new Vector2Int(3, 2));
                 EditorUtility.SetDirty(mill);
             }
+            if (camp.Stops.Count == 0)
+            {
+                // Step 4 (moving on): camp 2, River Bend, 95 cells up the road, and the land beyond it with the next gate (a rock
+                // wall: the tempered tool) so the road carries on toward camp 3.
+                CampDefinition.Stretch S2(bool upRight, int length) => new CampDefinition.Stretch { upRight = upRight, length = length };
+                camp.EditorSetStops(
+                    new List<CampDefinition.StopSpec> { new CampDefinition.StopSpec { name = "River Bend", ahead = 95, radius = 13f } },
+                    new List<CampDefinition.Stretch> { S2(false, 16), S2(true, 34), S2(false, 38), S2(true, 30), S2(false, 34), S2(true, 30), S2(false, 36), S2(true, 34) },
+                    new List<CampDefinition.GateSpec>
+                    {
+                        new CampDefinition.GateSpec { ahead = 55, thickness = 4, tier = 2, rock = false },
+                        new CampDefinition.GateSpec { ahead = 150, thickness = 4, tier = 3, rock = true },
+                    });
+                EditorUtility.SetDirty(camp);
+            }
             if (catalogue.Camps.Count == 0) { catalogue.EditorSetCamps(new List<CampDefinition> { camp }); EditorUtility.SetDirty(catalogue); }
             if (settings.camp == null) { settings.camp = camp; EditorUtility.SetDirty(settings); }
         }
@@ -1029,6 +1044,11 @@ namespace Ravenholm.EditorTools
                 // Layout revision 2: the 4 x 6 start becomes 6 x 6 and the entrance 2 tiles wide (prices kept).
                 shop.EditorSetLayout(startBlocks, new V2(1, 0), 2, startFurniture);
                 shop.EditorBumpVersion();
+                EditorUtility.SetDirty(shop);
+            }
+            if (!shop.EditorHasCargo)
+            {
+                shop.EditorSetCargo(new List<int> { 60, 100, 160, 240 });   // units carried between camps, per wagon level
                 EditorUtility.SetDirty(shop);
             }
             if (!shop.EditorHasWagon || shop.ContentVersion < 4)

@@ -3916,6 +3916,22 @@
     0.14667
    ],
    "ppu": 256
+  },
+  "Wagon/ox_walk.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.09333
+   ],
+   "ppu": 256
+  },
+  "Wagon/camp_sign.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.04
+   ],
+   "ppu": 256
   }
  }
 }

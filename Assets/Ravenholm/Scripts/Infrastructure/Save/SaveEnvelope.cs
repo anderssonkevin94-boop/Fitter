@@ -53,6 +53,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("shop")] public ShopSaveData Shop;
         /// <summary>Stations moved or packed at the camp (optional; null = every station where the camp was laid out).</summary>
         [JsonProperty("stations")] public StationsSaveData Stations;
+        /// <summary>Which camp on the road the company is at (optional; null = camp 1).</summary>
+        [JsonProperty("camp")] public CampSaveData Camp;
 
         public ulong GetWorldSeed() => ulong.Parse(WorldSeed, System.Globalization.CultureInfo.InvariantCulture);
 
@@ -418,6 +420,13 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("traderRemaining")] public SortedDictionary<string, int> TraderRemaining = new SortedDictionary<string, int>();
         [JsonProperty("upgrades")] public List<string> Upgrades = new List<string>();
         [JsonProperty("lastCatchUpId")] public string LastCatchUpId = "";
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class CampSaveData
+    {
+        [JsonProperty("road")] public string Road;
+        [JsonProperty("index")] public int Index;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

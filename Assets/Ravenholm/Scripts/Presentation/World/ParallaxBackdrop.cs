@@ -139,10 +139,19 @@ namespace Ravenholm.Presentation
             _root = GameRoot.Instance;
             if (_root != null)
             {
+                // Each camp up the road brings the castle a little closer (the journey, step 4).
+                _root.Services.Camp.Moved += (_, __) => SizeCastle();
+                SizeCastle();
                 _root.Services.Jobs.Board.Dispatched += OnDispatched;
                 _root.Services.Jobs.Reloaded += () => _root.Services.Jobs.Board.Dispatched += OnDispatched;
             }
             LateUpdate();
+        }
+
+        private void SizeCastle()
+        {
+            if (this == null || _castle == null || _root == null) return;
+            _castle.localScale = Vector3.one * castleScale * scale * (1f + 0.25f * _root.Services.Camp.Index);
         }
 
         private SpriteRenderer Renderer(Transform parent, string name, Sprite sprite, Vector2 local, int order)

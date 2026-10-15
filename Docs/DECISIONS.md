@@ -1304,3 +1304,27 @@ Kevin: "start on step 3, the wagon shop". Built to the approved outline, with pl
 - **Not yet:**
   - the tarp, the fold-out animation and the ox;
   - wagon storage for travelling, which belongs to step 4.
+
+## 2026-10-15: journey step 4, moving on (placeholder art; awaiting Kevin's approval)
+
+Kevin: "start on step 4, moving on". Built on the continuous ridge (one road, camps as clearings along it):
+- **Breaking through** is physical. The gate of old trees before River Bend needs the Iron tool, and reaching River Bend's clearing proves the way is open. There is no separate unlock.
+- **The sign.** River Bend's clearing has a sign (`MakeCampSpot`) offering "Make camp". It opens the moving-on panel (`MoveOnPanel`), which shows what happens, the wagon's load against its storage, and what's in the way.
+- **The rules** (`CampService`, the `camp` save section):
+  - every station's output pad must be empty;
+  - the load (Store goods plus materials in stock) must fit the wagon: 60 / 100 / 160 / 240 units by wagon level (`ShopDefinition.wagonCargo`). "Leave the extras behind" drops materials, the biggest stacks first.
+
+  Making camp then packs every station into its kit and moves the company to the next camp.
+- **The camp's group moves rigidly.** The wagon shop (furniture as you had it), the Store's marker at the counter, the Trader's pad, the applicants' spots and paths, the trophy and the leftover piles all keep the places they had at camp 1. The group's middle (cell 5, 2 at camp 1) is set on the new clearing's centre; the group is tagged `CampAnchored`, and the shop's origin and the applicants follow `CampService.Offset`.
+
+  What was cleared and dug stays where it is, in the world.
+- **The drive** (`DriveView`, placeholder ox): the wagon and ox follow the old road from the old camp to the new one at 7 units/s. The camera follows and the supplier rides along, then steps down in front of the shop, and a toast says to set the stations up from their kits.
+- **The castle on the horizon** grows 25% per camp up the road.
+- **Content:**
+  - River Bend is 95 cells ahead, with a clearing of radius 13.
+  - The land runs on beyond it to a second gate at 150 ahead: a rock wall needing the Tempered tool (tier 3). It ends short of camp 3, which isn't built yet.
+  - River Bend is the last camp for now.
+- **Not yet:**
+  - the summons and the camp tier of jobs (step 5);
+  - choosing what to leave behind item by item;
+  - Astra's ox and wagon art.

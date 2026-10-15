@@ -35,6 +35,11 @@ namespace Ravenholm.Presentation
         /// <summary>Where adventurers come from and go to (the top of the cliff path, 2026-10-15).</summary>
         public void EditorSetupDeparture(Vector2 point) => departurePoint = point;
 
+        /// <summary>Where the camp's group stands now (the journey, step 4): laid out at camp 1, moved with the camp.</summary>
+        private static Vector2 CampOffset => GameRoot.Instance != null && GameRoot.Instance.Services != null ? GameRoot.Instance.Services.Camp.Offset : Vector2.zero;
+        private Vector2 Spot(int i) => spots[i] + CampOffset;
+        private Vector2 Departure => departurePoint + CampOffset;
+
         public void EditorSetupCitizen(HoseCharacterDefinition body, CharacterAnimationSet set)
         {
             citizen = body;
@@ -64,13 +69,13 @@ namespace Ravenholm.Presentation
                 {
                     if (board.HasArrived(a)) continue;
                     var slot = Mathf.Clamp(p.Applicants.IndexOf(a), 0, Mathf.Max(0, spots.Count - 1));
-                    var to = spots.Count > 0 ? spots[slot] : Vector2.zero;
+                    var to = spots.Count > 0 ? Spot(slot) : Vector2.zero;
                     keep.Add(a.ContractorId);
                     if (!_coming.TryGetValue(a.ContractorId, out var walker))
-                        _coming[a.ContractorId] = walker = Spawn(board.Contractor(a.ContractorId), departurePoint, false);
+                        _coming[a.ContractorId] = walker = Spawn(board.Contractor(a.ContractorId), Departure, false);
                     var span = Mathf.Max(1f, a.ArriveMs - p.CreatedMs);
                     var k = Mathf.Clamp01((board.State.SimMs - p.CreatedMs) / span);
-                    walker.transform.position = Vector2.Lerp(departurePoint, to, k) + Bob(Time.time);
+                    walker.transform.position = Vector2.Lerp(Departure, to, k) + Bob(Time.time);
                 }
             foreach (var id in new List<string>(_coming.Keys))
             {
@@ -100,7 +105,7 @@ namespace Ravenholm.Presentation
                 keep.Add(a.ContractorId);
                 if (!_shown.ContainsKey(a.ContractorId))
                 {
-                    _shown[a.ContractorId] = Spawn(board.Contractor(a.ContractorId), spots[slot], true);
+                    _shown[a.ContractorId] = Spawn(board.Contractor(a.ContractorId), Spot(slot), true);
                     _shown[a.ContractorId].GetComponentInChildren<CharacterIdle>()?.Greet();   // they arrive and say hello
                 }
             }
@@ -154,7 +159,7 @@ namespace Ravenholm.Presentation
         private void OnDispatched(ExpeditionRecord e)
         {
             var c = _root.Services.Jobs.Board.Contractor(e.ContractorId);
-            var from = _shown.TryGetValue(e.ContractorId, out var go) ? (Vector2)go.transform.position : spots.Count > 0 ? spots[0] : Vector2.zero;
+            var from = _shown.TryGetValue(e.ContractorId, out var go) ? (Vector2)go.transform.position : spots.Count > 0 ? Spot(0) : Vector2.zero;
             StartCoroutine(Depart(Spawn(c, from, false), from));
         }
 
@@ -168,9 +173,9 @@ namespace Ravenholm.Presentation
         {
             if (r.Died || r.Sponsored || !isActiveAndEnabled) return;
             var c = _root.Services.Jobs.Board.Contractor(r.ContractorId);
-            var to = spots.Count > 0 ? spots[spots.Count - 1] : Vector2.zero;
+            var to = spots.Count > 0 ? Spot(spots.Count - 1) : Vector2.zero;
             Returning++;
-            StartCoroutine(Walk(Spawn(c, departurePoint, false), departurePoint, to, fadeIn: true));
+            StartCoroutine(Walk(Spawn(c, Departure, false), Departure, to, fadeIn: true));
         }
 
         /// <summary>Returns walked back so far (tests).</summary>
@@ -203,11 +208,11 @@ namespace Ravenholm.Presentation
 
         private IEnumerator Depart(GameObject walker, Vector2 from)
         {
-            var seconds = WalkSeconds(from, departurePoint);
+            var seconds = WalkSeconds(from, Departure);
             for (var t = 0f; t < seconds && walker != null; t += Time.deltaTime)
             {
                 var k = t / seconds;
-                walker.transform.position = Vector2.Lerp(from, departurePoint, k) + Bob(t);
+                walker.transform.position = Vector2.Lerp(from, Departure, k) + Bob(t);
                 // Citizens come and go at the castle gate (their hose limbs are meshes, which a sprite fade would leave behind).
                 if (citizen == null) foreach (var sr in walker.GetComponentsInChildren<SpriteRenderer>())
                 {
