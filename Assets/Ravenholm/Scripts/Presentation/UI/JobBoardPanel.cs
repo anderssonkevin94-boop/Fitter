@@ -266,7 +266,7 @@ namespace Ravenholm.Presentation
         public string CampaignText()
         {
             if (Board.CampaignComplete)
-                return "<b>Campaign complete:</b> the Beacon burns over Ravenholm. Contracts, blueprints and better gear remain for as long as you like.";
+                return "<b>Journey complete:</b> the castle's last great job is done, and your company stands at its gates. Contracts, blueprints and better gear remain for as long as you like.";
             var id = Board.CampaignObjective();
             if (id == null) return "";
             var s = Board.State;

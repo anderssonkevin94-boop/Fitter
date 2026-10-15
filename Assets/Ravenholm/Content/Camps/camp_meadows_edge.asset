@@ -36,26 +36,99 @@ MonoBehaviour:
     length: 36
   - upRight: 1
     length: 34
+  - upRight: 0
+    length: 36
+  - upRight: 1
+    length: 34
+  - upRight: 0
+    length: 32
+  - upRight: 1
+    length: 36
+  - upRight: 0
+    length: 34
+  - upRight: 1
+    length: 32
+  - upRight: 0
+    length: 34
+  - upRight: 1
+    length: 30
+  - upRight: 0
+    length: 34
+  - upRight: 1
+    length: 34
+  - upRight: 0
+    length: 34
+  - upRight: 1
+    length: 34
+  - upRight: 0
+    length: 30
   halfWidth: 20
   widthWobble: 5
   edgeNoise: 3
   lineWobble: 4
   roadWobble: 4
-  bandLength: 45
+  bandLength: 80
   flatMargin: 3
   gates:
   - ahead: 55
     thickness: 4
     tier: 2
     rock: 0
+    project: 
+    projectCost: []
   - ahead: 150
     thickness: 4
     tier: 3
     rock: 1
+    project: 
+    projectCost: []
+  - ahead: 245
+    thickness: 4
+    tier: 0
+    rock: 0
+    project: Bridge
+    projectCost:
+    - resource: {fileID: 11400000, guid: f2308962299684f249002d4e000bc0d4, type: 2}
+      quantity: 12
+    - resource: {fileID: 11400000, guid: 25819f9025cc84311bdfe1999e38525c, type: 2}
+      quantity: 8
+  - ahead: 340
+    thickness: 4
+    tier: 0
+    rock: 0
+    project: Causeway
+    projectCost:
+    - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+      quantity: 12
+    - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
+      quantity: 6
+  - ahead: 435
+    thickness: 4
+    tier: 4
+    rock: 1
+    project: 
+    projectCost: []
   stops:
   - name: River Bend
     ahead: 95
     radius: 13
+    groundTint: {r: 0.93, g: 1, b: 0.95, a: 1}
+  - name: Hollow Wood
+    ahead: 190
+    radius: 13
+    groundTint: {r: 0.74, g: 0.84, b: 0.72, a: 1}
+  - name: Witchlight Fen
+    ahead: 285
+    radius: 13
+    groundTint: {r: 0.78, g: 0.88, b: 0.96, a: 1}
+  - name: Crown Highlands
+    ahead: 380
+    radius: 13
+    groundTint: {r: 0.92, g: 0.9, b: 0.84, a: 1}
+  - name: Castle Approach
+    ahead: 475
+    radius: 14
+    groundTint: {r: 1, g: 0.95, b: 0.82, a: 1}
   layoutAnchor: {x: 5, y: 2}
   nextCampAhead: 95
   nextCampRadius: 9

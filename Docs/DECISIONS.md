@@ -1436,3 +1436,37 @@ Built:
 - **Saving.** Food is saved with an expedition: its stats in the snapshot, and a `food` flag on what was carried.
 - **Art.** Placeholders: the Kitchen is the Apothecary's building with a red roof; icons and piles come from `Tools/ArtImport/make_kitchen_placeholders.py`.
 - **Content ceiling.** Recipes number 34; the V1 ceiling in `CampaignTests` is raised from 30 to 40 for the expansion.
+
+## 2026-10-16: journey step 7, camps 3–6 and the finale (placeholder art; awaiting Kevin's approval)
+
+- **The road.** Six camps, set in `ProjectSetup.Road.cs` (`EnsureRoad`). Each "ahead" figure is road length from camp 1, and each camp has its own ground tint (`StopSpec.groundTint`):
+
+  | Camp | Ahead | Radius | Blocker after it | At |
+  |---|---|---|---|---|
+  | 1 Meadow's Edge | 0 | – | old trees, tier 2 (iron tool) | 55 |
+  | 2 River Bend | 95 | 13 | a rockslide, tier 3 (tempered tool) | 150 |
+  | 3 Hollow Wood | 190 | 13 | **ravine: build the Bridge** (12 ironwood lumber, 8 rope) | 245 |
+  | 4 Witchlight Fen | 285 | 13 | **flood: build the Causeway** (12 maple lumber, 6 steel ingots) | 340 |
+  | 5 Crown Highlands | 380 | 13 | the sealed gate, tier 4 (moonsilver tool) | 435 |
+  | 6 Castle Approach | 475 | 14 | – (the finale) | – |
+
+  - The ridge has 21 stretches. Chaikin smoothing cuts corners, so the summed stretch lengths overstate the walkable length. The land runs at least 30 past Castle Approach, which `RoadTests` checks. Setup rewrites the road whenever it falls short.
+  - Band length is 80: one band of wood and ore per camp.
+- **Build projects** (`GateSpec.project`/`projectCost`, `RidgeLayout.Gate.Project`):
+  - A project gate is a gap in the land (`InProjectGap`) with no trees and no tool tier.
+  - A sign 5 cells before it (`GateProjectSpot`) offers "Build bridge" or "Build causeway". `CampService.Build` pays from stock.
+  - Once built, the gap is filled with the `bridge` tile and can be walked.
+  - Built projects are saved in the "camp" section (`built`).
+- **The tier 4 tool.**
+  - Moonsilver tool: 160 gold and 6 moonsilver ingots.
+  - `upgrade.mine_equipment_4`: 150 gold, 6 moonsilver and 6 steel. It needs Mine equipment 3 and 8 successes.
+- **Summons.**
+  - Camps 1 and 2 keep their summons.
+  - New summons: camp 3 Bandit Ford, camp 4 Sunken Archive, camp 5 Crownward Gate.
+  - The finale, renamed "The Castle's Last Great Job", is posted at Castle Approach (camp 6).
+  - The Beacon wording is retired: "Chart the Castle Road", "Hold the Castle Pass", "Journey complete".
+- **Tests.**
+  - In-band effort is now three steps per band (`ContinuationAt`), scaled to the band length; at one step per 15 cells, an 80-long band's last trees outgrew the next band's first.
+  - EditMode `RoadTests`: the six camps and their blockers, the land's length, one band per camp, tints, building the bridge from stock and saving it, and the finale and summons.
+  - PlayMode `RoadPlayModeTests`: captures of camps 2–6; the ravine blocks until the bridge is built at its sign, then can be stood on.
+- **Not yet:** Art for each camp, the bridge and the causeway (all placeholders), plus Astra's walk-in cart.

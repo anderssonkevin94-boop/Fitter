@@ -125,7 +125,7 @@ namespace Ravenholm.EditorTools
             var pathTop = Horizon(world, settings);
             // Phase 7: the Beacon trophy, hidden until the campaign finale succeeds.
             Prop(props, "Beacon Trophy", "Props/prop_beacon_trophy", new Vector2(-3.2f, 2.3f),
-                "The relit Beacon's flame, carried home by your contractors. Ravenholm remembers.", "").gameObject.AddComponent<TrophyView>();
+                "The castle's banner, given to your company for its last great job.", "").gameObject.AddComponent<TrophyView>();
             props.Find("Beacon Trophy").gameObject.AddComponent<CampAnchored>();
             Flowers(props);
 
@@ -158,6 +158,23 @@ namespace Ravenholm.EditorTools
             signCol.offset = new Vector2(0f, 0.6f);
             sign.gameObject.AddComponent<MakeCampSpot>();
             new GameObject("Drive").AddComponent<DriveView>().EditorSetup(ProjectSetup.LoadSprite("Wagon/ox_walk"), _unlit);
+            // The road's build projects (step 7): a sign at the near side of each gap.
+            var road = settings.camp;
+            var tilesForProjects = ProjectSetup.EnsureTiles();
+            for (var g = 0; g < road.Gates.Count; g++)
+            {
+                if (string.IsNullOrEmpty(road.Gates[g].project)) continue;
+                var (px, py) = road.Ridge.PointAt(road.Ridge.Gates[g].S - 5);
+                var at = SandboxSettings.CellCentre(Mathf.RoundToInt((float)px), Mathf.RoundToInt((float)py));
+                var projectSign = Sprite(world, road.Gates[g].project + " Sign", "Wagon/camp_sign", at);
+                projectSign.gameObject.AddComponent<SpriteOutline>();
+                var pc = projectSign.gameObject.AddComponent<BoxCollider2D>();
+                pc.isTrigger = true;
+                pc.size = new Vector2(1.2f, 1.6f);
+                pc.offset = new Vector2(0f, 0.6f);
+                projectSign.gameObject.AddComponent<GateProjectSpot>().EditorSetup(g, _groundMap,
+                    tilesForProjects[road.Gates[g].project == "Bridge" ? "bridge" : "plaza"]);
+            }
             ProcessorBar(smelter.transform, "station.smelter", 2.75f);
             ProcessorBar(mill.transform, "station.lumbermill", 2.2f);
             // The journey, step 2 (2026-10-15): each station can be set up elsewhere at the camp, its marker and pad with it.
@@ -256,7 +273,7 @@ namespace Ravenholm.EditorTools
             for (var x = cb.xMin; x < cb.xMax; x++)
             for (var y = cb.yMin; y < cb.yMax; y++)
             {
-                if (!ridge.InLand(x, y)) continue;
+                if (!ridge.InLand(x, y) || ridge.InProjectGap(x, y)) continue;   // a ravine or a flood: a gap until it is built
                 var cell = new Vector3Int(x, y, 0);
                 Vector2 c = grid.GetCellCenterWorld(cell);
                 var inTown = ridge.InClearing(x, y) && x >= town.xMin && x < town.xMax && y >= town.yMin && y < town.yMax;
@@ -272,6 +289,7 @@ namespace Ravenholm.EditorTools
                     }
                     else ground = Hash01(x + 911, y) < 0.12f ? "forest_floor_b" : "forest_floor";   // trees and hills: ForestGridView
                     tm.SetTile(cell, tiles[ground]);
+                    Tint(tm, cell, camp, ridge, x, y);
                     continue;
                 }
 
@@ -281,7 +299,17 @@ namespace Ravenholm.EditorTools
                 else if (NearAnyPath(c, paths, 0.55f)) key = PathKey(x, y);
                 else key = GrassKey(x, y);
                 tm.SetTile(cell, tiles[key]);
+                Tint(tm, cell, camp, ridge, x, y);
             }
+        }
+
+        /// <summary>Each camp's land has its own tint (the journey, step 7): a darker wood, a misty fen, grey uplands.</summary>
+        private static void Tint(Tilemap tm, Vector3Int cell, CampDefinition camp, Ravenholm.Domain.Sites.RidgeLayout ridge, int x, int y)
+        {
+            var tint = camp.GroundTintAt(ridge.Locate(x, y).s - ridge.CampS);
+            if (tint == Color.white) return;
+            tm.SetTileFlags(cell, TileFlags.None);
+            tm.SetColor(cell, tint);
         }
 
         /// <summary>Invisible wall around the town plot (the motor also clamps).</summary>

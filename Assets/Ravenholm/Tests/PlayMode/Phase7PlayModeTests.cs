@@ -80,7 +80,7 @@ namespace Ravenholm.Tests
             yield return Capture.Take("phase7_beacon_trophy");
             GameRoot.Instance.Hud.ShowJobBoard();
             yield return new WaitForSeconds(0.3f);
-            StringAssert.Contains("Campaign complete", GameRoot.Instance.Hud.JobBoard.CampaignText());
+            StringAssert.Contains("Journey complete", GameRoot.Instance.Hud.JobBoard.CampaignText());
         }
     }
 }

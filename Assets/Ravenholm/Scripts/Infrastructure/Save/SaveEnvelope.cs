@@ -444,6 +444,8 @@ namespace Ravenholm.Infrastructure.Save
     {
         [JsonProperty("road")] public string Road;
         [JsonProperty("index")] public int Index;
+        /// <summary>Build projects built on the road (gate indices; optional).</summary>
+        [JsonProperty("built")] public List<int> Built = new List<int>();
     }
 
     [JsonObject(MemberSerialization.OptIn)]

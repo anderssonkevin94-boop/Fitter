@@ -178,6 +178,8 @@ namespace Ravenholm.Content
             partialMaterials = partial; firstSuccessBlueprint = blueprint; substituteMaterials = substitute; rareResource = rare; rareChance = chance;
         }
 
+        public void EditorSetBrief(string text) => brief = text;
+
         public void EditorSetCamp(int onCamp, bool isSummons)
         {
             camp = onCamp;

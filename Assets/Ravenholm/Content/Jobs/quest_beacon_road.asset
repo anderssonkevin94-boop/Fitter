@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: quest_beacon_road
   m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
   id: quest.beacon_road
-  displayName: Chart the Beacon Road
+  displayName: Chart the Castle Road
   contentVersion: 1
   difficulty: 29
   durationSeconds: 300
@@ -26,7 +26,7 @@ MonoBehaviour:
   repeatable: 0
   recoveryContract: 0
   prestigeTarget: 70
-  brief: A capable explorer must find a way up to the Beacon.
+  brief: A capable explorer must find a way up the last climb to the castle.
   prerequisites:
   - {fileID: 11400000, guid: d2f353ace987047ce97087e1b5663294, type: 2}
   reputationGate: 0

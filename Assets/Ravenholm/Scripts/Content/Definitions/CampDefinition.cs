@@ -32,6 +32,9 @@ namespace Ravenholm.Content
             [Min(1)] public int tier;
             [Tooltip("A rock wall (the pickaxe) rather than old trees (the axe).")]
             public bool rock;
+            [Tooltip("A build project instead (a bridge over a ravine, a causeway over a flood): the land is a gap until it is built.")]
+            public string project;
+            public List<ResourceCost> projectCost;
         }
 
         [Serializable]
@@ -41,6 +44,8 @@ namespace Ravenholm.Content
             [Tooltip("Cells ahead of camp 1 along the road.")]
             [Min(10)] public int ahead;
             [Min(4)] public float radius;
+            [Tooltip("The ground's tint around this camp (its own land: a darker wood, a misty fen, grey uplands).")]
+            public Color groundTint;
         }
 
         [Min(1)] [SerializeField] private int order = 1;
@@ -97,6 +102,24 @@ namespace Ravenholm.Content
         /// <summary>The camp's ahead distance from camp 1 along the road.</summary>
         public int CampAhead(int index) => index <= 0 ? 0 : stops[Mathf.Min(index, stops.Count) - 1].ahead;
 
+        /// <summary>The ground's tint at a distance along the road: each camp's land from halfway to it, blending in.</summary>
+        public Color GroundTintAt(double ahead)
+        {
+            var tint = Color.white;
+            var prevAhead = 0;
+            foreach (var st in stops)
+            {
+                var from = (prevAhead + st.ahead) * 0.5f;
+                if (ahead >= from)
+                {
+                    var c = st.groundTint.a > 0 ? st.groundTint : Color.white;
+                    tint = Color.Lerp(tint, c, Mathf.Clamp01((float)(ahead - from) / 20f));
+                }
+                prevAhead = st.ahead;
+            }
+            return tint;
+        }
+
         /// <summary>The camp's land (built once from these settings; derived data, the asset is never changed).</summary>
         public RidgeLayout Ridge
         {
@@ -117,7 +140,8 @@ namespace Ravenholm.Content
                 });
                 if (stops.Count == 0) r.Clearings.Add(new RidgeLayout.Clearing { S = campS + nextCampAhead, RX = nextCampRadius, RY = nextCampRadius });
                 foreach (var st in stops) r.Clearings.Add(new RidgeLayout.Clearing { S = campS + st.ahead, RX = st.radius, RY = st.radius });
-                foreach (var g in gates) r.Gates.Add(new RidgeLayout.Gate { S = campS + g.ahead, Thickness = g.thickness, Tier = g.tier, Rock = g.rock });
+                foreach (var g in gates)
+                    r.Gates.Add(new RidgeLayout.Gate { S = campS + g.ahead, Thickness = g.thickness, Tier = g.tier, Rock = g.rock, Project = !string.IsNullOrEmpty(g.project) });
                 return _ridge = r;
             }
         }
@@ -156,11 +180,12 @@ namespace Ravenholm.Content
             _ridge = null;
         }
 
-        public void EditorSetStops(List<StopSpec> list, List<Stretch> line, List<GateSpec> gateList)
+        public void EditorSetStops(List<StopSpec> list, List<Stretch> line, List<GateSpec> gateList, int bands)
         {
             stops = list;
             stretches = line;
             gates = gateList;
+            bandLength = bands;
             _ridge = null;
         }
 #endif

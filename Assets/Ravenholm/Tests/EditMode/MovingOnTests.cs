@@ -62,7 +62,7 @@ namespace Ravenholm.Tests
             Assert.IsNull(camp.MoveOn(there));
             Assert.AreEqual(1, camp.Index);
             Assert.AreEqual("River Bend", camp.Name);
-            Assert.IsFalse(camp.HasNext, "the last camp built so far");
+            Assert.AreEqual("Hollow Wood", camp.NextName, "the road goes on (step 7)");
             Assert.Greater(camp.Offset.magnitude, 10f, "the camp's group moved up the road");
             Assert.IsTrue(g.Stations.State.Sites.Values.All(s => s.Mode == StationSiteMode.Packed), "every station packed into its kit");
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());

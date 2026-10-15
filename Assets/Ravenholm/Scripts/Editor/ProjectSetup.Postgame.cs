@@ -23,9 +23,10 @@ namespace Ravenholm.EditorTools
             {
                 ("local_supply_survey", 1, false), ("roadside_patrol", 1, false), ("briar_track", 1, false), ("old_shrine", 1, true),
                 ("quarry_road", 2, false), ("fen_path", 2, false), ("fallen_watchtower", 2, false), ("shrine_chamber", 2, true),
-                ("fur_trappers_camp", 3, false), ("bandit_ford", 3, false), ("hollow_warren", 3, false), ("mire_crossing", 3, false),
-                ("witchlight_fen", 4, false), ("sunken_archive", 4, false),
-                ("crownward_gate", 5, false), ("ironwood_hunt", 5, false),
+                // Step 7: a summons at each of camps 3-5 (camp 6's last job is the finale itself).
+                ("fur_trappers_camp", 3, false), ("bandit_ford", 3, true), ("hollow_warren", 3, false), ("mire_crossing", 3, false),
+                ("witchlight_fen", 4, false), ("sunken_archive", 4, true),
+                ("crownward_gate", 5, true), ("ironwood_hunt", 5, false),
                 ("ashen_barracks", 6, false), ("beacon_road", 6, false), ("beacon_pass", 6, false), ("beacon_expedition", 6, false),
                 ("challenge_fen_gauntlet", 6, false), ("challenge_quarry_siege", 6, false), ("challenge_long_hunt", 6, false), ("challenge_shrine_vigil", 6, false),
             };
@@ -34,6 +35,23 @@ namespace Ravenholm.EditorTools
                 if (!catalogue.TryGet<QuestDefinition>("quest." + id, out var q) || q.Camp == camp && q.Summons == summons) continue;
                 q.EditorSetCamp(camp, summons);
                 EditorUtility.SetDirty(q);
+            }
+            // The finale is the castle's last, greatest job (the Beacon campaign's wording retired, its jobs kept).
+            void Rename(string id, string name, string brief)
+            {
+                if (!catalogue.TryGet<QuestDefinition>("quest." + id, out var q) || q.DisplayName == name) return;
+                q.EditorInitialize(q.Id, name);
+                q.EditorSetBrief(brief);
+                EditorUtility.SetDirty(q);
+            }
+            Rename("beacon_road", "Chart the Castle Road", "A capable explorer must find a way up the last climb to the castle.");
+            Rename("beacon_pass", "Hold the Castle Pass", "A seasoned fighter must clear the pass below the castle's walls.");
+            Rename("beacon_expedition", "The Castle's Last Great Job",
+                "The castle's last, greatest job: send an elite contractor with advanced gear and a counter to the Pale Flame at its gates.");
+            if (catalogue.TryGet<RegionDefinition>("region.crownward_ruins", out var crown) && crown.Rumour.Contains("Beacon"))
+            {
+                crown.EditorSetupRegion(crown.Order, crown.Theme, "Beyond the March, old ruins guard the last road to the castle.");
+                EditorUtility.SetDirty(crown);
             }
         }
 

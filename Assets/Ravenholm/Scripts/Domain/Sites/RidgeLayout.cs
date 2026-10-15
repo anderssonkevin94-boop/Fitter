@@ -34,6 +34,8 @@ namespace Ravenholm.Domain.Sites
             public int Thickness = 4;
             public int Tier = 2;
             public bool Rock;
+            /// <summary>A build project (a bridge, a causeway): the land is a gap until it is built; no tool needed.</summary>
+            public bool Project;
         }
 
         public double StartX, StartY;
@@ -234,7 +236,18 @@ namespace Ravenholm.Domain.Sites
             return best;
         }
 
-        public bool InGrove(int x, int y) => InLand(x, y) && !InClearing(x, y);
+        public bool InGrove(int x, int y) => InLand(x, y) && !InClearing(x, y) && !(GateAt(x, y) is Gate g && g.Project);
+
+        /// <summary>A cell of a build project's gap (a ravine to bridge, a flood to cross): no ground until it is built.</summary>
+        public bool InProjectGap(int x, int y) => InLand(x, y) && GateAt(x, y) is Gate g && g.Project;
+
+        /// <summary>The index of the gate a cell lies in (-1: none).</summary>
+        public int GateIndexAt(int x, int y)
+        {
+            var s = Locate(x, y).s;
+            for (var i = 0; i < Gates.Count; i++) if (Math.Abs(s - Gates[i].S) < Gates[i].Thickness * 0.5) return i;
+            return -1;
+        }
 
         /// <summary>On the old road (it wanders inside the ridge; clearings have their own paths).</summary>
         public bool OnRoad(int x, int y) => RoadDistance(x, y) < RoadHalfWidth && InLand(x, y) && !InClearing(x, y);
@@ -249,7 +262,7 @@ namespace Ravenholm.Domain.Sites
         public int GateTierAt(int x, int y)
         {
             var s = Locate(x, y).s;
-            foreach (var g in Gates) if (Math.Abs(s - g.S) < g.Thickness * 0.5) return g.Tier;
+            foreach (var g in Gates) if (Math.Abs(s - g.S) < g.Thickness * 0.5) return g.Project ? 0 : g.Tier;
             return 0;
         }
 
@@ -263,11 +276,15 @@ namespace Ravenholm.Domain.Sites
         /// <summary>Forward of camp 1, every <see cref="BandLength"/> cells is the next band (new wood, the Mine's next layer).</summary>
         public int BandAt(int x, int y) => 1 + (int)Math.Max(0, Math.Floor((Locate(x, y).s - CampS) / Math.Max(1, BandLength)));
 
-        /// <summary>Extra effort within a band: one more continuation every 15 cells forward.</summary>
+        /// <summary>
+        /// Extra effort within a band: three steps (0, 1, 2) across its length, so a band's last trees stay easier than
+        /// the next band's first (step 7: bands are 80 long; at one step per 15 cells they overtook the next band).
+        /// </summary>
         public int ContinuationAt(int x, int y)
         {
             var along = Math.Max(0, Locate(x, y).s - CampS);
-            return (int)(along % Math.Max(1, BandLength)) / 15;
+            var band = Math.Max(1, BandLength);
+            return (int)(along % band * 3 / band);
         }
 
         /// <summary>

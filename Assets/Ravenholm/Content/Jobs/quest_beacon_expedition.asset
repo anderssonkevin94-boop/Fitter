@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: quest_beacon_expedition
   m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
   id: quest.beacon_expedition
-  displayName: The Beacon Expedition
+  displayName: The Castle's Last Great Job
   contentVersion: 1
   difficulty: 32
   durationSeconds: 360
@@ -28,8 +28,8 @@ MonoBehaviour:
   repeatable: 0
   recoveryContract: 0
   prestigeTarget: 80
-  brief: Relight the Beacon. Send an elite contractor with advanced gear and a counter
-    to the Pale Flame.
+  brief: 'The castle''s last, greatest job: send an elite contractor with advanced
+    gear and a counter to the Pale Flame at its gates.'
   prerequisites:
   - {fileID: 11400000, guid: fefa2be95258f46fb845a50d29e13569, type: 2}
   - {fileID: 11400000, guid: ce01369435fd840b89be0924aea993cb, type: 2}

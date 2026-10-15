@@ -37,7 +37,7 @@ MonoBehaviour:
   challenge: 0
   preparations: []
   camp: 4
-  summons: 0
+  summons: 1
   knowledge:
   - successes: 2
     fact: Moonsilver fittings survive on the drowned shelves.

@@ -38,7 +38,7 @@ MonoBehaviour:
   challenge: 0
   preparations: []
   camp: 5
-  summons: 0
+  summons: 1
   knowledge:
   - successes: 2
     fact: The gate's armory still holds moonsilver.

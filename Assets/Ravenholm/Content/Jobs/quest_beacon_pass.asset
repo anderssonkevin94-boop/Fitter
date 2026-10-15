@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: quest_beacon_pass
   m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.QuestDefinition
   id: quest.beacon_pass
-  displayName: Hold the Beacon Pass
+  displayName: Hold the Castle Pass
   contentVersion: 1
   difficulty: 30
   durationSeconds: 300
@@ -26,7 +26,7 @@ MonoBehaviour:
   repeatable: 0
   recoveryContract: 0
   prestigeTarget: 70
-  brief: A seasoned fighter must clear the pass for the final climb.
+  brief: A seasoned fighter must clear the pass below the castle's walls.
   prerequisites:
   - {fileID: 11400000, guid: d2f353ace987047ce97087e1b5663294, type: 2}
   reputationGate: 0

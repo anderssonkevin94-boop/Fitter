@@ -37,6 +37,12 @@ namespace Ravenholm.Services
         /// <summary>The camp the company is at: 0 is camp 1.</summary>
         public int Index { get; private set; }
 
+        /// <summary>The road's build projects already built (gate indices): a bridge, a causeway.</summary>
+        public readonly SortedSet<int> Built = new SortedSet<int>();
+
+        /// <summary>Raised after a build project was built (its gate index).</summary>
+        public event Action<int> ProjectBuilt;
+
         /// <summary>Raised after the company moved on (from, to).</summary>
         public event Action<int, int> Moved;
 
@@ -94,6 +100,48 @@ namespace Ravenholm.Services
             return left;
         }
 
+        // ------------------------------------------------------------------ build projects (the journey, step 7)
+
+        /// <summary>Gate indices that are build projects (a ravine to bridge, a flood to cross).</summary>
+        public IEnumerable<int> Projects()
+        {
+            if (Road == null) yield break;
+            for (var i = 0; i < Road.Gates.Count; i++) if (!string.IsNullOrEmpty(Road.Gates[i].project)) yield return i;
+        }
+
+        public string ProjectName(int gate) => Road != null && gate >= 0 && gate < Road.Gates.Count ? Road.Gates[gate].project : "";
+
+        public IReadOnlyList<ResourceCost> ProjectCost(int gate) =>
+            Road != null && gate >= 0 && gate < Road.Gates.Count && Road.Gates[gate].projectCost != null ? Road.Gates[gate].projectCost : new List<ResourceCost>();
+
+        public bool IsBuilt(int gate) => Built.Contains(gate);
+
+        public string BuildBlockedReason(int gate)
+        {
+            if (string.IsNullOrEmpty(ProjectName(gate))) return "Nothing to build here";
+            if (IsBuilt(gate)) return "Already built";
+            foreach (var c in ProjectCost(gate))
+            {
+                var have = _logistics.System.SharedAvailable(c.resource.Id);
+                if (have < c.quantity) return $"Needs {c.quantity} {c.resource.DisplayName} (you have {have})";
+            }
+            return null;
+        }
+
+        /// <summary>Builds a project with materials from stock: the gap becomes ground (a bridge, a causeway).</summary>
+        public string Build(int gate)
+        {
+            var why = BuildBlockedReason(gate);
+            if (why != null) return why;
+            var pairs = new List<KeyValuePair<string, int>>();
+            foreach (var c in ProjectCost(gate)) pairs.Add(new KeyValuePair<string, int>(c.resource.Id, c.quantity));
+            if (!_logistics.System.TryConsumeShared(pairs, $"built: {ProjectName(gate)}")) return "Materials changed; try again";
+            Built.Add(gate);
+            _scheduler.SaveNow($"built {ProjectName(gate)}");
+            ProjectBuilt?.Invoke(gate);
+            return null;
+        }
+
         // ------------------------------------------------------------------ moving on
 
         /// <summary>Whether a world point is in the next camp's clearing.</summary>
@@ -147,12 +195,18 @@ namespace Ravenholm.Services
 
         // ------------------------------------------------------------------ save
 
-        void ISaveSection.Write(SaveEnvelope env) => env.Camp = new CampSaveData { Road = Road?.Id, Index = Index };
+        void ISaveSection.Write(SaveEnvelope env)
+        {
+            env.Camp = new CampSaveData { Road = Road?.Id, Index = Index };
+            env.Camp.Built.AddRange(Built);
+        }
 
         void ISaveSection.Read(SaveEnvelope env)
         {
             var d = env?.Camp;
             Index = d != null && d.Road == Road?.Id && Road != null ? Math.Max(0, Math.Min(d.Index, Road.CampCount - 1)) : 0;
+            Built.Clear();
+            if (d != null && d.Road == Road?.Id && d.Built != null) foreach (var b in d.Built) Built.Add(b);
             Reloaded?.Invoke();
         }
     }

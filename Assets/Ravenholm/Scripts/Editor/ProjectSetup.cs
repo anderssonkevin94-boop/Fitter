@@ -92,6 +92,7 @@ namespace Ravenholm.EditorTools
             EnsureShop(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             EnsureCamps(catalogue, settings);
+            EnsureRoad(catalogue);
             var theme = EnsureUiTheme();
             EnsureOreBlocks();
             EnsureScaffoldMaterials();
@@ -861,21 +862,7 @@ namespace Ravenholm.EditorTools
                 mill.EditorSetFootprint(new Vector2Int(3, 2));
                 EditorUtility.SetDirty(mill);
             }
-            if (camp.Stops.Count == 0)
-            {
-                // Step 4 (moving on): camp 2, River Bend, 95 cells up the road, and the land beyond it with the next gate (a rock
-                // wall: the tempered tool) so the road carries on toward camp 3.
-                CampDefinition.Stretch S2(bool upRight, int length) => new CampDefinition.Stretch { upRight = upRight, length = length };
-                camp.EditorSetStops(
-                    new List<CampDefinition.StopSpec> { new CampDefinition.StopSpec { name = "River Bend", ahead = 95, radius = 13f } },
-                    new List<CampDefinition.Stretch> { S2(false, 16), S2(true, 34), S2(false, 38), S2(true, 30), S2(false, 34), S2(true, 30), S2(false, 36), S2(true, 34) },
-                    new List<CampDefinition.GateSpec>
-                    {
-                        new CampDefinition.GateSpec { ahead = 55, thickness = 4, tier = 2, rock = false },
-                        new CampDefinition.GateSpec { ahead = 150, thickness = 4, tier = 3, rock = true },
-                    });
-                EditorUtility.SetDirty(camp);
-            }
+            // The camps further up the road and their gates: EnsureRoad (step 7).
             if (catalogue.Camps.Count == 0) { catalogue.EditorSetCamps(new List<CampDefinition> { camp }); EditorUtility.SetDirty(catalogue); }
             if (settings.camp == null) { settings.camp = camp; EditorUtility.SetDirty(settings); }
         }
@@ -1426,7 +1413,7 @@ namespace Ravenholm.EditorTools
         public static Dictionary<string, TileBase> EnsureTiles()
         {
             var result = new Dictionary<string, TileBase>();
-            foreach (var key in new[] { "grass_a", "grass_b", "grass_c", "path", "path_b", "path_c", "plaza", "dirt", "forest_floor", "forest_floor_b", "block_0", "block_1", "block_2", "block_seam_0", "block_seam_1", "block_seam_2", "slab", "sill", "fleck", "halfblock_0", "halfblock_1", "halfblock_2", "fleck_half", "halfblock_outline_0", "halfblock_outline_1", "halfblock_outline_2" })
+            foreach (var key in new[] { "grass_a", "grass_b", "grass_c", "path", "path_b", "path_c", "plaza", "dirt", "forest_floor", "forest_floor_b", "bridge", "block_0", "block_1", "block_2", "block_seam_0", "block_seam_1", "block_seam_2", "slab", "sill", "fleck", "halfblock_0", "halfblock_1", "halfblock_2", "fleck_half", "halfblock_outline_0", "halfblock_outline_1", "halfblock_outline_2" })
             {
                 var path = TileDir + "tile_" + key + ".asset";
                 var tile = AssetDatabase.LoadAssetAtPath<Tile>(path);

@@ -128,7 +128,7 @@ namespace Ravenholm.Presentation
             var q = content?.Quest(r.QuestId);
             var success = r.Outcome == Outcome.Success || r.Outcome == Outcome.GreatSuccess;
             if (q != null && success && q.Finale)
-                sb.Append("<b>The Beacon burns again. Campaign complete!</b> A trophy now stands in town. Repeatable contracts, remaining blueprints and better gear are still there for you.\n");
+                sb.Append("<b>The castle's last great job is done. Journey complete!</b> A trophy now stands at your camp. Repeatable contracts, remaining blueprints and better gear are still there for you.\n");
             if (q != null && success)
                 foreach (var prep in q.Prepares)
                     sb.Append($"<b>Preparation secured:</b> {UnitVisuals.DisplayName(prep.Value)} will no longer stand in the way of {UnitVisuals.DisplayName(prep.Key)}.\n");

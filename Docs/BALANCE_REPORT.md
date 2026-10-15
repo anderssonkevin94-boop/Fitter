@@ -24,9 +24,9 @@ First attempt: best class by net at the typical level with gear owned beforehand
 | Crownward Gate | 29 | 5 | Rogue | 4 | Risky | 1 % | 62 % | 33 % | 4 % | 0.0 % | 58.2 | 22 | 0.3 | 0.0 | **35.9** | 1 | Rogue L4 | 46.8 |
 | Ironwood Hunt | 28 | 6 | Ranger | 5 | Good | 9 % | 74 % | 17 % | 0 % | 0.0 % | 68.2 | 21 | 0.0 | 0.0 | **47.2** | 1 | Ranger L1 | 54.2 |
 | Ashen Barracks | 30 | 6 | Warrior | 5 | Good | 43 % | 57 % | 1 % | 0 % | 0.0 % | 90.2 | 19 | 20.0 | 0.0 | **51.2** | 1 | Warrior L1 | 53.1 |
-| Chart the Beacon Road (one-time) | 29 | 7 | Rogue | 6 | Risky | 0 % | 51 % | 40 % | 9 % | 0.0 % | 60.1 | 25 | 2.2 | 0.0 | **32.9** | 4 | Rogue L10 | 49.6 |
-| Hold the Beacon Pass (one-time) | 30 | 7 | Warrior | 6 | Excellent | 74 % | 26 % | 0 % | 0 % | 0.0 % | 112.0 | 20 | 20.0 | 0.0 | **72.0** | 1 | Warrior L1 | 66.8 |
-| The Beacon Expedition (one-time) | 32 | 8 | Mage | 6 | Risky | 0 % | 53 % | 38 % | 8 % | 0.1 % | 103.0 | 32 | 22.0 | 0.1 | **49.0** | 3 | Mage L9 | 72.5 |
+| Chart the Castle Road (one-time) | 29 | 7 | Rogue | 6 | Risky | 0 % | 51 % | 40 % | 9 % | 0.0 % | 60.1 | 25 | 2.2 | 0.0 | **32.9** | 4 | Rogue L10 | 49.6 |
+| Hold the Castle Pass (one-time) | 30 | 7 | Warrior | 6 | Excellent | 74 % | 26 % | 0 % | 0 % | 0.0 % | 112.0 | 20 | 20.0 | 0.0 | **72.0** | 1 | Warrior L1 | 66.8 |
+| The Castle's Last Great Job (one-time) | 32 | 8 | Mage | 6 | Risky | 0 % | 53 % | 38 % | 8 % | 0.1 % | 103.0 | 32 | 22.0 | 0.1 | **49.0** | 3 | Mage L9 | 72.5 |
 | Challenge: The Long Hunt | 34 | 9 | Ranger | 6 | Risky | 0 % | 45 % | 44 % | 12 % | 0.0 % | 71.5 | 22 | 2.8 | 0.0 | **46.7** | 4 | Ranger L10 | 73.4 |
 | Challenge: Quarry Siege | 35 | 9 | Rogue | 6 | Risky | 0 % | 51 % | 40 % | 9 % | 0.0 % | 83.5 | 25 | 2.2 | 0.0 | **56.3** | 4 | Rogue L10 | 81.3 |
 | Challenge: Fen Gauntlet | 40 | 9 | Warrior | 6 | Risky | 3 % | 70 % | 25 % | 1 % | 0.1 % | 101.5 | 21 | 31.0 | 0.1 | **49.5** | 4 | Warrior L7 | 52.8 |
