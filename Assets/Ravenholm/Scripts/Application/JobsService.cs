@@ -62,6 +62,8 @@ namespace Ravenholm.Services
                 foreach (var pre in d.Prerequisites) if (pre != null) qi.Prerequisites.Add(pre.Id);
                 qi.Region = d.Region != null ? d.Region.Id : "";
                 qi.CampaignStep = d.CampaignStep;
+                qi.Camp = d.Camp;
+                qi.Summons = d.Summons;
                 qi.Finale = d.CampaignFinale;
                 qi.MinLevel = d.MinContractorLevel;
                 qi.DispatchReputation = d.DispatchReputation;

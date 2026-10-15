@@ -140,6 +140,8 @@ namespace Ravenholm.Tests
             var refusals = new Dictionary<string, int>();
             while (!board.CampaignComplete && expeditions < 900 && rounds++ < 3000)
             {
+                // The journey (step 5): once the camp's summons is answered, the company moves on up the road.
+                if (g.Camp.HasNext && board.SummonsAnswered(g.Camp.Index + 1)) g.Camp.DebugSetIndex(g.Camp.Index + 1);
                 // A busy shop: materials flow in and the best recipes stay stocked (as the Job Board bot does).
                 foreach (var r in Cat.Resources)
                 {

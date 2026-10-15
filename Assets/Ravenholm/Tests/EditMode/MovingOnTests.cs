@@ -43,6 +43,9 @@ namespace Ravenholm.Tests
             var there = camp.CentreOf(1);
             Assert.AreEqual("Make camp from River Bend's clearing", camp.MoveOnBlockedReason(Vector2.zero), "from camp 1 itself: no");
             Assert.IsTrue(camp.AtNext(there));
+            StringAssert.Contains("summons", camp.MoveOnBlockedReason(there), "the castle's summons first (step 5)");
+            g.Jobs.Board.DebugRecordSuccess("quest.roadside_patrol");
+            g.Jobs.Board.DebugRecordSuccess("quest.old_shrine");
 
             // A station's pad holding goods: collect them first.
             g.Logistics.System.CreateMaterialsInContainer("container.forge_pad", "resource.iron_ingot", 1);

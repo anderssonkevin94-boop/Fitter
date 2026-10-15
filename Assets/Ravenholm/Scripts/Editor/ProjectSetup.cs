@@ -84,6 +84,7 @@ namespace Ravenholm.EditorTools
             EnsureCampaignContent(catalogue);
             EnsureTutorialContent(catalogue);
             EnsurePostgameContent(catalogue);
+            EnsureJourneyJobs(catalogue);
             EnsureKnowledgeContent(catalogue);
             ApplyBalanceRevisions(catalogue);
             EnsureShop(catalogue);

@@ -31,7 +31,11 @@ namespace Ravenholm.Services
             Simulation = new SimulationService(Scheduler, Sites, Production, Jobs) { DescribeTrader = Economy.DescribeTrader };
             Shop = new ShopService(Scheduler, catalogue, Jobs, Logistics);
             Stations = new StationsService(Scheduler, catalogue, Sites, Logistics, clock, balance != null ? balance.stationBuildSeconds : 8f);
-            Camp = new CampService(Scheduler, catalogue, Stations, Shop, Logistics);
+            Camp = new CampService(Scheduler, catalogue, Stations, Shop, Logistics, Jobs);
+            // The castle posts the jobs of the company's camp and earlier ones (the journey, step 5).
+            Camp.Moved += (_, __) => PlaceTheCompany();
+            Jobs.Reloaded += PlaceTheCompany;
+            Camp.Reloaded += PlaceTheCompany;
             Tutorial = new TutorialService(Scheduler, catalogue, Logistics, Sites, Production, Jobs, Economy);
             Economy.TraderUsed += Tutorial.NoteTraderUsed;
         }
@@ -62,12 +66,21 @@ namespace Ravenholm.Services
         public void Start()
         {
             Scheduler.LoadAll();
+            PlaceTheCompany();
             var id = $"catchup.{Saves.Status.Generation + 1}";
             var report = Simulation.CatchUp(Saves.LoadedLastAcceptedUtc, Clock.UtcNow, id);
             if (report != null && report.ElapsedMs > 0) Economy.LastCatchUpId = id;
             if (report != null && report.ElapsedMs >= SimulationService.ReportThresholdMs) Simulation.PendingReport = report;
             Sandbox.CountSession();
             Scheduler.SaveNow(report != null && report.ElapsedMs > 0 ? "session start (offline catch-up)" : "session start");
+        }
+
+        /// <summary>Tells the castle where the company is on the road.</summary>
+        private void PlaceTheCompany()
+        {
+            var p = Jobs.Board.Position;
+            p.Camp = Camp.Index + 1;
+            p.CampCount = Catalogue != null && Catalogue.CurrentCamp != null ? Catalogue.CurrentCamp.CampCount : int.MaxValue;
         }
 
         /// <summary>Returning from the background: catch up the paused interval like a cold start.</summary>

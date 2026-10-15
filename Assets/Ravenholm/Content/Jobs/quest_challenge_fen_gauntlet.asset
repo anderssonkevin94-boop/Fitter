@@ -38,6 +38,8 @@ MonoBehaviour:
   campaignFinale: 0
   challenge: 1
   preparations: []
+  camp: 6
+  summons: 0
   knowledge: []
   failureObservation: 
   minContractorLevel: 0

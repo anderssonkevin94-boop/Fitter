@@ -38,7 +38,12 @@ MonoBehaviour:
   region: {fileID: 11400000, guid: 18359f64f813649d4828fff75e0c2bc6, type: 2}
   campaignStep: 17
   campaignFinale: 1
+  challenge: 0
   preparations: []
+  camp: 6
+  summons: 0
+  knowledge: []
+  failureObservation: 
   minContractorLevel: 6
   dispatchReputation: 70
   minWeaponPower: 13

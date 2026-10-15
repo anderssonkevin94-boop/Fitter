@@ -160,6 +160,22 @@ namespace Ravenholm.Presentation
                 Text(() => ExpeditionLine(exp));
             }
 
+            if (Castle)
+            {
+                // The journey, step 5: this camp's summons (answering it, with the way through, lets the company move on).
+                var camp = Board.Position.Camp;
+                var summons = Board.SummonsFor(camp);
+                if (summons != null)
+                {
+                    Header("The castle's summons");
+                    Text(() => Board.SummonsAnswered(camp)
+                        ? $"{_root.Services.Camp.Name}: <b>{summons.Name}</b>, answered. The road on is open once you are through to {(_root.Services.Camp.HasNext ? _root.Services.Camp.NextName : "the next camp")}."
+                        : Board.IsUnlocked(summons.Id)
+                            ? $"{_root.Services.Camp.Name}: <b>{summons.Name}</b>. The castle will send someone for it; succeed at it to be allowed to move on."
+                            : $"{_root.Services.Camp.Name}: <b>{summons.Name}</b>. {Board.LockReason(summons.Id)}.");
+                }
+            }
+
             if (Castle && s.Posting == null)
             {
                 Header("At your shop");
@@ -170,7 +186,9 @@ namespace Ravenholm.Presentation
             if (s.Posting != null)
             {
                 var p = s.Posting;
+                var isSummons = Board.Quest(p.QuestId) is Domain.Jobs.QuestInfo pq && pq.Summons;
                 Header(p.ByCastle ? $"At your shop: an adventurer for {Name(p.QuestId)}" : $"Posted: {Name(p.QuestId)}");
+                if (isSummons) Text(() => "<b>The castle's summons.</b> Succeed at it to be allowed to move on.");
                 if (p.Applicants.Count == 0) Text(() => $"<color=#B44034>{p.NoApplicantReason}</color>");
                 foreach (var a in p.Applicants)
                 {
@@ -190,6 +208,7 @@ namespace Ravenholm.Presentation
                 foreach (var q in Cat.Quests)
                 {
                     if (q == null || q.Region != region || !Board.IsUnlocked(q.Id)) continue;   // locked jobs appear on the map only
+                    if (Castle && !Board.PostedHere(q.Id)) continue;   // a later camp's job: the castle posts it there
                     if (!any) Header(region != null ? $"{(Castle ? "The castle's jobs" : "Jobs")} · {region.DisplayName}" : "Jobs");
                     any = true;
                     var quest = q;
@@ -317,6 +336,7 @@ namespace Ravenholm.Presentation
             sb.Append($"<b>{q.DisplayName}</b> · difficulty {q.Difficulty} · {q.DurationSeconds:0} s · pays {q.BaseGold} g base");
             if (q.RecoveryContract) sb.Append(" · <b>sponsored: patron pays the fee</b>");
             if (q.Challenge) sb.Append(" · <b>challenge contract</b>");
+            if (q.Summons) sb.Append(" · <b>the castle's summons</b>");
             sb.Append('\n').Append(q.Brief);
             var view = Board.Quest(q.Id);
             if (view.Threats.Count == 0) sb.Append("\nThreats: none expected");

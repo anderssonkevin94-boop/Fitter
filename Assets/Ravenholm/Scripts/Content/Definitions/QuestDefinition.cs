@@ -72,6 +72,12 @@ namespace Ravenholm.Content
         [Tooltip("On first success, removes these threats from later quests (permanent expedition preparations).")]
         [SerializeField] private List<QuestPreparation> preparations = new List<QuestPreparation>();
 
+        [Header("The journey (step 5)")]
+        [Tooltip("The camp on the road whose castle posts this job (1 = Meadow's Edge). Later camps post earlier camps' jobs too.")]
+        [Min(1)] [SerializeField] private int camp = 1;
+        [Tooltip("The camp's summons: the castle's key job there. Answering it (with the way through) lets the company move on.")]
+        [SerializeField] private bool summons;
+
         [Header("Knowledge (GDD 13)")]
         [SerializeField] private List<KnowledgeStep> knowledge = new List<KnowledgeStep>();
         [Tooltip("One basic observation learned on the first Failure-and-return here (optional).")]
@@ -111,6 +117,8 @@ namespace Ravenholm.Content
         public IReadOnlyList<QuestDefinition> Prerequisites => prerequisites;
         public int ReputationGate => reputationGate;
         public int MapTier => mapTier;
+        public int Camp => camp;
+        public bool Summons => summons;
         public RegionDefinition Region => region;
         public int CampaignStep => campaignStep;
         public bool CampaignFinale => campaignFinale;
@@ -168,6 +176,12 @@ namespace Ravenholm.Content
         {
             prerequisites = prereqs; reputationGate = gate; mapTier = tier; successMaterials = success; greatBonusMaterials = great;
             partialMaterials = partial; firstSuccessBlueprint = blueprint; substituteMaterials = substitute; rareResource = rare; rareChance = chance;
+        }
+
+        public void EditorSetCamp(int onCamp, bool isSummons)
+        {
+            camp = onCamp;
+            summons = isSummons;
         }
 
         public void EditorSetRegion(RegionDefinition r) => region = r;

@@ -34,10 +34,15 @@ MonoBehaviour:
   region: {fileID: 11400000, guid: 18359f64f813649d4828fff75e0c2bc6, type: 2}
   campaignStep: 16
   campaignFinale: 0
+  challenge: 0
   preparations:
   - quest: {fileID: 11400000, guid: af3c52165466f4161b403d063bf01a18, type: 2}
     threat: {fileID: 11400000, guid: 0e93de226d5a2427893559b4c281bc8e, type: 2}
     note: Pass secured
+  camp: 6
+  summons: 0
+  knowledge: []
+  failureObservation: 
   minContractorLevel: 4
   dispatchReputation: 0
   minWeaponPower: 0

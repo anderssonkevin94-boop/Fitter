@@ -226,6 +226,10 @@ namespace Ravenholm.Domain.Jobs
         public int MinWeaponPower;
         public int MinArmorProtection;
         public bool RequireCounterPotion;
+        /// <summary>The camp on the road whose castle jobs this is one of (the journey, step 5; 1 = camp 1).</summary>
+        public int Camp = 1;
+        /// <summary>The camp's summons: the castle's key job there, needed (with the way through) to move on.</summary>
+        public bool Summons;
         /// <summary>Knowledge steps beyond the first-success threat reveal (GDD 13): (successes needed, fact, readiness bonus).</summary>
         public readonly List<KnowledgeStepInfo> Knowledge = new List<KnowledgeStepInfo>();
         public string FailureObservation;
@@ -341,6 +345,15 @@ namespace Ravenholm.Domain.Jobs
         public long CastleFirstMs = 15000, CastleIntervalMs = 45000;
         /// <summary>The shop's share of the castle's gold reward, in percent (fixed at dispatch).</summary>
         public int ShopSharePercent = 60;
+    }
+
+    /// <summary>Where the company is on the road (the journey, step 5): the castle posts the jobs of this camp and earlier.</summary>
+    public sealed class CampPosition
+    {
+        /// <summary>The camp the company is at (1 = camp 1).</summary>
+        public int Camp = 1;
+        /// <summary>How many camps the road has so far: jobs for camps not built yet are posted at the last one.</summary>
+        public int CampCount = int.MaxValue;
     }
 
     /// <summary>
@@ -732,13 +745,48 @@ namespace Ravenholm.Domain.Jobs
             return RequirementProblem(c, l, q) == null && Forecast(c, l, q).Band != RiskBand.Suicidal;
         }
 
+        /// <summary>The company's place on the road (set by the camp service).</summary>
+        public CampPosition Position { get; } = new CampPosition();
+
+        /// <summary>The camp a job belongs to, counting jobs for camps not built yet as the last camp's.</summary>
+        public int CampOf(QuestInfo q) => Math.Max(1, Math.Min(q.Camp, Position.CampCount));
+
+        /// <summary>Whether the castle posts this job at the company's camp (its camp or an earlier one).</summary>
+        public bool PostedHere(string questId) => Quest(questId) is QuestInfo q && CampOf(q) <= Position.Camp;
+
+        /// <summary>The summons of a camp (null when it has none).</summary>
+        public QuestInfo SummonsFor(int camp)
+        {
+            foreach (var id in _content.QuestIds)
+                if (Quest(id) is QuestInfo q && q.Summons && CampOf(q) == camp) return q;
+            return null;
+        }
+
+        /// <summary>Whether the camp's summons has been answered (a camp without one has nothing to answer).</summary>
+        public bool SummonsAnswered(int camp)
+        {
+            var q = SummonsFor(camp);
+            return q == null || _s.Progress.TryGetValue(q.Id, out var p) && p.Successes > 0;
+        }
+
+        /// <summary>The castle's possible postings in order (for tests): what <see cref="CastleTick"/> would try.</summary>
+        public List<string> CastleCandidates() => CastleChoices();
+
+        /// <summary>DEBUG/tests: count a success of a job without sending anyone (unlocks follow).</summary>
+        public void DebugRecordSuccess(string questId)
+        {
+            if (!_s.Progress.TryGetValue(questId, out var p)) _s.Progress[questId] = p = new QuestProgress();
+            p.Successes++;
+            RefreshUnlocks();
+        }
+
         private List<string> CastleChoices()
         {
             var open = new List<string>();
             string recovery = null;
             foreach (var id in _content.QuestIds)
             {
-                if (PostBlockedReason(id) != null) continue;
+                if (PostBlockedReason(id) != null || !PostedHere(id)) continue;
                 if (Quest(id).Recovery) recovery = id;
                 else open.Add(id);
             }
@@ -750,6 +798,9 @@ namespace Ravenholm.Domain.Jobs
             }
             var campaign = CampaignObjective();
             if (campaign != null && open.Remove(campaign)) open.Insert(0, campaign);
+            // The camp's summons, once it can be taken, comes before everything (the journey, step 5).
+            var summons = SummonsFor(Position.Camp);
+            if (summons != null && !SummonsAnswered(Position.Camp) && open.Remove(summons.Id)) open.Insert(0, summons.Id);
             // Nothing to lend at all: the survey (it needs no gear) comes first; otherwise it is the fallback.
             if (recovery != null)
             {

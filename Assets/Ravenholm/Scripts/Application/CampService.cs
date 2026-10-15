@@ -20,9 +20,12 @@ namespace Ravenholm.Services
         private readonly StationsService _stations;
         private readonly ShopService _shop;
         private readonly LogisticsService _logistics;
+        private readonly JobsService _jobs;
 
-        public CampService(SaveScheduler scheduler, ContentCatalogue catalogue, StationsService stations, ShopService shop, LogisticsService logistics)
+        public CampService(SaveScheduler scheduler, ContentCatalogue catalogue, StationsService stations, ShopService shop, LogisticsService logistics,
+            JobsService jobs)
         {
+            _jobs = jobs;
             _scheduler = scheduler;
             _catalogue = catalogue;
             _stations = stations;
@@ -36,6 +39,9 @@ namespace Ravenholm.Services
 
         /// <summary>Raised after the company moved on (from, to).</summary>
         public event Action<int, int> Moved;
+
+        /// <summary>Raised after a load or reset replaced the camp.</summary>
+        public event Action Reloaded;
 
         private CampDefinition Road => _catalogue.CurrentCamp;
 
@@ -105,6 +111,8 @@ namespace Ravenholm.Services
         {
             if (!HasNext) return "This is the last camp on the road";
             if (!AtNext(world)) return $"Make camp from {NextName}'s clearing";
+            // The castle's summons for this camp must be answered first (the journey, step 5).
+            if (!_jobs.Board.SummonsAnswered(Index + 1)) return $"Answer the castle's summons first: {_jobs.Board.SummonsFor(Index + 1).Name}";
             var full = new List<string>();
             foreach (var s in _stations.State.Sites.Values)
                 if (s.Standing && _stations.PackBlockedReason(s.StationId) != null && _catalogue.TryGet<StationDefinition>(s.StationId, out var d))
@@ -128,6 +136,15 @@ namespace Ravenholm.Services
             return null;
         }
 
+        /// <summary>DEBUG/tests: put the company at a camp (as if it had moved there).</summary>
+        public void DebugSetIndex(int index)
+        {
+            var from = Index;
+            Index = Road != null ? Math.Max(0, Math.Min(index, Road.CampCount - 1)) : 0;
+            _scheduler.SaveNow("debug: camp");
+            Moved?.Invoke(from, Index);
+        }
+
         // ------------------------------------------------------------------ save
 
         void ISaveSection.Write(SaveEnvelope env) => env.Camp = new CampSaveData { Road = Road?.Id, Index = Index };
@@ -136,6 +153,7 @@ namespace Ravenholm.Services
         {
             var d = env?.Camp;
             Index = d != null && d.Road == Road?.Id && Road != null ? Math.Max(0, Math.Min(d.Index, Road.CampCount - 1)) : 0;
+            Reloaded?.Invoke();
         }
     }
 }

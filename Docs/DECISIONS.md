@@ -1328,3 +1328,27 @@ Kevin: "start on step 4, moving on". Built on the continuous ridge (one road, ca
   - the summons and the camp tier of jobs (step 5);
   - choosing what to leave behind item by item;
   - Astra's ox and wagon art.
+
+## 2026-10-16: journey step 5, job tiers and summons per camp (awaiting Kevin's approval)
+
+Kevin: "start on step 5, job tiers and summons". Following the outline's mapping (Frontier Paths for camps 1–2, the Hollow March for 3–4, the Crownward Ruins for 5–6):
+- **Each job belongs to a camp** (`QuestDefinition.camp`). The castle posts only the jobs of the company's camp and earlier camps (`JobBoardSystem.PostedHere`, from `CampPosition`, which `GameServices` keeps in step with `CampService`):
+
+  | Camp | Jobs |
+  |---|---|
+  | Meadow's Edge | survey, Roadside Patrol, Briar Track, Old Shrine |
+  | River Bend | Quarry Road, Fen Path, Fallen Watchtower, Shrine Chamber |
+  | 3 | Fur Trappers' Camp, Bandit Ford, Hollow Warren, Mire Crossing |
+  | 4 | Witchlight Fen, Sunken Archive |
+  | 5 | Crownward Gate, Ironwood Hunt |
+  | 6 | Ashen Barracks, the Beacon jobs, the challenges |
+
+  Until camps 3–6 exist, their jobs are posted at the last camp, so the campaign can still be finished. A job unlocked early but belonging to a later camp waits for that camp, and the job board lists only the jobs posted here.
+- **One summons per camp** (`QuestDefinition.summons`): Old Shrine at Meadow's Edge, Shrine Chamber at River Bend.
+  - The castle sends for the summons first once it is unlocked.
+  - The job board shows it under "The castle's summons for <camp>", and the posting is tagged with it.
+  - Making camp at the next clearing needs the summons answered (at least one success) as well as the way through.
+- **Unchanged:** the order of the rest, which is the campaign objective first, then shuffled; prerequisites and reputation gates; and adventurer levels, which still scale with reputation.
+- **Tests:**
+  - The castle bot now moves the company on as soon as each camp's summons is answered, and still completes the campaign.
+  - New tests cover the tiers and the summons gate.

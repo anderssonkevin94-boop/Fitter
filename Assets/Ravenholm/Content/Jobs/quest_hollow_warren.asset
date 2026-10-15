@@ -34,7 +34,10 @@ MonoBehaviour:
   region: {fileID: 11400000, guid: 8bfd23782780e4a6abee3fb5b7b92075, type: 2}
   campaignStep: 9
   campaignFinale: 0
+  challenge: 0
   preparations: []
+  camp: 3
+  summons: 0
   knowledge:
   - successes: 2
     fact: Old miners' steel is buried in the side passages.

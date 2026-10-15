@@ -35,7 +35,10 @@ MonoBehaviour:
   region: {fileID: 11400000, guid: 18359f64f813649d4828fff75e0c2bc6, type: 2}
   campaignStep: 14
   campaignFinale: 0
+  challenge: 0
   preparations: []
+  camp: 6
+  summons: 0
   knowledge:
   - successes: 2
     fact: The barracks' quartermaster kept moonsilver back.

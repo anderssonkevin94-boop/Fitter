@@ -56,6 +56,9 @@ namespace Ravenholm.Tests
             var trader = GameObject.Find("Trader Pad");
             var traderFrom = trader.transform.position;
 
+            // The castle's summons answered (the journey, step 5).
+            s.Jobs.Board.DebugRecordSuccess("quest.roadside_patrol");
+            s.Jobs.Board.DebugRecordSuccess("quest.old_shrine");
             // In River Bend's clearing (the way there leads through the old trees; here the supplier is simply put there).
             var there = s.Camp.CentreOf(1);
             motor.Teleport(there + new Vector2(0.8f, -0.4f));

@@ -34,7 +34,10 @@ MonoBehaviour:
   region: {fileID: 11400000, guid: 6fce9d744021141c59752ecbe46a228e, type: 2}
   campaignStep: 7
   campaignFinale: 0
+  challenge: 0
   preparations: []
+  camp: 2
+  summons: 1
   knowledge:
   - successes: 2
     fact: Copper offerings lie scattered in the chamber.

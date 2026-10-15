@@ -12,6 +12,31 @@ namespace Ravenholm.EditorTools
         /// after the Beacon, reuse existing threats in harder combinations, pay well and stay repeatable. Pure data:
         /// no new rules. Balance starting points.
         /// </summary>
+        /// <summary>
+        /// The journey, step 5 (2026-10-15): each camp's castle posts its own tier of jobs, and one of them is its summons.
+        /// Frontier Paths covers camps 1-2, the Hollow March 3-4, the Crownward Ruins 5-6 (the outline); until those camps
+        /// exist their jobs are posted at the last camp. Set every run (content authoring, not player data).
+        /// </summary>
+        private static void EnsureJourneyJobs(ContentCatalogue catalogue)
+        {
+            var camps = new (string id, int camp, bool summons)[]
+            {
+                ("local_supply_survey", 1, false), ("roadside_patrol", 1, false), ("briar_track", 1, false), ("old_shrine", 1, true),
+                ("quarry_road", 2, false), ("fen_path", 2, false), ("fallen_watchtower", 2, false), ("shrine_chamber", 2, true),
+                ("fur_trappers_camp", 3, false), ("bandit_ford", 3, false), ("hollow_warren", 3, false), ("mire_crossing", 3, false),
+                ("witchlight_fen", 4, false), ("sunken_archive", 4, false),
+                ("crownward_gate", 5, false), ("ironwood_hunt", 5, false),
+                ("ashen_barracks", 6, false), ("beacon_road", 6, false), ("beacon_pass", 6, false), ("beacon_expedition", 6, false),
+                ("challenge_fen_gauntlet", 6, false), ("challenge_quarry_siege", 6, false), ("challenge_long_hunt", 6, false), ("challenge_shrine_vigil", 6, false),
+            };
+            foreach (var (id, camp, summons) in camps)
+            {
+                if (!catalogue.TryGet<QuestDefinition>("quest." + id, out var q) || q.Camp == camp && q.Summons == summons) continue;
+                q.EditorSetCamp(camp, summons);
+                EditorUtility.SetDirty(q);
+            }
+        }
+
         private static void EnsurePostgameContent(ContentCatalogue catalogue)
         {
             ThreatDefinition T(string key) => catalogue.Get<ThreatDefinition>("threat." + key);
