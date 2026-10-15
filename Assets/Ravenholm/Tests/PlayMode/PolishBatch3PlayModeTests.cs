@@ -100,11 +100,10 @@ namespace Ravenholm.Tests
             s.Jobs.Board.Advance(31_000);
             yield return null;
             yield return null;
-            var idle = Object.FindObjectsByType<CharacterIdle>(FindObjectsInactive.Exclude);
-            Assert.IsNotEmpty(idle, "applicants stand at the Store");
-            Assert.IsTrue(idle.Any(x => x.Greeting), "they greet on arrival");
-
+            // Applicants are citizens now (2026-10-15), drawn by the supplier's rig; the old figures' greeting bob went with them.
             var crowd = Object.FindAnyObjectByType<ApplicantCrowdView>();
+            Assert.Greater(crowd.ShownCount, 0, "applicants stand at the shop");
+            Assert.IsNotEmpty(crowd.GetComponentsInChildren<HoseRig>(), "as citizens");
             var a = s.Jobs.State.Posting.Applicants[0];
             var who = s.Jobs.Board.Contractor(a.ContractorId);
             Assert.IsTrue(s.Jobs.Dispatch(who.Id, s.Jobs.Board.BestAvailableLoadout(who, JobBoardSystem.LoadoutOwner), out f, out var e), f);

@@ -42,6 +42,8 @@ namespace Ravenholm.Presentation
 
         [Header("Sleeves (the top of each arm: the body art has none, so they move with the arm)")]
         public Color sleeveColor = new Color32(0xE9, 0xD2, 0xB3, 255);
+        [Tooltip("Draw procedural sleeves over the arm roots (off when the body art paints its own sleeves, as the citizen's does).")]
+        public bool sleeves = true;
         [Tooltip("Sleeve width at the shoulder and at its hem, in units.")]
         [Min(0.005f)] public float sleeveWidth = 0.13f, sleeveWidthEnd = 0.118f;
         [Tooltip("How much of the arm the sleeve covers, from the shoulder.")]

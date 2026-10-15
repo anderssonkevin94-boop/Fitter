@@ -16,6 +16,9 @@ namespace Ravenholm.Presentation
         [SerializeField] private List<Vector2> spots = new List<Vector2>();
         [SerializeField] private Vector2 departurePoint = new Vector2(0f, -8.6f);
         [SerializeField] private List<Sprite> skins = new List<Sprite>();
+        [Tooltip("Adventurers are drawn as citizens: the supplier's rig and walk with a citizen body set (2026-10-15).")]
+        [SerializeField] private HoseCharacterDefinition citizen;
+        [SerializeField] private CharacterAnimationSet animations;
 
         private GameRoot _root;
         private readonly Dictionary<string, GameObject> _shown = new Dictionary<string, GameObject>();
@@ -27,6 +30,12 @@ namespace Ravenholm.Presentation
         {
             spots = spotPositions;
             skins = skinSprites;
+        }
+
+        public void EditorSetupCitizen(HoseCharacterDefinition body, CharacterAnimationSet set)
+        {
+            citizen = body;
+            animations = set;
         }
 
         private void Start()
@@ -58,7 +67,7 @@ namespace Ravenholm.Presentation
                         _coming[a.ContractorId] = walker = Spawn(board.Contractor(a.ContractorId), departurePoint, false);
                     var span = Mathf.Max(1f, a.ArriveMs - p.CreatedMs);
                     var k = Mathf.Clamp01((board.State.SimMs - p.CreatedMs) / span);
-                    walker.transform.position = Vector2.Lerp(departurePoint, to, k) + new Vector2(0f, Feel.ReducedMotion ? 0f : Mathf.Abs(Mathf.Sin(Time.time * 12f)) * 0.05f);
+                    walker.transform.position = Vector2.Lerp(departurePoint, to, k) + Bob(Time.time);
                 }
             foreach (var id in new List<string>(_coming.Keys))
             {
@@ -89,7 +98,7 @@ namespace Ravenholm.Presentation
                 if (!_shown.ContainsKey(a.ContractorId))
                 {
                     _shown[a.ContractorId] = Spawn(board.Contractor(a.ContractorId), spots[slot], true);
-                    _shown[a.ContractorId].GetComponentInChildren<CharacterIdle>().Greet();   // they arrive and say hello
+                    _shown[a.ContractorId].GetComponentInChildren<CharacterIdle>()?.Greet();   // they arrive and say hello
                 }
             }
             foreach (var id in new List<string>(_shown.Keys))
@@ -103,6 +112,18 @@ namespace Ravenholm.Presentation
 
         private GameObject Spawn(ContractorRecord c, Vector2 pos, bool interactive)
         {
+            if (citizen != null)
+            {
+                // Every adventurer is the citizen for now, walking exactly like the supplier.
+                var fig = CitizenFigure.Create(transform, c != null ? c.Name : "Applicant", pos, citizen, animations);
+                if (!interactive) return fig;
+                var box = fig.AddComponent<BoxCollider2D>();
+                box.isTrigger = true;
+                box.size = new Vector2(0.7f, 1.1f);
+                box.offset = new Vector2(0f, 0.5f);
+                fig.AddComponent<ApplicantInspectable>().Bind(c?.Id, c?.Name ?? "Applicant");
+                return fig;
+            }
             var go = new GameObject(c != null ? c.Name : "Applicant");
             go.transform.SetParent(transform, false);
             go.transform.position = pos;
@@ -152,14 +173,21 @@ namespace Ravenholm.Presentation
         /// <summary>Returns walked back so far (tests).</summary>
         public int Returning { get; private set; }
 
+        /// <summary>How long a walk takes at the citizen's walking pace (3 s for the old figures).</summary>
+        private float WalkSeconds(Vector2 from, Vector2 to) =>
+            citizen != null ? Mathf.Max(0.5f, Vector2.Distance(from, to) / Mathf.Max(0.1f, citizen.walkSpeed)) : 3f;
+
+        private Vector2 Bob(float t) => citizen != null || Feel.ReducedMotion ? Vector2.zero : new Vector2(0f, Mathf.Abs(Mathf.Sin(t * 12f)) * 0.05f);
+
         private IEnumerator Walk(GameObject walker, Vector2 from, Vector2 to, bool fadeIn)
         {
-            const float seconds = 3f;
+            var seconds = WalkSeconds(from, to);
             for (var t = 0f; t < seconds && walker != null; t += Time.deltaTime)
             {
                 var k = t / seconds;
-                walker.transform.position = Vector2.Lerp(from, to, k) + new Vector2(0f, Feel.ReducedMotion ? 0f : Mathf.Abs(Mathf.Sin(t * 12f)) * 0.05f);
-                foreach (var sr in walker.GetComponentsInChildren<SpriteRenderer>())
+                walker.transform.position = Vector2.Lerp(from, to, k) + Bob(t);
+                // Citizens come and go at the castle gate (their hose limbs are meshes, which a sprite fade would leave behind).
+                if (citizen == null) foreach (var sr in walker.GetComponentsInChildren<SpriteRenderer>())
                 {
                     var col = sr.color;
                     col.a = fadeIn ? (k < 0.2f ? k * 5f : k > 0.85f ? (1f - k) / 0.15f : 1f) : 1f;
@@ -172,12 +200,13 @@ namespace Ravenholm.Presentation
 
         private IEnumerator Depart(GameObject walker, Vector2 from)
         {
-            const float seconds = 3f;
+            var seconds = WalkSeconds(from, departurePoint);
             for (var t = 0f; t < seconds && walker != null; t += Time.deltaTime)
             {
                 var k = t / seconds;
-                walker.transform.position = Vector2.Lerp(from, departurePoint, k) + new Vector2(0f, Mathf.Abs(Mathf.Sin(t * 12f)) * 0.05f);
-                foreach (var sr in walker.GetComponentsInChildren<SpriteRenderer>())
+                walker.transform.position = Vector2.Lerp(from, departurePoint, k) + Bob(t);
+                // Citizens come and go at the castle gate (their hose limbs are meshes, which a sprite fade would leave behind).
+                if (citizen == null) foreach (var sr in walker.GetComponentsInChildren<SpriteRenderer>())
                 {
                     var col = sr.color;
                     col.a = k > 0.8f ? (1f - k) * 5f : 1f;

@@ -73,6 +73,46 @@
    ],
    "ppu": 256
   },
+  "Characters/Citizens/citizen_blond_blue/body_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Citizens/citizen_blond_blue/body_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Citizens/citizen_blond_blue/body_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Citizens/citizen_blond_blue/body_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Citizens/citizen_blond_blue/body_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
   "Characters/StoreOwner/axe.png": {
    "outline": true,
    "pivot": [

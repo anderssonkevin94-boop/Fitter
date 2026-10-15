@@ -1,0 +1,17 @@
+{
+  "character_id": "citizen_blond_blue",
+  "body_format": "combined_head_and_torso",
+  "body_set": {
+    "S": "body_S.png",
+    "SE": "body_SE.png",
+    "E": "body_E.png",
+    "NE": "body_NE.png",
+    "N": "body_N.png"
+  },
+  "shared_hands": "reuse General Store Owner Phase 2 hand_* sprites",
+  "shared_boots": "reuse General Store Owner Phase 2 boot_* sprites",
+  "arm_colour": "#DA875B",
+  "leg_colour": "#6D594B",
+  "points": "points.json",
+  "tools": []
+}

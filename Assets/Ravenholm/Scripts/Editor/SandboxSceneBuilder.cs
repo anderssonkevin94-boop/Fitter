@@ -172,6 +172,8 @@ namespace Ravenholm.EditorTools
             crowd.transform.SetParent(people, false);
             crowd.EditorSetup(new List<Vector2> { new Vector2(-1.9f, 1.75f), new Vector2(-1.15f, 1.35f), new Vector2(1.15f, 1.35f), new Vector2(1.9f, 1.75f) },
                 new List<Sprite> { ProjectSetup.LoadSprite("Characters/char_base_0"), ProjectSetup.LoadSprite("Characters/char_base_1"), ProjectSetup.LoadSprite("Characters/char_base_2") });
+            // For now every NPC is the blond citizen, walking exactly like the supplier (Kevin, 2026-10-15).
+            crowd.EditorSetupCitizen(Citizen(), AssetDatabase.LoadAssetAtPath<CharacterAnimationSet>(ProjectSetup.SupplierAnimationsPath));
 
             Animate(player.Find("Visual"));
             player.gameObject.AddComponent<PlayerMotor>().EditorSetup(player.Find("Visual"));
@@ -623,8 +625,10 @@ namespace Ravenholm.EditorTools
             var stall = new GameObject("Stall");
             stall.transform.SetParent(pad.transform, false);
             stall.AddComponent<SortingGroup>();
-            Sprite(stall.transform, "Base", "Characters/char_base_1", new Vector2(-0.45f, 0.1f), 0);
-            Sprite(stall.transform, "Overlay", "Characters/ov_supplier", new Vector2(-0.45f, 0.1f), 1);
+            // The Trader is the citizen for now (2026-10-15), standing at the stall like the supplier stands.
+            var trader0 = CitizenFigure.Create(stall.transform, "Trader", Vector2.zero, Citizen(),
+                AssetDatabase.LoadAssetAtPath<CharacterAnimationSet>(ProjectSetup.SupplierAnimationsPath));
+            trader0.transform.localPosition = new Vector2(-0.45f, 0.1f);
             Sprite(stall.transform, "Goods", "Props/pile_lumber", new Vector2(0.45f, 0.05f), 0);
             Sprite(stall.transform, "Ingots", "Props/pile_ingots", new Vector2(0.15f, -0.2f), 1);
             var coin = Sprite(stall.transform, "Coin", "UI/Icons/ic_coin", new Vector2(-0.45f, 1.45f), 3);
@@ -739,6 +743,9 @@ namespace Ravenholm.EditorTools
             col.radius = 0.4f;
             spot.AddComponent<OutcropSpot>();
         }
+
+        private static HoseCharacterDefinition Citizen() =>
+            AssetDatabase.LoadAssetAtPath<HoseCharacterDefinition>(ProjectSetup.CitizenDir + ProjectSetup.DefaultCitizenId + ".asset");
 
         /// <summary>The supplier's painted animations on a character's body sprite (the old overlay is retired).</summary>
         private static void Animate(Transform visual)

@@ -1135,3 +1135,20 @@ Kevin's choices: the shop lends its gear and takes a cut; adventurers arrive wit
 - **Items on display.** `ItemDefinition.DisplaySprite(facingB)`: view A on left-facing pieces, view B on right-facing ones. Each is scaled uniformly by its visible bounds and stands on the slot's bottom centre. All 22 crafted items have views. Items without them fall back to the stack sprite.
 - **HUD.** The Build button shows her `ic_build` icon.
 - **Not yet used.** The grip and carry anchors on the item views (for items held in the hand), the views of materials, and the other build-mode icons.
+
+## 2026-10-15: the blond citizen; every NPC is him for now (Kevin)
+
+- **Import.** `Tools/ArtImport/import_citizen.py` brings in Astra's `ravenholm-citizen-angular-v3`. Its five combined head-and-torso bodies go to the character library at `Art/Placeholder/Characters/Citizens/<id>/`, with its points.json and library.json, at the store owner's 340 px per unit and ground pivot. The game outlines them.
+- **Shared parts.** Hands and boots are the store owner's own sprites; Astra's copies are byte-identical, so they aren't imported again.
+- **Definition.** `ProjectSetup.EnsureCitizen` builds `Content/Config/Citizens/<id>.asset` by copying every tunable from the store owner's definition (walk speed, cadence, stride, swing, springs, foot roll, sizes), so he walks exactly like the supplier. It then adds the citizen's own:
+  - bodies, shoulder and hip anchors, and wrist targets;
+  - arm colour #DA875B and trouser colour #6D594B;
+  - no tools, and no procedural sleeves (`HoseCharacterDefinition.sleeves`): his shirt sleeves are painted on.
+
+  It is rebuilt each run, so it follows any later change to the supplier's tuning.
+- **NPCs.** `CitizenFigure.Create` builds a figure from the supplier's `SupplierAnimator` and `HoseRig`; the animator takes the walk, facing and mirroring from how the figure moves.
+  - Every adventurer is the citizen: coming up the road, waiting at the shop, leaving and returning. They walk at the supplier's speed.
+  - The Trader at the stall is the citizen too.
+  - Citizens appear and disappear at the castle gate rather than fading, since the rig's limbs are meshes.
+- **Dropped.** The old figures' greeting bob.
+- **Tests.** `CitizenPlayModeTests` checks all eight directions (the three west-facing ones are mirrored), the walk pose, the shared parts and his tuning, and that adventurers are citizens.

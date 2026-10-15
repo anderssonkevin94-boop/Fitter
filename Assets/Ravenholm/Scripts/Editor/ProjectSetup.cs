@@ -94,7 +94,8 @@ namespace Ravenholm.EditorTools
             EnsureSupplierAnimations();
             EnsureStackSteps();
             EnsureOutlines(settings);
-            EnsureStoreOwner();
+            var owner = EnsureStoreOwner();
+            EnsureCitizen(owner, DefaultCitizenId);
             var balance = EnsureAsset<BalanceProfile>(ConfigDir + "BalanceProfile.asset");
             var boot = EnsureAsset<BootConfig>(ConfigDir + "BootConfig.asset");
             if (boot.Catalogue == null || boot.SandboxSettings == null || boot.UiTheme == null || boot.Balance == null)
@@ -1075,6 +1076,53 @@ namespace Ravenholm.EditorTools
                 def.legWidthEnd = (float)limbs["leg_width_px"] * 0.85f / ppu;
             }
             def.limbMaterial = AssetDatabase.LoadAssetAtPath<Material>(UnlitSpriteMaterialPath);
+            EditorUtility.SetDirty(def);
+            return def;
+        }
+
+        public const string CitizenDir = ConfigDir + "Citizens/";
+        public const string DefaultCitizenId = "citizen_blond_blue";
+
+        /// <summary>
+        /// The character library (Astra, 2026-10-15): one HoseCharacterDefinition per citizen body set under
+        /// Characters/Citizens/&lt;id&gt;/. Each is the store owner's rig and walk exactly (every tunable copied), with the
+        /// citizen's own bodies, shoulder and hip anchors, wrist targets and limb colours; hands and boots are shared.
+        /// Rebuilt from the art each run, following the store owner's current tuning.
+        /// </summary>
+        public static HoseCharacterDefinition EnsureCitizen(HoseCharacterDefinition owner, string id)
+        {
+            var dir = "Characters/Citizens/" + id + "/";
+            var json = PlaceholderSpriteImporter.ArtRoot + dir + "points.json";
+            if (owner == null || !File.Exists(json)) return null;
+            const float ppu = 340f;
+            var p = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(json));
+            Vector2 U(Newtonsoft.Json.Linq.JToken xy) => new Vector2(((float)xy[0] - 256f) / ppu, (444f - (float)xy[1]) / ppu);
+            var def = EnsureAsset<HoseCharacterDefinition>(CitizenDir + id + ".asset");
+            EditorUtility.CopySerialized(owner, def);   // the same walk, swing, springs and sizes as the supplier
+            def.name = id;
+            var views = new List<HoseCharacterDefinition.View>();
+            foreach (var name in new[] { "S", "SE", "E", "NE", "N" })
+            {
+                var b = p["body_" + name];
+                var wrists = p["_meta"]["preview"]["wrist_targets"][name];
+                var ov = owner.Get(name);
+                views.Add(new HoseCharacterDefinition.View
+                {
+                    name = name,
+                    body = LoadSprite(dir + "body_" + name),
+                    bootLeft = ov.bootLeft, bootRight = ov.bootRight,   // shared boots
+                    shoulderLeft = U(b["shoulder_left"]), shoulderRight = U(b["shoulder_right"]),
+                    hipLeft = U(b["hip_left"]), hipRight = U(b["hip_right"]),
+                    ankleLeft = U(p["boot_" + name + "_left"]["ankle"]), ankleRight = U(p["boot_" + name + "_right"]["ankle"]),
+                    wristLeft = U(wrists["left"]), wristRight = U(wrists["right"]),
+                });
+            }
+            def.views = views.ToArray();
+            var limbs = p["limbs"];
+            def.armColor = ColorUtility.TryParseHtmlString((string)limbs["arm_colour"], out var ac) ? ac : def.armColor;
+            def.legColor = ColorUtility.TryParseHtmlString((string)limbs["leg_colour"], out var lc) ? lc : def.legColor;
+            def.sleeves = false;          // the shirt's sleeves are painted on the body
+            def.pickaxe = def.axe = null; // no tools
             EditorUtility.SetDirty(def);
             return def;
         }

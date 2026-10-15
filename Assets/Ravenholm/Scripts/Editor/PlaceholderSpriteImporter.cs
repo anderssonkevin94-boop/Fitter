@@ -19,7 +19,7 @@ namespace Ravenholm.EditorTools
         private static Dictionary<string, (Vector2 pivot, Vector4 border, bool hasBorder, float ppu)> _meta;
         private static float _ppu = 128f;
 
-        public override uint GetVersion() => 10;
+        public override uint GetVersion() => 11;
 
         private void OnPreprocessTexture()
         {
@@ -57,7 +57,7 @@ namespace Ravenholm.EditorTools
             // Carried pieces keep their whole canvas too (Astra's stack sprites: no trimming, the pivot on the floor line).
             if (rel.StartsWith("Stacks/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Outline-free character parts: the game's outline is drawn inside each sprite's rectangle.
-            if (rel.StartsWith("Characters/StoreOwner/")) settings.spriteMeshType = SpriteMeshType.FullRect;
+            if (rel.StartsWith("Characters/StoreOwner/") || rel.StartsWith("Characters/Citizens/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Ground and blocks fill their shapes edge to edge: full-rect so neighbours meet without mesh gaps.
             if (rel.StartsWith("Painted/Blocks/") || rel.StartsWith("Painted/Ground/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Outline-free nature and buildings (v4): the game's outline is drawn inside the sprite's rectangle.

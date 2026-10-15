@@ -580,6 +580,12 @@ namespace Ravenholm.Presentation
         /// <summary>The sleeve: the first stretch of the arm just drawn (its path is still in _path), wider, in shirt cream.</summary>
         private void DrawSleeve(Tube t, float outline, float scale = 1f)
         {
+            if (!definition.sleeves)
+            {
+                t.Fill.enabled = t.Outline.enabled = false;
+                return;
+            }
+            t.Fill.enabled = true;
             var keep = Mathf.Clamp(Mathf.RoundToInt((_path.Count - 1) * definition.sleeveLength) + 1, 2, _path.Count);
             _path.RemoveRange(keep, _path.Count - keep);
             Fill(t.FillMesh, definition.sleeveWidth * scale, definition.sleeveWidthEnd * scale, definition.sleeveColor);
