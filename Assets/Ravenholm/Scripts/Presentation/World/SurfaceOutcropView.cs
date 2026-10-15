@@ -144,6 +144,36 @@ namespace Ravenholm.Presentation
                 }
             }
             else _crack.enabled = false;
+            UpdateHighlight();
+        }
+
+        [SerializeField] private Sprite highlightSprite;
+        private SpriteRenderer _highlight;
+
+        public void EditorSetupHighlight(Sprite highlight) => highlightSprite = highlight;
+
+        /// <summary>Whether the outcrop block about to be mined is highlighted now (for tests).</summary>
+        public bool HighlightShown => _highlight != null && _highlight.enabled;
+
+        /// <summary>The block the main button would mine is highlighted while an outcrop spot is the button's target.</summary>
+        private void UpdateHighlight()
+        {
+            if (highlightSprite == null) return;
+            if (_highlight == null) _highlight = BlockHighlight.Make(transform, highlightSprite, spriteMaterial);
+            var c = SandboxSceneController.Current;
+            var spot = c != null ? c.ContextTarget as OutcropSpot : null;
+            List<SpriteRenderer> list = null;
+            var on = spot != null && spot.Available && _stacks.TryGetValue(new Vector2Int(spot.Target.x, spot.Target.y), out list) && list.Count > 0;
+            _highlight.enabled = on;
+            if (!on) return;
+            var t = spot.Target;
+            var level = Mathf.Clamp(t.z, 1, list.Count);
+            var block = list[level - 1];
+            _highlight.transform.SetParent(block.transform.parent, true);   // inside the column's sorting group, over its block
+            _highlight.transform.position = BlockTop(t.x, t.y, level);
+            _highlight.sortingLayerID = block.sortingLayerID;
+            _highlight.sortingOrder = level * 2 + 1;
+            _highlight.color = BlockHighlight.Tint(false);
         }
 
         private void Refresh()

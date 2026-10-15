@@ -97,12 +97,10 @@ namespace Ravenholm.EditorTools
                 "A periodic visitor sets up here to sell external materials and buy Store goods at poor prices.", "", new Vector2(2f, 2f));
             TraderStall(traderPad);
             var mine = MineDig(buildings);
-            var gate = Building(buildings, "Forest", "bld_forest_gate", new Vector2(-15.5f, 3.0f), new Vector2(2.2f, 1.9f),
-                "The frontier Forest, left of town above the Mine. Its trees grow tight: cut your way in. Further left are new kinds of " +
-                "wood; ridges of rock cross it (climb the pass by the cliff, or dig through). Stumps grow back unless you pull them out.",
-                "", footprint: null, siteId: "site.forest");
-            Circle(gate.transform, new Vector2(-0.85f, 0f), 0.12f);
-            Circle(gate.transform, new Vector2(0.85f, 0f), 0.12f);
+            // The Forest's signpost (its panel and marker) where the old wooden arch stood (2026-10-15: the arch is gone).
+            var gate = SiteSign(buildings, "Forest", new Vector2(-15.5f, 3.0f), "site.forest",
+                "The frontier Forest, left of town above the Mine. Further left are new kinds of wood; its hills can be climbed a block " +
+                "at a time or dug through. Stumps grow back unless you pull them out.");
 
             // --- nature ---
             foreach (var (spot, cedar) in new[] { (new Vector2(5.4f, 8.2f), true), (new Vector2(11.4f, 5.0f), false), (new Vector2(7.2f, 8.8f), false) })
@@ -122,6 +120,7 @@ namespace Ravenholm.EditorTools
             // The Forest's ground has height (hills and ridges): its blocks, and the button to dig its rock.
             Sprite Block(string name) => ProjectSetup.LoadSprite("Painted/Blocks/block_" + name);
             pocket.EditorSetupTerrain(Block("grass"), Block("topsoil"), Block("mossy"), Block("slate"));
+            pocket.EditorSetupHighlight(ProjectSetup.LoadSprite("Props/fx_block_highlight"));
             var rock = new GameObject("RockSpot");
             rock.transform.SetParent(pocket.transform, false);
             var rockCol = rock.AddComponent<CircleCollider2D>();
@@ -429,7 +428,7 @@ namespace Ravenholm.EditorTools
             var tiles = ProjectSetup.EnsureTiles();
             slabRoot.AddComponent<MineSlabView>().EditorSetup(_grid, _groundMap, new Vector2Int(_mineCell.x, _mineCell.y),
                 new[] { tiles["halfblock_outline_0"], tiles["halfblock_outline_1"], tiles["halfblock_outline_2"] }, tiles["fleck_half"],
-                ProjectSetup.LoadSprite("Tiles/tile_halfblock_0"),
+                ProjectSetup.LoadSprite("Props/fx_block_highlight"),
                 new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") },
                 ProjectSetup.LoadSprite("Props/fx_ring"), _unlit);
             Sprite Block(string name) => ProjectSetup.LoadSprite("Painted/Blocks/block_" + name);
@@ -459,6 +458,24 @@ namespace Ravenholm.EditorTools
                                      "scaffolds with lumber) to climb back out. Deeper reaches the next layers (new ores, harder rock).", "");
             site.EditorSetupSite("site.mine");
             AddLabel(go.transform, "Mine", 1.6f);
+            return go;
+        }
+
+        /// <summary>A site's signpost: tap it for the site's panel; it carries the site's marker.</summary>
+        private static GameObject SiteSign(Transform parent, string title, Vector2 pos, string siteId, string description)
+        {
+            var go = new GameObject(title);
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = pos;
+            Sprite(go.transform, "Sign", "Props/trail_marker", Vector2.zero, 0);
+            var tap = go.AddComponent<CircleCollider2D>();
+            tap.isTrigger = true;
+            tap.radius = 0.5f;
+            tap.offset = new Vector2(0f, 0.4f);
+            var site = go.AddComponent<SiteInspectable>();
+            site.EditorSetup(title, description, "");
+            site.EditorSetupSite(siteId);
+            AddLabel(go.transform, title, 1.6f);
             return go;
         }
 
@@ -843,7 +860,9 @@ namespace Ravenholm.EditorTools
             Debug.Log($"[Setup] Surface outcrops: {cols.Count} columns: {string.Join(" ", cols)}");
             var go = new GameObject("SurfaceOutcrops");
             go.transform.SetParent(world, false);
-            go.AddComponent<SurfaceOutcropView>().EditorSetup(_grid, cols,
+            var outcrops = go.AddComponent<SurfaceOutcropView>();
+            outcrops.EditorSetupHighlight(ProjectSetup.LoadSprite("Props/fx_block_highlight"));
+            outcrops.EditorSetup(_grid, cols,
                 new[] { ProjectSetup.LoadSprite("Painted/Blocks/block_mossy"), ProjectSetup.LoadSprite("Painted/Blocks/block_slate"), ProjectSetup.LoadSprite("Painted/Blocks/block_slate") },
                 new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") }, _unlit);
             var spot = new GameObject("OutcropSpot");

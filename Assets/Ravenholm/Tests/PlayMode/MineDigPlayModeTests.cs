@@ -135,6 +135,7 @@ namespace Ravenholm.Tests
             yield return DigDown(slab, 3);
             Assert.AreEqual(3, slab.Feet, "three blocks down: room to stand, two blocks tall");
             Assert.Greater(S.Logistics.System.CarryCount, 0, "dug ore goes straight into the carry");
+            Assert.AreEqual(0, slab.StrongFlecks, "ore isn't shown in the rock around the supplier (no lamp reveal)");
             Assert.IsTrue(Mine.Record.Revealed.ContainsKey(1), "the first layer is revealed by digging into it");
 
             // Into the plot (back from the cliff): walking into the wall with Dig held digs head height, then legs, then steps in.
@@ -264,7 +265,9 @@ namespace Ravenholm.Tests
             S.Sites.SpeedMultiplier = 50f;
             for (var back = slopeBack; back <= slopeBack + 3; back++)
             for (var along = slope - 1; along <= slope + 1; along++) ClearCell(back, along);   // a corridor: the body is wide
-            for (var back = wallBack - 1; back <= wallBack + 1; back++) ClearCell(Mathf.Max(0, back), wallAlong);
+            // Trees in reach win the button over rock (by design): clear the trees around the wall.
+            for (var back = Mathf.Max(0, wallBack - 2); back <= wallBack + 2; back++)
+            for (var along = wallAlong - 2; along <= wallAlong + 2; along++) ClearCell(back, along);
             S.Sites.SpeedMultiplier = 1f;
 
             // Walk back from the cliff up the slope: one block a step.
@@ -303,6 +306,9 @@ namespace Ravenholm.Tests
             GameRoot.Instance.InputRouter.ScriptedMove = Into * 0.3f;   // face into the wall (it doesn't give)
             yield return null;
             GameRoot.Instance.InputRouter.ScriptedMove = null;
+            yield return Until(() => SandboxSceneController.Current.ContextTarget is ForestRockSpot && forest.HighlightShown, 2f,
+                () => $"the rock about to be dug is highlighted (target {SandboxSceneController.Current.ContextTarget})");
+            yield return Capture.Take("forest_rock_highlight");
             S.Sites.SpeedMultiplier = 20f;
             for (var i = 0; i < 600 && (forest.SolidAt(behind, feet + 1) || forest.SolidAt(behind, feet + 2)); i++)
             {
@@ -342,6 +348,8 @@ namespace Ravenholm.Tests
             Assert.AreEqual("Mine", spot.ContextVerb);
             var target = spot.Target;
             Assert.AreEqual(view.TopLevel(target.x, target.y), target.z, "the top block first");
+            Assert.IsTrue(view.HighlightShown, "the block about to be mined is highlighted");
+            yield return Capture.Take("outcrop_highlight");
             var carry = S.Logistics.System.CarryCount;
             S.Sites.SpeedMultiplier = 20f;
             HoldDig(true);

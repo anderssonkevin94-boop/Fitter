@@ -232,6 +232,7 @@ namespace Ravenholm.Presentation
             foreach (var t in s.Trees) if (t.Felled) felled++;
             var cam = _camera != null ? (Vector2)_camera.transform.position : Vector2.zero;
             UpdateSupplier();
+            UpdateHighlight();
             var dug = Mine != null ? Mine.Record.SurfaceBroken.Count : 0;
             var key = $"{Mathf.Round(cam.x * 2f)}|{Mathf.Round(cam.y * 2f)}|{s.Depth}|{s.K}|{s.SectionDepths.Count}|{felled}|{s.Trees.Count}|{sim.FelledVersion}|{s.Revealed.Count}|{dug}";
             if (key == _key) return;

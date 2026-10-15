@@ -270,5 +270,32 @@ namespace Ravenholm.Presentation
         }
 
         public Vector3 BlockTop(Vector3Int block) => SurfacePoint(new Vector3Int(block.x, block.y, 0), block.z);
+
+        [SerializeField] private Sprite highlightSprite;
+        private SpriteRenderer _highlight;
+
+        public void EditorSetupHighlight(Sprite highlight) => highlightSprite = highlight;
+
+        /// <summary>Whether the rock block about to be dug is highlighted now (for tests).</summary>
+        public bool HighlightShown => _highlight != null && _highlight.enabled;
+
+        /// <summary>The rock block the main button would dig is highlighted while the rock spot is the button's target.</summary>
+        private void UpdateHighlight()
+        {
+            if (highlightSprite == null) return;
+            if (_highlight == null)
+            {
+                _highlight = BlockHighlight.Make(transform, highlightSprite, spriteMaterial);
+                _highlight.sortingLayerName = "Ground";
+            }
+            var c = SandboxSceneController.Current;
+            var spot = c != null ? c.ContextTarget as ForestRockSpot : null;
+            _highlight.enabled = spot != null && spot.Available;
+            if (!_highlight.enabled) return;
+            var b = spot.Block;
+            _highlight.transform.position = BlockTop(b);
+            _highlight.sortingOrder = TerrainOrder(new Vector3Int(b.x, b.y, 0), b.z) + 1;   // with its block: the supplier in front covers it
+            _highlight.color = BlockHighlight.Tint(false);
+        }
     }
 }

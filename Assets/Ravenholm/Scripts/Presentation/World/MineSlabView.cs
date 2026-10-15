@@ -26,6 +26,8 @@ namespace Ravenholm.Presentation
         public const string SiteId = "site.mine";
         public const float RowHeight = 0.5f;
         public const float LampRadius = 2.6f;
+        /// <summary>Whether ore shows in the rock within the lamp's light (off: Kevin, 2026-10-15).</summary>
+        public static bool ShowOreInLamp = false;
         public const int TapReach = 4;
         public const float TapCooldown = 5f;
         private const float TapRadius = 0.9f;
@@ -846,7 +848,7 @@ namespace Ravenholm.Presentation
             _highlight.sprite = highlightSprite;
             _highlight.transform.position = Top(t.X, t.U, t.Row);
             _highlight.sortingOrder = MarkOrder(t.X, t.U, t.Row, 3);
-            _highlight.color = _selected.HasValue ? new Color(1f, 0.86f, 0.3f, 0.7f) : new Color(1f, 0.92f, 0.45f, 0.4f);
+            _highlight.color = BlockHighlight.Tint(_selected.HasValue);
         }
 
         /// <summary>Within reach: up to two blocks around, from one under the feet to one above the head.</summary>
@@ -1041,6 +1043,13 @@ namespace Ravenholm.Presentation
         /// <summary>Within the lamp's light, ore blocks show specks in the ore's colour (faint beside a vein).</summary>
         private void Flecks()
         {
+            // Off (2026-10-15, Kevin): ore is no longer shown in the rock near the supplier; Tap still rings it out.
+            if (!ShowOreInLamp)
+            {
+                if (_flecks.Count > 0) foreach (var k in new List<Vector3Int>(_flecks.Keys)) Remove(_flecks, k);
+                StrongFlecks = 0;
+                return;
+            }
             var sim = Sim;
             if (!Standing(out var px, out var pu, out var feet)) return;
             var key = $"{px}|{pu}|{feet}|{sim.Record.Dug.Count}";

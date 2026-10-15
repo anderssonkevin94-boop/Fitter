@@ -981,3 +981,7 @@ Kevin preferred the 48×48 prototype (commit 2e44f70) to what the real forest be
 - **Kept.** The cliff-edge row stays flat and wooded. The first 4 tiles by the gate are flat. Tree species (which logs) are unchanged.
 - **Tests.** The ridge tests are replaced by an organic-hills test: peaks of 5 or more, mostly small steps, a flat edge and entrance, fewer trees up high. The climb-and-dig PlayMode test now searches the generated terrain for a slope and a wall, whatever the seed.
 - **Saves.** Existing saves keep their dug cells and stumps by position. Where the new hills differ, old digs simply land on different ground.
+- **No forest arch, no ore lamp, a block highlight (2026-10-15, Kevin).**
+  - The wooden forest arch is removed. A "Forest" signpost (like the Mine's) stands in its place, carrying the Forest's panel and marker.
+  - The Mine's lamp no longer shows ore in the rock near the supplier (`MineSlabView.ShowOreInLamp` = false). The "Tap" prospecting ring still works.
+  - The block the main button will dig is highlighted (`BlockHighlight`, `Props/fx_block_highlight`: a warm outline with a faint, gently pulsing tint) in the quarry, on forest rock and on the town outcrops. It sorts with its block, so the supplier in front covers it.
