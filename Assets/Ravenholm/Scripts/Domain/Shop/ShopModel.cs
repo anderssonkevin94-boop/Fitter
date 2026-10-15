@@ -88,8 +88,8 @@ namespace Ravenholm.Domain.Shop
         /// <summary>The tiles just inside the entrance (side by side along one front edge), and that front edge.</summary>
         public readonly List<Tile> Entrance = new List<Tile>();
         public EdgeSide EntranceSide = EdgeSide.FrontRight;
-        /// <summary>A full wall covers floor this many depth steps behind it (2.2 units at 0.25 units a step).</summary>
-        public int WallDepthSteps = 9;
+        /// <summary>A full wall covers floor this many depth steps behind it (1.4 units at 0.25 units a step).</summary>
+        public int WallDepthSteps = 6;
     }
 
     /// <summary>

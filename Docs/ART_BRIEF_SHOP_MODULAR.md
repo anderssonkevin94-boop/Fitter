@@ -30,7 +30,7 @@ HOW THE SHOP WORKS IN THE GAME
 
 GRID, SCALE AND LIGHT (exact; the templates show these)
 - 256 px per unit. One floor tile is a 256 x 128 px diamond. The character is 274 px tall.
-- Full walls are 2.2 units tall (563 px). Low walls are 0.3 units (77 px).
+- Full walls are 1.4 units tall (358 px; Kevin had them lowered from 2.2). Low walls are 0.3 units (77 px). Wall furniture must fit below the wall's top.
 - Each wall or low-wall piece covers exactly ONE tile edge (128 px across, 64 px up or down). Any length of wall is a row of identical-sized pieces, so neighbouring pieces must join with no visible seam, and must also join seamlessly with a post at either end.
 - Light comes from the top-left, as on all your pieces. So the walls on the left side and on the right side are separate drawings, NOT mirror images. Likewise, facing B of floor furniture is its own drawing.
 - Style rules: the same as your v2 furniture and v4 buildings. Flat colours, one shadow tone, no painted outlines (the game adds them), no drop shadows. Transparent PNGs with hard edges; at least 12 px clear margin on furniture.
@@ -41,7 +41,7 @@ A) SHELL (one PNG each)
 1. Floors (template_floor: the diamond plus a 24 px lip, which shows the floor's thickness along the shop's outer front edges):
    - floor_1, floor_2, floor_3: variants that tile seamlessly in any arrangement.
    - floor_plot: unbuilt ground the player can buy. It must read clearly as "you can build here".
-2. Full back walls, one tile edge each, in a _left and a _right version (template_wall_left and template_wall_right):
+2. Full back walls, one tile edge each, in a _left and a _right version (template_wall_left_176x495 and template_wall_right_176x495):
    - wall_plain
    - wall_window
    - wall_door: the stockroom door, closed.
@@ -50,7 +50,7 @@ A) SHELL (one PNG each)
    - stub_plain
    - stub_entrance: one tile edge of the doorway customers walk through, with a threshold. The doorway is two of these side by side.
 4. Posts:
-   - post_tall: where full walls meet, and where a full wall meets a low wall (template_post_back).
+   - post_tall: where full walls meet, and where a full wall meets a low wall (template_post_back_64x495).
    - post_low: where low walls meet (template_post_front).
 5. plot_sign: a small sign or stake standing on a buyable 2 x 2 block.
 
@@ -62,7 +62,7 @@ Facing A is your v2 drawing (long front face toward the bottom-left). Facing B i
   - desk: 2 x 1
   - display_table: 1 x 1 at level 1, 1 x 2 at level 2, 1 x 3 at level 3 (its long side runs the other way to the desk's). Your v2 lengths already fit.
   - armor_stand: 1 x 1
-- Wall furniture spans exactly 2 wall edges (template_wallpiece_left_2seg).
+- Wall furniture spans exactly 2 wall edges (template_wallpiece_left_2seg_304x560).
 
 C) NEW FURNITURE (3 levels each: 1 plain wood, 2 wood with iron and cloth, 3 dark wood with brass and blue velvet, like v2; drawn EMPTY, with every item spot visible when empty)
 - weapon_rack_1..3: wall piece in _left and _right versions, 2 edges. Blades and maces upright. Slots 3 / 4 / 5, kind "weapon".

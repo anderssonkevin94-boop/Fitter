@@ -20,7 +20,7 @@ def save(img, name):
 # 1. Floor tile: same shape as the ground tile (diamond 256 x 128, 24 px lip).
 shutil.copyfile(f"{REPO}/Docs/astra-refs/blocks/template_ground_256x152.png", f"{OUT}/template_floor_256x152.png")
 
-H, STUB, T = 563, 77, (13, 6)   # wall height, stub height (0.3 units), thickness offset per side
+H, STUB, T = 358, 77, (13, 6)   # wall height, stub height (0.3 units), thickness offset per side
 
 def wall(name, height, canvas_h, right=False, segments=1):
     w = 48 + 128 * segments
@@ -41,14 +41,14 @@ def wall(name, height, canvas_h, right=False, segments=1):
     save(img, name)
     return img
 
-wall("template_wall_left_176x700.png", H, 700)
-wall("template_wall_right_176x700.png", H, 700, right=True)
+wall("template_wall_left_176x495.png", H, 495)
+wall("template_wall_right_176x495.png", H, 495, right=True)
 wall("template_stub_left_176x220.png", STUB, 220)
 wall("template_stub_right_176x220.png", STUB, 220, right=True)
-wall("template_wallpiece_left_2seg_304x760.png", H, 760, segments=2)
+wall("template_wallpiece_left_2seg_304x560.png", H, 560, segments=2)
 
 # Back corner post and front corner post.
-for name, h, ch in (("template_post_back_64x700.png", H + 20, 700), ("template_post_front_64x220.png", STUB + 20, 220)):
+for name, h, ch in (("template_post_back_64x495.png", H + 20, 495), ("template_post_front_64x220.png", STUB + 20, 220)):
     img = Image.new("RGBA", (64, ch), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     d.rectangle([16, ch - 16 - h, 48, ch - 16], fill=(170, 130, 90, 255))

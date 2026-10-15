@@ -1849,10 +1849,24 @@
    ],
    "ppu": 256
   },
+  "Shop/post_low_placeholder.png": {
+   "pivot": [
+    0.5,
+    0.07273
+   ],
+   "ppu": 256
+  },
   "Shop/post_tall.png": {
    "pivot": [
     0.5,
-    0.02286
+    0.03232
+   ],
+   "ppu": 256
+  },
+  "Shop/post_tall_placeholder.png": {
+   "pivot": [
+    0.5,
+    0.03232
    ],
    "ppu": 256
   },
@@ -1908,35 +1922,35 @@
   "Shop/wall_plain_left.png": {
    "pivot": [
     0.5,
-    0.06857
+    0.09697
    ],
    "ppu": 256
   },
   "Shop/wall_plain_right.png": {
    "pivot": [
     0.5,
-    0.06857
+    0.09697
    ],
    "ppu": 256
   },
   "Shop/wall_tall_left.png": {
    "pivot": [
     0.5,
-    0.06857
+    0.09697
    ],
    "ppu": 256
   },
   "Shop/wall_tall_right.png": {
    "pivot": [
     0.5,
-    0.06857
+    0.09697
    ],
    "ppu": 256
   },
   "Shop/wall_window_left.png": {
    "pivot": [
     0.5,
-    0.06857
+    0.09697
    ],
    "ppu": 256
   },

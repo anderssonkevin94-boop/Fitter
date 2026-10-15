@@ -1084,3 +1084,11 @@ Kevin: 4 × 6 to start, 2 × 2 add-ons, no roof for now, and Astra has visual fr
   - desk_1_B's dark panels don't match level-1 desk_1's plain oak;
   - she built the sample at 4 × 6 (the brief before the change to 6 × 6).
 - **Tests.** The EditMode test `SuccessReturnsGearRewardsUnlocksAndSurvivesRestart` failed once and passed on the rerun with no change (intermittent; not investigated yet).
+
+## 2026-10-15: shop walls lowered to 1.4 units (Kevin: "way too tall")
+
+- **Height.** Full walls are 1.4 units (358 px, about 1.3 × the character), down from 2.2 (563 px).
+- **Astra's step-1 pieces.** `import_shop_modular.py` shortens pieces drawn at the old height by cutting 205 rows of plain plaster; the window wall is cut above and below its window. The cap, the base and each anchor's distance from the bottom are kept.
+- **Inside corners.** `ShopLayoutConfig.WallDepthSteps` is now 6, since a lower wall hides fewer tiles behind it.
+- **Everything else.** Placeholders, templates (`*_176x495`, `*_64x495`, `*_304x560`) and the brief now use the new height. The placeholder posts are renamed `post_*_placeholder`, so Astra's posts no longer overwrite them.
+- **Wall furniture.** It must fit under the wall's top. Her level-3 potion shelf (about 1.6 units) is taller and will need a lower version in step 2.

@@ -45,12 +45,12 @@ def wall(name, height, canvas_h, right, face, top, trim=None):
 
 PLASTER_L, PLASTER_R = (236, 218, 186, 255), (212, 194, 164, 255)
 TIMBER, TIMBER_DARK = (166, 122, 82, 255), (128, 92, 60, 255)
-wall("wall_tall_left", 563, 700, False, PLASTER_L, TIMBER_DARK, TIMBER)
-wall("wall_tall_right", 563, 700, True, PLASTER_R, TIMBER_DARK, TIMBER)
+wall("wall_tall_left", 358, 495, False, PLASTER_L, TIMBER_DARK, TIMBER)
+wall("wall_tall_right", 358, 495, True, PLASTER_R, TIMBER_DARK, TIMBER)
 wall("wall_low_left", 77, 220, False, TIMBER, (196, 156, 112, 255))
 wall("wall_low_right", 77, 220, True, TIMBER_DARK, (196, 156, 112, 255))
 
-for name, h, ch in (("post_tall", 583, 700), ("post_low", 97, 220)):
+for name, h, ch in (("post_tall_placeholder", 378, 495), ("post_low_placeholder", 97, 220)):
     img = Image.new("RGBA", (64, ch), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     d.rectangle([18, ch - 16 - h, 32, ch - 16], fill=TIMBER)
