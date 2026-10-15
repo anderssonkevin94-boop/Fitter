@@ -38,7 +38,7 @@ namespace Ravenholm.Presentation
             panel._root = root;
             panel._content = content;
             panel._title = title;
-            title.text = "Job Board";
+            title.text = root.Config.Balance != null && root.Config.Balance.castlePostsJobs ? "The Castle's Jobs" : "Job Board";
             layer.SetActive(false);
             return panel;
         }
@@ -75,6 +75,8 @@ namespace Ravenholm.Presentation
         }
 
         private JobBoardSystem Board => _root.Services.Jobs.Board;
+        /// <summary>The castle posts the jobs (2026-10-15): the board lists them and the adventurer waiting at the shop.</summary>
+        private bool Castle => Board.Config.CastlePosts;
         private ContentCatalogue Cat => _root.Services.Catalogue;
 
         /// <summary>Nodes on the drawn map (tests).</summary>
@@ -83,7 +85,7 @@ namespace Ravenholm.Presentation
         /// <summary>Tapping a map node explains it at the top of the board.</summary>
         public void ExplainNode(QuestDefinition q)
         {
-            var reason = Board.IsUnlocked(q.Id) ? (Board.PostBlockedReason(q.Id) ?? "Open: post it below") : Board.LockReason(q.Id);
+            var reason = Board.IsUnlocked(q.Id) ? (Board.PostBlockedReason(q.Id) ?? (Castle ? "Open: the castle offers it to adventurers" : "Open: post it below")) : Board.LockReason(q.Id);
             _message = $"{q.DisplayName} · difficulty {q.Difficulty} · {reason}";
             FeedbackAudio.Play(FeedbackAudio.Cue.Tap);
         }
@@ -126,7 +128,9 @@ namespace Ravenholm.Presentation
             _texts.Clear();
             var s = Board.State;
 
-            Text(() => $"Gold <b>{s.Gold}</b> · Reputation <b>{s.Reputation}</b> · Applicants per job: {Board.ApplicantTarget}");
+            Text(() => Castle
+                ? $"Gold <b>{s.Gold}</b> · Reputation <b>{s.Reputation}</b> · The castle posts these jobs. Adventurers take them and come to your shop to be kitted out; you lend the gear for {Board.Config.ShopSharePercent}% of the castle's reward."
+                : $"Gold <b>{s.Gold}</b> · Reputation <b>{s.Reputation}</b> · Applicants per job: {Board.ApplicantTarget}");
             Text(() => string.IsNullOrEmpty(_message) ? "" : $"<b>{_message}</b>");
 
             Text(CampaignText);
@@ -156,10 +160,17 @@ namespace Ravenholm.Presentation
                 Text(() => ExpeditionLine(exp));
             }
 
+            if (Castle && s.Posting == null)
+            {
+                Header("At your shop");
+                Text(() => s.Expeditions.Count >= Board.Config.ActiveSlots
+                    ? "Nobody is waiting: both expedition slots are in use."
+                    : $"Nobody is waiting. The castle sends the next adventurer in about {Board.NextCastleOfferDelay() / 1000f:0} s.");
+            }
             if (s.Posting != null)
             {
                 var p = s.Posting;
-                Header($"Posted: {Name(p.QuestId)}");
+                Header(p.ByCastle ? $"At your shop: an adventurer for {Name(p.QuestId)}" : $"Posted: {Name(p.QuestId)}");
                 if (p.Applicants.Count == 0) Text(() => $"<color=#B44034>{p.NoApplicantReason}</color>");
                 foreach (var a in p.Applicants)
                 {
@@ -167,9 +178,10 @@ namespace Ravenholm.Presentation
                     if (Board.HasArrived(app))
                         Button(() => ApplicantCard(app), () => _root.Hud.ShowLoadout(app.ContractorId), null);
                     else
-                        Text(() => $"Someone is on the way… ({Math.Max(0, (app.ArriveMs - s.SimMs) / 1000f):0} s)");
+                        Text(() => $"{(p.ByCastle ? "An adventurer is on the way from the castle" : "Someone is on the way")}… ({Math.Max(0, (app.ArriveMs - s.SimMs) / 1000f):0} s)");
                 }
-                Button(() => "Cancel posting (free)", () => { _root.Services.Jobs.CancelPosting(); _message = "Posting cancelled."; }, null);
+                if (p.ByCastle) Button(() => "Turn them away", () => { _root.Services.Jobs.TurnAway(); _message = "Turned away. The castle will send someone else."; }, null);
+                else Button(() => "Cancel posting (free)", () => { _root.Services.Jobs.CancelPosting(); _message = "Posting cancelled."; }, null);
             }
 
             foreach (var region in Regions())
@@ -178,11 +190,12 @@ namespace Ravenholm.Presentation
                 foreach (var q in Cat.Quests)
                 {
                     if (q == null || q.Region != region || !Board.IsUnlocked(q.Id)) continue;   // locked jobs appear on the map only
-                    if (!any) Header(region != null ? $"Jobs · {region.DisplayName}" : "Jobs");
+                    if (!any) Header(region != null ? $"{(Castle ? "The castle's jobs" : "Jobs")} · {region.DisplayName}" : "Jobs");
                     any = true;
                     var quest = q;
                     Text(() => QuestCard(quest));
-                    Button(() => Board.PostBlockedReason(quest.Id) ?? "Post Job", () => Post(quest.Id), () => Board.PostBlockedReason(quest.Id) == null);
+                    if (!Castle)
+                        Button(() => Board.PostBlockedReason(quest.Id) ?? "Post Job", () => Post(quest.Id), () => Board.PostBlockedReason(quest.Id) == null);
                 }
             }
             var away = _root.Services.Simulation.LastReport;
@@ -237,8 +250,14 @@ namespace Ravenholm.Presentation
                 return "<b>Campaign complete:</b> the Beacon burns over Ravenholm. Contracts, blueprints and better gear remain for as long as you like.";
             var id = Board.CampaignObjective();
             if (id == null) return "";
+            var s = Board.State;
             var q = Cat.Get<QuestDefinition>(id);
-            var status = Board.IsUnlocked(id) ? (Board.PostBlockedReason(id) == null ? "ready to post" : Board.PostBlockedReason(id)) : Board.LockReason(id).Replace("Locked: ", "");
+            var status = Board.IsUnlocked(id)
+                ? (Castle && s.Posting != null && s.Posting.QuestId == id ? "an adventurer is coming to your shop for it"
+                   : Castle && s.Expeditions.Exists(e => e.QuestId == id) ? "underway"
+                   : Castle ? "the castle offers it to the next adventurer who can go"
+                   : Board.PostBlockedReason(id) == null ? "ready to post" : Board.PostBlockedReason(id))
+                : Board.LockReason(id).Replace("Locked: ", "");
             return $"<b>Next for the company:</b> {q.DisplayName} ({(q.Region != null ? q.Region.DisplayName : "")}) · <size=85%>{status}</size>";
         }
 
@@ -336,7 +355,8 @@ namespace Ravenholm.Presentation
         {
             var c = Board.Contractor(a.ContractorId);
             if (c == null) return "Unknown";
-            return $"<b>{c.Name}</b> · {ClassName(c)} L{c.Level} · fee {a.Fee} g\n<size=85%>{Strengths(c)} · {History(c)} · tap to meet</size>";
+            var terms = Board.State.Posting != null && Board.State.Posting.ByCastle ? "kit them out" : $"fee {a.Fee} g";
+            return $"<b>{c.Name}</b> · {ClassName(c)} L{c.Level} · {terms}\n<size=85%>{Strengths(c)} · {History(c)} · tap to meet</size>";
         }
 
         private string ClassName(ContractorRecord c) => Cat.TryGet<AdventurerClassDefinition>(c.ClassId, out var d) ? d.DisplayName : c.ClassId;

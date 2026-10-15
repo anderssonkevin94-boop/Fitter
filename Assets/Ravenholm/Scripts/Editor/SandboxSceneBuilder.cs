@@ -135,6 +135,9 @@ namespace Ravenholm.EditorTools
                 Circle(r.transform, new Vector2(0f, 0.15f), 0.45f);
             }
 
+            // The castle posts the jobs (2026-10-15): it stands where the road leaves town; adventurers come and go from it.
+            Prop(buildings, "Castle", "Props/castle", new Vector2(0f, -9.2f),
+                "The castle posts the jobs. Adventurers take them and come to your shop to be kitted out; they pay you a share of the castle's reward when they return.", "");
             // Phase 7: the Beacon trophy, hidden until the campaign finale succeeds.
             Prop(props, "Beacon Trophy", "Props/prop_beacon_trophy", new Vector2(-3.2f, 2.3f),
                 "The relit Beacon's flame, carried home by your contractors. Ravenholm remembers.", "").gameObject.AddComponent<TrophyView>();

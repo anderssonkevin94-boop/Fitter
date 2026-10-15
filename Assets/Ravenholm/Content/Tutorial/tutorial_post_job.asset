@@ -16,6 +16,6 @@ MonoBehaviour:
   displayName: post job
   contentVersion: 1
   order: 6
-  prompt: Open the Job Board (top right) and post Roadside Patrol. You post the job;
-    contractors decide whether to apply and name their fee.
+  prompt: 'The castle down the road posts the jobs. Adventurers take them and walk
+    to your shop to be kitted out: the castle''s jobs (top right) shows who is coming.'
   condition: 6

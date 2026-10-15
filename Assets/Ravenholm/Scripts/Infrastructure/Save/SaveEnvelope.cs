@@ -253,6 +253,10 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("nextExpedition")] public long NextExpeditionNumber = 1;
         [JsonProperty("generated")] public int GeneratedContractors;
         [JsonProperty("firstDispatchDone")] public bool FirstDispatchDone;
+        /// <summary>The castle's job offers (2026-10-15). Optional: older saves schedule the first offer on load.</summary>
+        [JsonProperty("nextCastleOfferMs")] public long NextCastleOfferMs = -1;
+        [JsonProperty("castleOffers")] public int CastleOffers;
+        [JsonProperty("castleSkipOnce")] public string CastleSkipOnce = "";
         [JsonProperty("progress")] public SortedDictionary<string, QuestProgressData> Progress = new SortedDictionary<string, QuestProgressData>();
         [JsonProperty("results")] public List<ResultSaveData> Results = new List<ResultSaveData>();
     }
@@ -359,6 +363,7 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("windowSeed")] public string WindowSeed;
         [JsonProperty("applicants")] public List<ApplicantSaveData> Applicants = new List<ApplicantSaveData>();
         [JsonProperty("noApplicantReason")] public string NoApplicantReason;
+        [JsonProperty("byCastle")] public bool ByCastle;
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -378,6 +383,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("feeQuoted")] public int FeeQuoted;
         [JsonProperty("feePaid")] public int FeePaid;
         [JsonProperty("sponsored")] public bool Sponsored;
+        /// <summary>The shop's share of the reward (a castle job), or -1 (older saves: the old Job Board).</summary>
+        [JsonProperty("shopShare")] public int ShopSharePercent = -1;
         [JsonProperty("items")] public List<string> Items = new List<string>();
         [JsonProperty("startMs")] public long StartMs;
         [JsonProperty("endMs")] public long EndMs;

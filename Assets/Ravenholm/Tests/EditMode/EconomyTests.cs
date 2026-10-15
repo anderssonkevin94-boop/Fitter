@@ -48,6 +48,7 @@ namespace Ravenholm.Tests
         private static ExpeditionRecord SendPatrol(GameServices g)
         {
             Stock(g, "item.iron_sword", "item.riveted_coat", "item.cedar_bow", "item.iron_dagger", "item.cedar_staff");
+            g.Jobs.CancelPosting();   // posts its own patrol; the castle carries on afterwards
             Assert.IsTrue(g.Jobs.Post("quest.roadside_patrol", out var f), f);
             g.Jobs.Board.Advance(31_000);
             var a = g.Jobs.State.Posting.Applicants.FirstOrDefault();
@@ -225,6 +226,7 @@ namespace Ravenholm.Tests
         public void BuyingIsAtomicAndSellingNeverTouchesReservedOrAwayGear()
         {
             var g = Boot(T0);
+            g.Jobs.Board.Config.CastlePosts = false;   // posts its own jobs (the original Job Board)
             FirstReturn(g);
             g.Economy.DebugSummonTrader();
             var log = g.Logistics.System;

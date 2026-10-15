@@ -235,7 +235,11 @@ namespace Ravenholm.Presentation
             if (cls != null && !string.IsNullOrEmpty(cls.Role)) sb.Append($"\n<size=85%>{cls.Role}</size>");
             sb.Append($"\nHistory: {JobBoardPanel.FullHistory(c)}");
             var q = Quest;
-            if (q != null && a != null)
+            var byCastle = Board.State.Posting != null && Board.State.Posting.ByCastle;
+            if (q != null && a != null && byCastle && !q.Recovery)
+                sb.Append($"\nFor <b>{q.Name}</b> (a castle job): the castle pays them. You lend the gear for <b>{Board.Config.ShopSharePercent}%</b> " +
+                          $"of the reward: about {q.BaseGold * Board.Config.ShopSharePercent / 100} g if it goes well. The gear comes back unless they die.");
+            else if (q != null && a != null)
                 sb.Append(q.Recovery
                     ? $"\nFor <b>{q.Name}</b>: quotes {a.Fee} g, <b>paid by the patron</b> (you pay nothing)."
                     : $"\nFor <b>{q.Name}</b>: quotes <b>{a.Fee} g</b> (you have {Board.State.Gold} g). Quotes do not change while you decide.");
@@ -323,7 +327,7 @@ namespace Ravenholm.Presentation
             if (reason != null) return UnitVisuals.PrettyIds(reason);
             var c = Contractor;
             var a = Board.State.Posting.Applicants.Find(x => x.ContractorId == _contractorId);
-            var fee = Quest.Recovery ? "patron pays" : $"{a.Fee} g";
+            var fee = Quest.Recovery ? "patron pays" : Board.State.Posting.ByCastle ? "lend the gear" : $"{a.Fee} g";
             if (!Board.State.FirstDispatchDone && Time.unscaledTime < _confirmUntil)
                 return "Tap again to send: gear is lost if they die";
             return $"Send {c.Name} ({fee})";

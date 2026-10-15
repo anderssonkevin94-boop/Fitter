@@ -33,18 +33,20 @@ namespace Ravenholm.EditorTools
                 "Drag anywhere low on the screen to walk. At the Mine's rim, hold the action button to dig; in the Forest, hold it by a tree to chop. What you gather goes straight into your carry.");
             Step("deliver", 2, TutorialCondition.DeliveredRawMaterial,
                 "Carry ore to the Smelter's marker and logs to the Lumbermill's. They process deliveries into ingots and lumber on their own.");
-            Step("site_choice", 3, TutorialCondition.SiteDecisionMade,
-                "When the Mine's shaft is through a layer or a Forest clearing is cut, the next step is yours. Open the site: continue with the known yield, or go deeper into the unknown.");
+            // Site decisions went with the site panels (2026-10-15): a tip to read instead.
+            Step("site_choice", 3, TutorialCondition.Acknowledge,
+                "Ore stays hidden in the rock until you break it. Dig deeper at the Mine for new layers and better ore; chop further left in the Forest for new kinds of wood.");
             Step("craft", 4, TutorialCondition.CraftedItem,
                 "Open the Forge or Workbench and craft a weapon from the starter stock. Crafting is instant; the item appears on the output pad.");
             Step("stock_store", 5, TutorialCondition.GearInStore,
-                "Pick the new gear up from the pad and carry it to the Store's counter. Adventurers can only take gear that is in the Store.");
+                "Pick the new gear up from the pad and carry it into your shop, just inside the entrance. You can only lend adventurers gear that is in your shop.");
+            // The castle posts the jobs (2026-10-15).
             Step("post_job", 6, TutorialCondition.JobPosted,
-                "Open the Job Board (top right) and post Roadside Patrol. You post the job; contractors decide whether to apply and name their fee.");
+                "The castle down the road posts the jobs. Adventurers take them and walk to your shop to be kitted out: the castle's jobs (top right) shows who is coming.");
             Step("send", 7, TutorialCondition.ContractorSent,
-                "When applicants arrive at the Store, meet one, compare fees, pick their gear and read the risk word. Then Send.");
+                "When the adventurer arrives at your shop, meet them, pick the gear you lend them and read the risk word. Then Send: they pay you a share of the castle's reward on return."); 
             Step("read_result", 8, TutorialCondition.ResultRead,
-                "While they are away, keep the Mine and Forest moving. When they return, read the result on the Job Board.");
+                "While they are away, keep the Mine and Forest moving. When they return, read the result on the castle's jobs board.");
             Step("danger", 9, TutorialCondition.Acknowledge,
                 "Ordinary jobs can go wrong: injury, failure, even death, and the dead lose their gear. A better risk word, armor and a tonic all help.");
             Step("blueprint", 10, TutorialCondition.NewBlueprintOwned,

@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: site choice
   contentVersion: 1
   order: 3
-  prompt: 'When the Mine''s shaft is through a layer or a Forest clearing is cut,
-    the next step is yours. Open the site: continue with the known yield, or go deeper
-    into the unknown.'
-  condition: 3
+  prompt: Ore stays hidden in the rock until you break it. Dig deeper at the Mine
+    for new layers and better ore; chop further left in the Forest for new kinds
+    of wood.
+  condition: 0

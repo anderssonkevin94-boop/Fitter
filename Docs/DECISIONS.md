@@ -1092,3 +1092,27 @@ Kevin: 4 × 6 to start, 2 × 2 add-ons, no roof for now, and Astra has visual fr
 - **Inside corners.** `ShopLayoutConfig.WallDepthSteps` is now 6, since a lower wall hides fewer tiles behind it.
 - **Everything else.** Placeholders, templates (`*_176x495`, `*_64x495`, `*_304x560`) and the brief now use the new height. The placeholder posts are renamed `post_*_placeholder`, so Astra's posts no longer overwrite them.
 - **Wall furniture.** It must fit under the wall's top. Her level-3 potion shelf (about 1.6 units) is taller and will need a lower version in step 2.
+
+## 2026-10-15: the castle posts the jobs; adventurers come to the shop to be kitted out (Kevin)
+
+Kevin's choices: the shop lends its gear and takes a cut; adventurers arrive with a job already chosen. The supplier no longer posts jobs. This changes the GDD's Job Board (sections 10–11) at Kevin's request.
+
+- **The castle** (`JobBoardConfig.CastlePosts`, on through `BalanceProfile.castlePostsJobs`).
+  - **Timing:** the first offer comes 15 s into a new game, then one every 45 s. Dispatching or turning someone away restarts that timer; nothing is offered while both expedition slots are in use.
+  - **Choice order:** the campaign's next job first, then the other open jobs in a seeded order, then the safe survey last. With no weapon or armour in stock at all, the survey comes first, since it needs no gear. So the company can never get stuck.
+  - **Who comes:** the first job that someone suits and that the shop can actually kit them out for is offered: the job's gear and counter-potion requirements are met, and it isn't suicidal with the best gear on hand. This rule came from the castle bot test: before it, the castle offered the finale 2,861 times to a shop without a Power-13 weapon.
+  - **What you see:** one adventurer per offer. They walk up from the castle (shown on the road) and wait at the shop.
+- **Turning away.** The adventurer is sent off, the castle's next offer is a different job, and someone else comes (`TurnAway`).
+- **Kitting out.** It reuses the loadout panel, forecast and atomic dispatch; there is no fee and no gold check.
+  - The shop's share (`shopSharePercent`, 60, a balance starting point) is fixed on the expedition at dispatch. On return the shop gets that share of the castle's gold.
+  - Materials, blueprints, reputation and the gear (unless they die) come back as before. The survey still pays its full 8.
+- **Timing is exact.** Offers are stamped with their scheduled time, and offline catch-up steps to each offer. Online play and an absence give identical saves (tested). An overdue offer waits for the slot that frees it.
+- **Saves.** New optional fields:
+  - `nextCastleOfferMs`, `castleOffers`, `castleSkipOnce`;
+  - `posting.byCastle`;
+  - `expedition.shopShare`. It is -1 for older expeditions, which keep the old payout.
+- **World.** A placeholder castle (`Tools/ArtImport/make_castle_placeholder.py`) stands where the road leaves town (Astra to draw it). The Job Board becomes "The Castle's Jobs": the jobs to read, who is coming, and Turn them away.
+- **Tutorial.** Steps 6–8 are reworded. Step 3 is now a tip to read, since its site decision went away with the site panels and could have stalled the tutorial.
+- **Tests.** The original Job Board's tests switch the castle off explicitly; its rules still run for a posting made by hand. New tests:
+  - `CastleTests`, including a castle bot that runs a fresh game through the whole campaign: 129 expeditions in 3.6 simulated hours, nobody turned away.
+  - `CastlePlayModeTests`.

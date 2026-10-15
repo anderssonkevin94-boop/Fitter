@@ -132,6 +132,7 @@ namespace Ravenholm.Tests
             var balance = AssetDatabase.LoadAssetAtPath<BalanceProfile>(ProjectSetup.ConfigDir + "BalanceProfile.asset");
             var g = new GameServices(new ManualClock(T0), cat, balance, Dir, "sandbox", "test", 1.5f);
             g.Start();
+            g.Jobs.Board.Config.CastlePosts = false;   // drives the original Job Board directly (in play, the castle posts)
             g.Logistics.RegisterContainer("test.box", ContainerKind.OutputPad, 100f, 100f, 0.45f, null);
             return g;
         }

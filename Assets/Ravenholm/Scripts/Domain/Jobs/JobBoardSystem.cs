@@ -67,6 +67,8 @@ namespace Ravenholm.Domain.Jobs
         public readonly List<ApplicantRecord> Applicants = new List<ApplicantRecord>();
         /// <summary>Why nobody applied (empty when someone did).</summary>
         public string NoApplicantReason = "";
+        /// <summary>Offered by the castle (2026-10-15): one adventurer took the job and comes to the shop to be kitted out.</summary>
+        public bool ByCastle;
     }
 
     /// <summary>
@@ -75,6 +77,8 @@ namespace Ravenholm.Domain.Jobs
     /// </summary>
     public sealed class ExpeditionRecord
     {
+        /// <summary>The shop's share of the gold reward in percent (a castle job), or -1: the old Job Board (all of it).</summary>
+        public int ShopSharePercent = -1;
         public string Id = "";
         public string QuestId = "";
         public string ContractorId = "";
@@ -145,6 +149,12 @@ namespace Ravenholm.Domain.Jobs
     {
         public long SimMs;
         public int Gold;
+        /// <summary>When the castle next offers a job (-1 = not yet scheduled).</summary>
+        public long NextCastleOfferMs = -1;
+        /// <summary>How many jobs the castle has offered (seeds which job comes next).</summary>
+        public int CastleOffers;
+        /// <summary>A job just turned away: the castle's next offer is something else.</summary>
+        public string CastleSkipOnce = "";
         /// <summary>Reputation in tenths, 0..1000 (GDD 14: fractional recovery, integer display).</summary>
         public int ReputationTenths;
         public readonly SortedDictionary<string, ContractorRecord> Contractors = new SortedDictionary<string, ContractorRecord>(StringComparer.Ordinal);
@@ -321,6 +331,16 @@ namespace Ravenholm.Domain.Jobs
         public int XpPerLevel = 3;
         public long InjuryMs = 10 * 60 * 1000;
         public int ResultHistory = 30;
+
+        /// <summary>
+        /// The castle posts the jobs (Kevin, 2026-10-15): the supplier no longer posts. One adventurer at a time takes
+        /// a castle job and comes to the shop to be kitted out; the shop lends the gear and is paid a share of the
+        /// castle's reward on return. Off: the original Job Board (the player posts, applicants quote a fee).
+        /// </summary>
+        public bool CastlePosts;
+        public long CastleFirstMs = 15000, CastleIntervalMs = 45000;
+        /// <summary>The shop's share of the castle's gold reward, in percent (fixed at dispatch).</summary>
+        public int ShopSharePercent = 60;
     }
 
     /// <summary>
@@ -346,6 +366,8 @@ namespace Ravenholm.Domain.Jobs
             _cfg = config;
             _worldSeed = worldSeed;
             _rewards = rewards;
+            // The castle's first offer comes a little after the start (or after loading an older save).
+            if (_cfg.CastlePosts && _s.NextCastleOfferMs < 0) _s.NextCastleOfferMs = _s.SimMs + _cfg.CastleFirstMs;
             RefreshUnlocks();
         }
 
@@ -615,7 +637,9 @@ namespace Ravenholm.Domain.Jobs
         }
 
         /// <summary>Posts a job. Posting is free; contractors decide whether to apply (GDD 11).</summary>
-        public bool Post(string questId, out string failure)
+        public bool Post(string questId, out string failure) => Post(questId, false, out failure);
+
+        private bool Post(string questId, bool byCastle, out string failure, long createdMs = -1)
         {
             failure = PostBlockedReason(questId);
             if (failure != null) return false;
@@ -623,7 +647,7 @@ namespace Ravenholm.Domain.Jobs
             _s.WindowIndex.TryGetValue(questId, out var window);
             // The candidate window seed only advances when a posting is filled, so cancel/repost cannot reroll.
             var seed = RandomStreams.SplitMix64(_worldSeed ^ SiteMath.StableHash(questId) ^ ((ulong)(window + 1) * 0x9E3779B97F4A7C15UL));
-            var p = new PostingRecord { QuestId = questId, CreatedMs = _s.SimMs, WindowSeed = seed };
+            var p = new PostingRecord { QuestId = questId, CreatedMs = createdMs >= 0 ? createdMs : _s.SimMs, WindowSeed = seed, ByCastle = byCastle };
             _s.Posting = p;
             SelectApplicants(p, q);
             Changed?.Invoke();
@@ -638,10 +662,117 @@ namespace Ravenholm.Domain.Jobs
             Changed?.Invoke();
         }
 
+        // ------------------------------------------------------------------ the castle (2026-10-15)
+
+        /// <summary>Sends the waiting adventurer away. The castle offers another job (someone else) after a while.</summary>
+        public void TurnAway()
+        {
+            var p = _s.Posting;
+            if (p == null) return;
+            _s.WindowIndex.TryGetValue(p.QuestId, out var w);
+            _s.WindowIndex[p.QuestId] = w + 1;   // a different adventurer next time
+            _s.NextCastleOfferMs = _s.SimMs + _cfg.CastleIntervalMs;
+            _s.CastleSkipOnce = p.QuestId;        // the next offer is a different job
+            CancelPosting();
+        }
+
+        /// <summary>Milliseconds until the castle next offers a job (long.MaxValue if it is not waiting to).</summary>
+        public long NextCastleOfferDelay() =>
+            !_cfg.CastlePosts || _s.Posting != null || _s.Expeditions.Count >= _cfg.ActiveSlots   // full: it waits for a return
+                ? long.MaxValue
+                : Math.Max(0, _s.NextCastleOfferMs < 0 ? _cfg.CastleFirstMs : _s.NextCastleOfferMs - _s.SimMs);
+
+        /// <summary>
+        /// When it is time and an expedition slot is free, the castle offers a job: the next campaign step first, then the
+        /// other open jobs in a seeded order, and the safe survey last (always taken, so the company can never get stuck).
+        /// The first job someone suits is posted with that one adventurer, who walks to the shop.
+        /// </summary>
+        /// <summary>When the last completion in this step freed an expedition slot (an overdue offer is made from then).</summary>
+        private long _slotFreedMs = -1;
+
+        private void CastleTick()
+        {
+            if (!_cfg.CastlePosts) return;
+            if (_s.NextCastleOfferMs < 0) _s.NextCastleOfferMs = _s.SimMs + _cfg.CastleFirstMs;
+            if (_s.Posting != null || _s.SimMs < _s.NextCastleOfferMs || _s.Expeditions.Count >= _cfg.ActiveSlots) return;
+            // The offer is made at its scheduled moment, however coarsely time is stepped (online frames and offline
+            // catch-up agree exactly).
+            var at = Math.Max(_s.NextCastleOfferMs, _slotFreedMs);   // an overdue offer waits for the slot that freed it
+            _slotFreedMs = -1;
+            _s.NextCastleOfferMs = at + _cfg.CastleIntervalMs;
+            _s.CastleOffers++;
+            var skip = _s.CastleSkipOnce;
+            _s.CastleSkipOnce = "";
+            foreach (var questId in CastleChoices())
+            {
+                if (questId == skip) continue;
+                if (!Post(questId, true, out _, at)) continue;
+                var a = _s.Posting.Applicants.Count > 0 ? _s.Posting.Applicants[0] : null;
+                if (a != null && CanBeKittedOut(Contractor(a.ContractorId), Quest(questId))) return;
+                _s.Posting = null;   // nobody suits it, or the shop cannot meet its requirements yet: try the next job
+            }
+        }
+
+        /// <summary>
+        /// Whether the shop's stock could send this adventurer: the job's requirements (gear, counter potion) are met by the
+        /// best gear on hand and the job does not look suicidal with it. The castle only sends people who can go.
+        /// </summary>
+        private bool CanBeKittedOut(ContractorRecord c, QuestInfo q)
+        {
+            if (c == null || q == null) return false;
+            if (q.Recovery) return true;
+            var l = BestAvailableLoadout(c, LoadoutOwner);
+            foreach (var id in _gear.StoreItems)
+            {
+                var pi = Info(id);
+                if (pi == null || pi.Kind != ItemKind.Potion || string.IsNullOrEmpty(pi.CounterTag) || _gear.IsReservedByOther(id, LoadoutOwner)) continue;
+                foreach (var t in q.Threats)
+                    if (t.CounterTag == pi.CounterTag && l.Potion1 == null) l.Potion1 = id;
+            }
+            return RequirementProblem(c, l, q) == null && Forecast(c, l, q).Band != RiskBand.Suicidal;
+        }
+
+        private List<string> CastleChoices()
+        {
+            var open = new List<string>();
+            string recovery = null;
+            foreach (var id in _content.QuestIds)
+            {
+                if (PostBlockedReason(id) != null) continue;
+                if (Quest(id).Recovery) recovery = id;
+                else open.Add(id);
+            }
+            var rng = new Pcg32(RandomStreams.SplitMix64(_worldSeed ^ 0xCA57u ^ (ulong)_s.CastleOffers), 31);
+            for (var i = open.Count - 1; i > 0; i--)
+            {
+                var j = rng.NextInt(0, i + 1);
+                (open[i], open[j]) = (open[j], open[i]);
+            }
+            var campaign = CampaignObjective();
+            if (campaign != null && open.Remove(campaign)) open.Insert(0, campaign);
+            // Nothing to lend at all: the survey (it needs no gear) comes first; otherwise it is the fallback.
+            if (recovery != null)
+            {
+                if (StockHasNoGear()) open.Insert(0, recovery);
+                else open.Add(recovery);
+            }
+            return open;
+        }
+
+        private bool StockHasNoGear()
+        {
+            foreach (var id in _gear.StoreItems)
+            {
+                var i = Info(id);
+                if (i != null && (i.Kind == ItemKind.Weapon || i.Kind == ItemKind.Armor)) return false;
+            }
+            return true;
+        }
+
         private void SelectApplicants(PostingRecord p, QuestInfo q)
         {
             var rng = new Pcg32(p.WindowSeed, 54);
-            var target = ApplicantTarget;
+            var target = p.ByCastle ? 1 : ApplicantTarget;
 
             if (q.Recovery)
             {
@@ -767,7 +898,9 @@ namespace Ravenholm.Domain.Jobs
             foreach (var e in due) Complete(e);
             foreach (var c in _s.Contractors.Values)
                 if (c.Status == ContractorStatus.Injured && _s.SimMs >= c.InjuredUntilMs) c.Status = ContractorStatus.Available;
-            if (due.Count > 0) Changed?.Invoke();
+            var posting = _s.Posting;
+            CastleTick();
+            if (due.Count > 0 || posting != _s.Posting) Changed?.Invoke();
         }
 
         /// <summary>Milliseconds until the next expedition completes (long.MaxValue if none). Used to order events.</summary>
@@ -793,6 +926,7 @@ namespace Ravenholm.Domain.Jobs
         public ResultRecord Complete(ExpeditionRecord e)
         {
             if (_s.Results.Exists(r => r.ExpeditionId == e.Id) || !_s.Expeditions.Contains(e)) return null;
+            _slotFreedMs = Math.Max(_slotFreedMs, e.EndMs);
             var q = Quest(e.QuestId);
             var c = Contractor(e.ContractorId);
             var rng = new Pcg32(e.Seed, 7);   // reward rolls: separate from the resolver's own draws
@@ -822,8 +956,9 @@ namespace Ravenholm.Domain.Jobs
             }
             res.Outcome = outcome;
 
-            // Gold: floor(base × multiplier).
+            // Gold: floor(base × multiplier); a castle job pays the shop its share of that (fixed at dispatch).
             res.GoldEarned = q == null ? 0 : (int)Math.Floor(q.BaseGold * Resolver.GoldMultiplier(outcome));
+            if (e.ShopSharePercent >= 0) res.GoldEarned = res.GoldEarned * e.ShopSharePercent / 100;
             _s.Gold += res.GoldEarned;
 
             // Gear.
@@ -1030,7 +1165,7 @@ namespace Ravenholm.Domain.Jobs
             if (req != null) return req;
             if (!q.Recovery && Forecast(c, l, q).Band == RiskBand.Suicidal)
                 return $"{c.Name} refuses: with this gear the job looks suicidal";
-            if (!q.Recovery && _s.Gold < a.Fee) return $"Not enough gold: the fee is {a.Fee}, you have {_s.Gold}";
+            if (!q.Recovery && !p.ByCastle && _s.Gold < a.Fee) return $"Not enough gold: the fee is {a.Fee}, you have {_s.Gold}";
             return null;
         }
 
@@ -1088,7 +1223,9 @@ namespace Ravenholm.Domain.Jobs
                 QuestId = q.Id,
                 ContractorId = c.Id,
                 FeeQuoted = a.Fee,
-                FeePaid = q.Recovery ? 0 : a.Fee,
+                // A castle job: the castle pays the adventurer; the shop lends the gear for a share of the reward.
+                FeePaid = q.Recovery || p.ByCastle ? 0 : a.Fee,
+                ShopSharePercent = p.ByCastle && !q.Recovery ? _cfg.ShopSharePercent : -1,
                 Sponsored = q.Recovery,
                 StartMs = _s.SimMs,
                 EndMs = _s.SimMs + q.DurationMs,
@@ -1118,6 +1255,7 @@ namespace Ravenholm.Domain.Jobs
             _s.WindowIndex.TryGetValue(q.Id, out var w);
             _s.WindowIndex[q.Id] = w + 1;
             _s.Posting = null;            // unselected applicants return to the pool
+            if (p.ByCastle) _s.NextCastleOfferMs = _s.SimMs + _cfg.CastleIntervalMs;
             _s.FirstDispatchDone = true;
             _gear.ReleaseReservations(LoadoutOwner);
             expedition = e;

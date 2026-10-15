@@ -92,7 +92,8 @@ namespace Ravenholm.Services
             var resourceLeft = Math.Max(0, Math.Min(resourceMs, remaining));
             while (remaining > 0)
             {
-                var next = _jobs.Board != null ? _jobs.Board.NextCompletionDelay() : long.MaxValue;
+                // Land exactly on each quest completion and each of the castle's job offers.
+                var next = _jobs.Board != null ? Math.Min(_jobs.Board.NextCompletionDelay(), _jobs.Board.NextCastleOfferDelay()) : long.MaxValue;
                 var step = Math.Min(remaining, Math.Max(1, next));
                 var rstep = Math.Min(step, resourceLeft);
                 if (rstep > 0)

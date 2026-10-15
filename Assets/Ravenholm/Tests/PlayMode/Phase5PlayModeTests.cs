@@ -65,6 +65,7 @@ namespace Ravenholm.Tests
         public IEnumerator FullLoopReturnsAResult()
         {
             yield return Boot();
+            GameRoot.Instance.Services.Jobs.Board.Config.CastlePosts = false;   // posts its own job (the original Job Board; in play, the castle posts)
             var s = GameRoot.Instance.Services;
             var hud = GameRoot.Instance.Hud;
             Assert.IsTrue(s.Production.Craft("recipe.iron_sword", out var f), f);

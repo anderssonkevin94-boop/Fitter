@@ -71,5 +71,15 @@ namespace Ravenholm.Content
         [Min(0)] public float applicationMaxSeconds = 30f;
         [Tooltip("Approximate size of the persistent contractor pool.")]
         [Min(4)] public int contractorPoolTarget = 12;
+
+        [Header("The castle posts the jobs (2026-10-15)")]
+        [Tooltip("On: the castle offers jobs and adventurers come to the shop to be kitted out; the player no longer posts.")]
+        public bool castlePostsJobs = true;
+        [Tooltip("Seconds into a new game before the first adventurer is sent.")]
+        [Min(0f)] public float castleFirstOfferSeconds = 15f;
+        [Tooltip("Seconds between the castle's job offers (after a dispatch, a turned-away adventurer, or nobody suiting any job).")]
+        [Min(1f)] public float castleOfferIntervalSeconds = 45f;
+        [Tooltip("The shop's share of a castle job's gold reward, for lending the gear (balance starting point).")]
+        [Range(0, 100)] public int shopSharePercent = 60;
     }
 }

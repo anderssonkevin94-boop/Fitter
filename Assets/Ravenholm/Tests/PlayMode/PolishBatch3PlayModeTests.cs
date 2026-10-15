@@ -87,6 +87,7 @@ namespace Ravenholm.Tests
         public IEnumerator PlayerReachesApplicantsGreetAndContractorsWalkBack()
         {
             yield return Boot();
+            GameRoot.Instance.Services.Jobs.Board.Config.CastlePosts = false;   // posts its own job (the original Job Board; in play, the castle posts)
             var s = GameRoot.Instance.Services;
             var c = SandboxSceneController.Current;
             var motor = c.Player.GetComponent<PlayerMotor>();

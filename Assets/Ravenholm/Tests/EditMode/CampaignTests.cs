@@ -23,6 +23,7 @@ namespace Ravenholm.Tests
         {
             var g = new GameServices(new ManualClock(T0), Cat, Balance, dir ?? Dir, "sandbox", "test", 1.5f);
             g.Start();
+            g.Jobs.Board.Config.CastlePosts = false;   // drives the original Job Board directly (in play, the castle posts)
             return g;
         }
 

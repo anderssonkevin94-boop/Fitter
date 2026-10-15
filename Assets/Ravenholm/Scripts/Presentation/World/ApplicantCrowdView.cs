@@ -38,10 +38,41 @@ namespace Ravenholm.Presentation
             _root.Services.Jobs.Completed += OnReturned;
         }
 
+        private readonly Dictionary<string, GameObject> _coming = new Dictionary<string, GameObject>();
+
+        /// <summary>Adventurers walking from the castle to the shop (tests).</summary>
+        public int ComingCount => _coming.Count;
+
+        /// <summary>A castle job's adventurer walks up the road from the castle while on the way to the shop.</summary>
+        private void ShowComing(JobBoardSystem board, PostingRecord p)
+        {
+            var keep = new HashSet<string>();
+            if (p != null && p.ByCastle)
+                foreach (var a in p.Applicants)
+                {
+                    if (board.HasArrived(a)) continue;
+                    var slot = Mathf.Clamp(p.Applicants.IndexOf(a), 0, Mathf.Max(0, spots.Count - 1));
+                    var to = spots.Count > 0 ? spots[slot] : Vector2.zero;
+                    keep.Add(a.ContractorId);
+                    if (!_coming.TryGetValue(a.ContractorId, out var walker))
+                        _coming[a.ContractorId] = walker = Spawn(board.Contractor(a.ContractorId), departurePoint, false);
+                    var span = Mathf.Max(1f, a.ArriveMs - p.CreatedMs);
+                    var k = Mathf.Clamp01((board.State.SimMs - p.CreatedMs) / span);
+                    walker.transform.position = Vector2.Lerp(departurePoint, to, k) + new Vector2(0f, Feel.ReducedMotion ? 0f : Mathf.Abs(Mathf.Sin(Time.time * 12f)) * 0.05f);
+                }
+            foreach (var id in new List<string>(_coming.Keys))
+            {
+                if (keep.Contains(id)) continue;
+                Destroy(_coming[id]);
+                _coming.Remove(id);
+            }
+        }
+
         private void Update()
         {
             var board = _root.Services.Jobs.Board;
             var p = board.State.Posting;
+            ShowComing(board, p);
             var arrived = new List<ApplicantRecord>();
             if (p != null) foreach (var a in p.Applicants) if (board.HasArrived(a)) arrived.Add(a);
             var key = (p?.QuestId ?? "") + ":" + string.Join(",", arrived.ConvertAll(a => a.ContractorId));

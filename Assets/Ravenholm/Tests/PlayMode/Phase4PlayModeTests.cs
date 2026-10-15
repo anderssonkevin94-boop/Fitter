@@ -57,6 +57,7 @@ namespace Ravenholm.Tests
         public IEnumerator PostMeetEquipAndSend()
         {
             yield return Boot();
+            GameRoot.Instance.Services.Jobs.Board.Config.CastlePosts = false;   // posts its own job (the original Job Board; in play, the castle posts)
             var s = GameRoot.Instance.Services;
             var hud = GameRoot.Instance.Hud;
             // Stock a starter loadout: craft from the starting stock, carry it to the Store.

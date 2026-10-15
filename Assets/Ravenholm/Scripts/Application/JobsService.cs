@@ -206,6 +206,10 @@ namespace Ravenholm.Services
             c.ArrivalMinMs = (int)Math.Round(b.applicationMinSeconds * 1000);
             c.ArrivalMaxMs = (int)Math.Round(b.applicationMaxSeconds * 1000);
             c.PoolTarget = b.contractorPoolTarget;
+            c.CastlePosts = b.castlePostsJobs;
+            c.CastleFirstMs = (long)Math.Round(b.castleFirstOfferSeconds * 1000);
+            c.CastleIntervalMs = (long)Math.Round(b.castleOfferIntervalSeconds * 1000);
+            c.ShopSharePercent = b.shopSharePercent;
             return c;
         }
 
@@ -245,6 +249,13 @@ namespace Ravenholm.Services
             var ok = Board.Post(questId, out failure);
             if (ok) _scheduler.SaveNow("job posted");
             return ok;
+        }
+
+        /// <summary>Sends the adventurer waiting at the shop away; the castle offers another job later.</summary>
+        public void TurnAway()
+        {
+            Board.TurnAway();
+            _scheduler.SaveNow("jobs: adventurer turned away");
         }
 
         public void CancelPosting()
@@ -425,6 +436,9 @@ namespace Ravenholm.Services
             _state.NextExpeditionNumber = d.NextExpeditionNumber;
             _state.GeneratedContractors = d.GeneratedContractors;
             _state.FirstDispatchDone = d.FirstDispatchDone;
+            _state.NextCastleOfferMs = d.NextCastleOfferMs;
+            _state.CastleOffers = d.CastleOffers;
+            _state.CastleSkipOnce = d.CastleSkipOnce ?? "";
             foreach (var kv in d.WindowIndex) _state.WindowIndex[kv.Key] = kv.Value;
             foreach (var cd in d.Contractors)
             {
@@ -446,7 +460,7 @@ namespace Ravenholm.Services
                 {
                     QuestId = d.Posting.QuestId, CreatedMs = d.Posting.CreatedMs,
                     WindowSeed = ulong.Parse(d.Posting.WindowSeed ?? "0", CultureInfo.InvariantCulture),
-                    NoApplicantReason = d.Posting.NoApplicantReason ?? "",
+                    NoApplicantReason = d.Posting.NoApplicantReason ?? "", ByCastle = d.Posting.ByCastle,
                 };
                 foreach (var a in d.Posting.Applicants) p.Applicants.Add(new ApplicantRecord { ContractorId = a.ContractorId, Fee = a.Fee, ArriveMs = a.ArriveMs });
                 _state.Posting = p;
@@ -457,7 +471,7 @@ namespace Ravenholm.Services
                 {
                     Id = ed.Id, QuestId = ed.QuestId, ContractorId = ed.ContractorId, FeeQuoted = ed.FeeQuoted, FeePaid = ed.FeePaid, Sponsored = ed.Sponsored,
                     StartMs = ed.StartMs, EndMs = ed.EndMs, Seed = ulong.Parse(ed.Seed ?? "0", CultureInfo.InvariantCulture),
-                    ForecastBand = ed.ForecastBand ?? "", TestDeparture = ed.TestDeparture,
+                    ForecastBand = ed.ForecastBand ?? "", TestDeparture = ed.TestDeparture, ShopSharePercent = ed.ShopSharePercent,
                 };
                 e.Items.AddRange(ed.Items);
                 e.ThreatIds.AddRange(ed.ThreatIds);
@@ -496,6 +510,7 @@ namespace Ravenholm.Services
             {
                 SimMs = _state.SimMs, Gold = _state.Gold, ReputationTenths = _state.ReputationTenths, NextExpeditionNumber = _state.NextExpeditionNumber,
                 GeneratedContractors = _state.GeneratedContractors, FirstDispatchDone = _state.FirstDispatchDone,
+                NextCastleOfferMs = _state.NextCastleOfferMs, CastleOffers = _state.CastleOffers, CastleSkipOnce = _state.CastleSkipOnce,
             };
             foreach (var kv in _state.WindowIndex) d.WindowIndex[kv.Key] = kv.Value;
             foreach (var c in _state.Contractors.Values)
@@ -517,7 +532,7 @@ namespace Ravenholm.Services
                 var pd = new PostingSaveData
                 {
                     QuestId = p.QuestId, CreatedMs = p.CreatedMs, WindowSeed = p.WindowSeed.ToString(CultureInfo.InvariantCulture),
-                    NoApplicantReason = p.NoApplicantReason,
+                    NoApplicantReason = p.NoApplicantReason, ByCastle = p.ByCastle,
                 };
                 foreach (var a in p.Applicants) pd.Applicants.Add(new ApplicantSaveData { ContractorId = a.ContractorId, Fee = a.Fee, ArriveMs = a.ArriveMs });
                 d.Posting = pd;
@@ -530,7 +545,7 @@ namespace Ravenholm.Services
                     StartMs = e.StartMs, EndMs = e.EndMs, Seed = e.Seed.ToString(CultureInfo.InvariantCulture),
                     Might = e.Snapshot.Might, Survival = e.Snapshot.Survival, Insight = e.Snapshot.Insight, WeaponPower = e.Snapshot.WeaponPower,
                     ArmorProtection = e.Snapshot.ArmorProtection, SurvivalPotionBonus = e.Snapshot.SurvivalPotionBonus,
-                    ForecastBand = e.ForecastBand, TestDeparture = e.TestDeparture,
+                    ForecastBand = e.ForecastBand, TestDeparture = e.TestDeparture, ShopSharePercent = e.ShopSharePercent,
                 };
                 ed.Items.AddRange(e.Items);
                 ed.ThreatIds.AddRange(e.ThreatIds);

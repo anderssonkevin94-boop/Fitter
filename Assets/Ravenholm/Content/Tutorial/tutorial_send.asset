@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: send
   contentVersion: 1
   order: 7
-  prompt: When applicants arrive at the Store, meet one, compare fees, pick their
-    gear and read the risk word. Then Send.
+  prompt: 'When the adventurer arrives at your shop, meet them, pick the gear you
+    lend them and read the risk word. Then Send: they pay you a share of the castle''s
+    reward on return.'
   condition: 7

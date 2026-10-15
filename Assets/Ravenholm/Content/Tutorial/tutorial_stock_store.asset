@@ -16,6 +16,6 @@ MonoBehaviour:
   displayName: stock store
   contentVersion: 1
   order: 5
-  prompt: Pick the new gear up from the pad and carry it to the Store's counter.
-    Adventurers can only take gear that is in the Store.
+  prompt: Pick the new gear up from the pad and carry it into your shop, just inside
+    the entrance. You can only lend adventurers gear that is in your shop.
   condition: 5
