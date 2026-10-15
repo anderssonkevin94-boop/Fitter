@@ -51,6 +51,8 @@ namespace Ravenholm.Infrastructure.Save
 
         /// <summary>The shop's blocks and furniture (2026-10-15). Optional: older saves start with the default shop.</summary>
         [JsonProperty("shop")] public ShopSaveData Shop;
+        /// <summary>Stations moved or packed at the camp (optional; null = every station where the camp was laid out).</summary>
+        [JsonProperty("stations")] public StationsSaveData Stations;
 
         public ulong GetWorldSeed() => ulong.Parse(WorldSeed, System.Globalization.CultureInfo.InvariantCulture);
 
@@ -416,6 +418,24 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("traderRemaining")] public SortedDictionary<string, int> TraderRemaining = new SortedDictionary<string, int>();
         [JsonProperty("upgrades")] public List<string> Upgrades = new List<string>();
         [JsonProperty("lastCatchUpId")] public string LastCatchUpId = "";
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class StationsSaveData
+    {
+        [JsonProperty("camp")] public string Camp;
+        [JsonProperty("sites")] public List<StationSiteSaveData> Sites = new List<StationSiteSaveData>();
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class StationSiteSaveData
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("packed")] public bool Packed;
+        [JsonProperty("x")] public int X;
+        [JsonProperty("y")] public int Y;
+        /// <summary>When its build finishes (UTC ticks; 0 = built).</summary>
+        [JsonProperty("readyAt")] public long ReadyAt;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

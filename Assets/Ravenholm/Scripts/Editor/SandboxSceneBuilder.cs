@@ -147,6 +147,12 @@ namespace Ravenholm.EditorTools
                 "Crafted potions appear here (holds 6).", null, null, 6);
             ProcessorBar(smelter.transform, "station.smelter", 2.75f);
             ProcessorBar(mill.transform, "station.lumbermill", 2.2f);
+            // The journey, step 2 (2026-10-15): each station can be set up elsewhere at the camp, its marker and pad with it.
+            Site(buildings, "Smelter", "station.smelter", logistics, "Receiver Smelter");
+            Site(buildings, "Lumbermill", "station.lumbermill", logistics, "Receiver Lumbermill");
+            Site(buildings, "Apothecary", "station.apothecary", logistics, "Receiver Apothecary", "Apothecary Output");
+            Site(buildings, "Forge", "station.forge", logistics, "Forge Output");
+            Site(buildings, "Workbench", "station.workbench", logistics, "Workbench Output");
 
             // --- people ---
             var player = Character(people, "Supplier (you)", new Vector2(0f, 0f), 0, "ov_supplier",
@@ -527,6 +533,21 @@ namespace Ravenholm.EditorTools
             icon.sortingOrder = 2;
 
             root.AddComponent<ReceiverView>().EditorSetup(id, kind, radius, decal, bubble, icon, bump);
+        }
+
+        /// <summary>Makes a station movable at the camp: its footprint in cells (from content) and what moves with it.</summary>
+        private static void Site(Transform buildings, string name, string stationId, Transform logistics, params string[] moveWith)
+        {
+            var building = buildings.Find(name);
+            var def = _catalogue.Get<StationDefinition>(stationId);
+            var attached = new List<Transform>();
+            foreach (var n in moveWith)
+            {
+                var t = logistics.Find(n);
+                if (t == null) throw new System.InvalidOperationException($"No {n} to move with {name}");
+                attached.Add(t);
+            }
+            building.gameObject.AddComponent<StationSiteView>().EditorSetup(stationId, def.Footprint, attached, ProjectSetup.LoadSprite("Props/prop_scaffold"));
         }
 
         private static Transform Container(Transform parent, string id, string title, ContainerKind kind, Vector2 pos, string description,

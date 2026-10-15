@@ -25,6 +25,7 @@ namespace Ravenholm.Presentation
         private readonly List<(TextMeshProUGUI label, Button button, Func<string> text, Func<bool> enabled)> _live =
             new List<(TextMeshProUGUI, Button, Func<string>, Func<bool>)>();
         private bool _listing;
+        private bool _listingKits;
         private string _key = "";
 
         public bool IsOpen => gameObject.activeSelf;
@@ -73,8 +74,10 @@ namespace Ravenholm.Presentation
             if (View == null) return;
             gameObject.SetActive(true);
             _listing = false;
+            _listingKits = false;
             View.SetBuildMode(true);
             View.SelectionChanged += Rebuild;
+            StationBuild.SelectionChanged += Rebuild;
             Rebuild();
         }
 
@@ -82,6 +85,8 @@ namespace Ravenholm.Presentation
         {
             if (!IsOpen) return;
             gameObject.SetActive(false);
+            StationBuild.SelectionChanged -= Rebuild;
+            StationBuild.Deselect();
             if (View == null) return;
             View.SelectionChanged -= Rebuild;
             View.SetBuildMode(false);
@@ -95,22 +100,36 @@ namespace Ravenholm.Presentation
                 b.label.text = b.text();
                 b.button.interactable = b.enabled == null || b.enabled();
             }
-            var key = $"{Shop.State.Furniture.Count}|{Shop.State.Expansions}|{View.Selected}|{View.SelectedPlot}|{_listing}|{Placed(View.Selected)}";
-            if (key != _key) Rebuild();
+            if (Key() != _key) Rebuild();
         }
 
         private bool Placed(string id) => id != null && Shop.Find(id) is Placement p && p.Placed;
+
+        private StationsService Stations => _root.Services.Stations;
+
+        private int KitCount()
+        {
+            var n = 0;
+            foreach (var _ in Stations.Kits()) n++;
+            return n;
+        }
+
+        private string Key() =>
+            $"{Shop.State.Furniture.Count}|{Shop.State.Expansions}|{View.Selected}|{View.SelectedPlot}|{_listing}|{_listingKits}|{Placed(View.Selected)}" +
+            $"|{StationBuild.Selected}|{KitCount()}|{(StationBuild.Selected != null && Stations.Site(StationBuild.Selected) is Ravenholm.Domain.Camp.StationSite s && s.Standing)}";
 
         // ------------------------------------------------------------------ states
 
         private void Rebuild()
         {
             if (View == null) return;
-            _key = $"{Shop.State.Furniture.Count}|{Shop.State.Expansions}|{View.Selected}|{View.SelectedPlot}|{_listing}|{Placed(View.Selected)}";
+            _key = Key();
             for (var i = _buttons.childCount - 1; i >= 0; i--) Destroy(_buttons.GetChild(i).gameObject);
             _live.Clear();
-            _message.text = View.LastMessage;
+            _message.text = StationBuild.Selected != null || _listingKits ? StationBuild.LastMessage : View.LastMessage;
 
+            if (StationBuild.Selected != null) { StationChoice(StationBuild.Selected); return; }
+            if (_listingKits) { ListKits(); return; }
             if (_listing) { ListFurniture(); return; }
             if (View.SelectedPlot.HasValue) { PlotChoice(View.SelectedPlot.Value); return; }
             var p = View.Selected != null ? Shop.Find(View.Selected) : null;
@@ -118,10 +137,51 @@ namespace Ravenholm.Presentation
 
             var stored = Shop.State.Furniture.FindAll(x => !x.Placed).Count;
             _title.text = "Build mode";
-            _info.text = "Tap a piece to move it, or a plot (marked with a sign) to grow the shop by 2 x 2 tiles." +
-                         (stored > 0 ? $"\n{stored} piece{(stored == 1 ? "" : "s")} in storage." : "");
+            var kits = KitCount();
+            _info.text = "Tap a piece to move it, or a plot (marked with a sign) to grow the shop by 2 x 2 tiles. Tap a station to set it up somewhere else." +
+                         (stored > 0 ? $"\n{stored} piece{(stored == 1 ? "" : "s")} in storage." : "") +
+                         (kits > 0 ? $"\n{kits} station{(kits == 1 ? "" : "s")} packed in kits." : "");
             Button(() => "Furniture", () => { _listing = true; Rebuild(); });
+            if (kits > 0) Button(() => $"Station kits ({KitCount()})", () => { _listingKits = true; Rebuild(); });
             Button(() => "Done", () => _root.Hud.CloseShopBuild());
+        }
+
+        // ------------------------------------------------------------------ the camp's stations
+
+        private string StationName(string id) => _root.Services.Catalogue.TryGet<StationDefinition>(id, out var d) ? d.DisplayName : id;
+
+        private void StationChoice(string id)
+        {
+            var site = Stations.Site(id);
+            _title.text = StationName(id);
+            if (site == null) { Button(() => "Done", StationBuild.Deselect); return; }
+            if (!site.Standing)
+            {
+                _info.text = $"Tap cleared, level ground where it should stand ({site.W} x {site.H} tiles). It takes a moment to build.";
+                Button(() => "Cancel", StationBuild.Deselect);
+                return;
+            }
+            _info.text = $"Tap cleared, level ground to set it up there ({site.W} x {site.H} tiles): the clearing, or forest ground with " +
+                         "the trees and stumps cleared and the hills dug flat. It takes a moment to build.";
+            Button(() => Stations.PackBlockedReason(id) ?? "Pack into its kit", () =>
+            {
+                var why = Stations.Pack(id);
+                if (why == null) StationBuild.Deselect();
+                else StationBuild.Report(why);
+            }, () => Stations.PackBlockedReason(id) == null);
+            Button(() => "Done", StationBuild.Deselect);
+        }
+
+        private void ListKits()
+        {
+            _title.text = "Station kits";
+            _info.text = "Pick a station to set up, then tap where it should stand.";
+            foreach (var s in Stations.Kits())
+            {
+                var id = s.StationId;
+                Button(() => $"Set up {StationName(id)}", () => { _listingKits = false; StationBuild.Select(id); });
+            }
+            Button(() => "Back", () => { _listingKits = false; Rebuild(); });
         }
 
         private void PieceChoice(Placement p)

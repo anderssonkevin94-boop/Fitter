@@ -98,6 +98,15 @@ namespace Ravenholm.Presentation
 
         public Vector2 TileCentre(int a, int b) => Vertex(a + 0.5f, b + 0.5f);
 
+        /// <summary>Whether a world point is on the shop's lot (nothing else may be built there).</summary>
+        public bool InLot(Vector2 world)
+        {
+            var def = _root != null ? _root.Services.Shop.Definition : null;
+            if (def == null) return false;
+            var t = TileAt(world);
+            return t.A >= -1 && t.B >= -1 && t.A <= def.LotBlocks.x * ShopGrid.BlockSize && t.B <= def.LotBlocks.y * ShopGrid.BlockSize;
+        }
+
         public Tile TileAt(Vector2 world)
         {
             var d = world - origin;   // d = AxisA * a + AxisB * b
@@ -432,6 +441,7 @@ namespace Ravenholm.Presentation
             SelectedPlot = null;
             LastMessage = "";
             SandboxSceneController.TapOverride = on ? HandleTap : null;
+            StationBuild.Deselect();
             DrawPlots();
             DrawSelection();
             SelectionChanged?.Invoke();
@@ -440,6 +450,7 @@ namespace Ravenholm.Presentation
         /// <summary>Selects a piece (placed, or from storage to be placed by the next tap).</summary>
         public void Select(string placementId)
         {
+            if (placementId != null) StationBuild.Deselect();
             Selected = placementId;
             SelectedPlot = null;
             LastMessage = "";
@@ -461,6 +472,8 @@ namespace Ravenholm.Presentation
         {
             if (!BuildMode) return false;
             var shop = _root.Services.Shop;
+            // The camp's stations come first (they stand outside the shop): pick one, or set the picked one up elsewhere.
+            if (Selected == null && StationBuild.HandleTap(world)) return true;
 
             // A piece under the finger: pick it. While moving one, only what stands on the tapped tile counts, so a tall
             // piece's picture never steals a tap meant for the floor behind it.

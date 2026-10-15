@@ -30,6 +30,7 @@ namespace Ravenholm.Services
             Economy = new EconomyService(Scheduler, catalogue, Jobs, Logistics, Production, Sites);
             Simulation = new SimulationService(Scheduler, Sites, Production, Jobs) { DescribeTrader = Economy.DescribeTrader };
             Shop = new ShopService(Scheduler, catalogue, Jobs, Logistics);
+            Stations = new StationsService(Scheduler, catalogue, Sites, Logistics, clock, balance != null ? balance.stationBuildSeconds : 8f);
             Tutorial = new TutorialService(Scheduler, catalogue, Logistics, Sites, Production, Jobs, Economy);
             Economy.TraderUsed += Tutorial.NoteTraderUsed;
         }
@@ -50,6 +51,7 @@ namespace Ravenholm.Services
         public SimulationService Simulation { get; }
         public TutorialService Tutorial { get; }
         public ShopService Shop { get; }
+        public StationsService Stations { get; }
 
         /// <summary>
         /// Boot: load every section, catch up the time away (GDD 15), count the session, then commit

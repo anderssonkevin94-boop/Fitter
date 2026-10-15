@@ -95,6 +95,14 @@ namespace Ravenholm.Presentation
             Refresh();
         }
 
+        /// <summary>Tells the logistics where the pile is now (its station moved).</summary>
+        public void Reregister()
+        {
+            if (_service == null) return;
+            var p = transform.position;
+            _service.MoveContainer(containerId, p.x, p.y);
+        }
+
         private void BuildVisuals()
         {
             _pileRoot = new GameObject("Pieces").transform;

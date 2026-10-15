@@ -67,6 +67,15 @@ namespace Ravenholm.Presentation
             SetBubbleAlpha(0f);
         }
 
+        /// <summary>Tells the logistics where the marker is now (a station moved); a station being built or packed takes nothing.</summary>
+        public void Reregister(bool accepting)
+        {
+            var root = GameRoot.Instance;
+            if (root == null) return;
+            var p = transform.position;
+            root.Services.Logistics.RegisterReceiver(receiverId, kind, p.x, p.y, accepting ? radius : 0f);
+        }
+
         private void Update()
         {
             var controller = SandboxSceneController.Current;

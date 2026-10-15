@@ -835,6 +835,12 @@ namespace Ravenholm.EditorTools
                     95, 9f);
                 EditorUtility.SetDirty(camp);
             }
+            // Station footprints at camp (cells): the Lumbermill is the long one.
+            if (catalogue.TryGet<StationDefinition>("station.lumbermill", out var mill) && mill.Footprint == new Vector2Int(2, 2))
+            {
+                mill.EditorSetFootprint(new Vector2Int(3, 2));
+                EditorUtility.SetDirty(mill);
+            }
             if (catalogue.Camps.Count == 0) { catalogue.EditorSetCamps(new List<CampDefinition> { camp }); EditorUtility.SetDirty(catalogue); }
             if (settings.camp == null) { settings.camp = camp; EditorUtility.SetDirty(settings); }
         }

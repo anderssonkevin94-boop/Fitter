@@ -20,6 +20,8 @@ namespace Ravenholm.Content
         [Min(1)] public int carryCapacity = 12;
         [Tooltip("Pickup reach beyond a pile's own radius, in world units. GDD default 0.8.")]
         [Min(0f)] public float pickupRadius = 0.8f;
+        [Tooltip("Seconds a station takes to set up where it is placed (the journey, step 2).")]
+        [Min(0f)] public float stationBuildSeconds = 8f;
         [Tooltip("Seconds per transferred unit (pickup or delivery). GDD default 0.08.")]
         [Min(0.01f)] public float transferInterval = 0.08f;
         [Tooltip("How much closer (units) an output pad is treated than a raw pile when breaking near-ties.")]

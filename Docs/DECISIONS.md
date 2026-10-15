@@ -1250,3 +1250,22 @@ The camera look-ahead is raised from 0.6 to 2.4, so the supplier sits low with t
   - trees cover 42% of the valleys, 20% of the slopes and 8% of the peaks.
 
   The ridge only keeps the clearings, the road and gates flat. Away from them the hills may rise two blocks a cell, and the road keeps three-quarters of its cells open.
+
+## 2026-10-15: journey step 2, placing stations (awaiting Kevin's approval)
+
+Kevin: "start on step 2, placing stations". Defaults chosen from the approved outline:
+- **Where stations start.** They stand where the camp was laid out; nothing moves unless you move it.
+- **Moving one.** In build mode (the hammer button), tap a station to pick it, then tap cleared, level ground; the footprint is centred under the finger. The footprint is outlined in green, or red where the ground isn't ready.
+- **Footprints**, in map cells (`StationDefinition.footprint`): the Lumbermill is 3 × 2, the rest 2 × 2.
+- **Cleared, level ground** (`StationsService.GroundProblem`) is:
+  - on the camp's land;
+  - not the shop's lot or another building;
+  - either the clearing, or forest ground with no tree, no stump, and every hill block dug away.
+
+  The hint says what's missing: "Clear the trees first", "Pull the stumps out first", "Dig the ground level first".
+- **The build.** Setting up takes a short build: `BalanceProfile.stationBuildSeconds`, 8 s of real time. Meanwhile the building shows a scaffold and a countdown, its delivery marker takes nothing, and it can't be tapped to open.
+- **What moves with it.** The delivery marker and output pad move with the station and are re-registered with logistics (`LogisticsService.MoveContainer`, `ReceiverView.Reregister`).
+- **Kits.** A station packs into its kit (only with its output pad empty). It then disappears and takes nothing. Build mode lists the kits ("Station kits"), so each can be set up again; step 4 (moving on) will use this.
+- **Processing** carries on wherever a station is.
+- **Saving.** Placements save in a new `stations` section, only for stations that were moved or packed, keyed by camp.
+- **Not yet:** the Trader's pad and the shop stay fixed. The shop becomes the wagon in step 3.

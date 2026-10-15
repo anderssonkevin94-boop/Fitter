@@ -20,6 +20,8 @@ namespace Ravenholm.Content
         [Range(0.3f, 1f)] [SerializeField] private float batchTimePerLevel = 0.85f;
         [Tooltip("This station's panel offers the supplier's own tools and the site equipment that unlocks them (the Forge).")]
         [SerializeField] private bool sellsSupplierTools;
+        [Tooltip("Map cells the building stands on, when it is set up at a camp (x right-up, y left-up).")]
+        [SerializeField] private Vector2Int footprint = new Vector2Int(2, 2);
 
         public override string IdKind => "station";
         public string OutputPadContainerId => outputPadContainerId;
@@ -28,6 +30,7 @@ namespace Ravenholm.Content
         public int MaxLevel => maxLevel;
         public float BatchTimePerLevel => batchTimePerLevel;
         public bool SellsSupplierTools => sellsSupplierTools;
+        public Vector2Int Footprint => footprint;
 
         public override void Validate(List<string> errors)
         {
@@ -38,6 +41,7 @@ namespace Ravenholm.Content
 #if UNITY_EDITOR
         public void EditorSetMaxLevel(int max) => maxLevel = max;
         public void EditorSetSellsSupplierTools(bool sells) => sellsSupplierTools = sells;
+        public void EditorSetFootprint(Vector2Int cells) => footprint = cells;
 
         public void EditorSetupStation(string pad, int padCapacity, int start, int max)
         {

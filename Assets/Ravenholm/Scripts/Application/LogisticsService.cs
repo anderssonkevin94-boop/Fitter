@@ -75,6 +75,14 @@ namespace Ravenholm.Services
             if (System.RegisterContainer(id, kind, x, y, radius)) Seed(id, fixture);
         }
 
+        /// <summary>A registered container's scene position changed (its station was moved); its contents stay.</summary>
+        public void MoveContainer(string id, float x, float y)
+        {
+            if (!_containerViews.TryGetValue(id, out var v)) return;
+            _containerViews[id] = (v.kind, x, y, v.r, v.fixture);
+            System.RegisterContainer(id, v.kind, x, y, v.r);
+        }
+
         public void RegisterReceiver(string id, Domain.Logistics.ReceiverKind kind, float x, float y, float radius) =>
             System.RegisterReceiver(id, kind, x, y, radius);
 
