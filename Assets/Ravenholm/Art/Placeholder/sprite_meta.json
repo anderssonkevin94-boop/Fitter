@@ -3932,6 +3932,97 @@
     0.04
    ],
    "ppu": 256
+  },
+  "Icons/Items/icon_iron_helm.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_iron_helm.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Items/icon_leather_cap.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_leather_cap.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Items/icon_steel_helm.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_steel_helm.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Items/icon_moonsilver_circlet.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_moonsilver_circlet.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Items/icon_wooden_shield.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_wooden_shield.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Items/icon_iron_shield.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_iron_shield.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Items/icon_steel_kite_shield.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_steel_kite_shield.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
   }
  }
 }

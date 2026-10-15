@@ -25,6 +25,8 @@ namespace Ravenholm.Domain.Jobs
     {
         public Outcome Outcome;
         public bool Forced;
+        /// <summary>A shield turned a death into a wounded retreat.</summary>
+        public bool Blocked;
         public double J, K, A, C, E, V, SurvivalContext;
         public readonly List<string> ConsumedPotions = new List<string>();
         public readonly List<string> EffectsFired = new List<string>();
@@ -82,6 +84,14 @@ namespace Ravenholm.Domain.Jobs
             else if (r.E >= 0) r.Outcome = Outcome.Success;
             else if (r.E >= -6) r.Outcome = Outcome.PartialInjury;
             else r.Outcome = r.V >= 0 ? Outcome.Failure : Outcome.Death;
+            // A shield may block the killing blow: a wounded retreat instead (drawn only when a shield is carried, so
+            // everything else rolls exactly as before).
+            if (!r.Forced && r.Outcome == Outcome.Death && snapshot.BlockChance > 0 && rng.NextDouble() * 100 < snapshot.BlockChance)
+            {
+                r.Outcome = Outcome.Failure;
+                r.Blocked = true;
+                r.EffectsFired.Add("the shield blocked a killing blow");
+            }
 
             // A survival tonic is spent only when the retreat check happens (E below −6).
             if (r.E < -6 || r.Outcome == Outcome.Failure || r.Outcome == Outcome.Death)
@@ -118,6 +128,7 @@ namespace Ravenholm.Domain.Jobs
                 else if (s.ArmorProtection > 0) reasons.Add((k.SurvivalProtection * s.ArmorProtection, "Armor protected them on the retreat."));
             }
             if (r.Outcome == Outcome.Death && s.ArmorProtection == 0) reasons.Add((7, "They had no armor for the retreat."));
+            if (r.Blocked) reasons.Add((12, "Their shield blocked what would have been a killing blow."));
             reasons.Sort((a, b) => b.weight.CompareTo(a.weight));
             for (var i = 0; i < reasons.Count && r.Contributors.Count < 3; i++)
                 if (!r.Contributors.Contains(reasons[i].text)) r.Contributors.Add(reasons[i].text);

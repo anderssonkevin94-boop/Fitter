@@ -1352,3 +1352,39 @@ Kevin: "start on step 5, job tiers and summons". Following the outline's mapping
 - **Tests:**
   - The castle bot now moves the company on as soon as each camp's summons is answered, and still completes the campaign.
   - New tests cover the tiers and the summons gate.
+
+## 2026-10-16: journey step 6a, the loadout's new slots, helmets and shields (Kevin's choices)
+
+Kevin: "start on step 6, the crafting expansion". It changes GDD 8's item categories and the loadout (locked), so I asked first. His answers:
+- helmets and shields get **their own stats** (not added to armour);
+- **mauls, bows and staves are two-handed** (the recommendation);
+- food is a **cheap consumable** (the recommendation; built in 6c);
+- crafting is **long, Shop Titans style** (6b).
+
+Built:
+- **The loadout** (`Loadout`) is weapon, off-hand, head, body armour and two consumables. The panel shows the slots in that order. A two-handed weapon empties the off-hand and offers no shield.
+- **Item categories** (`ItemCategory` and `ItemKind`, appended in step so saved values stay put) add Helmet and Shield. `ItemDefinition` has two new fields: `twoHanded` (weapons) and `block` (shields, in percent).
+- **Helmets guard against one threat**, using the counter system: the helmet's counter is never used up. A helmet adds no armour.
+
+  | Helmet | Guards against | Made at |
+  |---|---|---|
+  | Iron Helm | heavy blows +3 | Forge 1 |
+  | Leather Cap | traps +3 | Workbench 1 |
+  | Steel Helm | heavy blows +5 | Forge 2 |
+  | Moonsilver Circlet | arcane +5 | Forge 3 |
+- **Shields block.** If an expedition would end in death, the shield has its block chance of turning it into a wounded retreat (a Failure). `Resolver` only draws that extra roll when a shield is carried, so every other outcome is identical. `Resolution.Blocked` records it, and the result explains it.
+
+  | Shield | Blocks | Made at |
+  |---|---|---|
+  | Wooden Shield | 15% | Workbench 1 |
+  | Iron-bound Shield | 25% | Forge 1 |
+  | Steel Kite Shield | 35% | Forge 2 |
+
+  The block chance is saved in the expedition's snapshot (`block`).
+- **Two-handed weapons:** Steel Maul, every bow, Cedar Staff, Copper Ward Staff. The Moonsilver Focus stays one-handed: with staves two-handed, an off-hand focus would never be usable, so a mage with the focus may carry a shield instead.
+- **The best kit picks** the strongest weapon, then the best helmet (highest guard), the best shield (if one-handed) and the best body armour.
+- **Display:** the Store's armour tab and the armour stands show helmets and shields.
+- **Art and recipes:**
+  - Placeholder icons and pile sprites come from `Tools/ArtImport/make_armoury_placeholders.py`, until Astra's art.
+  - The seven recipes are owned at the start, gated by station level, with balance starting points.
+  - Recipes number 29 of the V1 ceiling of 30.

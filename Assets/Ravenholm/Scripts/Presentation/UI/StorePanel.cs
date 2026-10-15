@@ -213,7 +213,7 @@ namespace Ravenholm.Presentation
             switch (_tab)
             {
                 case Tab.Weapons: return item.Category == ItemCategory.Weapon;
-                case Tab.Armor: return item.Category == ItemCategory.Armor;
+                case Tab.Armor: return item.IsArmourLike;
                 case Tab.Potions: return item.Category == ItemCategory.Potion;
                 default: return true;
             }
@@ -221,7 +221,7 @@ namespace Ravenholm.Presentation
 
         /// <summary>Phase 4 replaces this with class data; until then the weapon tag is the compatibility.</summary>
         private static string Compatibility(ItemDefinition item) =>
-            item.Category == ItemCategory.Weapon ? "" : item.Category == ItemCategory.Armor ? " · any class" : " · used only if triggered";
+            item.Category == ItemCategory.Weapon ? "" : item.IsArmourLike ? " · any class" : " · used only if triggered";
 
         private void Row(Sprite icon, string text, string pinId)
         {

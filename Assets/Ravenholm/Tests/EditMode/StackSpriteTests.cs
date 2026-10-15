@@ -24,7 +24,7 @@ namespace Ravenholm.Tests
         }
 
         [Test]
-        public void All41CarriablesResolveToTheirOwnStackSprite()
+        public void EveryCarriableResolvesToItsOwnStackSprite()
         {
             var seen = new HashSet<Sprite>();
             var count = 0;
@@ -36,7 +36,7 @@ namespace Ravenholm.Tests
                 Assert.AreEqual("stack_" + suffix, sprite.name, $"{id} uses its own art");
                 Assert.IsTrue(seen.Add(sprite), $"{id}: no two items share a sprite");
             }
-            Assert.AreEqual(41, count, "19 materials and 22 crafted items");
+            Assert.AreEqual(48, count, "19 materials and 29 crafted items (with the helmets and shields)");
         }
 
         [Test]

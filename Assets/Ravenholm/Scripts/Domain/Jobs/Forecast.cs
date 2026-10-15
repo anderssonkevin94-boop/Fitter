@@ -53,6 +53,8 @@ namespace Ravenholm.Domain.Jobs
         public readonly SortedDictionary<string, int> Counters = new SortedDictionary<string, int>(StringComparer.Ordinal);
         /// <summary>Recovery Tonic survival margin, counted in forecasts as if its failure trigger fires.</summary>
         public int SurvivalPotionBonus;
+        /// <summary>A shield's chance (percent) of blocking a killing blow (the crafting expansion, 2026-10-16).</summary>
+        public int BlockChance;
 
         public void AddCounter(string tag, int strength)
         {

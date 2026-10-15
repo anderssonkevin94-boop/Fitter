@@ -99,6 +99,7 @@ namespace Ravenholm.Services
                 {
                     Id = d.Id, Kind = (ItemKind)(int)d.Category, Power = d.Power, Protection = d.Protection, WeaponTag = d.WeaponTag.ToString(),
                     CounterTag = d.CounterTag == CounterTag.None ? "" : d.CounterTag.ToString(), CounterStrength = d.CounterStrength,
+                    TwoHanded = d.TwoHanded, Block = d.Block,
                 };
                 switch (d.PotionEffect)
                 {
@@ -483,6 +484,7 @@ namespace Ravenholm.Services
                 e.Snapshot.WeaponPower = ed.WeaponPower;
                 e.Snapshot.ArmorProtection = ed.ArmorProtection;
                 e.Snapshot.SurvivalPotionBonus = ed.SurvivalPotionBonus;
+                e.Snapshot.BlockChance = ed.BlockChance;
                 foreach (var kv in ed.Counters) e.Snapshot.Counters[kv.Key] = kv.Value;
                 e.Difficulty = ed.Difficulty;
                 e.ResolverVersion = ed.ResolverVersion;
@@ -546,7 +548,7 @@ namespace Ravenholm.Services
                     Id = e.Id, QuestId = e.QuestId, ContractorId = e.ContractorId, FeeQuoted = e.FeeQuoted, FeePaid = e.FeePaid, Sponsored = e.Sponsored,
                     StartMs = e.StartMs, EndMs = e.EndMs, Seed = e.Seed.ToString(CultureInfo.InvariantCulture),
                     Might = e.Snapshot.Might, Survival = e.Snapshot.Survival, Insight = e.Snapshot.Insight, WeaponPower = e.Snapshot.WeaponPower,
-                    ArmorProtection = e.Snapshot.ArmorProtection, SurvivalPotionBonus = e.Snapshot.SurvivalPotionBonus,
+                    ArmorProtection = e.Snapshot.ArmorProtection, SurvivalPotionBonus = e.Snapshot.SurvivalPotionBonus, BlockChance = e.Snapshot.BlockChance,
                     ForecastBand = e.ForecastBand, TestDeparture = e.TestDeparture, ShopSharePercent = e.ShopSharePercent,
                 };
                 ed.Items.AddRange(e.Items);

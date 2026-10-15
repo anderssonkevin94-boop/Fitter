@@ -10,16 +10,16 @@ First attempt: best class by net at the typical level with gear owned beforehand
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Roadside Patrol | 14 | 0 | Warrior | 1 | Good | 5 % | 73 % | 22 % | 1 % | 0.0 % | 24.5 | 12 | 0.0 | 0.0 | **12.4** | 1 | Warrior L1 | 12.4 |
 | Briar Track | 18 | 1 | Ranger | 1 | Risky | 0 % | 51 % | 40 % | 9 % | 0.0 % | 23.9 | 14 | 0.7 | 0.0 | **9.2** | 1 | Ranger L1 | 17.4 |
-| Old Shrine | 20 | 1 | Mage | 1 | Risky | 0 % | 57 % | 37 % | 5 % | 1.2 % | 31.3 | 21 | 0.4 | 0.4 | **9.5** | 1 | Mage L1 | 24.4 |
-| Fen Path | 21 | 2 | Ranger | 2 | Dangerous | 0 % | 13 % | 48 % | 31 % | 7.1 % | 16.3 | 16 | 2.5 | 3.2 | **-5.4** | 4 | Ranger L1 | 20.7 |
-| Fallen Watchtower | 21 | 2 | Rogue | 2 | Risky | 0 % | 39 % | 46 % | 12 % | 2.3 % | 30.9 | 17 | 1.0 | 0.7 | **12.2** | 1 | Rogue L7 | 22.3 |
-| Quarry Road | 22 | 2 | Ranger | 2 | Dangerous | 0 % | 8 % | 44 % | 46 % | 1.2 % | 12.4 | 16 | 3.7 | 0.5 | **-7.8** | 5 | Ranger L3 | 25.0 |
-| Hollow Warren | 22 | 3 | Rogue | 3 | Dangerous | 0 % | 11 % | 47 % | 35 % | 6.8 % | 18.2 | 19 | 2.8 | 2.2 | **-5.7** | 6 | Rogue L8 | 27.5 |
-| Fur Trappers' Camp | 24 | 3 | Ranger | 3 | Risky | 0 % | 43 % | 45 % | 12 % | 0.4 % | 33.7 | 18 | 1.0 | 0.2 | **14.6** | 1 | Ranger L3 | 31.6 |
-| Mire Crossing | 25 | 3 | Rogue | 3 | Risky | 2 % | 65 % | 30 % | 2 % | 0.5 % | 46.1 | 20 | 11.1 | 0.2 | **14.8** | 2 | Rogue L5 | 17.0 |
+| Old Shrine | 20 | 1 | Mage | 1 | Risky | 0 % | 57 % | 37 % | 5 % | 1.2 % | 31.3 | 21 | 0.4 | 0.6 | **9.3** | 1 | Mage L1 | 24.4 |
+| Fen Path | 21 | 2 | Ranger | 2 | Dangerous | 0 % | 13 % | 48 % | 31 % | 7.1 % | 16.3 | 16 | 2.5 | 4.3 | **-6.4** | 4 | Ranger L1 | 20.7 |
+| Fallen Watchtower | 21 | 2 | Rogue | 2 | Risky | 0 % | 39 % | 46 % | 13 % | 1.7 % | 30.9 | 17 | 1.0 | 1.1 | **11.8** | 1 | Rogue L7 | 22.3 |
+| Quarry Road | 22 | 2 | Ranger | 2 | Dangerous | 0 % | 8 % | 44 % | 46 % | 1.2 % | 12.4 | 16 | 3.7 | 0.7 | **-8.0** | 5 | Ranger L3 | 25.0 |
+| Hollow Warren | 22 | 3 | Ranger | 3 | Dangerous | 0 % | 8 % | 43 % | 49 % | 0.0 % | 15.1 | 17 | 3.9 | 0.0 | **-5.9** | 6 | Rogue L8 | 27.5 |
+| Fur Trappers' Camp | 24 | 3 | Ranger | 3 | Risky | 0 % | 43 % | 45 % | 12 % | 0.4 % | 33.7 | 18 | 1.0 | 0.2 | **14.5** | 1 | Ranger L3 | 31.6 |
+| Mire Crossing | 25 | 3 | Rogue | 3 | Risky | 2 % | 65 % | 30 % | 2 % | 0.4 % | 46.1 | 20 | 11.2 | 0.3 | **14.7** | 2 | Rogue L5 | 17.0 |
 | Bandit Ford | 25 | 3 | Ranger | 3 | Risky | 0 % | 58 % | 36 % | 6 % | 0.0 % | 43.5 | 18 | 0.5 | 0.0 | **25.1** | 1 | Warrior L3 | 37.4 |
-| Shrine Chamber | 27 | 3 | Mage | 3 | Dangerous | 0 % | 33 % | 48 % | 10 % | 8.8 % | 34.2 | 27 | 0.8 | 3.6 | **2.8** | 4 | Mage L5 | 7.0 |
-| Witchlight Fen | 27 | 4 | Ranger | 4 | Risky | 5 % | 73 % | 22 % | 0 % | 0.4 % | 57.7 | 20 | 30.9 | 0.2 | **6.5** | 4 | Ranger L5 | 7.2 |
+| Shrine Chamber | 27 | 3 | Mage | 3 | Dangerous | 0 % | 33 % | 48 % | 10 % | 8.8 % | 34.2 | 27 | 0.8 | 4.9 | **1.5** | 4 | Mage L5 | 7.0 |
+| Witchlight Fen | 27 | 4 | Ranger | 4 | Risky | 5 % | 73 % | 22 % | 0 % | 0.4 % | 57.7 | 20 | 30.9 | 0.3 | **6.5** | 4 | Ranger L5 | 7.2 |
 | Sunken Archive | 28 | 5 | Mage | 4 | Risky | 2 % | 67 % | 29 % | 2 % | 0.1 % | 56.7 | 28 | 20.5 | 0.0 | **8.2** | 1 | Mage L2 | 19.6 |
 | Crownward Gate | 29 | 5 | Rogue | 4 | Risky | 1 % | 62 % | 33 % | 4 % | 0.0 % | 58.2 | 22 | 0.3 | 0.0 | **35.9** | 1 | Rogue L4 | 46.8 |
 | Ironwood Hunt | 28 | 6 | Ranger | 5 | Good | 9 % | 74 % | 17 % | 0 % | 0.0 % | 68.2 | 21 | 0.0 | 0.0 | **47.2** | 1 | Ranger L1 | 54.2 |
@@ -29,7 +29,7 @@ First attempt: best class by net at the typical level with gear owned beforehand
 | The Beacon Expedition (one-time) | 32 | 8 | Mage | 6 | Risky | 0 % | 53 % | 38 % | 8 % | 0.1 % | 103.0 | 32 | 22.0 | 0.1 | **49.0** | 3 | Mage L9 | 72.5 |
 | Challenge: The Long Hunt | 34 | 9 | Ranger | 6 | Risky | 0 % | 45 % | 44 % | 12 % | 0.0 % | 71.5 | 22 | 2.8 | 0.0 | **46.7** | 4 | Ranger L10 | 73.4 |
 | Challenge: Quarry Siege | 35 | 9 | Rogue | 6 | Risky | 0 % | 51 % | 40 % | 9 % | 0.0 % | 83.5 | 25 | 2.2 | 0.0 | **56.3** | 4 | Rogue L10 | 81.3 |
-| Challenge: Fen Gauntlet | 40 | 9 | Warrior | 6 | Risky | 3 % | 70 % | 25 % | 1 % | 0.2 % | 101.5 | 21 | 31.0 | 0.2 | **49.4** | 4 | Warrior L7 | 52.8 |
+| Challenge: Fen Gauntlet | 40 | 9 | Warrior | 6 | Risky | 3 % | 70 % | 25 % | 1 % | 0.1 % | 101.5 | 21 | 31.0 | 0.1 | **49.5** | 4 | Warrior L7 | 52.8 |
 | Challenge: Shrine Vigil | 40 | 9 | Mage | 6 | Risky | 1 % | 61 % | 33 % | 5 % | 0.0 % | 98.2 | 34 | 21.1 | 0.0 | **43.1** | 2 | Mage L8 | 55.0 |
 
 ## Risk-word calibration
@@ -41,7 +41,7 @@ Outcome rates by the forecast word (best rows above; small samples for rare word
 | Excellent | 1 | 100 % | 0.0 % |
 | Good | 3 | 87 % | 0.0 % |
 | Risky | 15 | 57 % | 0.3 % |
-| Dangerous | 4 | 17 % | 5.9 % |
+| Dangerous | 4 | 16 % | 4.3 % |
 | Suicidal | 0 | – | – |
 
 ## Recovery states (GDD 15)

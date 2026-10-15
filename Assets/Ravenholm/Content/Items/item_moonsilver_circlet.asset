@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 400e726d179bd4e66a516cca0736f6ed, type: 3}
+  m_Name: item_moonsilver_circlet
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ItemDefinition
+  id: item.moonsilver_circlet
+  displayName: Moonsilver Circlet
+  contentVersion: 1
+  category: 3
+  power: 0
+  protection: 0
+  weaponTag: 0
+  potionEffect: 0
+  potionStrength: 0
+  counterTag: 1
+  counterStrength: 5
+  twoHanded: 0
+  block: 0
+  traderBuyValue: 7
+  icon: {fileID: 21300000, guid: 6b87ea96da6c340989b23b0884da2d40, type: 3}
+  stackSprite: {fileID: 21300000, guid: 9c7aacb7be2e24cbc985914fb7f8dd84, type: 3}
+  stackStep: 0.13
+  smallDisplay: 0
+  displayA: {fileID: 0}
+  displayB: {fileID: 0}
+  displayBoundsA:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0
+    height: 0
+  displayBoundsB:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0
+    height: 0

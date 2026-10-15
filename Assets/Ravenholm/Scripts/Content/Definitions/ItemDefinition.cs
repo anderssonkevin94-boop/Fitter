@@ -3,12 +3,17 @@ using UnityEngine;
 
 namespace Ravenholm.Content
 {
-    /// <summary>Only weapons, armor and potions are player-crafted adventuring goods (GDD 8, locked).</summary>
+    /// <summary>
+    /// Player-crafted adventuring goods. GDD 8 had weapons, armour and potions; the crafting expansion (Kevin, 2026-10-16)
+    /// adds helmets and shields (appended, so saved values stay put).
+    /// </summary>
     public enum ItemCategory
     {
         Weapon,
         Armor,
         Potion,
+        Helmet,
+        Shield,
     }
 
     /// <summary>Weapon compatibility tag; classes list the tags they can use (GDD 9).</summary>
@@ -72,6 +77,11 @@ namespace Ravenholm.Content
         [SerializeField] private CounterTag counterTag;
         [Min(0)] [SerializeField] private int counterStrength;
 
+        [Tooltip("Weapons only: needs both hands, so no shield (mauls, bows, staves).")]
+        [SerializeField] private bool twoHanded;
+        [Tooltip("Shields only: the chance (percent) of blocking a killing blow, turning a death into a wounded retreat.")]
+        [Range(0, 60)] [SerializeField] private int block;
+
         [Tooltip("Gold the periodic Trader pays for one unit. Deliberately poor (GDD 15).")]
         [Min(0)] [SerializeField] private int traderBuyValue;
 
@@ -98,6 +108,10 @@ namespace Ravenholm.Content
         public int TraderBuyValue => traderBuyValue;
         public CounterTag CounterTag => counterTag;
         public int CounterStrength => counterStrength;
+        public bool TwoHanded => twoHanded;
+        public int Block => block;
+        /// <summary>Shown with the armour (stands and the Store's armour tab): body armour, helmets and shields.</summary>
+        public bool IsArmourLike => category == ItemCategory.Armor || category == ItemCategory.Helmet || category == ItemCategory.Shield;
 
         /// <summary>Short stat line for cards, e.g. "Power 10 · arcane counter +4".</summary>
         /// <summary>The threat tag a counter potion answers (None for other items).</summary>
@@ -114,8 +128,10 @@ namespace Ravenholm.Content
             string main;
             switch (category)
             {
-                case ItemCategory.Weapon: main = $"Power {power} · {Readable(weaponTag.ToString())} weapon"; break;
+                case ItemCategory.Weapon: main = $"Power {power} · {Readable(weaponTag.ToString())} weapon{(twoHanded ? ", two-handed" : "")}"; break;
                 case ItemCategory.Armor: main = $"Protection {protection}"; break;
+                case ItemCategory.Helmet: return $"Helmet · guards against {Readable(counterTag.ToString()).ToLowerInvariant()} +{counterStrength}";
+                case ItemCategory.Shield: main = $"Shield · blocks {block}% of killing blows"; break;
                 default: main = $"{Readable(potionEffect.ToString())} +{potionStrength}"; break;
             }
             return counterTag == CounterTag.None ? main : $"{main} · {Readable(counterTag.ToString()).ToLowerInvariant()} counter +{counterStrength}";
@@ -161,6 +177,14 @@ namespace Ravenholm.Content
                     if (protection <= 0) errors.Add($"{Describe()}: armor needs Protection > 0");
                     if (power != 0 || weaponTag != WeaponTag.None || potionEffect != PotionEffect.None) errors.Add($"{Describe()}: armor has weapon/potion fields set");
                     break;
+                case ItemCategory.Helmet:
+                    if (counterTag == CounterTag.None || counterStrength <= 0) errors.Add($"{Describe()}: a helmet guards against a threat (counter > 0)");
+                    if (power != 0 || protection != 0 || weaponTag != WeaponTag.None || potionEffect != PotionEffect.None) errors.Add($"{Describe()}: helmet has other fields set");
+                    break;
+                case ItemCategory.Shield:
+                    if (block <= 0) errors.Add($"{Describe()}: a shield needs a block chance");
+                    if (power != 0 || protection != 0 || weaponTag != WeaponTag.None || potionEffect != PotionEffect.None) errors.Add($"{Describe()}: shield has other fields set");
+                    break;
                 case ItemCategory.Potion:
                     if (potionEffect == PotionEffect.None || potionStrength <= 0) errors.Add($"{Describe()}: potion needs one effect with strength > 0");
                     if (power != 0 || protection != 0 || weaponTag != WeaponTag.None) errors.Add($"{Describe()}: potion has weapon/armor fields set");
@@ -200,6 +224,8 @@ namespace Ravenholm.Content
             stackSprite = newStack;
         }
         public void EditorSetStackStep(float step) => stackStep = step;
+        public void EditorSetHands(bool needsBoth) => twoHanded = needsBoth;
+        public void EditorSetBlock(int percent) => block = percent;
 #endif
     }
 }

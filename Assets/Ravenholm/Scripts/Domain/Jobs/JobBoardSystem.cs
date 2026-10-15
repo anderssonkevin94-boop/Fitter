@@ -254,7 +254,8 @@ namespace Ravenholm.Domain.Jobs
         public int ReadinessBonus;
     }
 
-    public enum ItemKind { Weapon, Armor, Potion }
+    /// <summary>Same order as the content's item categories (appended only).</summary>
+    public enum ItemKind { Weapon, Armor, Potion, Helmet, Shield }
 
     public sealed class ItemInfo
     {
@@ -266,6 +267,10 @@ namespace Ravenholm.Domain.Jobs
         public int CounterStrength;
         /// <summary>Potions: survival margin (Recovery Tonic) or counter (Antidote, Warding Draught).</summary>
         public int SurvivalBonus;
+        /// <summary>Weapons: needs both hands (no off-hand).</summary>
+        public bool TwoHanded;
+        /// <summary>Shields: the chance (percent) of blocking a killing blow, turning a death into a wounded retreat.</summary>
+        public int Block;
     }
 
     /// <summary>Blueprints and shared materials that quest rewards grant.</summary>
@@ -308,9 +313,16 @@ namespace Ravenholm.Domain.Jobs
         void DestroyItems(IReadOnlyList<string> instanceIds, string reason);
     }
 
+    /// <summary>
+    /// An adventurer's kit (the crafting expansion, 2026-10-16): a weapon, an off-hand (a shield; empty with a two-handed
+    /// weapon), a head piece, body armour, and two consumables (potions, later food).
+    /// </summary>
     public sealed class Loadout
     {
         public string Weapon;
+        public string OffHand;
+        public string Head;
+        /// <summary>Body armour.</summary>
         public string Armor;
         public string Potion1;
         public string Potion2;
@@ -318,7 +330,7 @@ namespace Ravenholm.Domain.Jobs
         public IReadOnlyList<string> All()
         {
             var l = new List<string>();
-            foreach (var x in new[] { Weapon, Armor, Potion1, Potion2 }) if (!string.IsNullOrEmpty(x)) l.Add(x);
+            foreach (var x in new[] { Weapon, OffHand, Head, Armor, Potion1, Potion2 }) if (!string.IsNullOrEmpty(x)) l.Add(x);
             return l;
         }
     }
@@ -562,6 +574,16 @@ namespace Ravenholm.Domain.Jobs
                 s.ArmorProtection = a.Protection;
                 s.AddCounter(a.CounterTag, a.CounterStrength);
             }
+            // A helmet guards against its threat (its own stat: a counter that is never used up).
+            var h = Info(l.Head);
+            if (h != null && h.Kind == ItemKind.Helmet) s.AddCounter(h.CounterTag, h.CounterStrength);
+            // A shield blocks: a chance of turning a killing blow into a wounded retreat. Not with a two-handed weapon.
+            var sh = Info(l.OffHand);
+            if (sh != null && sh.Kind == ItemKind.Shield && (w == null || !w.TwoHanded))
+            {
+                s.BlockChance = sh.Block;
+                s.AddCounter(sh.CounterTag, sh.CounterStrength);
+            }
             // Duplicate potion effects do not stack (GDD 9).
             var seen = new HashSet<string>();
             foreach (var p in new[] { l.Potion1, l.Potion2 })
@@ -625,6 +647,17 @@ namespace Ravenholm.Domain.Jobs
                 if (i == null) continue;
                 if (i.Kind == ItemKind.Weapon && CanWield(c, i) && i.Power > bestW) { bestW = i.Power; l.Weapon = inst; }
                 if (i.Kind == ItemKind.Armor && i.Protection > bestA) { bestA = i.Protection; l.Armor = inst; }
+            }
+            // The best helmet (its guard) and, with a one-handed weapon, the best shield.
+            int bestH = -1, bestS = -1;
+            var weapon = Info(l.Weapon);
+            foreach (var inst in _gear.StoreItems)
+            {
+                if (_gear.IsReservedByOther(inst, owner ?? "")) continue;
+                var i = Info(inst);
+                if (i == null) continue;
+                if (i.Kind == ItemKind.Helmet && i.CounterStrength > bestH) { bestH = i.CounterStrength; l.Head = inst; }
+                if (i.Kind == ItemKind.Shield && (weapon == null || !weapon.TwoHanded) && i.Block > bestS) { bestS = i.Block; l.OffHand = inst; }
             }
             return l;
         }
@@ -1207,6 +1240,11 @@ namespace Ravenholm.Domain.Jobs
             if (w != null && !CanWield(c, w)) return $"{c.Name} cannot use that weapon";
             var ar = Info(l.Armor);
             if (l.Armor != null && (ar == null || ar.Kind != ItemKind.Armor)) return "Armor slot holds non-armor";
+            var hd = Info(l.Head);
+            if (l.Head != null && (hd == null || hd.Kind != ItemKind.Helmet)) return "Head slot holds a non-helmet";
+            var off = Info(l.OffHand);
+            if (l.OffHand != null && (off == null || off.Kind != ItemKind.Shield)) return "Off-hand slot holds a non-shield";
+            if (l.OffHand != null && w != null && w.TwoHanded) return "A two-handed weapon leaves no hand for a shield";
             foreach (var pid in new[] { l.Potion1, l.Potion2 })
             {
                 var pi = Info(pid);

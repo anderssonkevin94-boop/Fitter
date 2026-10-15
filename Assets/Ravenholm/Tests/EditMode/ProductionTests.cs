@@ -216,7 +216,7 @@ namespace Ravenholm.Tests
             Assert.AreEqual(1, log.SharedAvailable("resource.copper_ingot"));
             Assert.AreEqual(2, log.SharedAvailable("resource.herb"));
             var bps = g.Production.System.State.Blueprints;
-            Assert.AreEqual(6, bps.Count, "the six starter blueprints");
+            Assert.AreEqual(13, bps.Count, "the six GDD starter blueprints and the seven helmets and shields (the crafting expansion)");
             Assert.IsFalse(bps.Contains("blueprint.copper_ward_staff"));
             // The starting stock is enough for an early loadout: a sword and a coat... not both plus a bow.
             Assert.IsTrue(g.Production.Craft("recipe.iron_sword", out var f), f);

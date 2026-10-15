@@ -16,7 +16,7 @@ namespace Ravenholm.Presentation
     /// </summary>
     public sealed class LoadoutPanel : MonoBehaviour
     {
-        private enum Slot { Weapon, Armor, Potion1, Potion2 }
+        private enum Slot { Weapon, Armor, Potion1, Potion2, OffHand, Head }
 
         private UiFactory _ui;
         private UiTheme _theme;
@@ -109,6 +109,8 @@ namespace Ravenholm.Presentation
             Text(() => string.IsNullOrEmpty(_message) ? "" : $"<b>{_message}</b>");
             Header("Loadout (reserved while you decide)");
             Button(() => SlotText(Slot.Weapon), () => Cycle(Slot.Weapon), null);
+            Button(() => SlotText(Slot.OffHand), () => Cycle(Slot.OffHand), null);
+            Button(() => SlotText(Slot.Head), () => Cycle(Slot.Head), null);
             Button(() => SlotText(Slot.Armor), () => Cycle(Slot.Armor), null);
             Button(() => SlotText(Slot.Potion1), () => Cycle(Slot.Potion1), null);
             Button(() => SlotText(Slot.Potion2), () => Cycle(Slot.Potion2), null);
@@ -147,6 +149,8 @@ namespace Ravenholm.Presentation
             var next = options.Count == 0 ? null : i + 1 < options.Count ? options[i + 1] : null;
             var candidate = Copy(_loadout);
             Set(candidate, slot, next);
+            // A two-handed weapon leaves no hand for a shield.
+            if (slot == Slot.Weapon && candidate.OffHand != null && Info(candidate.Weapon) is ItemInfo w && w.TwoHanded) candidate.OffHand = null;
             if (Board.ReserveLoadout(candidate)) _loadout = candidate;
             else _message = "That item was just reserved elsewhere.";
             _confirmUntil = -1f;
@@ -172,6 +176,8 @@ namespace Ravenholm.Presentation
                 if (info == null || seen.Contains(def)) continue;
                 var fits = slot == Slot.Weapon ? info.Kind == ItemKind.Weapon && Board.CanWield(c, info)
                          : slot == Slot.Armor ? info.Kind == ItemKind.Armor
+                         : slot == Slot.Head ? info.Kind == ItemKind.Helmet
+                         : slot == Slot.OffHand ? info.Kind == ItemKind.Shield && !(Info(_loadout.Weapon) is ItemInfo w && w.TwoHanded)
                          : info.Kind == ItemKind.Potion;
                 if (!fits) continue;
                 seen.Add(def);
@@ -192,7 +198,17 @@ namespace Ravenholm.Presentation
             return null;
         }
 
-        private string Get(Slot s) => s == Slot.Weapon ? _loadout.Weapon : s == Slot.Armor ? _loadout.Armor : s == Slot.Potion1 ? _loadout.Potion1 : _loadout.Potion2;
+        private ItemInfo Info(string inst) => inst == null ? null : _root.Services.Jobs.Content.Item(_root.Services.Logistics.System.DefinitionOfItem(inst));
+
+        private string Get(Slot s) => s switch
+        {
+            Slot.Weapon => _loadout.Weapon,
+            Slot.OffHand => _loadout.OffHand,
+            Slot.Head => _loadout.Head,
+            Slot.Armor => _loadout.Armor,
+            Slot.Potion1 => _loadout.Potion1,
+            _ => _loadout.Potion2,
+        };
 
         private static void Set(Loadout l, Slot s, string v)
         {
@@ -200,17 +216,25 @@ namespace Ravenholm.Presentation
             {
                 case Slot.Weapon: l.Weapon = v; break;
                 case Slot.Armor: l.Armor = v; break;
+                case Slot.OffHand: l.OffHand = v; break;
+                case Slot.Head: l.Head = v; break;
                 case Slot.Potion1: l.Potion1 = v; break;
                 default: l.Potion2 = v; break;
             }
         }
 
-        private static Loadout Copy(Loadout l) => new Loadout { Weapon = l.Weapon, Armor = l.Armor, Potion1 = l.Potion1, Potion2 = l.Potion2 };
+        private static Loadout Copy(Loadout l) =>
+            new Loadout { Weapon = l.Weapon, OffHand = l.OffHand, Head = l.Head, Armor = l.Armor, Potion1 = l.Potion1, Potion2 = l.Potion2 };
 
         private string SlotText(Slot slot)
         {
             var inst = Get(slot);
-            var label = slot == Slot.Weapon ? "Weapon" : slot == Slot.Armor ? "Armor" : slot == Slot.Potion1 ? "Potion 1" : "Potion 2";
+            var label = slot switch
+            {
+                Slot.Weapon => "Weapon", Slot.OffHand => "Off-hand", Slot.Head => "Head", Slot.Armor => "Body",
+                Slot.Potion1 => "Potion 1", _ => "Potion 2",
+            };
+            if (slot == Slot.OffHand && Info(_loadout.Weapon) is ItemInfo two && two.TwoHanded) return "Off-hand: none (two-handed weapon)";
             if (inst == null) return $"{label}: none · tap to choose";
             var def = _root.Services.Logistics.System.DefinitionOfItem(inst);
             var item = _root.Services.Catalogue.TryGet<ItemDefinition>(def, out var d) ? d : null;
@@ -285,6 +309,8 @@ namespace Ravenholm.Presentation
                     ? $"• {UnitVisuals.DisplayName(info.Id)}: used only if things go badly (+{info.SurvivalBonus} survival)\n"
                     : $"• {UnitVisuals.DisplayName(info.Id)}: used if {info.CounterTag.ToLowerInvariant()} is present\n");
             }
+            if (Info(_loadout.OffHand) is ItemInfo sh && sh.Kind == ItemKind.Shield)
+                sb.Append($"• {UnitVisuals.DisplayName(sh.Id)}: may block a killing blow ({sh.Block}%)\n");
             sb.Append("<b>Gear is permanently lost if the contractor dies.</b> Unused potions come back on any other return.");
             // Designer readout only (GDD 12: players never see exact odds, and this includes hidden threats).
             if (Feel.DeveloperMode)
@@ -303,7 +329,7 @@ namespace Ravenholm.Presentation
         /// <summary>Designer-only exact distribution (GDD 12: never shown as player-facing percentages).</summary>
         private string Distribution(ContractorRecord c, QuestInfo q)
         {
-            var key = $"{c.Id}|{q.Id}|{_loadout.Weapon}|{_loadout.Armor}|{_loadout.Potion1}|{_loadout.Potion2}";
+            var key = $"{c.Id}|{q.Id}|{_loadout.Weapon}|{_loadout.OffHand}|{_loadout.Head}|{_loadout.Armor}|{_loadout.Potion1}|{_loadout.Potion2}";
             if (key == _distKey) return _distText;
             _distKey = key;
             var stats = Board.StatsWith(c, _loadout);

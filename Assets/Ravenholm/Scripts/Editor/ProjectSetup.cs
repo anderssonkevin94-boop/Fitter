@@ -85,6 +85,7 @@ namespace Ravenholm.EditorTools
             EnsureTutorialContent(catalogue);
             EnsurePostgameContent(catalogue);
             EnsureJourneyJobs(catalogue);
+            EnsureArmoury(catalogue);
             EnsureKnowledgeContent(catalogue);
             ApplyBalanceRevisions(catalogue);
             EnsureShop(catalogue);
@@ -323,6 +324,14 @@ namespace Ravenholm.EditorTools
             new ItemSpec { Key = "moonsilver_mail", Name = "Moonsilver Mail", Category = ItemCategory.Armor, Protection = 14, BuyValue = 8 },
             new ItemSpec { Key = "ironwood_greatbow", Name = "Ironwood Greatbow", Category = ItemCategory.Weapon, Power = 16, Tag = WeaponTag.Bow, BuyValue = 7 },
             new ItemSpec { Key = "moonsilver_blade", Name = "Moonsilver Blade", Category = ItemCategory.Weapon, Power = 17, Tag = WeaponTag.Blade, BuyValue = 8 },
+            // The crafting expansion (Kevin, 2026-10-16): helmets guard against a threat, shields block (see EnsureArmoury).
+            new ItemSpec { Key = "iron_helm", Name = "Iron Helm", Category = ItemCategory.Helmet, BuyValue = 3 },
+            new ItemSpec { Key = "leather_cap", Name = "Leather Cap", Category = ItemCategory.Helmet, BuyValue = 2 },
+            new ItemSpec { Key = "steel_helm", Name = "Steel Helm", Category = ItemCategory.Helmet, BuyValue = 5 },
+            new ItemSpec { Key = "moonsilver_circlet", Name = "Moonsilver Circlet", Category = ItemCategory.Helmet, BuyValue = 7 },
+            new ItemSpec { Key = "wooden_shield", Name = "Wooden Shield", Category = ItemCategory.Shield, BuyValue = 2 },
+            new ItemSpec { Key = "iron_shield", Name = "Iron-bound Shield", Category = ItemCategory.Shield, BuyValue = 3 },
+            new ItemSpec { Key = "steel_kite_shield", Name = "Steel Kite Shield", Category = ItemCategory.Shield, BuyValue = 5 },
         };
 
         private static ContentCatalogue EnsureContent()

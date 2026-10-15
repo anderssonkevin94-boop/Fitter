@@ -23,6 +23,8 @@ MonoBehaviour:
   potionStrength: 0
   counterTag: 0
   counterStrength: 0
+  twoHanded: 1
+  block: 0
   traderBuyValue: 7
   icon: {fileID: 21300000, guid: 61fe19a4958dc408eb1dc8e39ab86fa1, type: 3}
   stackSprite: {fileID: 21300000, guid: 91a4b22eb5c654cea997eea2c4098796, type: 3}

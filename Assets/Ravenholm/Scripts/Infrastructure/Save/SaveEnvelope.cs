@@ -401,6 +401,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("weaponPower")] public int WeaponPower;
         [JsonProperty("armorProtection")] public int ArmorProtection;
         [JsonProperty("survivalPotionBonus")] public int SurvivalPotionBonus;
+        /// <summary>A shield's block chance in percent (optional; 0 = no shield).</summary>
+        [JsonProperty("block")] public int BlockChance;
         [JsonProperty("counters")] public SortedDictionary<string, int> Counters = new SortedDictionary<string, int>();
         [JsonProperty("threats")] public List<string> ThreatIds = new List<string>();
         [JsonProperty("forecast")] public string ForecastBand;
