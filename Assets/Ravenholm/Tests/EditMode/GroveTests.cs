@@ -39,7 +39,7 @@ namespace Ravenholm.Tests
             Assert.AreEqual(new GroveCell(1, slot), sim.Record.LastChop);
             var open = 0;
             for (var s = 0; s < 90; s++) if (sim.IsRock(1, s) && sim.TerrainHeight(1, s) < sim.Grove.RockHeight) open++;
-            Assert.Greater(open, 10, "about a third of the spots are open ground, to move around in");
+            Assert.Greater(open, 10, "plenty of spots are open ground, to move around in");
             Assert.AreEqual(ledger.CreatedTotal, ledger.Carry.Count + sim.HeldUnits().Count());
         }
 
@@ -61,11 +61,17 @@ namespace Ravenholm.Tests
             var ledger = new FakeLedger();
             var sim = Make(ledger);
             Assert.IsFalse(sim.AimRoutineAtLastChop(), "nothing cut yet");
-            Assert.IsTrue(Fell(sim, 1, 4));
+            var first = 4;
+            while (!sim.CanChop(1, first)) first++;   // the first tree past the cliff edge (some spots are open ground)
+            Assert.IsTrue(Fell(sim, 1, first));
             Assert.IsTrue(sim.GroveRoutineNext(out var next));
             var g = sim.Grove;
-            var d = System.Math.Abs(g.RowOf(next.Slot) - g.RowOf(4)) + System.Math.Abs(g.AlongOf(next.Area, next.Slot) - g.AlongOf(1, 4));
-            Assert.AreEqual(1, d, "the next tree is right beside the last one");
+            int Dist(int area, int slot) => System.Math.Abs(g.RowOf(slot) - g.RowOf(first)) + System.Math.Abs(g.AlongOf(area, slot) - g.AlongOf(1, first));
+            var nearest = int.MaxValue;
+            for (var area = 1; area <= 4; area++)
+            for (var slot = 0; slot < g.Rows * g.AreaLength; slot++)
+                if (sim.CanChop(area, slot)) nearest = System.Math.Min(nearest, Dist(area, slot));
+            Assert.AreEqual(nearest, Dist(next.Area, next.Slot), "the next tree is the nearest to the last one");
             sim.AddWorker(new WorkerRecord { Id = SiteSimulator.PlayerId, Name = "You", ToolId = "t10", PackId = "p6" });
             for (var i = 0; i < 600; i++) sim.Advance(1000);
             Assert.Greater(sim.Record.DepositedTotal, 3 * sim.Config.UnitsPerTree, "the routine keeps cutting (more than three trees' logs)");
@@ -114,25 +120,36 @@ namespace Ravenholm.Tests
             Assert.AreEqual(ledger.CreatedTotal, ledger.Carry.Count + sim.HeldUnits().Count());
         }
 
+        /// <summary>The prototype's organic forest (Kevin's favourite): rolling hills to peaks of seven, thinner trees up the slopes.</summary>
         [Test]
-        public void TheForestHasHillsAndRidgesWithAPassByTheCliff()
+        public void TheForestHasOrganicHillsAndTreesThinningUpTheSlopes()
         {
             var sim = Make(new FakeLedger());
             var g = sim.Grove;
             int Cell(int back, int along, out int area) { area = along / g.AreaLength + 1; return back * g.AreaLength + along % g.AreaLength; }
-            var ridge = g.RidgeFirst;
-            var slot = Cell(6, ridge, out var area);
-            Assert.AreEqual(6, sim.TerrainHeight(area, slot), "a ridge of six blocks");
-            Assert.IsTrue(sim.IsRock(area, slot) && !sim.CanChop(area, slot), "bare rock: no tree grows there");
-            var wall = Cell(6, ridge - 1, out var wallArea);
-            Assert.AreEqual(2, sim.TerrainHeight(area, slot) - sim.TerrainHeight(wallArea, wall), "walls of two blocks");
-            for (var along = ridge - 4; along <= ridge + 4; along++)
+            int H(int back, int along) => sim.TerrainHeight(along / g.AreaLength + 1, Cell(back, along, out _));
+            int max = 0, flat = 0, cells = 0, bigSteps = 0, steps = 0;
+            int treesLow = 0, low = 0, treesHigh = 0, high = 0;
+            for (var along = 0; along < 120; along++)
+            for (var back = 0; back < g.Rows; back++)
             {
-                var a0 = Cell(0, along, out var aa);
-                var a1 = Cell(0, along + 1, out var ab);
-                Assert.LessOrEqual(Mathf.Abs(sim.TerrainHeight(aa, a0) - sim.TerrainHeight(ab, a1)), 1, $"the pass by the cliff climbs one block a step (along {along})");
+                var h = H(back, along);
+                max = Mathf.Max(max, h);
+                cells++;
+                if (h == 0) flat++;
+                if (back + 1 < g.Rows) { steps++; if (Mathf.Abs(H(back + 1, along) - h) > 2) bigSteps++; }
+                var slot = Cell(back, along, out var area);
+                if (back >= 1 && h <= 1) { low++; if (sim.CanChop(area, slot)) treesLow++; }
+                if (h >= 4) { high++; if (sim.CanChop(area, slot)) treesHigh++; }
             }
-            Assert.AreEqual(3, sim.TerrainHeight(area, Cell(0, ridge, out _)), "the pass's top");
+            Assert.GreaterOrEqual(max, 5, "hills rise high somewhere");
+            Assert.Greater(flat, cells / 4, "plenty of flat valley floor to walk");
+            Assert.Less(bigSteps, steps / 20, "rolling hills: the ground mostly changes a block or two at a time");
+            for (var along = 0; along < 120; along++) Assert.AreEqual(0, H(0, along), "the cliff edge's row stays flat");
+            for (var along = 0; along < g.FlatEntrance; along++)
+            for (var back = 0; back <= g.FlatEntrance; back++) Assert.AreEqual(0, H(back, along), "a flat way in from the gate");
+            Assert.Greater(high, 0);
+            Assert.Greater(treesLow / (float)low, 2f * treesHigh / high, "trees are thick in the valleys and thin up the hills");
         }
 
         [Test]

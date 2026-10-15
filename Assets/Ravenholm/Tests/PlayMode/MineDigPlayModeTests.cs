@@ -222,7 +222,7 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
-        public IEnumerator TheForestHasHillsAndRidgesToClimbOrDigThrough()
+        public IEnumerator TheForestHasHillsToClimbOrDigThrough()
         {
             yield return Boot();
             var forest = Object.FindAnyObjectByType<ForestGridView>();
@@ -236,48 +236,59 @@ namespace Ravenholm.Tests
             }
             int Slot(int back, int along) => back * g.AreaLength + along % g.AreaLength;
             int Area(int along) => along / g.AreaLength + 1;
-            var ridge = g.RidgeFirst;
-
-            // Clear the trees along the cliff edge over the ridge's pass, so the way is open.
-            S.Sites.SpeedMultiplier = 50f;
-            for (var along = ridge - 5; along <= ridge + 1; along++)
-            for (var back = 0; back <= 1; back++)
+            int H(int back, int along) => sim.TerrainHeight(Area(along), Slot(back, along));
+            void ClearCell(int back, int along)
             {
                 var (a, sl) = (Area(along), Slot(back, along));
                 for (var i = 0; i < 4000 && sim.CanChop(a, sl); i++) S.Sites.PlayerChopCell("site.forest", a, sl, 0.5f);
                 S.Sites.ClearStump("site.forest", a, sl);
                 S.Logistics.System.DebugUnloadCarry();
             }
-            S.Sites.SpeedMultiplier = 1f;
-            Assert.AreEqual(3, forest.HeightAt(CellAt(0, ridge)), "the pass's top is three blocks up");
+            // Find a natural slope going back from the cliff (0, 1, 2 blocks), then a wall (two or more blocks up) to dig.
+            int slope = -1, slopeBack = 0, slopeTop = 0, wallBack = -1, wallAlong = -1;
+            bool Laid(int back, int along) => forest.CellOf(Area(along), Slot(back, along), out _);   // the part laid out in town
+            // (the world seed differs between runs: search the laid-out forest for floor, then one block, ideally two)
+            for (var along = g.FlatEntrance + 1; along < 200 && slope < 0; along++)
+            for (var back = 0; back < 16 && slope < 0; back++)
+                if (Laid(back + 3, along) && H(back, along) == 0 && H(back + 1, along) == 1)
+                {
+                    slope = along; slopeBack = back;
+                    slopeTop = H(back + 2, along) == 2 ? 2 : 1;
+                }
+            for (var along = g.FlatEntrance + 1; along < 200 && wallAlong < 0; along++)
+            for (var back = 1; back < 20 && wallAlong < 0; back++)
+                if (Laid(back + 1, along) && H(back, along) <= 2 && H(back + 1, along) - H(back, along) >= 2) { wallBack = back; wallAlong = along; }
+            Assert.GreaterOrEqual(slope, 0, "the hills have a gentle slope somewhere");
+            Assert.GreaterOrEqual(wallAlong, 0, "and a steep face somewhere");
 
-            // Walk along the cliff edge up the pass: one block a step.
-            Motor.Teleport(ground.GetCellCenterWorld(CellAt(0, ridge - 5)));
+            S.Sites.SpeedMultiplier = 50f;
+            for (var back = slopeBack; back <= slopeBack + 3; back++)
+            for (var along = slope - 1; along <= slope + 1; along++) ClearCell(back, along);   // a corridor: the body is wide
+            for (var back = wallBack - 1; back <= wallBack + 1; back++) ClearCell(Mathf.Max(0, back), wallAlong);
+            S.Sites.SpeedMultiplier = 1f;
+
+            // Walk back from the cliff up the slope: one block a step.
+            Motor.Teleport(ground.GetCellCenterWorld(CellAt(slopeBack, slope)));
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
             yield return new WaitForSeconds(0.5f);
             Assert.AreEqual(0, forest.PlayerFeet, "on the forest floor");
-            Stick(Along);
-            yield return Until(() => forest.PlayerFeet == 3, 10f, () => $"climbs the pass (feet {forest.PlayerFeet}, at {Motor.transform.position})");
+            Stick(Into);
+            yield return Until(() => forest.PlayerFeet == slopeTop, 10f, () => $"climbs the slope (feet {forest.PlayerFeet}, at {Motor.transform.position})");
             Stick(null);
             yield return new WaitForSeconds(0.3f);
-            Assert.Greater(Motor.Elevation, 1f, "drawn up on the blocks");
+            Assert.Greater(Motor.Elevation, 0.2f, "drawn up on the blocks");
             yield return Capture.Take("forest_pass");
 
-            // Back from the cliff is a wall of rock (three blocks up from here): dig into it, head height first.
-            var wall = CellAt(1, ridge);
-            var rockCell = CellAt(2, ridge);
-            Motor.Teleport(ground.GetCellCenterWorld(wall));
+            // A steep face (two or more blocks up): too high to step onto; dig into it, head height first.
+            var rockCell = CellAt(wallBack, wallAlong);
+            var behind = CellAt(wallBack + 1, wallAlong);
+            Motor.Teleport(ground.GetCellCenterWorld(rockCell));
             yield return new WaitForSeconds(0.3f);
-            var behind = CellAt(3, ridge);
             Assert.GreaterOrEqual(forest.HeightAt(behind) - forest.PlayerFeet, 2, "a wall");
             Assert.IsFalse(forest.CanEnter(ground.GetCellCenterWorld(rockCell), ground.GetCellCenterWorld(behind)), "too high to step onto");
-            Assert.IsTrue(forest.RockTarget(ground.GetCellCenterWorld(rockCell), new Vector2(2f, 1f), false, out _) ||
-                          forest.SolidAt(behind, forest.PlayerFeet + 1), "rock to dig");
             var shadowsBefore = forest.ShadowsDrawn;
             Assert.Greater(shadowsBefore, 0, "taller blocks cast shadows on the ground beside them");
             // Dig the two blocks at body height out of the wall through the rock spot, standing in front of it.
-            Motor.Teleport(ground.GetCellCenterWorld(rockCell));
-            yield return new WaitForSeconds(0.3f);
             var feet = forest.PlayerFeet;
             var spot = Object.FindAnyObjectByType<ForestRockSpot>();
             // Walking into the wall stops the feet short of it: the wide body does not sink into the rock.

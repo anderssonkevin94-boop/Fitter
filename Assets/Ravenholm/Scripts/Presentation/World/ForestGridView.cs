@@ -35,7 +35,7 @@ namespace Ravenholm.Presentation
         [Min(1)] [SerializeField] private int areaLength = 3;
         [Tooltip("The open trail between the town and the first area: where woodcutters enter the frontier.")]
         [SerializeField] private Vector2Int trailCell;
-        [SerializeField] private float treeScale = 0.78f;
+        [SerializeField] private float treeScale = 0.62f;   // the prototype's size (2026-10-15)
         [SerializeField] private List<SpeciesSprite> speciesSprites = new List<SpeciesSprite>();
         [SerializeField] private Sprite cedarSprite;
         [SerializeField] private Sprite mapleSprite;

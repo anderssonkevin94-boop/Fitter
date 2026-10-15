@@ -970,3 +970,14 @@ Astra's 29 sprites (`ArtSource/world-tiles-v3`, imported by `Tools/ArtImport/imp
 - **Import.** All at 256 px per unit with Astra's pivots. Canvases doubled, so world sizes are unchanged. Nature and buildings use a full-rect mesh.
 - **Outline.** Nature and buildings get the game outline (57 outlined sprites). `SpriteOutline` now also works on a single sprite without a sorting group: the outline sorts just behind its own piece. Forest trees, buildings and props carry it.
 - **Still old placeholders:** `rock_iron` and `rock_copper`.
+
+## The forest looks like the forest-mountains prototype again (2026-10-15, Kevin)
+
+Kevin preferred the 48×48 prototype (commit 2e44f70) to what the real forest became. Its generation is restored in `ForestGrove`.
+
+- **Hills.** Organic hills from two layers of noise (scales 11 and 5, weights 0.65 and 0.35), mapped to 0–7 blocks (`MaxHill`). The straight ridges every 24 tiles are gone.
+- **Trees.** Trees grow by height: 42% of flat spots, 20% on slopes (≤3 blocks), 8% higher up (`TreeChance*`). They are thick in the valleys and thin up the hills, with no bare-rock rule (`RockHeight` 99).
+- **Tree size.** 0.62, as in the prototype (was 0.78).
+- **Kept.** The cliff-edge row stays flat and wooded. The first 4 tiles by the gate are flat. Tree species (which logs) are unchanged.
+- **Tests.** The ridge tests are replaced by an organic-hills test: peaks of 5 or more, mostly small steps, a flat edge and entrance, fewer trees up high. The climb-and-dig PlayMode test now searches the generated terrain for a slope and a wall, whatever the seed.
+- **Saves.** Existing saves keep their dug cells and stumps by position. Where the new hills differ, old digs simply land on different ground.

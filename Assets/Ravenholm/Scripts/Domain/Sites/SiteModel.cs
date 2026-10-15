@@ -174,30 +174,36 @@ namespace Ravenholm.Domain.Sites
 
         // ------------------------------------------------------------------ the ground's shape (forest mountains)
 
-        public int RidgeFirst = 14;    // the first ridge's centre, in tiles along the cliff
-        public int RidgeEvery = 24;    // a ridge every this many tiles further along
-        public int PassRows = 3;       // a ridge's gentle pass (one block a step) along the cliff edge
-        public int RockHeight = 4;     // ground this high is bare rock: no tree grows there
-        public double OpenShare = 0.33; // share of spots that are open ground (no tree), scattered, to move around in
-
-        /// <summary>Open ground: no tree grows at this spot (scattered from the world seed; the cliff edge's row stays wooded).</summary>
-        public bool OpenGround(ulong seed, int back, int along) => back >= 1 && Hash01(seed, back, along, 7) < OpenShare;
+        // Kevin's favourite, the 48 x 48 forest-mountains prototype (2026-10-13), restored 2026-10-15: organic hills from
+        // two layers of noise rising to peaks of seven, and trees thick in the valleys, thinner up the slopes.
+        public int MaxHill = 7;                // the highest peaks, in blocks
+        public int RockHeight = 99;            // ground this high is bare rock (the prototype had none: trees just thin out)
+        public int FlatEntrance = 4;           // the first tiles along the cliff stay flat (the way in from the gate)
+        public double TreeChanceFlat = 0.42, TreeChanceSlope = 0.20, TreeChancePeak = 0.08;   // by height: <=1, <=3, higher
 
         /// <summary>
-        /// How many blocks the ground stands above the floor at a tree's spot (0 = flat), from the world seed. Mostly flat
-        /// with small hills (one block a step); every <see cref="RidgeEvery"/> tiles along the cliff a ridge runs back from
-        /// the edge: walls of two blocks rising to six of bare rock, with a pass of one block a step by the cliff edge.
+        /// Open ground: no tree grows at this spot. Trees are thick in the valleys and thin out up the hills (the
+        /// prototype's 42% / 20% / 8%); the cliff edge's row stays wooded.
+        /// </summary>
+        public bool OpenGround(ulong seed, int back, int along)
+        {
+            if (back < 1) return false;
+            var h = TerrainHeight(seed, back, along);
+            var chance = h <= 1 ? TreeChanceFlat : h <= 3 ? TreeChanceSlope : TreeChancePeak;
+            return Hash01(seed, back, along, 7) >= chance;
+        }
+
+        /// <summary>
+        /// How many blocks the ground stands above the floor at a spot (0 = flat), from the world seed: the prototype's
+        /// organic hills, two layers of noise (a broad one and a finer one) mapped to 0 .. <see cref="MaxHill"/>. The cliff
+        /// edge's row and the entrance stay flat to walk along.
         /// </summary>
         public int TerrainHeight(ulong seed, int back, int along)
         {
-            var phase = ((along - RidgeFirst) % RidgeEvery + RidgeEvery) % RidgeEvery;
-            var d = Math.Min(phase, RidgeEvery - phase);   // tiles to the nearest ridge's centre
-            var ridge = 0;
-            if (along >= RidgeFirst - 2 && d <= 2) ridge = back < PassRows ? 3 - d : 6 - 2 * d;
-            var n = 0.6 * Noise(seed, back, along, 6.0, 1) + 0.4 * Noise(seed, back, along, 3.0, 2);
-            var hill = n > 0.62 ? Math.Min(3, (int)Math.Round((n - 0.62) / 0.38 * 4.0)) : 0;
-            if (back < 1) hill = 0;   // the cliff edge's row stays open to walk along
-            return Math.Max(ridge, hill);
+            if (back < 1 || along < FlatEntrance && back < FlatEntrance + 1) return 0;
+            var n = 0.65 * Noise(seed, back, along, 11.0, 11) + 0.35 * Noise(seed, back, along, 5.0, 12);
+            var m = Math.Max(0.0, Math.Min(1.0, (n - 0.42) / 0.36));
+            return (int)Math.Round(m * MaxHill);
         }
 
         private static double Hash01(ulong seed, int x, int y, int salt)
