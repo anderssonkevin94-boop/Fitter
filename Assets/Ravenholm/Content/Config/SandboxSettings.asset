@@ -26,6 +26,7 @@ MonoBehaviour:
   mineCell: {x: -20, y: 17}
   frontierLengthCells: 100
   frontierWidthCells: 30
+  camp: {fileID: 11400000, guid: 67dcd07af32b545379e8dda594691e95, type: 2}
   viewWidthOptions:
   - 6
   - 7

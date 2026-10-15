@@ -106,6 +106,7 @@ namespace Ravenholm.EditorTools
                 t.GetComponent<SpriteOutline>().OverlapFree = true;   // no outline across a neighbouring tree
             }
             var pocket = ForestGrid(nature, settings);
+            pocket.EditorSetupBeyond(BuildBeyond(settings, tiles));
             var chop = new GameObject("ChopSpot");
             chop.transform.SetParent(pocket.transform, false);
             var chopCol = chop.AddComponent<CircleCollider2D>();
@@ -124,16 +125,7 @@ namespace Ravenholm.EditorTools
             rock.AddComponent<ForestRockSpot>();
             Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(-9.5f, 5.0f), "Herbs come as a bonus while chopping.", "Phase 2");
             Prop(nature, "Herb Bush", "Nature/bush_herb", new Vector2(-11.5f, -0.9f), "Herbs come as a bonus while chopping.", "Phase 2");
-            foreach (var (name, sprite, pos, desc) in new[]
-                     {
-                         ("Stone Face", "Nature/rock_stone", new Vector2(9.8f, -1.0f), "Placeholder rock face (plain stone)."),
-                         ("Iron Face", "Nature/rock_iron", new Vector2(-6.9f, 4.0f), "Placeholder rock face with iron flecks."),
-                         ("Copper Face", "Nature/rock_copper", new Vector2(10.6f, 1.6f), "Placeholder rock face with copper flecks."),
-                     })
-            {
-                var r = Prop(nature, name, sprite, pos, desc, "Phase 2");
-                Circle(r.transform, new Vector2(0f, 0.15f), 0.45f);
-            }
+            // Camp 1 (2026-10-15): no rock faces or outcrops in the clearing; stone and ore come from the hills around it.
 
             // The valley view beyond the north cliff, with the castle on the far ridge (Astra, 2026-10-15). The placeholder
             // castle at the road's end is gone; adventurers come and go by the cliff path.
@@ -153,7 +145,7 @@ namespace Ravenholm.EditorTools
             // there is no AFK gathering, everything you gather goes into your carry (2026-10-15).
             Container(logistics, "container.mine_staging", "Mine Staging", ContainerKind.RawPile,
                 (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineEntry + 2, 3, 0)), null, null, null, hidden: true);
-            Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(-17.6f, 2.0f),
+            Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(-16.0f, 0.6f),
                 null, null, null, hidden: true);
             Container(logistics, "container.forge_pad", "Forge Output", ContainerKind.OutputPad, new Vector2(-4.3f, -4.55f),
                 "Crafted goods appear here (holds 6). Walk close to pick them up, then stock them at the Store.", null, null, 6);
@@ -198,7 +190,6 @@ namespace Ravenholm.EditorTools
             var controller = new GameObject("SandboxSceneController").AddComponent<SandboxSceneController>();
             controller.EditorSetup(cam, player);
 
-            Outcrops(world);
             EditorSceneManager.SaveScene(scene, path);
         }
 
@@ -227,10 +218,9 @@ namespace Ravenholm.EditorTools
             var town = settings.townCells;
             _mineCell = new Vector3Int(settings.mineCell.x, settings.mineCell.y, 0);
             _mineCorner = (Vector2)grid.GetCellCenterWorld(_mineCell) - new Vector2(0f, 0.25f);
-            bool InMine(Vector3Int cell) =>
-                cell.x >= _mineCell.x && cell.x < _mineCell.x + QuarryDepth &&
-                cell.y >= _mineCell.y + QuarryFrom && cell.y < _mineCell.y + MineEntry;
-            var frontierY = town.yMax;   // first frontier row
+            var camp = settings.camp;
+            if (camp == null) throw new System.InvalidOperationException("SandboxSettings has no camp (run setup)");
+            var cb = camp.Bounds;
             var paths = new[]
             {
                 (new Vector2(0f, 1.5f), new Vector2(0f, -6.5f)),
@@ -240,34 +230,55 @@ namespace Ravenholm.EditorTools
                 (new Vector2(0f, 0.6f), new Vector2(7.2f, 0.0f)),
                 (new Vector2(0f, -1.0f), new Vector2(-5.4f, -3.2f)), (new Vector2(0f, -1.0f), new Vector2(5.6f, -3.2f)),
             };
-            var mineCentre = (Vector2)grid.GetCellCenterWorld(_mineCell + new Vector3Int(2, 2, 0));
 
-            for (var x = _mineCell.x - 1; x <= Mathf.Max(town.xMax, _mineCell.x + settings.frontierWidthCells) + 1; x++)
-            for (var y = town.yMin - 1; y <= frontierY + settings.frontierLengthCells; y++)
+            // Camp 1 (2026-10-15): the clearing (the old town plot) and the forest wrapping its two low sides and side
+            // tips. The cliff runs along the two high sides, across the whole camp.
+            for (var x = cb.xMin; x < cb.xMax; x++)
+            for (var y = cb.yMin; y < cb.yMax; y++)
             {
                 var cell = new Vector3Int(x, y, 0);
                 Vector2 c = grid.GetCellCenterWorld(cell);
-                if (InMine(cell)) { tm.SetTile(cell, tiles["dirt"]); continue; }   // the Mine's entry: diggable ground
                 var inTown = x >= town.xMin && x < town.xMax && y >= town.yMin && y < town.yMax;
-                var inFrontier = y >= frontierY && y < frontierY + settings.frontierLengthCells &&
-                                 x >= _mineCell.x && x < _mineCell.x + settings.frontierWidthCells;
-                if (inFrontier)
+                if (!inTown)
                 {
-                    // The Forest's ground (its trees are drawn by ForestGridView), with an open trail along the town.
-                    tm.SetTile(cell, tiles[y < frontierY + 2 ? PathKey(x, y) : Hash01(x + 911, y) < 0.12f ? "forest_floor_b" : "forest_floor"]);
+                    // The Forest's ground (its trees and hills are drawn by ForestGridView).
+                    tm.SetTile(cell, tiles[Hash01(x + 911, y) < 0.12f ? "forest_floor_b" : "forest_floor"]);
                     continue;
                 }
-                if (!inTown) continue;
 
                 string key;
                 var plaza = Mathf.Abs(c.x) / 3.6f + Mathf.Abs(c.y - 2.4f) / 2.0f < 1f;
                 if (plaza) key = "plaza";
                 else if (NearAnyPath(c, paths, 0.55f)) key = PathKey(x, y);
-                else if (Vector2.Distance(c, mineCentre) < 3.2f) key = "dirt";   // worked ground around the Mine
-                else if (c.x < -6.4f && c.y > 2.2f) key = "dirt";
                 else key = GrassKey(x, y);
                 tm.SetTile(cell, tiles[key]);
             }
+        }
+
+        /// <summary>
+        /// Camp 1: the deep forest beyond the camp's two low edges, so the land carries on past them (never walked: it is
+        /// its own tilemap, not the ground). <see cref="ForestGridView"/> draws its trees and hills.
+        /// </summary>
+        private const int BeyondDepth = 26;
+
+        private static Tilemap BuildBeyond(SandboxSettings settings, Dictionary<string, TileBase> tiles)
+        {
+            const int depth = BeyondDepth;
+            var go = new GameObject("Beyond");
+            go.transform.SetParent(_grid.transform, false);
+            var tm = go.AddComponent<Tilemap>();
+            var tr = go.AddComponent<TilemapRenderer>();
+            tr.mode = TilemapRenderer.Mode.Individual;
+            tr.sortingLayerName = "Ground";
+            if (_unlit != null) tr.sharedMaterial = _unlit;
+            var cb = settings.camp.Bounds;
+            for (var x = cb.xMin - depth; x < cb.xMax; x++)
+            for (var y = cb.yMin - depth; y < cb.yMax; y++)
+            {
+                if (x >= cb.xMin && y >= cb.yMin) continue;
+                tm.SetTile(new Vector3Int(x, y, 0), tiles[Hash01(x + 911, y) < 0.12f ? "forest_floor_b" : "forest_floor"]);
+            }
+            return tm;
         }
 
         /// <summary>Invisible wall around the town plot (the motor also clamps).</summary>
@@ -418,12 +429,8 @@ namespace Ravenholm.EditorTools
                 ProjectSetup.LoadSprite("Props/prop_pulley"), ProjectSetup.LoadSprite("Props/prop_lift_platform"));
             slabRoot.GetComponent<MineSlabView>().EditorSetupBlocks(Block("grass"), new[] { Block("topsoil"), Block("topsoil_pebbles") },
                 new[] { Block("sandstone"), Block("red_clay"), Block("slate"), Block("mossy"), Block("purple"), Block("ochre"), Block("basalt"), Block("limestone") });
-            var dig = new GameObject("DigSpot");
-            dig.transform.SetParent(slabRoot.transform, false);
-            var digCol = dig.AddComponent<CircleCollider2D>();
-            digCol.isTrigger = true;
-            digCol.radius = 0.3f;
-            dig.AddComponent<MineDigSpot>();
+            // Camp 1 (2026-10-15): no quarry, so no dig spot; the slab view still draws the ground's edges and the earth
+            // under the hills (the Forest's rock is the Mine's surface).
 
             // An anchor beside the entry (its yellow-flag signpost went with the routines, 2026-10-15).
             var go = new GameObject("Mine");
@@ -437,9 +444,6 @@ namespace Ravenholm.EditorTools
 
         /// <summary>The Mine is an open-pit quarry: its plot (dug from above) runs this far back from the cliff edge...</summary>
         private const int QuarryDepth = 5;
-
-        /// <summary>...and from this far along the cliff (toward the town) to <see cref="MineEntry"/>.</summary>
-        private const int QuarryFrom = -2;
 
         private static GameObject Blocker(Transform parent, string name)
         {
@@ -668,84 +672,6 @@ namespace Ravenholm.EditorTools
         }
 
         /// <summary>
-        /// Surface outcrops (mining above ground): two blobs of 7–10 rock columns, up to three blocks high (taller in the
-        /// middle), each on open grass on its own side of town, clear of paths, buildings and props.
-        /// </summary>
-        private static void Outcrops(Transform world)
-        {
-            Physics2D.SyncTransforms();
-            var tiles = ProjectSetup.EnsureTiles();
-            var grass = new HashSet<TileBase> { tiles["grass_a"], tiles["grass_b"], tiles["grass_c"] };
-            bool Open(Vector3Int c)
-            {
-                if (!grass.Contains(_groundMap.GetTile(c))) return false;
-                for (var dx = -1; dx <= 1; dx++)
-                for (var dy = -1; dy <= 1; dy++)
-                    if (!grass.Contains(_groundMap.GetTile(c + new Vector3Int(dx, dy, 0)))) return false;   // a grass margin all round
-                return Physics2D.OverlapCircle(_grid.GetCellCenterWorld(c), 1.1f) == null;
-            }
-            var neighbours = new[] { new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0),
-                                     new Vector3Int(1, 1, 0), new Vector3Int(-1, -1, 0), new Vector3Int(1, -1, 0), new Vector3Int(-1, 1, 0),
-                                     new Vector3Int(2, 0, 0), new Vector3Int(0, 2, 0) };
-            var cols = new List<Vector3Int>();
-            // One on each side of town: the first spot (in order of preference) with open ground near it.
-            foreach (var wishes in new[]
-                     {
-                         new[] { new Vector2(-8.5f, -6.5f), new Vector2(-9f, -3f), new Vector2(-7f, 7f) },
-                         new[] { new Vector2(8.5f, -6.5f), new Vector2(12f, -3.5f), new Vector2(6.5f, -9f), new Vector2(13f, 2f), new Vector2(9f, 10f) },
-                     })
-            {
-                Vector3Int? centre = null;
-                foreach (var wish in wishes)
-                {
-                    var near = _grid.WorldToCell(wish);
-                    var bestD = float.MaxValue;
-                    for (var dx = -10; dx <= 10; dx++)
-                    for (var dy = -10; dy <= 10; dy++)
-                    {
-                        var c = near + new Vector3Int(dx, dy, 0);
-                        if (!Open(c)) continue;
-                        var n = 0;
-                        foreach (var o in neighbours) if (Open(c + o)) n++;
-                        if (n < 8) continue;
-                        if (cols.Exists(k => Mathf.Abs(k.x - c.x) + Mathf.Abs(k.y - c.y) < 8)) continue;   // apart from the other group
-                        var d = Vector2.Distance(_grid.GetCellCenterWorld(c), wish);
-                        if (d < bestD) { bestD = d; centre = c; }
-                    }
-                    if (centre.HasValue) break;
-                }
-                if (!centre.HasValue) { Debug.LogWarning("[Setup] No open ground for an outcrop."); continue; }
-                var cc = centre.Value;
-                cols.Add(new Vector3Int(cc.x, cc.y, 3));
-                var count = 1;
-                foreach (var o in neighbours)
-                {
-                    if (count >= 9) break;
-                    var c = cc + o;
-                    if (!Open(c)) continue;
-                    var h = Hash01(c.x, c.y) < 0.45f ? 2 : 1;
-                    if (o.sqrMagnitude > 2) h = 1;   // the outer cells stay low
-                    cols.Add(new Vector3Int(c.x, c.y, h));
-                    count++;
-                }
-            }
-            Debug.Log($"[Setup] Surface outcrops: {cols.Count} columns: {string.Join(" ", cols)}");
-            var go = new GameObject("SurfaceOutcrops");
-            go.transform.SetParent(world, false);
-            var outcrops = go.AddComponent<SurfaceOutcropView>();
-            outcrops.EditorSetupHighlight(ProjectSetup.LoadSprite("Props/fx_block_highlight"));
-            outcrops.EditorSetup(_grid, cols,
-                new[] { ProjectSetup.LoadSprite("Painted/Blocks/block_mossy"), ProjectSetup.LoadSprite("Painted/Blocks/block_slate"), ProjectSetup.LoadSprite("Painted/Blocks/block_slate") },
-                new[] { ProjectSetup.LoadSprite("Props/fx_crack_1"), ProjectSetup.LoadSprite("Props/fx_crack_2"), ProjectSetup.LoadSprite("Props/fx_crack_3") }, _unlit);
-            var spot = new GameObject("OutcropSpot");
-            spot.transform.SetParent(go.transform, false);
-            var col = spot.AddComponent<CircleCollider2D>();
-            col.isTrigger = true;
-            col.radius = 0.4f;
-            spot.AddComponent<OutcropSpot>();
-        }
-
-        /// <summary>
         /// The overlook (Astra's valley view v2): the north tip of the town plot is the cliff's tip. Grassy lip pieces run
         /// down both arms (the left arm stops where the Forest joins the town), the corner caps the tip, and one left-arm
         /// piece is the path down; walking stops at the lip. Behind it, the repeating parallax layers and the castle.
@@ -757,9 +683,11 @@ namespace Ravenholm.EditorTools
             root.SetParent(world, false);
             var t = settings.townCells;
             var tip = SandboxSettings.CellCentre(t.xMax - 1, t.yMax - 1) + new Vector2(0f, 0.25f);
-            var forestEnd = settings.mineCell.x + settings.frontierWidthCells;   // the left arm runs from the tip to the Forest
-            var leftCount = Mathf.Max(0, t.xMax - forestEnd);
-            var rightCount = t.height;
+            // Both arms run the camp's whole width: past the clearing, along the top of the forest.
+            var cb = settings.camp.Bounds;
+            // ...and on along the deep forest beyond the camp's edges (scenery).
+            var leftCount = t.xMax - cb.xMin + BeyondDepth;
+            var rightCount = t.yMax - cb.yMin + BeyondDepth;
             const int pathIndex = 6;
             Vector2 left0 = tip + new Vector2(-0.25f, -0.125f), right0 = tip + new Vector2(0.25f, -0.125f);
             Vector2 leftStep = new Vector2(-0.5f, -0.25f), rightStep = new Vector2(0.5f, -0.25f);

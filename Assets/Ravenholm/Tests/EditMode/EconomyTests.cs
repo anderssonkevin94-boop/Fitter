@@ -107,9 +107,9 @@ namespace Ravenholm.Tests
         public void CatchUpCapsResourcesAtEightHoursAndMakesNoDecisions()
         {
             var g = Boot(T0);
-            Assert.IsTrue(DigTestKit.Dig(g, 0, 2, 2, DigTestKit.Along), "dig a block by hand before leaving");
+            Assert.IsTrue(DigTestKit.BreakHill(g, DigTestKit.HillBlocks(g, 4).First()), "dig a block of the hills by hand before leaving");
             g.Logistics.System.DebugUnloadCarry();
-            var dug = g.Sites.Get("site.mine").Record.Dug.Count;
+            var dug = g.Sites.Get("site.mine").Record.SurfaceBroken.Count;
             var stagedBefore = g.Sites.Sites.ToDictionary(x => x.Config.SiteId, x => g.Logistics.System.ContainerUnitCount(x.Config.StagingContainerId));
             var oreBefore = g.Logistics.System.SharedAvailable("resource.iron_ore");
             var sitesMs = g.Sites.Get("site.mine").Record.SimMs;
@@ -132,7 +132,7 @@ namespace Ravenholm.Tests
                 Assert.AreEqual(stagedBefore[sim.Config.SiteId], staging, "no AFK gathering: nothing lands in staging while away");
             }
             Assert.AreEqual(oreBefore, back.Logistics.System.SharedAvailable("resource.iron_ore"), "nothing is hauled to the facilities for you");
-            Assert.AreEqual(dug, back.Sites.Get("site.mine").Record.Dug.Count, "nothing is dug for you");
+            Assert.AreEqual(dug, back.Sites.Get("site.mine").Record.SurfaceBroken.Count, "nothing is dug for you");
             Assert.AreEqual(0, back.Logistics.System.CarryCount);
         }
 
@@ -363,15 +363,15 @@ namespace Ravenholm.Tests
             Assert.AreEqual(0, g.Sites.Get("site.mine").Record.Workers.Count, "solo play: no hired crew");
             Assert.AreEqual(0, g.Sites.Get("site.forest").Record.Workers.Count);
 
-            // Dig by hand (the quarry's blocks, row by row): each block's units go straight into the carry.
-            var blocks = DigTestKit.QuarryBlocks(g.Sites.Get("site.mine").Slab, 2).GetEnumerator();
-            while (g.Logistics.System.CarryCount < 4 && blocks.MoveNext()) Assert.IsTrue(DigTestKit.Dig(g, blocks.Current.X, blocks.Current.U, blocks.Current.Row));
+            // Dig by hand (the hills' blocks, camp 1): each block's units go straight into the carry.
+            var blocks = DigTestKit.HillBlocks(g, 4).GetEnumerator();
+            while (g.Logistics.System.CarryCount < 4 && blocks.MoveNext()) Assert.IsTrue(DigTestKit.BreakHill(g, blocks.Current));
             Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 4);
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
 
             // A full carry leaves the rest waiting at the face; nothing is lost.
             while (g.Sites.Get("site.mine").Record.FacePending.Count == 0 && blocks.MoveNext())
-                Assert.IsTrue(DigTestKit.Dig(g, blocks.Current.X, blocks.Current.U, blocks.Current.Row));
+                Assert.IsTrue(DigTestKit.BreakHill(g, blocks.Current));
             Assert.IsTrue(g.Logistics.System.IsFull);
             Assert.Greater(g.Sites.Get("site.mine").Record.FacePending.Count, 0);
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
@@ -380,10 +380,12 @@ namespace Ravenholm.Tests
             // Chop any tree in reach (the Forest's grid): its logs go straight into the carry.
             var forest = g.Sites.Get("site.forest");
             Assert.IsTrue(forest.GroveMode);
-            for (var i = 0; i < 2000 && !forest.IsFelled(1, 0); i++) g.Sites.PlayerChopCell("site.forest", 1, 0, 0.1f);
-            Assert.IsTrue(forest.IsFelled(1, 0));
+            var (tx, ty) = (forest.Grove.ClearX0 - 1, 0);
+            while (!forest.CanChop(tx, ty)) ty++;
+            for (var i = 0; i < 2000 && !forest.IsFelled(tx, ty); i++) g.Sites.PlayerChopCell("site.forest", tx, ty, 0.1f);
+            Assert.IsTrue(forest.IsFelled(tx, ty));
             Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 4, "a tree's four logs (herbs are a bonus roll)");
-            Assert.AreEqual(new GroveCell(1, 0), forest.Record.LastChop);
+            Assert.AreEqual(new GroveCell(tx, ty), forest.Record.LastChop);
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
             g.Logistics.System.DebugUnloadCarry();
 

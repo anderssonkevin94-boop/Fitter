@@ -29,10 +29,12 @@ namespace Ravenholm.Domain.Sites
 
         public int BandOfArea(int area) => Math.Max(1, Math.Min(area, _c.Bands.Count));
 
-        public int GroveContinuation(int area, int slot) =>
-            Math.Max(0, slot) / Math.Max(1, _c.Grove.TreesPerContinuation) + Math.Max(0, area - _c.Bands.Count);
+        /// <summary>A tree's band (its wood and rare roll): the strip's area, or the ring's band by distance from the clearing.</summary>
+        public int BandOf(int area, int slot) => BandOfArea(_c.Grove != null ? _c.Grove.BandAt(area, slot) : area);
 
-        public long TreeDurabilityMicro(int area, int slot) => SiteMath.Durability(_c, BandOfArea(area), GroveContinuation(area, slot)) * 1000;
+        public int GroveContinuation(int area, int slot) => _c.Grove.ContinuationAt(area, slot, _c.Bands.Count);
+
+        public long TreeDurabilityMicro(int area, int slot) => SiteMath.Durability(_c, BandOf(area, slot), GroveContinuation(area, slot)) * 1000;
 
         public long ChopDone(int area, int slot) => _s.Chopped.TryGetValue(new GroveCell(area, slot), out var d) ? d : 0;
 
@@ -42,7 +44,7 @@ namespace Ravenholm.Domain.Sites
 
         /// <summary>How high the ground stands at a tree's spot (blocks above the floor), from the world seed.</summary>
         public int TerrainHeight(int area, int slot) =>
-            GroveMode ? _c.Grove.TerrainHeight(_worldSeed ^ SiteMath.StableHash(_c.SiteId), _c.Grove.RowOf(slot), _c.Grove.AlongOf(area, slot)) : 0;
+            GroveMode ? _c.Grove.TerrainHeightAt(_worldSeed ^ SiteMath.StableHash(_c.SiteId), area, slot) : 0;
 
         /// <summary>
         /// No tree here: bare rock (a ridge's heights), or open ground between the trees. Everything that asks whether a
@@ -50,7 +52,7 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public bool IsRock(int area, int slot) =>
             GroveMode && (TerrainHeight(area, slot) >= _c.Grove.RockHeight ||
-                          _c.Grove.OpenGround(_worldSeed ^ SiteMath.StableHash(_c.SiteId), _c.Grove.RowOf(slot), _c.Grove.AlongOf(area, slot)));
+                          _c.Grove.OpenGroundAt(_worldSeed ^ SiteMath.StableHash(_c.SiteId), area, slot));
 
         /// <summary>A stump: felled and not yet pulled out (it grows back unless cleared).</summary>
         public bool IsStump(int area, int slot) => !IsRock(area, slot) && IsFelled(area, slot) && !IsCleared(area, slot);
@@ -126,7 +128,7 @@ namespace Ravenholm.Domain.Sites
         /// <summary>A tree's species: the area's mix, drawn once per tree from the world seed.</summary>
         public string SpeciesAt(int area, int slot)
         {
-            var mix = AreaMix(area, false);
+            var mix = AreaMix(BandOf(area, slot), false);
             if (mix.Weights.Count == 0) return "";
             var u = CellRoll(area, slot, 0);
             var acc = 0.0;
@@ -153,7 +155,7 @@ namespace Ravenholm.Domain.Sites
             var to = LogsCut(c.Area, c.Slot, after);
             _s.Chopped[c] = after;
             if (to == from) return 0;
-            var mix = AreaMix(c.Area, true);
+            var mix = AreaMix(BandOf(c.Area, c.Slot), true);
             var species = SpeciesAt(c.Area, c.Slot);
             for (var n = from; n < to; n++)
             {

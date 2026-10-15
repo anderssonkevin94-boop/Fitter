@@ -49,6 +49,13 @@ namespace Ravenholm.Presentation
         private Camera _camera;
         private readonly List<List<Vector3Int>> _columns = new List<List<Vector3Int>>();   // per area: cells bottom-up
         private readonly Dictionary<Vector3Int, (int area, int slot)> _slotOf = new Dictionary<Vector3Int, (int, int)>();
+        private readonly List<(Vector3Int cell, int area, int slot, bool border)> _all = new List<(Vector3Int, int, int, bool)>();   // every tree tile
+        private readonly HashSet<Vector3Int> _border = new HashSet<Vector3Int>();   // the deep forest past the camp's edge (scenery)
+        [Tooltip("A camp's deep forest beyond its low edges: drawn like the Forest (trees, hills), never walked or cut.")]
+        [SerializeField] private Tilemap beyond;
+
+        public void EditorSetupBeyond(Tilemap map) => beyond = map;
+        private bool _ring;   // a camp's ring: a tree's (area, slot) is its tile's (x, y)
         private readonly List<SpriteRenderer> _pool = new List<SpriteRenderer>();
         private readonly Dictionary<Vector3Int, SpriteRenderer> _shown = new Dictionary<Vector3Int, SpriteRenderer>();
         private readonly Dictionary<int, Coroutine> _shakes = new Dictionary<int, Coroutine>();
@@ -96,8 +103,40 @@ namespace Ravenholm.Presentation
         private void Build()
         {
             if (_built || grid == null || ground == null) return;
+            var sim = Sim;
+            if (sim == null) return;   // the layout comes from the Forest's grove
             _built = true;
             var b = ground.cellBounds;
+            _columns.Clear();
+            _columns.Add(new List<Vector3Int>());   // areas are 1-based
+            _all.Clear();
+            var grove = sim.Config.Grove;
+            _ring = grove != null && grove.Ring;
+            if (_ring)
+            {
+                // A camp (2026-10-15): every ground tile of the ring is a tree tile, named by its own cell.
+                for (var x = b.xMin; x < b.xMax; x++)
+                for (var y = b.yMin; y < b.yMax; y++)
+                {
+                    var c = new Vector3Int(x, y, 0);
+                    if (!ground.HasTile(c) || !grove.InGrove(x, y)) continue;
+                    _slotOf[c] = (x, y);
+                    _all.Add((c, x, y, false));
+                }
+                if (beyond != null)
+                {
+                    var bb = beyond.cellBounds;
+                    for (var x = bb.xMin; x < bb.xMax; x++)
+                    for (var y = bb.yMin; y < bb.yMax; y++)
+                    {
+                        var c = new Vector3Int(x, y, 0);
+                        if (!beyond.HasTile(c) || ground.HasTile(c)) continue;
+                        _border.Add(c);
+                        _all.Add((c, x, y, true));
+                    }
+                }
+                return;
+            }
             var byArea = new SortedDictionary<int, List<Vector3Int>>();
             for (var x = b.xMin; x < b.xMax; x++)
             for (var y = b.yMin; y < b.yMax; y++)
@@ -108,14 +147,12 @@ namespace Ravenholm.Presentation
                 if (!byArea.TryGetValue(area, out var list)) byArea[area] = list = new List<Vector3Int>();
                 list.Add(c);
             }
-            _columns.Clear();
-            _columns.Add(new List<Vector3Int>());   // areas are 1-based
             for (var a = 1; byArea.ContainsKey(a); a++)
             {
                 var list = byArea[a];
                 // The cliff-edge row first, then each row further back; along a row, nearest the town first.
                 list.Sort((p, q) => p.x != q.x ? p.x.CompareTo(q.x) : p.y.CompareTo(q.y));
-                for (var i = 0; i < list.Count; i++) _slotOf[list[i]] = (a, i);
+                for (var i = 0; i < list.Count; i++) { _slotOf[list[i]] = (a, i); _all.Add((list[i], a, i, false)); }
                 _columns.Add(list);
             }
         }
@@ -246,16 +283,14 @@ namespace Ravenholm.Presentation
             var halfW = _camera != null ? halfH * _camera.aspect + 1.5f : 8f;
             var keep = new HashSet<Vector3Int>();
             var cells = new HashSet<Vector3Int>();
-            for (var a = 1; a < _columns.Count; a++)
+            foreach (var (c, a, slot, border) in _all)
             {
-                var col = _columns[a];
-                for (var slot = 0; slot < col.Count; slot++)
                 {
-                    var c = col[slot];
                     var p = Centre(c);
                     if (Mathf.Abs(p.y - cam.y) > halfH + 4f || Mathf.Abs(p.x - cam.x) > halfW) continue;
                     cells.Add(c);
-                    var state = State(a, slot, out var tree);
+                    var tree = -1;
+                    var state = border ? sim.IsRock(a, slot) ? TreeState.None : TreeState.Standing : State(a, slot, out tree);
                     if (state == TreeState.None) continue;
                     keep.Add(c);
                     var top = SurfaceTop(c);
@@ -265,7 +300,7 @@ namespace Ravenholm.Presentation
                     sr.sortingLayerName = "Ground";
                     sr.sortingOrder = TerrainOrder(c, top + 1) + 2;
                     sr.sprite = state == TreeState.Cut ? stumpSprite : SpriteFor(SpeciesAt(sim, a, tree, slot));
-                    sr.color = AreaTint(sim, a);
+                    sr.color = AreaTint(sim, sim.BandOf(a, slot));
                     sr.name = tree >= 0 ? $"Tree{tree}" : "ForestTree";
                 }
             }
@@ -290,12 +325,12 @@ namespace Ravenholm.Presentation
             return null;
         }
 
-        /// <summary>Areas further left are darker and cooler; areas not entered yet are darker still.</summary>
-        public Color AreaTint(SiteSimulator sim, int area)
+        /// <summary>Bands further out are darker and cooler; bands not entered yet are darker still.</summary>
+        public Color AreaTint(SiteSimulator sim, int band)
         {
-            var depth = Mathf.Clamp01((area - 1) * 0.09f);
+            var depth = Mathf.Clamp01((band - 1) * 0.09f);
             var col = Color.Lerp(Color.white, new Color(0.5f, 0.6f, 0.62f), depth);
-            if (area > sim.Record.Depth) col = Color.Lerp(col, new Color(0.3f, 0.38f, 0.36f), 0.35f);
+            if (!_ring && band > sim.Record.Depth) col = Color.Lerp(col, new Color(0.3f, 0.38f, 0.36f), 0.35f);
             col.a = 1f;
             return col;
         }
@@ -344,6 +379,11 @@ namespace Ravenholm.Presentation
         {
             Build();
             cell = default;
+            if (_ring)
+            {
+                cell = new Vector3Int(area, slot, 0);
+                return _slotOf.ContainsKey(cell);
+            }
             var col = area >= 1 && area < _columns.Count ? _columns[area] : null;
             if (col == null || slot < 0 || slot >= col.Count) return false;
             cell = col[slot];
@@ -370,6 +410,7 @@ namespace Ravenholm.Presentation
             Build();
             area = slot = -1;
             cell = default;
+            var found = false;   // (area, slot) are cell coordinates in a camp's ring: they can be negative
             var sim = Sim;
             if (sim == null) return false;
             var at = grid.WorldToCell(me);
@@ -388,8 +429,9 @@ namespace Ravenholm.Presentation
                 area = t.area;
                 slot = t.slot;
                 cell = c;
+                found = true;
             }
-            return area >= 0;
+            return found;
         }
 
         /// <summary>The stump nearest a point within reach, at about the supplier's level (to pull out).</summary>
@@ -398,6 +440,7 @@ namespace Ravenholm.Presentation
             Build();
             area = slot = -1;
             cell = default;
+            var found = false;
             var at = grid.WorldToCell(me);
             var best = reach;
             for (var dx = -3; dx <= 3; dx++)
@@ -412,8 +455,9 @@ namespace Ravenholm.Presentation
                 area = t.area;
                 slot = t.slot;
                 cell = c;
+                found = true;
             }
-            return area >= 0;
+            return found;
         }
 
         /// <summary>The way from staging to a tree of the grid: into the frontier by the trail, along the cliff edge, in.</summary>

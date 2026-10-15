@@ -91,29 +91,6 @@ namespace Ravenholm.Tests
             yield return Capture.Take("supplier_carry_front");
             sys.DebugUnloadCarry();
 
-            // In the Mine: digging into the quarry plays the pick swung down.
-            var slab = MineSlabView.Current;
-            var motor = player.GetComponent<PlayerMotor>();
-            motor.Teleport(slab.Top(0f, 1f, 0f));
-            SandboxSceneController.Current.SnapPlayerToSavedPosition();
-            yield return new WaitForSeconds(0.5f);
-            GameRoot.Instance.Services.Sites.SpeedMultiplier = 20f;
-            GameRoot.Instance.Hud.ScriptedHold = true;
-            yield return Until(() => anim.Requested == "mine_down_front" && anim.Clip.StartsWith("idle_"), 3f, Now);
-            var leaned = false;
-            var t0 = Time.time;
-            while (Time.time - t0 < 2f && !leaned)
-            {
-                leaned = Mathf.Abs(Mathf.DeltaAngle(0f, body.transform.localEulerAngles.z)) > 2f || Mathf.Abs(body.transform.localScale.y - 1f) > 0.03f;
-                yield return null;
-            }
-            Assert.IsTrue(leaned, "the standing pose swings the pick (procedurally)");
-            yield return Until(() => slab.PlayerInside && slab.Feet >= 3, 20f, () => $"digs down ({Now()}, feet {slab.Feet})");
-            GameRoot.Instance.Hud.ScriptedHold = false;
-            yield return Until(() => !slab.Falling, 3f, () => "lands");
-            Stick(null);
-            GameRoot.Instance.Services.Sites.SpeedMultiplier = 1f;
-            yield return new WaitForSeconds(0.3f);
             yield return Capture.Take("supplier_animation");
         }
 

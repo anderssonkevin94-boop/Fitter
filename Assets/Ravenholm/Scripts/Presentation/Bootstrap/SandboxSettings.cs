@@ -22,6 +22,9 @@ namespace Ravenholm.Presentation
                  "Tunnels run along its front edge and the Forest grows on it; raise these as more is charted.")]
         [Min(4)] public int frontierLengthCells = 100;
         [Min(4)] public int frontierWidthCells = 30;
+        [Tooltip("The camp this scene shows (the journey, 2026-10-15): its clearing is the town plot, wrapped by forest. " +
+                 "When set, the frontier above is not used.")]
+        public Content.CampDefinition camp;
 
         /// <summary>World position of a cell's centre on the town grid (cell size 1 × 0.5, isometric).</summary>
         public static Vector2 CellCentre(int x, int y) => new Vector2((x - y) * 0.5f, (x + y) * 0.25f + 0.25f);
@@ -31,6 +34,15 @@ namespace Ravenholm.Presentation
         {
             get
             {
+                if (camp != null)
+                {
+                    var cb = camp.Bounds;
+                    var a = CellCentre(cb.xMin, cb.yMin);
+                    var r = CellCentre(cb.xMax - 1, cb.yMin);
+                    var l = CellCentre(cb.xMin, cb.yMax - 1);
+                    var top = CellCentre(cb.xMax - 1, cb.yMax - 1);
+                    return Rect.MinMaxRect(l.x - 0.5f, a.y - 0.5f, r.x + 0.5f, top.y + 0.5f);
+                }
                 var t = townCells;
                 var fy0 = t.yMax;
                 var corners = new[]

@@ -1173,3 +1173,28 @@ Kevin's choices: the shop lends its gear and takes a cut; adventurers arrive wit
   - **Adventurers:** they come and go by Astra's cliff path; her stair's disappear point is now the crowd's departure point. The placeholder castle at the road's end is removed.
   - **Interim:** until the world is reworked into camps, the Forest strip still pokes past the cliff line in places.
 - **Tests.** `OverlookPlayModeTests` checks the view, that far moves slower than near and that the castle stays on its ridge, and saves the standing and walking frames (Captures/overlook_*). The outline test hides the view so it measures on a plain background.
+
+## 2026-10-15: camp 1, Meadow's Edge (journey outline step 1; awaiting Kevin's approval)
+
+Kevin approved the journey outline with all its recommendations ("go with your recommendations, start with camp 1").
+
+- **The camp.** A `CampDefinition` (`Content/Camps/camp_meadows_edge.asset`) holds:
+  - the clearing: the old town plot, cells (−20, −16) to (28, 21);
+  - a forest depth of 20 cells;
+  - bands 7 cells wide;
+  - a flat margin of 3 cells.
+
+  `ContentCatalogue.CurrentCamp` is the first camp for now; `SandboxSettings.camp` points at it, and the world bounds come from it.
+- **The layout.** Forest and hills wrap the clearing's two low sides (south-west and south-east) and go around its side tips. The cliff runs along both high sides across the whole camp, and its lip arms run the full width. The forest grid is in "ring" mode (`ForestGrove.Ring`): a tree is named by its map cell (area = x, slot = y).
+- **Bands by distance.** A band is set by how far a cell lies from the clearing: `1 + (d − 1) / 7`. It drives the wood species, toughness and rare rolls. Each 3 cells further out within a band is one more continuation. The ground is flat for 3 cells beside the clearing, then the hills rise (the old noise, capped at 2 blocks per cell past the margin).
+- **The Mine is removed as a place:**
+  - no quarry, dig spot, outcrops or rock faces in the clearing;
+  - the old frontier strip is gone.
+
+  The Mine site remains as the hidden earth under the hills: ore veins, broken blocks and layers. Its dig slab has no plot. `SiteSimulator.SurfaceBandAt` maps a hill cell to the Mine layer by the same band rule, so coal and the deeper ores lie further out.
+- **Deep forest beyond the edges.** A separate, unwalkable `Beyond` tilemap runs 26 cells past the camp's low edges. The forest view draws its trees and hills as scenery: they can't be cut or dug. The cliff lip runs on along it, so you never see past the edge of the world.
+- **The view follows the lip.** The parallax now looks from the lip's height under the camera, not the tip's: the lip drops 0.5 per unit sideways. Without this, walking along the long arms raised the layers until their fills showed.
+- **Saves.** Each site's save records its camp. A save from the old town or frontier forgets its cut trees, stumps and broken rock: those cells no longer exist. A saved position that is no longer walkable returns to the plaza.
+- **Ring coordinates can be negative.** The forest view and chop spot now track "found" with flags rather than `area >= 0`.
+- **Tips** no longer mention the Mine.
+- **Stations** stand where they were (step 2 places them).

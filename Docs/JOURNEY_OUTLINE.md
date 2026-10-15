@@ -1,6 +1,6 @@
-# The Journey: design outline v1 (for Kevin's approval)
+# The Journey: design outline v1 (approved by Kevin, 2026-10-15)
 
-2026-10-15. Nothing in this outline is built yet. Numbers are starting points for tuning.
+2026-10-15. Approved with every recommendation in §13: six camps; no going back; wagon storage limit; a summons per camp; timed crafting; food from foraging first. Being built from step 1 (camp 1). Numbers are starting points for tuning.
 
 ## 1. The pitch
 

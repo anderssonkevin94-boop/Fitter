@@ -16,7 +16,5 @@ MonoBehaviour:
   displayName: move and pick up
   contentVersion: 1
   order: 1
-  prompt: Drag anywhere low on the screen to walk. At the Mine's rim, hold the action
-    button to dig; in the Forest, hold it by a tree to chop. What you gather goes
-    straight into your carry.
+  prompt: Drag anywhere low on the screen to walk. In the forest around camp, hold the action button by a tree to chop, or by the rock of a hill to dig. What you gather goes straight into your carry.
   condition: 1

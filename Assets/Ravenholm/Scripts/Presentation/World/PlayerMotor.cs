@@ -37,6 +37,9 @@ namespace Ravenholm.Presentation
             _animator = visual != null ? visual.GetComponent<SupplierAnimator>() : null;
             var s = _root.Services.Sandbox.State;
             transform.position = new Vector3(s.PlayerX, s.PlayerY, 0f);
+            // Saved somewhere that is no longer ground (the old frontier, before camp 1) or inside a tree: back to the plaza.
+            var slab = MineSlabView.Current != null ? MineSlabView.Current : FindAnyObjectByType<MineSlabView>();
+            if (slab != null && !slab.SurfaceWalkable(transform.position)) transform.position = Vector3.zero;
         }
 
         private void Update()

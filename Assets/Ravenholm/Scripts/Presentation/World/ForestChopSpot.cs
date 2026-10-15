@@ -15,6 +15,7 @@ namespace Ravenholm.Presentation
 
         private int _tree = -1;
         private int _area = -1, _slot = -1;
+        private bool _hasCell;   // a tree or stump of the grid is targeted ((area, slot) can be negative in a camp's ring)
         private bool _clearing;
         private float _clearHeld;
         private const float ClearSeconds = 0.8f;
@@ -33,7 +34,7 @@ namespace Ravenholm.Presentation
         public override string ContextVerb => _verb;
         public override bool IsContextAvailable => Available;
         public override bool OpensOwnPanel => true;
-        public override bool Holdable => Available && (_tree >= 0 || _area >= 0);
+        public override bool Holdable => Available && (_tree >= 0 || _hasCell);
         public override float ContextPriority => 1f;
 
         private void Awake() => _collider = GetComponent<Collider2D>();
@@ -43,6 +44,7 @@ namespace Ravenholm.Presentation
             Available = false;
             _tree = -1;
             _area = _slot = -1;
+            _hasCell = false;
             var root = GameRoot.Instance;
             var forest = ForestGridView.Current;
             var player = SandboxSceneController.Current != null ? SandboxSceneController.Current.Player : null;
@@ -62,12 +64,14 @@ namespace Ravenholm.Presentation
                     // No tree in reach: a stump can be pulled out (it won't grow back then).
                     if (!forest.NearestStump(me, Reach, out _area, out _slot, out _cell)) { _area = _slot = -1; return; }
                     _clearing = true;
+                    _hasCell = true;
                     _verb = "Clear";
                     transform.position = forest.WorkSpotOf(_cell) + new Vector3(0f, 0.3f, 0f);
                     EditorSetup("stump", "Hold to pull the stump out (a log). Left standing, it grows back into a tree after a while.", "");
                     Available = true;
                     return;
                 }
+                _hasCell = true;
                 _verb = "Chop";
                 transform.position = forest.WorkSpotOf(_cell) + new Vector3(0f, 0.3f, 0f);
                 EditorSetup(UnitVisuals.DisplayName(sim.SpeciesAt(_area, _slot)).ToLowerInvariant(),
@@ -100,12 +104,12 @@ namespace Ravenholm.Presentation
         {
             var root = GameRoot.Instance;
             if (root == null) return;
-            if (_area >= 0 && _clearing)
+            if (_hasCell && _clearing)
             {
                 _clearHeld += deltaSeconds * root.Services.Sites.SpeedMultiplier;
                 if (_clearHeld >= ClearSeconds && root.Services.Sites.ClearStump(SiteId, _area, _slot)) _clearHeld = 0f;
             }
-            else if (_area >= 0)
+            else if (_hasCell)
             {
                 _clearHeld = 0f;
                 if (root.Services.Sites.PlayerChopCell(SiteId, _area, _slot, deltaSeconds) > 0) ForestGridView.Current?.Shake(_cell);

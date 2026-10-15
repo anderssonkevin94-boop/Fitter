@@ -27,6 +27,30 @@ namespace Ravenholm.Tests
             return false;
         }
 
+        /// <summary>
+        /// Camp 1 (2026-10-15): the hills' blocks are the Mine. The top block of the first hill cells found out from the
+        /// clearing's lower-left edge at <paramref name="depth"/> or further out, in order.
+        /// </summary>
+        public static System.Collections.Generic.IEnumerable<(int x, int y, int level)> HillBlocks(GameServices g, int depth)
+        {
+            var forest = g.Sites.Get("site.forest");
+            var ring = forest.Config.Grove;
+            for (var d = depth; d <= 20; d++)
+            for (var y = ring.ClearY0; y < ring.ClearY1; y++)
+            {
+                var x = ring.ClearX0 - d;
+                for (var level = forest.TerrainHeight(x, y); level >= 1; level--) yield return (x, y, level);
+            }
+        }
+
+        /// <summary>Breaks one hill block by hand until it breaks (true) or the bound runs out.</summary>
+        public static bool BreakHill(GameServices g, (int x, int y, int level) b)
+        {
+            for (var i = 0; i < 4000; i++)
+                if (g.Sites.PlayerBreakSurface(b.x, b.y, b.level, 0.1f)) return true;
+            return false;
+        }
+
         /// <summary>Digs straight down at the entry (standing on each block in turn): a shaft with a ladder.</summary>
         public static void DigShaft(GameServices g, int u, int depth)
         {

@@ -201,24 +201,18 @@ namespace Ravenholm.Tests
         }
 
         [Test]
-        public void TheDigSlabSurvivesRestart()
+        public void TheBrokenHillsSurviveRestart()
         {
             var a = Boot();
-            DigTestKit.DigShaft(a, 3, 3);
-            a.Logistics.System.ProduceShared("resource.cedar_lumber", 2, "test");
-            var lumber = a.Sites.ScaffoldMaterialInStock("site.mine");
-            Assert.IsTrue(a.Sites.PlaceScaffold("site.mine", 0, 3, 1, out var why), why);
-            Assert.AreEqual(lumber - 1, a.Sites.ScaffoldMaterialInStock("site.mine"), "a scaffold costs one lumber");
-            Assert.IsTrue(DigTestKit.Dig(a, 0, 2, 2, DigTestKit.Along), "dig the first block of a tunnel");
+            foreach (var block in DigTestKit.HillBlocks(a, 4).Take(3)) Assert.IsTrue(DigTestKit.BreakHill(a, block));
+            a.Logistics.System.DebugUnloadCarry();
             a.Scheduler.SaveNow("test");
 
             var b = Boot();
             var ra = a.Sites.Get("site.mine").Record;
             var rb = b.Sites.Get("site.mine").Record;
-            Assert.Greater(rb.Dug.Count, 1);
-            Assert.AreEqual(ra.Dug.Count, rb.Dug.Count, "every dug block is kept");
-            Assert.IsTrue(rb.Dug.SetEquals(ra.Dug));
-            Assert.IsTrue(b.Sites.Get("site.mine").IsScaffold(0, 3, 1), "and so are the scaffolds");
+            Assert.AreEqual(3, rb.SurfaceBroken.Count, "every broken block is kept");
+            Assert.IsTrue(rb.SurfaceBroken.SetEquals(ra.SurfaceBroken));
 
             Assert.AreEqual(ra.Rng.State, rb.Rng.State);
             CollectionAssert.IsEmpty(b.Logistics.System.Audit());

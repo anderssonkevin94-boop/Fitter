@@ -16,7 +16,5 @@ MonoBehaviour:
   displayName: site choice
   contentVersion: 1
   order: 3
-  prompt: Ore stays hidden in the rock until you break it. Dig deeper at the Mine
-    for new layers and better ore; chop further left in the Forest for new kinds
-    of wood.
+  prompt: Ore stays hidden in the rock until you break it. The further out from camp you go, the tougher the trees and rock, with new kinds of wood and deeper, richer ore.
   condition: 0

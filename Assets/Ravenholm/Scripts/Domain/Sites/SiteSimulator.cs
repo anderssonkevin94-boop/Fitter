@@ -913,7 +913,7 @@ namespace Ravenholm.Domain.Sites
             var t = Tunnel(FaceOf(w));
             var depth = t != null ? t.Depth : _s.Depth;
             if (DigMode && _s.RoutineFace != null) depth = _c.Dig.LayerOfRow(_s.RoutineFace.Feet);
-            if (GroveMode && _s.LastChop.HasValue) depth = BandOfArea(_s.LastChop.Value.Area);
+            if (GroveMode && _s.LastChop.HasValue) depth = BandOf(_s.LastChop.Value.Area, _s.LastChop.Value.Slot);
             return _c.Bands[Math.Max(1, Math.Min(depth, _c.Bands.Count)) - 1].LegMs;
         }
         private int Dps(WorkerRecord w) => _eq.ToolDamagePerSecond(w.ToolId);

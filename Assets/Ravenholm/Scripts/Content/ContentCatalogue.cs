@@ -44,6 +44,8 @@ namespace Ravenholm.Content
         [SerializeField] private List<TutorialStepDefinition> tutorial = new List<TutorialStepDefinition>();
         [SerializeField] private ShopDefinition shop;
         [SerializeField] private List<ShopFurnitureDefinition> shopFurniture = new List<ShopFurnitureDefinition>();
+        [Tooltip("The journey's camps, in order (2026-10-15).")]
+        [SerializeField] private List<CampDefinition> camps = new List<CampDefinition>();
         [Tooltip("Applied balance revisions (Phase 9). Each revision is one documented, versioned set of tuning changes.")]
         [SerializeField] private int balanceRevision;
 
@@ -62,6 +64,9 @@ namespace Ravenholm.Content
         public StartingState StartingState => startingState;
         public ShopDefinition Shop => shop;
         public IReadOnlyList<ShopFurnitureDefinition> ShopFurniture => shopFurniture;
+        public IReadOnlyList<CampDefinition> Camps => camps;
+        /// <summary>The camp the company is at (camp 1 until moving on exists).</summary>
+        public CampDefinition CurrentCamp => camps.Count > 0 ? camps[0] : null;
         public IReadOnlyList<AdventurerClassDefinition> Classes => classes;
         public IReadOnlyList<TraitDefinition> Traits => traits;
         public IReadOnlyList<ThreatDefinition> Threats => threats;
@@ -97,6 +102,7 @@ namespace Ravenholm.Content
             foreach (var x in tutorial) yield return x;
             if (shop != null) yield return shop;
             foreach (var x in shopFurniture) yield return x;
+            foreach (var x in camps) yield return x;
         }
 
         public bool TryGet<T>(string id, out T definition) where T : ContentDefinition
@@ -242,6 +248,12 @@ namespace Ravenholm.Content
         }
 
         public void EditorSetBalanceRevision(int r) => balanceRevision = r;
+
+        public void EditorSetCamps(List<CampDefinition> newCamps)
+        {
+            camps = newCamps;
+            _byId = null;
+        }
 
         public void EditorSetShop(ShopDefinition newShop, List<ShopFurnitureDefinition> furniture)
         {

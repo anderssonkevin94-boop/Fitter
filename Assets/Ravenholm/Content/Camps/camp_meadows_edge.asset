@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e077fd7f9c0084058b5fdc1e0fa48079, type: 3}
+  m_Name: camp_meadows_edge
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.CampDefinition
+  id: camp.meadows_edge
+  displayName: Meadow's Edge
+  contentVersion: 1
+  order: 1
+  clearing:
+    x: -20
+    y: -16
+    width: 48
+    height: 37
+  forestDepth: 20
+  bandWidth: 7
+  flatMargin: 3

@@ -158,7 +158,6 @@ namespace Ravenholm.Presentation
             if (ground == null) return true;
             var c = grid.WorldToCell(plane);
             if (!ground.HasTile(c)) return false;
-            if (SurfaceOutcropView.Current != null && SurfaceOutcropView.Current.Blocked(c)) return false;   // rock on the surface
             return ForestGridView.Current == null || !ForestGridView.Current.HasStandingTree(c);
         }
 

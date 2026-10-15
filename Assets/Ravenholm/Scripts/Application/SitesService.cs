@@ -382,7 +382,25 @@ namespace Ravenholm.Services
 
         // ------------------------------------------------------------------ build
 
-        public static SiteConfig BuildConfig(SiteDefinition def)
+        /// <summary>The Forest's ring around a camp's clearing (null without a camp: the old strip).</summary>
+        public static ForestGrove RingOf(CampDefinition camp, ForestGrove grove)
+        {
+            if (camp == null) return grove;
+            var c = camp.Clearing;
+            var b = camp.Bounds;
+            grove.Ring = true;
+            grove.ClearX0 = c.xMin;
+            grove.ClearY0 = c.yMin;
+            grove.ClearX1 = c.xMax;
+            grove.ClearY1 = c.yMax;
+            grove.CampX0 = b.xMin;
+            grove.CampY0 = b.yMin;
+            grove.BandWidth = camp.BandWidth;
+            grove.FlatMargin = camp.FlatMargin;
+            return grove;
+        }
+
+        public static SiteConfig BuildConfig(SiteDefinition def, CampDefinition camp = null)
         {
             var c = new SiteConfig
             {
@@ -401,10 +419,16 @@ namespace Ravenholm.Services
                 TerminalKCap = def.TerminalContinuationCap,
                 LevelsPerBand = Math.Max(1, def.LevelsPerBand),
                 // Solo play: the Mine is dug block by block (the dig slab); three levels of two blocks per layer.
-                Dig = def.SiteType == SiteType.Mine ? new DigSlab { RowsPerLayer = 2 * Math.Max(1, def.LevelsPerBand) } : null,
+                // At a camp (2026-10-15) there is no quarry: the Mine is only the hidden earth under the hills (its layers,
+                // ore veins and the blocks broken), so its dig slab has no plot.
+                Dig = def.SiteType == SiteType.Mine
+                    ? camp != null
+                        ? new DigSlab { RowsPerLayer = 2 * Math.Max(1, def.LevelsPerBand), Thickness = 0, EntryThickness = 0, Length = 0, MinU = 0, EntryLength = 0 }
+                        : new DigSlab { RowsPerLayer = 2 * Math.Max(1, def.LevelsPerBand) }
+                    : null,
                 // Solo play: the Forest is a grid of trees, any of them cut where the supplier reaches (2026-10-12).
                 Grove = def.SiteType == SiteType.Forest
-                    ? new ForestGrove { TreesPerContinuation = Math.Max(1, def.TreesPerClearing), RegrowMs = (long)Math.Round(def.TreeRegrowSeconds * 1000) }
+                    ? RingOf(camp, new ForestGrove { TreesPerContinuation = Math.Max(1, def.TreesPerClearing), RegrowMs = (long)Math.Round(def.TreeRegrowSeconds * 1000) })
                     : null,
                 HopMs = (int)Math.Round(def.HopSeconds * 1000),
                 DepositMs = (int)Math.Round(def.DepositSeconds * 1000),
@@ -447,7 +471,14 @@ namespace Ravenholm.Services
 
         private SiteSimulator Create(SiteDefinition def, SiteRecord record)
         {
-            var sim = new SiteSimulator(BuildConfig(def), record, _logistics.System, _equipment, _scheduler.Coordinator.WorldSeed);
+            var camp = _catalogue.CurrentCamp;
+            var sim = new SiteSimulator(BuildConfig(def, camp), record, _logistics.System, _equipment, _scheduler.Coordinator.WorldSeed);
+            // The hills further out from the clearing are the Mine's deeper layers.
+            if (camp != null && def.SiteType == SiteType.Mine)
+            {
+                var ring = RingOf(camp, new ForestGrove());
+                sim.SurfaceBandAt = (x, y) => ring.BandAt(x, y);
+            }
             var id = def.Id;
             sim.DecisionRequired += () => DecisionRequired?.Invoke(id);
             sim.UnitEarned += (worker, tree, res) => UnitEarned?.Invoke(id, worker, tree, res);
@@ -470,6 +501,8 @@ namespace Ravenholm.Services
                 if (saved != null)
                 {
                     var record = FromSave(saved);
+                    // A different map (the old town and frontier, or another camp): its cut trees and broken rock stay there.
+                    if (_catalogue.CurrentCamp != null && saved.Camp != _catalogue.CurrentCamp.Id) LeaveMap(record);
                     if (def.SiteType == SiteType.Mine && saved.Layout < 2) ConvertOldMine(record);
                     if (def.SiteType == SiteType.Mine && saved.Layout < 5) ConvertToDigSlab(record);
                     if (def.SiteType == SiteType.Forest && saved.Layout < ForestLayout) SiteSimulator.ConvertToGrove(record, def.TreesPerClearing);
@@ -501,11 +534,29 @@ namespace Ravenholm.Services
                 var d = ToSave(sim.Record);
                 if (sim.Config.Kind == SiteKind.Mine) d.Layout = MineLayout;
                 if (sim.Config.Kind == SiteKind.Forest) d.Layout = ForestLayout;
+                d.Camp = _catalogue.CurrentCamp?.Id;
                 env.Sites.Add(d);
             }
         }
 
         public const int MineLayout = 5;
+
+        /// <summary>Forgets a site's state that belongs to the map left behind (cells cut, dug or built on).</summary>
+        private static void LeaveMap(SiteRecord s)
+        {
+            s.Chopped.Clear();
+            s.FelledAtMs.Clear();
+            s.Cleared.Clear();
+            s.LastChop = null;
+            s.SurfaceBroken.Clear();
+            s.Dug.Clear();
+            s.DugDown.Clear();
+            s.Scaffolds.Clear();
+            s.DigTarget = null;
+            s.DigDoneMicro = 0;
+            s.LastDig = null;
+            s.RoutineFace = null;
+        }
 
         /// <summary>Forest layout: 2 = the grid of trees (absent = clearings).</summary>
         public const int ForestLayout = 2;

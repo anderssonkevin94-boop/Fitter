@@ -363,9 +363,8 @@ namespace Ravenholm.Tests
         public void DeeperRevealPersistsThroughReload()
         {
             var a = Boot();
-            // The dig slab: digging down into the second layer reveals it.
-            var row = a.Sites.Get("site.mine").Slab.FirstRowOf(2);
-            Assert.IsTrue(DigTestKit.Dig(a, 1, 1, row));
+            // Camp 1: breaking a block of the hills further out (the second layer) reveals it.
+            Assert.IsTrue(DigTestKit.BreakHill(a, DigTestKit.HillBlocks(a, 9).First()));
             var comp = a.Sites.Get("site.mine").Record.Composition.Weights.ToList();
 
             var b = Boot();

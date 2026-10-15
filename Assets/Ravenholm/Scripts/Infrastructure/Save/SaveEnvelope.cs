@@ -149,6 +149,8 @@ namespace Ravenholm.Infrastructure.Save
         /// <summary>Forest grid: stumps as area, slot, felled-at ms triples, and stumps cleared as area, slot pairs (optional).</summary>
         [JsonProperty("stumps")] public List<long> Stumps;
         [JsonProperty("cleared")] public List<int> Cleared;
+        /// <summary>The camp whose map the cells above belong to (2026-10-15; null = the old town and frontier).</summary>
+        [JsonProperty("camp")] public string Camp;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

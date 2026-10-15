@@ -16,6 +16,5 @@ MonoBehaviour:
   displayName: read result
   contentVersion: 1
   order: 8
-  prompt: While they are away, keep the Mine and Forest moving. When they return,
-    read the result on the castle's jobs board.
+  prompt: While they are away, keep clearing the forest and hills. When they return, read the result on the castle's jobs board.
   condition: 8

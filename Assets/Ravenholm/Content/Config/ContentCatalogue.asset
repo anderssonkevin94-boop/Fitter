@@ -231,4 +231,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 792e46d64ac0d42f1af4c4e4652f9666, type: 2}
   - {fileID: 11400000, guid: c57c71dde013b419da91037d7d343192, type: 2}
   - {fileID: 11400000, guid: 6681c0018474d4f6e9236102bb9a1aca, type: 2}
+  camps:
+  - {fileID: 11400000, guid: 67dcd07af32b545379e8dda594691e95, type: 2}
   balanceRevision: 4

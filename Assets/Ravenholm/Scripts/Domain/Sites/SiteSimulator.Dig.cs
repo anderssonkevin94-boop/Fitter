@@ -28,15 +28,25 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public bool IsSurfaceBroken(int x, int y, int level) => _s.SurfaceBroken.Contains(new DigCell(x, y, -level));
 
+        /// <summary>
+        /// Which of the Mine's layers a surface block at a map cell belongs to (2026-10-15, the camp): the hills further
+        /// out from the clearing are the deeper layers (coal, later moonsilver). Set by the sites service from the camp's
+        /// forest ring; layer 1 everywhere when unset.
+        /// </summary>
+        public Func<int, int, int> SurfaceBandAt;
+
+        public int SurfaceBand(int x, int y) => Math.Max(1, Math.Min(SurfaceBandAt?.Invoke(x, y) ?? 1, _c.Bands.Count));
+
         public string SurfaceOreAt(int x, int y, int level)
         {
-            var template = _c.Bands[0];
-            return MineVeins.OreAt(_worldSeed ^ 0x5EEDF00DUL, LayerMix(1, false), template.BaselineResourceId, x + 4096, y + 4096, level, out _);
+            var band = SurfaceBand(x, y);
+            var template = _c.Bands[band - 1];
+            return MineVeins.OreAt(_worldSeed ^ 0x5EEDF00DUL, LayerMix(band, false), template.BaselineResourceId, x + 4096, y + 4096, level, out _);
         }
 
         public long SurfaceDurabilityMicro(int x, int y, int level)
         {
-            var micro = Math.Max(1L, SiteMath.Durability(_c, 1, 0) * 1000 / Math.Max(1, _c.UnitsPerSection));
+            var micro = Math.Max(1L, SiteMath.Durability(_c, SurfaceBand(x, y), 0) * 1000 / Math.Max(1, _c.UnitsPerSection));
             return SurfaceOreAt(x, y, level) != null ? micro * 5 / 4 : micro;
         }
 
@@ -64,9 +74,10 @@ namespace Ravenholm.Domain.Sites
                 _s.DigTarget = null;
                 _s.DigDoneMicro = 0;
                 _s.SurfaceBroken.Add(cell);
-                var mix = LayerMix(1, true);
+                var band = SurfaceBand(x, y);
+                var mix = LayerMix(band, true);   // breaking a block of a deeper layer reveals that layer
                 var ore = SurfaceOreAt(x, y, level);
-                Release(ore ?? LayerBaseline(1), true);
+                Release(ore ?? LayerBaseline(band), true);
                 if (ore != null && _rng.NextDouble() < MineVeins.HandBonusChance) Release(ore, true);
                 if (!string.IsNullOrEmpty(mix.RareResourceId) && _rng.NextDouble() < mix.RareChance) Release(mix.RareResourceId, true);
             }

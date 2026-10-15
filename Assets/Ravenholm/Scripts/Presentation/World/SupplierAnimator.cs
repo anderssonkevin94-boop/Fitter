@@ -164,7 +164,7 @@ namespace Ravenholm.Presentation
             if (inside && slab.Falling) return "fall_front";
             if (_motor.Swinging)
             {
-                if (slab != null && slab.CanDigNow && slab.Target.HasValue && (inside || slab.PressDigging || DiggingAtTheMine()))
+                if (slab != null && slab.CanDigNow && slab.Target.HasValue && (inside || slab.PressDigging))
                 {
                     var t = slab.Target.Value;
                     var feet = inside ? slab.Feet : 0;
@@ -175,18 +175,12 @@ namespace Ravenholm.Presentation
                 }
                 FaceContextTarget();
                 var c = SandboxSceneController.Current;
-                if (c != null && (c.ContextTarget is OutcropSpot || c.ContextTarget is ForestRockSpot)) return View("mine");   // rock above ground
+                if (c != null && (c.ContextTarget is ForestRockSpot)) return View("mine");   // rock above ground
                 return View("chop");
             }
             if (_pickup > 0f) return "pickup_front";
             if (carrying) return View(moving ? "carry_walk" : "carry_idle");
             return View(moving ? "walk" : "idle");
-        }
-
-        private static bool DiggingAtTheMine()
-        {
-            var c = SandboxSceneController.Current;
-            return c != null && c.ContextTarget is MineDigSpot;
         }
 
         /// <summary>Turn toward what is being worked (the tree being chopped).</summary>

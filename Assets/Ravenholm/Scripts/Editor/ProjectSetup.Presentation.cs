@@ -30,12 +30,12 @@ namespace Ravenholm.EditorTools
                 steps.Add(s);
             }
             Step("move_and_pick_up", 1, TutorialCondition.CarryingSomething,
-                "Drag anywhere low on the screen to walk. At the Mine's rim, hold the action button to dig; in the Forest, hold it by a tree to chop. What you gather goes straight into your carry.");
+                "Drag anywhere low on the screen to walk. In the forest around camp, hold the action button by a tree to chop, or by the rock of a hill to dig. What you gather goes straight into your carry.");
             Step("deliver", 2, TutorialCondition.DeliveredRawMaterial,
                 "Carry ore to the Smelter's marker and logs to the Lumbermill's. They process deliveries into ingots and lumber on their own.");
             // Site decisions went with the site panels (2026-10-15): a tip to read instead.
             Step("site_choice", 3, TutorialCondition.Acknowledge,
-                "Ore stays hidden in the rock until you break it. Dig deeper at the Mine for new layers and better ore; chop further left in the Forest for new kinds of wood.");
+                "Ore stays hidden in the rock until you break it. The further out from camp you go, the tougher the trees and rock, with new kinds of wood and deeper, richer ore.");
             Step("craft", 4, TutorialCondition.CraftedItem,
                 "Open the Forge or Workbench and craft a weapon from the starter stock. Crafting is instant; the item appears on the output pad.");
             Step("stock_store", 5, TutorialCondition.GearInStore,
@@ -46,7 +46,7 @@ namespace Ravenholm.EditorTools
             Step("send", 7, TutorialCondition.ContractorSent,
                 "When the adventurer arrives at your shop, meet them, pick the gear you lend them and read the risk word. Then Send: they pay you a share of the castle's reward on return."); 
             Step("read_result", 8, TutorialCondition.ResultRead,
-                "While they are away, keep the Mine and Forest moving. When they return, read the result on the castle's jobs board.");
+                "While they are away, keep clearing the forest and hills. When they return, read the result on the castle's jobs board.");
             Step("danger", 9, TutorialCondition.Acknowledge,
                 "Ordinary jobs can go wrong: injury, failure, even death, and the dead lose their gear. A better risk word, armor and a tonic all help.");
             Step("blueprint", 10, TutorialCondition.NewBlueprintOwned,

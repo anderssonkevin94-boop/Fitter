@@ -41,7 +41,8 @@ namespace Ravenholm.Presentation
             Build();
             if (_heights.TryGetValue(c, out var h)) return h;
             var sim = Sim;
-            h = sim != null && sim.GroveMode && _slotOf.TryGetValue(c, out var t) ? sim.TerrainHeight(t.area, t.slot) : 0;
+            h = sim != null && sim.GroveMode && _slotOf.TryGetValue(c, out var t) ? sim.TerrainHeight(t.area, t.slot)
+                : sim != null && sim.GroveMode && _border.Contains(c) ? sim.TerrainHeight(c.x, c.y) : 0;
             _heights[c] = h;
             return h;
         }
@@ -252,7 +253,7 @@ namespace Ravenholm.Presentation
             block = default;
             var c = CellAt(plane);
             var a = c + FacingFrom(facingMove);
-            if (!HasTreeOrStump(a))
+            if (!HasTreeOrStump(a) && !_border.Contains(a))   // the deep forest past the camp's edge is scenery
             {
                 if (SolidAt(a, _feet + 2)) { block = new Vector3Int(a.x, a.y, _feet + 2); return true; }
                 if (SolidAt(a, _feet + 1)) { block = new Vector3Int(a.x, a.y, _feet + 1); return true; }

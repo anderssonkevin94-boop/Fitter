@@ -34,6 +34,9 @@ namespace Ravenholm.Presentation
         [Tooltip("Camera position (relative to the tip) at which the layers sit exactly as composed.")]
         [SerializeField] private Vector2 cameraReference = new Vector2(0f, 1.5f);
         [SerializeField] private float pixelsPerUnit = 256f;
+        [Tooltip("How far the cliff lip drops per unit sideways from the tip (both arms run along the grid: 0.5). The view " +
+                 "follows the lip, so walking along an arm shows the valley from the lip's height, not the tip's.")]
+        [SerializeField] private float lipSlope = 0.5f;
         [SerializeField] private Material material;
 
         [Header("Castle (on the far layer; never repeats)")]
@@ -157,7 +160,11 @@ namespace Ravenholm.Presentation
             var l = layers[index];
             var composed = tipWorld + new Vector2(l.originPx.x - tipPx.x, -(l.originPx.y - tipPx.y)) / pixelsPerUnit;
             var cam = _camera != null ? (Vector2)_camera.transform.position : tipWorld + cameraReference;
-            return composed + (cam - (tipWorld + cameraReference)) * (1f - l.factor);
+            // Along an arm the lip is lower: look from a camera raised by that drop (as if the lip ran level), then lower
+            // the whole view by it, so each arm sees the same valley the tip does.
+            var drop = Mathf.Abs(cam.x - tipWorld.x) * lipSlope;
+            var level = new Vector2(cam.x, cam.y + drop);
+            return composed + (level - (tipWorld + cameraReference)) * (1f - l.factor) - new Vector2(0f, drop);
         }
 
         private void LateUpdate()

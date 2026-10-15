@@ -88,6 +88,7 @@ namespace Ravenholm.EditorTools
             ApplyBalanceRevisions(catalogue);
             EnsureShop(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
+            EnsureCamps(catalogue, settings);
             var theme = EnsureUiTheme();
             EnsureOreBlocks();
             EnsureScaffoldMaterials();
@@ -811,6 +812,26 @@ namespace Ravenholm.EditorTools
         }
 
         public const string ShopDir = Root + "Content/Shop/";
+        public const string CampDir = Root + "Content/Camps/";
+
+        /// <summary>
+        /// The journey (Docs/JOURNEY_OUTLINE.md, 2026-10-15): camp 1, Meadow's Edge, replaces the old town. Its clearing is
+        /// the old town plot; the forest and hills wrap it on the low sides, the cliff runs along the high sides.
+        /// </summary>
+        private static void EnsureCamps(ContentCatalogue catalogue, SandboxSettings settings)
+        {
+            var path = CampDir + "camp_meadows_edge.asset";
+            var created = !File.Exists(path);
+            var camp = EnsureAsset<CampDefinition>(path);
+            if (created)
+            {
+                camp.EditorInitialize("camp.meadows_edge", "Meadow's Edge");
+                camp.EditorSetup(1, settings.townCells, 20, 7, 3);
+                EditorUtility.SetDirty(camp);
+            }
+            if (catalogue.Camps.Count == 0) { catalogue.EditorSetCamps(new List<CampDefinition> { camp }); EditorUtility.SetDirty(catalogue); }
+            if (settings.camp == null) { settings.camp = camp; EditorUtility.SetDirty(settings); }
+        }
 
         /// <summary>
         /// The modular shop (Shop Titans style, Kevin 2026-10-15): the shop (4 x 6 tiles to start, 2 x 2 blocks to buy,
