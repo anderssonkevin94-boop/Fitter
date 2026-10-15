@@ -82,6 +82,9 @@ namespace Ravenholm.EditorTools
                 "Home base: inventory and display racks, Job Board, applicant meeting point and loadout hub. Open front: walk in and stand on the receiving strip to stock finished goods.",
                 "Phase 4 Job Board and applicants", footprint: null, station: ReceiverKind.Store);
             StoreWalls(store.transform);
+            // The room (floor, back walls) sorts from its middle, near its back corner, so its furniture and anyone
+            // inside draw over it, while someone behind it is still hidden.
+            store.spriteSortPoint = SpriteSortPoint.Center;
             var smelter = Building(buildings, "Smelter", "bld_smelter", new Vector2(-14.5f, -1.5f), new Vector2(2.2f, 2.4f),
                 "Receives raw ore, coal and gems, then smelts them into ingots automatically.", "", new Vector2(2f, 2f), ReceiverKind.Smelter, stationId: "station.smelter");
             Building(buildings, "Forge", "bld_forge", new Vector2(-5.4f, -3.8f), new Vector2(2.2f, 2.0f),
@@ -136,14 +139,23 @@ namespace Ravenholm.EditorTools
                 Circle(r.transform, new Vector2(0f, 0.15f), 0.45f);
             }
 
-            // --- store furniture ---
-            Rack(props, "Weapon Rack", "Props/rack_weapons_empty", new Vector2(-0.75f, 3.75f), ItemCategory.Weapon,
-                new List<Vector2> { new Vector2(-0.3f, 0.45f), new Vector2(0f, 0.45f), new Vector2(0.3f, 0.45f) });
-            Rack(props, "Armor Stand", "Props/rack_armor_empty", new Vector2(0.0f, 4.15f), ItemCategory.Armor,
-                new List<Vector2> { new Vector2(0f, 0.6f) });
-            Rack(props, "Potion Shelf", "Props/rack_potions_empty", new Vector2(0.75f, 3.75f), ItemCategory.Potion,
-                new List<Vector2> { new Vector2(-0.3f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0.3f, 0.5f), new Vector2(-0.3f, 0.9f), new Vector2(0f, 0.9f), new Vector2(0.3f, 0.9f) });
-            Bell(props, new Vector2(0.55f, 2.95f), 0.42f);
+            // --- store furniture (Astra's, 2026-10-15; levels follow the Shop station, bought at the desk) ---
+            // The room is 3 x 3 tiles; positions are in tiles from its front corner along its two floor axes.
+            var desk = Furniture(props, "Service Desk", "desk", StoreFloor(1.35f, 0.4f), new Vector2(1.2f, 0.55f));
+            var deskTap = desk.gameObject.AddComponent<StationInspectable>();
+            deskTap.EditorSetup("Service Desk", "Where customers do business. Upgrading the shop's furniture shows more of your stock.", "");
+            deskTap.EditorSetupStation(ProjectSetup.ShopStationId, false, ReceiverKind.Store);
+            Furniture(props, "Display Table", "display_table", StoreFloor(2.55f, 1.65f), new Vector2(0.9f, 0.6f)).gameObject.AddComponent<Inspectable>()
+                .EditorSetup("Display Table", "Small pieces (daggers, a focus) laid out for customers. Open the Store for the full inventory.", "");
+            Furniture(props, "Armor Stand", "armor_stand", StoreFloor(1.9f, 2.6f), new Vector2(0.55f, 1.0f)).gameObject.AddComponent<Inspectable>()
+                .EditorSetup("Armor Stand", "Shows your best armour. Open the Store for the full inventory.", "");
+            Furniture(props, "Potion Shelf", "potion_shelf", StoreFloor(0.85f, 3.0f), new Vector2(0.9f, 1.0f), 0.3f).gameObject.AddComponent<Inspectable>()
+                .EditorSetup("Potion Shelf", "Shows your potions. Open the Store for the full inventory.", "");
+            // No new art for weapons yet: the old rack, turned to stand against the back-right wall behind the table.
+            var rackFoot = StoreFloor(2.95f, 1.65f);
+            Rack(props, "Weapon Rack", "Props/rack_weapons_empty", rackFoot + new Vector2(0f, 0.175f), ItemCategory.Weapon,
+                new List<Vector2> { new Vector2(-0.3f, 0.45f), new Vector2(0f, 0.45f), new Vector2(0.3f, 0.45f) }, flip: true, sortY: rackFoot.y);
+            Bell(props, desk.position, 0.47f);
             // Phase 7: the Beacon trophy, hidden until the campaign finale succeeds.
             Prop(props, "Beacon Trophy", "Props/prop_beacon_trophy", new Vector2(-3.2f, 2.3f),
                 "The relit Beacon's flame, carried home by your contractors. Ravenholm remembers.", "").gameObject.AddComponent<TrophyView>();
@@ -153,7 +165,7 @@ namespace Ravenholm.EditorTools
             Receiver(logistics, "receiver.smelter", ReceiverKind.Smelter, new Vector2(-13.65f, -2.2f), 0.6f, smelter.transform, "icon_iron_ore", true);
             Receiver(logistics, "receiver.lumbermill", ReceiverKind.Lumbermill, new Vector2(-12.5f, 2.45f), 0.6f, mill.transform, "icon_cedar_log", true);
             Receiver(logistics, "receiver.apothecary", ReceiverKind.Apothecary, new Vector2(-2.15f, -2.45f), 0.55f, apothecary.transform, "icon_herb", true);
-            Receiver(logistics, "receiver.store", ReceiverKind.Store, new Vector2(-0.55f, 2.95f), 0.55f, store.transform, "icon_iron_sword", false);
+            Receiver(logistics, "receiver.store", ReceiverKind.Store, StoreFloor(1.35f, 1.35f), 0.55f, store.transform, "icon_iron_sword", false);
 
             // The sites' staging piles stay as places for leftovers (old saves, overflow) but show nothing while empty:
             // there is no AFK gathering, everything you gather goes into your carry (2026-10-15).
@@ -474,12 +486,7 @@ namespace Ravenholm.EditorTools
             var inward = new Vector2(0f, -t);
             walls.AddComponent<PolygonCollider2D>().points = new[] { l, back, back + inward, l + inward + new Vector2(t, 0f) };
             walls.AddComponent<PolygonCollider2D>().points = new[] { back, r, r + inward - new Vector2(t, 0f), back + inward };
-            // Counter along the front-right edge (matches the art).
-            var counter = Blocker(store, "Counter").AddComponent<PolygonCollider2D>();
-            var c0 = f + (r - f) * 0.15f;
-            var along = (r - f).normalized * 1.6f * 0.5f * 1.118f;
-            var depth = new Vector2(-0.2f, 0.1f);
-            counter.points = new[] { c0, c0 + along, c0 + along + depth, c0 + depth };
+            // The service desk's own footprint blocks the front-right edge (FurnitureView).
         }
 
         private static void Circle(Transform parent, Vector2 offset, float radius)
@@ -561,15 +568,44 @@ namespace Ravenholm.EditorTools
         /// Racks stand against the Store's back walls. Their sort point sits just in front of the Store's
         /// own pivot so they draw over the back walls, while the visual is lifted back into place.
         /// </summary>
-        private static void Rack(Transform parent, string title, string sprite, Vector2 pos, ItemCategory category, List<Vector2> slots)
+        /// <summary>A point on the Store's floor: tiles from its front corner toward the right and toward the left.</summary>
+        private static Vector2 StoreFloor(float towardRight, float towardLeft) =>
+            StoreFrontCorner + FurnitureView.AxisA * towardRight + FurnitureView.AxisB * towardLeft;
+
+        private static readonly Vector2 StoreFrontCorner = new Vector2(0f, 3.2f - 0.75f);
+
+        /// <summary>
+        /// A piece of Store furniture standing on its ground point (sprites, slots and footprint per level from its
+        /// config). Returns its root, which carries the tap target (sized <paramref name="tap"/>, from the ground up).
+        /// </summary>
+        private static Transform Furniture(Transform parent, string title, string key, Vector2 ground, Vector2 tap, float tapLift = 0f)
         {
-            const float sortY = 3.1f;
+            var def = ProjectSetup.LoadFurniture(key);
+            var root = new GameObject(title);
+            root.transform.SetParent(parent, false);
+            root.transform.localPosition = ground;
+            root.AddComponent<SortingGroup>();
+            var sr = Sprite(root.transform, "Visual", "Furniture/" + key + "_1", Vector2.zero);
+            var blocker = Blocker(root.transform, "Footprint").AddComponent<PolygonCollider2D>();
+            var col = root.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+            col.size = tap;
+            col.offset = new Vector2(0f, tapLift + tap.y * 0.5f);
+            root.AddComponent<FurnitureView>().EditorSetup(def, sr, blocker);
+            root.AddComponent<SpriteOutline>();
+            return root.transform;
+        }
+
+        private static void Rack(Transform parent, string title, string sprite, Vector2 pos, ItemCategory category, List<Vector2> slots, bool flip = false, float sortY = 3.1f)
+        {
             var root = new GameObject(title);
             root.transform.SetParent(parent, false);
             root.transform.localPosition = new Vector2(pos.x, sortY);
             root.AddComponent<SortingGroup>();
             var sr = Sprite(root.transform, "Visual", sprite, new Vector2(0f, pos.y - sortY));
             sr.transform.localScale = Vector3.one * 0.7f;
+            sr.flipX = flip;
+            if (flip) slots = slots.ConvertAll(s => new Vector2(-s.x, s.y));
             var col = root.AddComponent<BoxCollider2D>();
             col.isTrigger = true;
             col.size = new Vector2(0.8f, 0.9f);
@@ -653,16 +689,19 @@ namespace Ravenholm.EditorTools
         {
             var root = new GameObject("Store Bell");
             root.transform.SetParent(parent, false);
-            root.transform.localPosition = counterGroundPos;
+            root.transform.localPosition = counterGroundPos + new Vector2(0f, -0.01f);   // just in front of the desk
             root.AddComponent<SortingGroup>();
-            var sr = Sprite(root.transform, "Visual", "Props/prop_bell", new Vector2(0f, counterHeight));
+            // The bell is painted on the desk (Astra's furniture); this is its tap target and wobble pivot.
+            var sr = new GameObject("Visual").transform;
+            sr.SetParent(root.transform, false);
+            sr.localPosition = new Vector3(0.04f, counterHeight, 0f);
             var col = root.AddComponent<BoxCollider2D>();
             col.isTrigger = true;
-            col.size = new Vector2(0.7f, 0.8f);
-            col.offset = new Vector2(0f, counterHeight + 0.2f);
+            col.size = new Vector2(0.4f, 0.35f);
+            col.offset = new Vector2(0.04f, counterHeight + 0.05f);
             var bell = root.AddComponent<BellInspectable>();
             bell.EditorSetup("Store Bell", "", "");
-            bell.EditorSetupVisual(sr.transform);
+            bell.EditorSetupVisual(sr);
         }
 
         private static Transform Character(Transform parent, string title, Vector2 pos, int skin, string overlay, string description, string phase, bool isPlayer = false)

@@ -120,9 +120,7 @@ namespace Ravenholm.Presentation
         {
             if (level == top) return grassBlock;                       // open sky above: grass
             if (level == top - 1) return soilBlock;
-            var mine = Mine;
-            var ore = mine != null ? mine.SurfaceOreAt(c.x, c.y, level) : null;
-            if (ore != null && _root.Services.Catalogue.TryGet<ResourceDefinition>(ore, out var res) && res.MineBlock != null) return res.MineBlock;
+            // Ore stays hidden in the rock until it is broken, as in the Mine (2026-10-15, Kevin).
             return level >= 5 ? deepRockBlock : rockBlock;
         }
 

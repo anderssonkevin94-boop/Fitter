@@ -887,6 +887,102 @@
     0.0858
    ]
   },
+  "Furniture/armor_stand_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Furniture/armor_stand_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Furniture/armor_stand_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Furniture/desk_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Furniture/desk_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Furniture/desk_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Furniture/display_table_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.25781
+   ],
+   "ppu": 256
+  },
+  "Furniture/display_table_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.25781
+   ],
+   "ppu": 256
+  },
+  "Furniture/display_table_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.25781
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Icons/Items/icon_antidote.png": {
    "pivot": [
     0.5,

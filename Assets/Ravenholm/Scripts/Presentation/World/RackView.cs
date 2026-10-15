@@ -65,12 +65,29 @@ namespace Ravenholm.Presentation
             if (key == _key) return;
             _key = key;
 
-            // Group by definition; remember the newest instance of each.
-            var cat = _root.Services.Catalogue;
+            var list = Representative(_root, d => d.Category == category && !d.SmallDisplay);   // small pieces go on the display tables
+            VisibleCount = Mathf.Min(list.Count, _items.Count);
+            for (var i = 0; i < _items.Count; i++)
+            {
+                var on = i < list.Count;
+                _items[i].gameObject.SetActive(on);
+                if (!on) continue;
+                _items[i].sprite = list[i].def.StackSprite;
+                _badges[i].text = list[i].count > 1 ? "×" + list[i].count : "";
+            }
+        }
+
+        /// <summary>
+        /// Stocked items a display shows, one entry per item type with its count: pinned first, then strongest, then newest.
+        /// </summary>
+        public static List<(ItemDefinition def, int count, string newest)> Representative(GameRoot root, System.Func<ItemDefinition, bool> shows)
+        {
+            var st = root.Services.Logistics.System.State;
+            var cat = root.Services.Catalogue;
             var groups = new Dictionary<string, (ItemDefinition def, int count, string newest)>();
             foreach (var inst in st.StoreItems)
             {
-                if (!st.ItemDefinitions.TryGetValue(inst, out var defId) || !cat.TryGet<ItemDefinition>(defId, out var def) || def.Category != category) continue;
+                if (!st.ItemDefinitions.TryGetValue(inst, out var defId) || !cat.TryGet<ItemDefinition>(defId, out var def) || !shows(def)) continue;
                 groups.TryGetValue(defId, out var g);
                 groups[defId] = (def, g.count + 1, string.CompareOrdinal(inst, g.newest ?? "") > 0 ? inst : g.newest);
             }
@@ -84,16 +101,7 @@ namespace Ravenholm.Presentation
                 var sb = Strength(b.def);
                 return sa != sb ? sb.CompareTo(sa) : string.CompareOrdinal(b.newest, a.newest);
             });
-
-            VisibleCount = Mathf.Min(list.Count, _items.Count);
-            for (var i = 0; i < _items.Count; i++)
-            {
-                var on = i < list.Count;
-                _items[i].gameObject.SetActive(on);
-                if (!on) continue;
-                _items[i].sprite = list[i].def.StackSprite;
-                _badges[i].text = list[i].count > 1 ? "×" + list[i].count : "";
-            }
+            return list;
         }
 
         private static int Strength(ItemDefinition d) => d.Power + d.Protection + d.PotionStrength + d.CounterStrength;

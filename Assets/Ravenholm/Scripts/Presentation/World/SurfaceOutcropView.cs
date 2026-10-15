@@ -188,10 +188,8 @@ namespace Ravenholm.Presentation
                     var standing = !sim.IsSurfaceBroken(kv.Key.x, kv.Key.y, level);
                     sr.enabled = standing;
                     if (!standing) continue;
-                    var ore = sim.SurfaceOreAt(kv.Key.x, kv.Key.y, level);
-                    Sprite sprite = null;
-                    if (ore != null && _root.Services.Catalogue.TryGet<ResourceDefinition>(ore, out var res)) sprite = res.MineBlock;
-                    sr.sprite = sprite != null ? sprite : rockByLevel[Mathf.Clamp(i, 0, rockByLevel.Length - 1)];
+                    // Ore stays hidden in the rock until it is broken, as in the Mine (2026-10-15, Kevin).
+                    sr.sprite = rockByLevel[Mathf.Clamp(i, 0, rockByLevel.Length - 1)];
                 }
             }
         }

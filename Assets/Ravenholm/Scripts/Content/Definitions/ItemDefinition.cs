@@ -79,6 +79,8 @@ namespace Ravenholm.Content
         [SerializeField] private Sprite stackSprite;
         [Tooltip("Height between this piece and the one above it in a carried pile (local units before the pile's scale). Thin pieces (planks, blades, bows) stack closer. From the art's suggested-spacing.json.")]
         [Min(0.01f)] [SerializeField] private float stackStep = 0.13f;
+        [Tooltip("A small piece (daggers, a focus): shown on the Store's display tables rather than its racks.")]
+        [SerializeField] private bool smallDisplay;
 
         public override string IdKind => "item";
         public ItemCategory Category => category;
@@ -128,6 +130,7 @@ namespace Ravenholm.Content
         public Sprite Icon => icon;
         public Sprite StackSprite => stackSprite;
         public float StackStep => stackStep;
+        public bool SmallDisplay => smallDisplay;
 
         public override void Validate(List<string> errors)
         {
@@ -154,6 +157,7 @@ namespace Ravenholm.Content
 
 #if UNITY_EDITOR
         public void EditorSetPower(int p) => power = p;
+        public void EditorSetSmallDisplay(bool small) => smallDisplay = small;
 
         public void EditorSetCounter(CounterTag tag, int strength)
         {

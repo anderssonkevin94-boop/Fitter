@@ -27,3 +27,4 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: c3dd353278df24bc49465a95ba55c1fb, type: 3}
   stackSprite: {fileID: 21300000, guid: b555e20e816964d298675de33e1a51e5, type: 3}
   stackStep: 0.08488
+  smallDisplay: 0

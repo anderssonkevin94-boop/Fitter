@@ -52,7 +52,7 @@ namespace Ravenholm.EditorTools
             Step("upgrade_and_trade", 11, TutorialCondition.UpgradeBought,
                 "Gold buys building upgrades, your own tools and Trader goods. Open a building to see its next level and exactly what it needs.");
             Step("time_away", 12, TutorialCondition.Acknowledge,
-                "Before you go, open the Mine or Forest and leave yourself on a routine. It keeps working for up to 8 hours, with the facilities, and a summary greets you on return.");
+                "While you're away, the facilities keep processing what you delivered (up to 8 hours) and contractors finish their jobs; a summary greets you on return. Only you gather ore and wood.");
             if (catalogue.Tutorial.Count == 0) { catalogue.EditorSetTutorial(steps); EditorUtility.SetDirty(catalogue); }
             AssetDatabase.SaveAssets();
         }

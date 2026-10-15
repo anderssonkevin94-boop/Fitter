@@ -134,9 +134,16 @@ namespace Ravenholm.Presentation
                 if (!Hits[k].isTrigger) continue;   // footprints are not tap targets
                 var insp = Hits[k].GetComponent<Inspectable>();
                 if (insp == null || !insp.isActiveAndEnabled) continue;
-                if (front == null || insp.transform.position.y < front.transform.position.y) front = insp;
+                if (front == null || SortY(insp) < SortY(front)) front = insp;
             }
             return front;
+        }
+
+        /// <summary>Where a target sorts: its pivot, or its sprite's centre when it sorts from there (the Store's room).</summary>
+        private static float SortY(Inspectable insp)
+        {
+            var sr = insp.GetComponent<SpriteRenderer>();
+            return sr != null && sr.spriteSortPoint == SpriteSortPoint.Center ? sr.bounds.center.y : insp.transform.position.y;
         }
     }
 }

@@ -160,7 +160,7 @@ namespace Ravenholm.Tests
             yield return StandAt(Spot("receiver.smelter"), 1.0f);  // wrong receiver
             Assert.AreEqual(5, Sys.CarryCount, "smelter refuses finished goods; they stay carried");
 
-            yield return StandAt(new Vector2(-0.55f, 2.95f), 1.0f);  // store receiving strip
+            yield return StandAt(Spot("receiver.store"), 1.0f);  // store receiving strip
             yield return Capture.Take("phase1_store_receiving");
             Assert.AreEqual(0, Sys.CarryCount);
             Assert.AreEqual(5, Sys.State.StoreItems.Count);

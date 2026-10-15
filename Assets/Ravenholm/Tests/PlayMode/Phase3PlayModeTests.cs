@@ -76,11 +76,12 @@ namespace Ravenholm.Tests
 
             yield return StandAt(new Vector2(-4.3f, -4.0f), 0.6f);   // forge output pad
             Assert.AreEqual(2, log.CarryCount);
-            yield return StandAt(new Vector2(-0.55f, 2.95f), 0.6f);  // store receiving strip
+            yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.6f);  // store receiving strip
             Assert.AreEqual(2, log.State.StoreItems.Count);
             yield return null;
             var rack = GameObject.Find("Weapon Rack").GetComponentInChildren<RackView>();
-            Assert.AreEqual(2, rack.VisibleCount, "sword and dagger on the weapon rack");
+            Assert.AreEqual(1, rack.VisibleCount, "the sword on the weapon rack");
+            Assert.AreEqual(1, GameObject.Find("Display Table").GetComponent<FurnitureView>().VisibleCount, "the dagger on the display table");
             yield return Capture.Take("phase3_store_racks");
 
             GameRoot.Instance.Hud.ShowStore();
@@ -125,10 +126,10 @@ namespace Ravenholm.Tests
             {
                 for (var i = 0; i < 5; i++) Assert.IsTrue(s.Production.Craft("recipe.recovery_tonic", out var f), f);
                 yield return StandAt(new Vector2(-3.85f, -1.95f), 0.8f);   // apothecary pad
-                yield return StandAt(new Vector2(-0.55f, 2.95f), 0.8f);
+                yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.8f);
             }
             Assert.AreEqual(10, log.State.StoreItems.Count);
-            var shelf = GameObject.Find("Potion Shelf").GetComponentInChildren<RackView>();
+            var shelf = GameObject.Find("Potion Shelf").GetComponent<FurnitureView>();
             yield return null;
             Assert.AreEqual(1, shelf.VisibleCount, "one distinct potion shown with a ×10 badge");
             CollectionAssert.IsEmpty(log.Audit());

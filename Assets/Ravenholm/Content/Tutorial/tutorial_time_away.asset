@@ -16,7 +16,5 @@ MonoBehaviour:
   displayName: time away
   contentVersion: 1
   order: 12
-  prompt: Before you go, open the Mine or Forest and leave yourself on a routine.
-    It keeps working for up to 8 hours, with the facilities, and a summary greets
-    you on return.
+  prompt: "While you're away, the facilities keep processing what you delivered (up to 8 hours) and contractors finish their jobs; a summary greets you on return. Only you gather ore and wood."
   condition: 0

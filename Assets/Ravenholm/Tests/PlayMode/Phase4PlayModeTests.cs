@@ -63,7 +63,7 @@ namespace Ravenholm.Tests
             Assert.IsTrue(s.Production.Craft("recipe.iron_sword", out var f), f);
             Assert.IsTrue(s.Production.Craft("recipe.riveted_coat", out f), f);
             yield return StandAt(new Vector2(-4.3f, -4.0f), 0.5f);
-            yield return StandAt(new Vector2(-0.55f, 2.95f), 0.5f);
+            yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.5f);
             Assert.AreEqual(2, s.Logistics.System.StoreItems.Count);
             SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(new Vector2(0f, -0.5f));
 

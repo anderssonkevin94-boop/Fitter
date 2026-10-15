@@ -72,7 +72,7 @@ namespace Ravenholm.Tests
             Assert.IsTrue(s.Production.Craft("recipe.recovery_tonic", out f), f);
             yield return StandAt(new Vector2(-4.3f, -4.0f), 0.5f);
             yield return StandAt(new Vector2(-3.85f, -1.95f), 0.5f);
-            yield return StandAt(new Vector2(-0.55f, 2.95f), 0.6f);
+            yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.6f);
             Assert.AreEqual(3, s.Logistics.System.StoreItems.Count);
             SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(new Vector2(0f, -0.5f));
 

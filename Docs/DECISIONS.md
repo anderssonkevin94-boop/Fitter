@@ -995,3 +995,23 @@ Kevin: the supplier is the only one gathering, by hand; nothing is gathered whil
 - **Tools moved to the Forge** (Kevin's choice). `StationDefinition.sellsSupplierTools` (on for the Forge) adds a "Your tools" section: each site's next equipment upgrade plus the next tool tier. Packs are no longer offered.
 - **Domain left in place.** Worker simulation in `SiteSimulator` is unused, but kept so old saves still load.
 - **Tests.** The routine tests were replaced by checks that nothing is gathered while away and that an old routine ends on load. Phase 6 now buys the iron tool at the Forge. EditMode 235, PlayMode 46, all passing.
+
+## 2026-10-15: ore hidden everywhere; Astra's shop furniture in the Store
+
+- **Ore hidden in forest rock and town outcrops** (Kevin). They draw plain rock, as the Mine does; the ore is found by breaking the block.
+- **Shop furniture** (Astra's `ravenholm-shop-furniture-native-v2`): `Tools/ArtImport/import_furniture.py` copies 12 sprites to `Art/Placeholder/Furniture/` at 256 px per unit, with points.json pivots and the game outline.
+  - **Levels.** A new `station.store` ("Service Desk", levels 1 to 3), raised by `upgrade.store_2` (60 gold, 10 cedar lumber, 4 iron ingots) and `upgrade.store_3` (150 gold, 8 maple lumber, 4 steel ingots, 2 copper ingots; needs level 2). These costs are balance starting points. Tap the desk to buy them.
+  - **Configs.** One `StoreFurnitureDefinition` per piece (`Content/Config/Furniture/`). Setup (`EnsureShopFurniture`) builds them from points.json: sprites, ground points and slot boxes per level, plus floor footprints (the display tables get longer).
+  - **Display.** `FurnitureView` swaps the sprite to match the level and fills the slot boxes with stock, in the racks' order (pinned, strongest, newest). Each item is scaled uniformly to fit its box; potions stand on the box's bottom.
+  - **Capacity.** Armour stand 1/1/1, potion shelves 4/6/9, display table 2/3/4. The desk shows no stock.
+  - **Small pieces.** `ItemDefinition.smallDisplay` marks items that go on the display table instead of the weapon rack: iron dagger, steel stiletto, moonsilver focus.
+  - **Weapon rack.** There is no new weapon-rack art yet, so the old rack is mirrored against the back-right wall, behind the table.
+- **Interim placement.** The building layers aren't delivered, so the furniture stands in today's 3×3 Store room:
+  - the desk along the front-right edge, in place of the painted counter (erased from `bld_store.png`);
+  - the potion shelf on the back-left wall;
+  - the armour stand near the back corner;
+  - the display table against the back-right wall.
+
+  The receiving strip moved to the middle of the room. The bell tap target now sits on the bell painted on the desk. Re-place everything when the compact Stage 1 building arrives.
+- **Sorting.** The Store room now sorts from its sprite's centre, near its back corner, so its furniture and anyone inside draw over it. Tap picking uses the same point.
+- **Tutorial.** The time-away tip no longer mentions routines.
