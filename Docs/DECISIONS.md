@@ -1015,3 +1015,9 @@ Kevin: the supplier is the only one gathering, by hand; nothing is gathered whil
   The receiving strip moved to the middle of the room. The bell tap target now sits on the bell painted on the desk. Re-place everything when the compact Stage 1 building arrives.
 - **Sorting.** The Store room now sorts from its sprite's centre, near its back corner, so its furniture and anyone inside draw over it. Tap picking uses the same point.
 - **Tutorial.** The time-away tip no longer mentions routines.
+
+## 2026-10-15: the fixed shop layout is not approved; the shop becomes modular (Kevin)
+
+- **Direction.** Kevin turned down the fixed furniture placement. The shop will work like Shop Titans: the player places furniture freely on a tile grid and expands the building strip by strip with resources. It has no roof and is always seen as an open room.
+- **Brief.** The modular art brief is `Docs/ART_BRIEF_SHOP_MODULAR.md`, which replaces the roof-lift brief. Its templates and layout mock-up are in `Docs/astra-refs/shop-modular/`, made by `Tools/ArtImport/make_shop_templates.py`. The art comes in two steps: a sample for approval first.
+- **Interim.** The current furniture placement stays in the game until the modular shop is built. The v2 furniture art and its configs carry over.
