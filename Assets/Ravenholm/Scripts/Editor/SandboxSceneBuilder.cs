@@ -97,16 +97,7 @@ namespace Ravenholm.EditorTools
             MineDig(buildings);
 
             // --- nature ---
-            foreach (var (spot, cedar) in new[] { (new Vector2(5.4f, 8.2f), true), (new Vector2(11.4f, 5.0f), false), (new Vector2(7.2f, 8.8f), false) })
-            {
-                var t = Prop(nature, cedar ? "Cedar Tree" : "Maple Tree", cedar ? "Nature/tree_cedar" : "Nature/tree_maple", spot,
-                    "Background tree outside the active clearing.", "");
-                Circle(t.transform, Vector2.zero, 0.22f);
-                t.gameObject.AddComponent<ObstructionFader>();
-                t.GetComponent<SpriteOutline>().OverlapFree = true;   // no outline across a neighbouring tree
-            }
             var pocket = ForestGrid(nature, settings);
-            pocket.EditorSetupBeyond(BuildBeyond(settings, tiles));
             var chop = new GameObject("ChopSpot");
             chop.transform.SetParent(pocket.transform, false);
             var chopCol = chop.AddComponent<CircleCollider2D>();
@@ -129,7 +120,7 @@ namespace Ravenholm.EditorTools
 
             // The valley view beyond the north cliff, with the castle on the far ridge (Astra, 2026-10-15). The placeholder
             // castle at the road's end is gone; adventurers come and go by the cliff path.
-            var pathTop = Overlook(world, settings);
+            var pathTop = Horizon(world, settings);
             // Phase 7: the Beacon trophy, hidden until the campaign finale succeeds.
             Prop(props, "Beacon Trophy", "Props/prop_beacon_trophy", new Vector2(-3.2f, 2.3f),
                 "The relit Beacon's flame, carried home by your contractors. Ravenholm remembers.", "").gameObject.AddComponent<TrophyView>();
@@ -231,18 +222,29 @@ namespace Ravenholm.EditorTools
                 (new Vector2(0f, -1.0f), new Vector2(-5.4f, -3.2f)), (new Vector2(0f, -1.0f), new Vector2(5.6f, -3.2f)),
             };
 
-            // Camp 1 (2026-10-15): the clearing (the old town plot) and the forest wrapping its two low sides and side
-            // tips. The cliff runs along the two high sides, across the whole camp.
+            // The journey (Kevin, 2026-10-15): a long, wide, winding mountain top running forward toward the castle. The
+            // camp's clearing (round the old town), the forest and hills ahead with the old road wandering through them,
+            // a gate across the ridge, and the next camp's clearing. Nothing beyond the ridge's ragged edges.
+            var ridge = camp.Ridge;
             for (var x = cb.xMin; x < cb.xMax; x++)
             for (var y = cb.yMin; y < cb.yMax; y++)
             {
+                if (!ridge.InLand(x, y)) continue;
                 var cell = new Vector3Int(x, y, 0);
                 Vector2 c = grid.GetCellCenterWorld(cell);
-                var inTown = x >= town.xMin && x < town.xMax && y >= town.yMin && y < town.yMax;
+                var inTown = ridge.InClearing(x, y) && x >= town.xMin && x < town.xMax && y >= town.yMin && y < town.yMax;
                 if (!inTown)
                 {
-                    // The Forest's ground (its trees and hills are drawn by ForestGridView).
-                    tm.SetTile(cell, tiles[Hash01(x + 911, y) < 0.12f ? "forest_floor_b" : "forest_floor"]);
+                    string ground;
+                    if (ridge.InClearing(x, y)) ground = GrassKey(x, y);   // the next camp's clearing
+                    else if (ridge.OnRoad(x, y))
+                    {
+                        // The old cobble road, mostly overgrown: stretches of cobble, then worn earth, then forest floor.
+                        var r = Hash01(x + 313, y + 17) * 0.5f + SmoothNoise(x + 40, y, 4f) * 0.5f;
+                        ground = r < 0.38f ? "plaza" : r < 0.6f ? PathKey(x, y) : "forest_floor_b";
+                    }
+                    else ground = Hash01(x + 911, y) < 0.12f ? "forest_floor_b" : "forest_floor";   // trees and hills: ForestGridView
+                    tm.SetTile(cell, tiles[ground]);
                     continue;
                 }
 
@@ -253,32 +255,6 @@ namespace Ravenholm.EditorTools
                 else key = GrassKey(x, y);
                 tm.SetTile(cell, tiles[key]);
             }
-        }
-
-        /// <summary>
-        /// Camp 1: the deep forest beyond the camp's two low edges, so the land carries on past them (never walked: it is
-        /// its own tilemap, not the ground). <see cref="ForestGridView"/> draws its trees and hills.
-        /// </summary>
-        private const int BeyondDepth = 26;
-
-        private static Tilemap BuildBeyond(SandboxSettings settings, Dictionary<string, TileBase> tiles)
-        {
-            const int depth = BeyondDepth;
-            var go = new GameObject("Beyond");
-            go.transform.SetParent(_grid.transform, false);
-            var tm = go.AddComponent<Tilemap>();
-            var tr = go.AddComponent<TilemapRenderer>();
-            tr.mode = TilemapRenderer.Mode.Individual;
-            tr.sortingLayerName = "Ground";
-            if (_unlit != null) tr.sharedMaterial = _unlit;
-            var cb = settings.camp.Bounds;
-            for (var x = cb.xMin - depth; x < cb.xMax; x++)
-            for (var y = cb.yMin - depth; y < cb.yMax; y++)
-            {
-                if (x >= cb.xMin && y >= cb.yMin) continue;
-                tm.SetTile(new Vector3Int(x, y, 0), tiles[Hash01(x + 911, y) < 0.12f ? "forest_floor_b" : "forest_floor"]);
-            }
-            return tm;
         }
 
         /// <summary>Invisible wall around the town plot (the motor also clamps).</summary>
@@ -672,88 +648,43 @@ namespace Ravenholm.EditorTools
         }
 
         /// <summary>
-        /// The overlook (Astra's valley view v2): the north tip of the town plot is the cliff's tip. Grassy lip pieces run
-        /// down both arms (the left arm stops where the Forest joins the town), the corner caps the tip, and one left-arm
-        /// piece is the path down; walking stops at the lip. Behind it, the repeating parallax layers and the castle.
-        /// Returns where adventurers disappear down the path.
+        /// The horizon ahead (the journey, 2026-10-15): Astra's valley view as a band across the top of the screen, the
+        /// castle on its far ridge, the land ahead fading into haze under it. Returns where adventurers come from and go to:
+        /// a little way up the old road ahead, toward the castle.
         /// </summary>
-        private static Vector2 Overlook(Transform world, SandboxSettings settings)
+        private static Vector2 Horizon(Transform world, SandboxSettings settings)
         {
-            var root = new GameObject("Overlook").transform;
-            root.SetParent(world, false);
-            var t = settings.townCells;
-            var tip = SandboxSettings.CellCentre(t.xMax - 1, t.yMax - 1) + new Vector2(0f, 0.25f);
-            // Both arms run the camp's whole width: past the clearing, along the top of the forest.
-            var cb = settings.camp.Bounds;
-            // ...and on along the deep forest beyond the camp's edges (scenery).
-            var leftCount = t.xMax - cb.xMin + BeyondDepth;
-            var rightCount = t.yMax - cb.yMin + BeyondDepth;
-            const int pathIndex = 6;
-            Vector2 left0 = tip + new Vector2(-0.25f, -0.125f), right0 = tip + new Vector2(0.25f, -0.125f);
-            Vector2 leftStep = new Vector2(-0.5f, -0.25f), rightStep = new Vector2(0.5f, -0.25f);
-            var pathTop = left0 + leftStep * pathIndex;
-            for (var k = 0; k < leftCount; k++)
-            {
-                var at = left0 + leftStep * k;
-                var sr = Sprite(root, k == pathIndex ? "CliffPath" : "CliffLip", k == pathIndex ? "View/cliff_path_top" : "View/cliff_lip_left", at);
-                sr.sortingLayerName = "Ground";
-                sr.sortingOrder = 50;
-                if (k != pathIndex) CliffBlocker(root, at, leftStep, new Vector2(-0.5f, 0.25f));
-            }
-            for (var k = 0; k < rightCount; k++)
-            {
-                var at = right0 + rightStep * k;
-                var sr = Sprite(root, "CliffLip", "View/cliff_lip_right", at);
-                sr.sortingLayerName = "Ground";
-                sr.sortingOrder = 50;
-                CliffBlocker(root, at, rightStep, new Vector2(0.5f, 0.25f));
-            }
-            var corner = Sprite(root, "CliffCorner", "View/cliff_lip_corner", tip);
-            corner.sortingLayerName = "Ground";
-            corner.sortingOrder = 51;
-
-            // The parallax layers, from Astra's parallax.json.
             var par = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(PlaceholderSpriteImporter.ArtRoot + "View/parallax.json"));
             var layers = new List<ParallaxBackdrop.Layer>();
             var index = new Dictionary<string, int>();
             foreach (var l in par["layers"])
             {
                 var file = ((string)l["file"]).Replace(".png", "");
+                if (file == "view_front") continue;   // the dark treetops framed the old cliff
                 index[file] = layers.Count;
                 layers.Add(new ParallaxBackdrop.Layer
                 {
                     sprite = ProjectSetup.LoadSprite("View/" + file),
-                    fill = (bool)l["extend_bottom_edge"] ? ProjectSetup.LoadSprite("View/" + file + "_fill") : null,
                     top = (int)l["order"] == 0 ? ProjectSetup.LoadSprite("View/" + file + "_top") : null,
                     originPx = new Vector2((float)l["origin_px"][0], (float)l["origin_px"][1]),
                     factor = (float)l["parallax_factor"],
-                    order = -200 + (int)l["order"] * 5,
+                    order = ParallaxBackdrop.BaseOrder + (int)l["order"] * 5,
                 });
             }
-            var tipPx = new Vector2((float)par["cliff"]["preview_north_tip_px"][0], (float)par["cliff"]["preview_north_tip_px"][1]);
-            var backdrop = new GameObject("ValleyView").AddComponent<ParallaxBackdrop>();
-            backdrop.transform.SetParent(root, false);
-            backdrop.EditorSetup(layers, tip, tipPx, new Vector2(0f, 1.5f), _unlit);
+            var backdrop = new GameObject("Horizon").AddComponent<ParallaxBackdrop>();
+            backdrop.transform.SetParent(world, false);
+            backdrop.EditorSetup(layers, 0.45f, 2000f, new Color32(112, 155, 92, 255), _unlit);
             var c = par["castle"];
             backdrop.EditorSetupCastle(ProjectSetup.LoadSprite("View/castle"), index[((string)c["parent"])],
-                new Vector2((float)c["ground_in_parent_px"][0], (float)c["ground_in_parent_px"][1]), (float)c["scale"]);
+                new Vector2((float)c["ground_in_parent_px"][0], (float)c["ground_in_parent_px"][1]), (float)c["scale"] * 1.45f);   // the goal: bigger
             var w = par["walker"];
             var road = new List<Vector2>();
             foreach (var p in w["road_path_px"]) road.Add(new Vector2((float)p[0], (float)p[1]));
             backdrop.EditorSetupWalker(ProjectSetup.LoadSprite("View/valley_walker"), index[(string)w["parent"]], road);
 
-            // Adventurers vanish just over the brink, down the steps (Astra's disappear point).
-            return pathTop + new Vector2(-10f, 172f - 149f) / 256f;
-        }
-
-        /// <summary>A thin wall along a cliff edge (one tile edge long), just outside the lip.</summary>
-        private static void CliffBlocker(Transform parent, Vector2 mid, Vector2 along, Vector2 outward)
-        {
-            var go = Blocker(parent, "CliffEdge");
-            var a = mid - along * 0.5f;
-            var b = mid + along * 0.5f;
-            var o = outward.normalized * 0.08f;
-            go.AddComponent<PolygonCollider2D>().points = new[] { a - o * 0.5f, b - o * 0.5f, b + o * 2f, a + o * 2f };
+            var ridge = settings.camp.Ridge;
+            var (rx, ry) = ridge.PointAt(ridge.CampS + 26);
+            return SandboxSettings.CellCentre(Mathf.RoundToInt((float)rx), Mathf.RoundToInt((float)ry));
         }
 
         private static HoseCharacterDefinition Citizen() =>

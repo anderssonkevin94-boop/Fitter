@@ -15,7 +15,8 @@ namespace Ravenholm.Presentation
 
         private int _tree = -1;
         private int _area = -1, _slot = -1;
-        private bool _hasCell;   // a tree or stump of the grid is targeted ((area, slot) can be negative in a camp's ring)
+        private bool _hasCell;
+        private int _gateTier;   // a gate's old trees: the tool is too weak (0 = it can cut)   // a tree or stump of the grid is targeted ((area, slot) can be negative in a camp's ring)
         private bool _clearing;
         private float _clearHeld;
         private const float ClearSeconds = 0.8f;
@@ -34,7 +35,7 @@ namespace Ravenholm.Presentation
         public override string ContextVerb => _verb;
         public override bool IsContextAvailable => Available;
         public override bool OpensOwnPanel => true;
-        public override bool Holdable => Available && (_tree >= 0 || _hasCell);
+        public override bool Holdable => Available && _gateTier == 0 && (_tree >= 0 || _hasCell);
         public override float ContextPriority => 1f;
 
         private void Awake() => _collider = GetComponent<Collider2D>();
@@ -45,6 +46,7 @@ namespace Ravenholm.Presentation
             _tree = -1;
             _area = _slot = -1;
             _hasCell = false;
+            _gateTier = 0;
             var root = GameRoot.Instance;
             var forest = ForestGridView.Current;
             var player = SandboxSceneController.Current != null ? SandboxSceneController.Current.Player : null;
@@ -74,6 +76,16 @@ namespace Ravenholm.Presentation
                 _hasCell = true;
                 _verb = "Chop";
                 transform.position = forest.WorkSpotOf(_cell) + new Vector3(0f, 0.3f, 0f);
+                var sites = GameRoot.Instance.Services.Sites;
+                if (sites.ToolTooWeak(_area, _slot))
+                {
+                    // A gate across the road: old trees the basic axe can't cut.
+                    _gateTier = sites.RequiredToolTier(_area, _slot);
+                    _verb = "Needs";
+                    EditorSetup(sites.ToolNameOfTier(_gateTier).ToLowerInvariant(), "Old trees: they need a better tool (the Forge sells them).", "");
+                    Available = true;
+                    return;
+                }
                 EditorSetup(UnitVisuals.DisplayName(sim.SpeciesAt(_area, _slot)).ToLowerInvariant(),
                     "Hold to chop. Any tree you can reach can be cut; its logs go straight into your carry. Further left are new kinds of wood.", "");
                 Available = true;
@@ -127,6 +139,11 @@ namespace Ravenholm.Presentation
         {
             var root = GameRoot.Instance;
             if (root == null || !Available) return;
+            if (_gateTier > 0)
+            {
+                root.Hud.ShowToast($"These old trees are too tough: you need the {root.Services.Sites.ToolNameOfTier(_gateTier)} (at the Forge).");
+                return;
+            }
             if (Holdable) OnHold(0.25f);   // a tap is one swing
         }
     }

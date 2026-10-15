@@ -4,64 +4,98 @@ using Ravenholm.Domain.Sites;
 using Ravenholm.EditorTools;
 using Ravenholm.Services;
 using UnityEditor;
-using UnityEngine;
 
 namespace Ravenholm.Tests
 {
-    /// <summary>Camp 1 (the journey, 2026-10-15): the forest and hills wrap the clearing; further out is tougher and deeper.</summary>
+    /// <summary>
+    /// The journey's land (Kevin, 2026-10-15): a long, wide, winding mountain top running forward from the camp toward the
+    /// castle; the old road along it; a gate across it that needs a better tool; tougher further forward.
+    /// </summary>
     public sealed class CampTests
     {
-        private static ForestGrove Ring() => SitesService.RingOf(Camp(), new ForestGrove());
+        private static CampDefinition Camp() => AssetDatabase.LoadAssetAtPath<ContentCatalogue>(ContentValidationMenu.CataloguePath).CurrentCamp;
 
-        private static CampDefinition Camp()
+        [Test]
+        public void TheLandRunsForwardFromTheCampAndIsWideButNotEndless()
         {
-            var camp = ScriptableObject.CreateInstance<CampDefinition>();
-            camp.EditorSetup(1, new RectInt(-20, -16, 48, 37), 20, 7, 3);
-            return camp;
+            var camp = Camp();
+            Assert.NotNull(camp, "camp 1 is in the catalogue");
+            var r = camp.Ridge;
+            var cx = (int)camp.ClearingCentre.x;
+            var cy = (int)camp.ClearingCentre.y;
+            Assert.IsTrue(r.InClearing(cx, cy), "the camp's clearing");
+            Assert.Greater(r.Length - r.CampS, 120, "the land runs well forward of the camp");
+            Assert.Less(r.CampS, 40, "and only a little way behind it");
+            // Across the ridge at points ahead: wide (2-4 screens), never a corridor, never a plain.
+            for (var ahead = 30; ahead <= 120; ahead += 15)
+            {
+                var (px, py) = r.PointAt(r.CampS + ahead);
+                var across = 0;
+                for (var k = -60; k <= 60; k++)
+                    if (r.InLand((int)System.Math.Round(px + k * 0.7071), (int)System.Math.Round(py - k * 0.7071))) across++;
+                Assert.Greater(across, 30, $"wide {ahead} ahead ({across} cells across)");
+                Assert.Less(across, 85, $"but not endless {ahead} ahead ({across} cells across)");
+            }
         }
 
         [Test]
-        public void TheForestWrapsTheClearingsLowSidesAndTips()
+        public void TheEdgesAreRaggedNotStraight()
         {
-            var g = Ring();
-            Assert.IsTrue(g.InGrove(-21, 0), "beyond the lower-left edge");
-            Assert.IsTrue(g.InGrove(0, -17), "beyond the lower-right edge");
-            Assert.IsTrue(g.InGrove(-40, 20), "around the left tip, to the cliff");
-            Assert.IsTrue(g.InGrove(27, -36), "around the right tip, to the cliff");
-            Assert.IsTrue(g.InGrove(-40, -36), "the far corner");
-            Assert.IsFalse(g.InGrove(0, 0), "the clearing");
-            Assert.IsFalse(g.InGrove(-21, 21), "past the cliff (upper-left)");
-            Assert.IsFalse(g.InGrove(28, 0), "past the cliff (upper-right)");
-            Assert.IsFalse(g.InGrove(-41, 0), "past the camp's edge");
+            var r = Camp().Ridge;
+            // Walk along the ridge, measuring the left edge's offset: it wanders by more than a few cells.
+            double min = double.MaxValue, max = double.MinValue;
+            for (var ahead = 20; ahead <= 120; ahead += 4)
+            {
+                var (px, py) = r.PointAt(r.CampS + ahead);
+                var k = 0;
+                while (k < 80 && r.InLand((int)System.Math.Round(px - k * 0.7071), (int)System.Math.Round(py + k * 0.7071))) k++;
+                min = System.Math.Min(min, k);
+                max = System.Math.Max(max, k);
+            }
+            Assert.Greater(max - min, 6, "the edge wanders");
         }
 
         [Test]
-        public void BandsRunOutwardAndTheGroundRisesPastAFlatMargin()
+        public void TheRoadLeadsForwardAndTheGateNeedsTheIronTool()
         {
-            var g = Ring();
-            Assert.AreEqual(1, g.BandAt(-21, 0));
-            Assert.AreEqual(1, g.BandAt(-27, 0));
-            Assert.AreEqual(2, g.BandAt(-28, 0));
-            Assert.AreEqual(3, g.BandAt(-40, -36));
-            Assert.AreEqual(g.BandAt(-30, 5), g.BandAt(5, -26), "the same distance out on either side is the same band");
-            for (var y = -10; y < 10; y++) Assert.AreEqual(0, g.TerrainHeightAt(42, -21, y), "flat beside the clearing");
-            var hills = 0;
-            for (var x = -40; x < -26; x++)
-            for (var y = -10; y < 10; y++) if (g.TerrainHeightAt(42, x, y) > 0) hills++;
-            Assert.Greater(hills, 10, "hills further out");
+            var camp = Camp();
+            var r = camp.Ridge;
+            var road = 0;
+            for (var ahead = 25; ahead <= 90; ahead++)
+            {
+                var (px, py) = r.PointAt(r.CampS + ahead);
+                var found = false;
+                for (var dx = -8; dx <= 8 && !found; dx++)
+                for (var dy = -8; dy <= 8 && !found; dy++)
+                    found = r.OnRoad((int)px + dx, (int)py + dy);
+                if (found) road++;
+            }
+            Assert.Greater(road, 60, "the old road runs on ahead");
+            Assert.AreEqual(1, camp.Gates.Count);
+            var (gx, gy) = r.PointAt(r.CampS + camp.Gates[0].ahead);
+            Assert.AreEqual(2, r.GateTierAt((int)gx, (int)gy), "the gate across the road needs the iron tool");
+            Assert.IsFalse(r.OpenGroundAt(42, (int)gx, (int)gy), "solid: no gaps in the old trees");
+            var (fx, fy) = r.PointAt(r.CampS + 20);
+            Assert.AreEqual(0, r.GateTierAt((int)fx, (int)fy), "the forest before it takes any tool");
         }
 
         [Test]
-        public void TheCampsMineHasNoQuarryAndItsLayersLieFurtherOut()
+        public void FurtherForwardIsTougherAndDeeper()
         {
+            var r = Camp().Ridge;
+            var (ax, ay) = r.PointAt(r.CampS + 20);
+            var (bx, by) = r.PointAt(r.CampS + 100);
+            Assert.AreEqual(1, r.BandAt((int)ax, (int)ay));
+            Assert.Greater(r.BandAt((int)bx, (int)by), 1, "the next band forward");
             var cat = AssetDatabase.LoadAssetAtPath<ContentCatalogue>(ContentValidationMenu.CataloguePath);
-            Assert.NotNull(cat.CurrentCamp, "camp 1 is in the catalogue");
-            var mine = cat.Get<SiteDefinition>("site.mine");
-            var cfg = SitesService.BuildConfig(mine, cat.CurrentCamp);
-            Assert.AreEqual(0, cfg.Dig.Length, "no quarry plot");
+            var mine = SitesService.BuildConfig(cat.Get<SiteDefinition>("site.mine"), cat.CurrentCamp);
+            Assert.AreEqual(0, mine.Dig.Length, "no quarry plot: the hills are the Mine");
             var forest = SitesService.BuildConfig(cat.Get<SiteDefinition>("site.forest"), cat.CurrentCamp);
-            Assert.IsTrue(forest.Grove.Ring);
-            Assert.AreEqual(cat.CurrentCamp.Clearing.xMin, forest.Grove.ClearX0);
+            Assert.AreSame(r, forest.Grove.Ridge);
+            Assert.IsFalse(forest.Grove.InGrove((int)Camp().ClearingCentre.x, (int)Camp().ClearingCentre.y), "no trees in the clearing");
+            for (var x = (int)ax - 10; x <= (int)ax + 10; x++)
+            for (var y = (int)ay - 10; y <= (int)ay + 10; y++)
+                if (r.OnRoad(x, y)) Assert.AreEqual(0, r.TerrainHeightAt(42, x, y), "the road stays flat");
         }
     }
 }

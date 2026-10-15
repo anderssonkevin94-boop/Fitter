@@ -1198,3 +1198,46 @@ Kevin approved the journey outline with all its recommendations ("go with your r
 - **Ring coordinates can be negative.** The forest view and chop spot now track "found" with flags rather than `area >= 0`.
 - **Tips** no longer mention the Mine.
 - **Stations** stand where they were (step 2 places them).
+
+## 2026-10-15: the journey runs forward: a winding ridge, the old road, the horizon (Kevin)
+
+Kevin, on the first camp 1 layout: in this camera, going outward to the south means working behind yourself. Progress must always run forward, toward the castle. His words: "think of it as a looong wide winding mountain top", "not pinched, but not 4 minutes side to side". He chose my recommendations and dropped the cliff overlook. The "going down" is a feel, not a real descent.
+
+**The ridge.** The land is now `RidgeLayout` (Domain, engine-free), replacing the ring layout:
+- **Centre line:**
+  - authored stretches, alternating up-right (+x) and up-left (+y);
+  - Chaikin-smoothed into bends;
+  - plus a seeded sideways wobble (4 cells).
+- **Width:**
+  - half-width 20 cells, ±5 as it winds; at walk speed 2.6 that's about three screens, 8–10 s edge to edge on open ground;
+  - ragged edges (±3 cells of noise);
+  - the ridge widens into a bay at each camp.
+- **The old road:**
+  - wanders ±4 cells inside the ridge;
+  - only a quarter of its cells grow a young tree;
+  - shown as cobble, worn earth and forest floor mixed;
+  - flat, with no hills on it.
+- **Bands** are counted along the road from the camp, 45 cells each. Every 15 cells is one more continuation. The hills follow the same rule for the Mine's layers.
+
+**Camp 1, Meadow's Edge:**
+- **The clearing** is an ellipse round the old town, centred on cell (−6, 3) with radii 17 × 23.
+- **The line:** 16 cells behind the camp, then 34 / 38 / 30 / 34 / 30 forward.
+- **A gate of old trees** sits 55 cells ahead, 4 cells thick, and needs the tier-2 (Iron) tool. Across the gate there are no gaps, and the trees are drawn bigger and darker. The button reads "Needs iron tool", and a tap explains. `SitesService.ToolTooWeak` blocks both chopping and digging there; a rock-wall gate (pickaxe) is supported for later camps.
+- **Camp 2's clearing** is 95 cells ahead, radius 9.
+
+There is one tool for now (axe and pickaxe together); splitting them is a separate change if wanted.
+
+**The horizon.** `ParallaxBackdrop` is now a band across the top of the screen, sorted over the land on Overlay order −400, under every label:
+- Astra's layers at 0.45 scale (sky, far, mid, near; the dark front treetops are dropped), sliding sideways by their factors;
+- the castle centred straight ahead on the far ridge, 1.45 times its painted scale;
+- a haze band blending the near layer's bottom into the land 2.2 units below.
+
+The camera look-ahead is raised from 0.6 to 2.4, so the supplier sits low with the road ahead on screen.
+
+**Adventurers** come and go 26 cells up the road, toward the castle.
+
+**Removed:**
+- the cliff overlook, its lip pieces and blockers;
+- the ring layout;
+- the deep-forest border;
+- the town's three background trees.

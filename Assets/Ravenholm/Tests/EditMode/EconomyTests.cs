@@ -380,8 +380,12 @@ namespace Ravenholm.Tests
             // Chop any tree in reach (the Forest's grid): its logs go straight into the carry.
             var forest = g.Sites.Get("site.forest");
             Assert.IsTrue(forest.GroveMode);
-            var (tx, ty) = (forest.Grove.ClearX0 - 1, 0);
-            while (!forest.CanChop(tx, ty)) ty++;
+            var (tx, ty) = (0, 0);
+            for (var s = 18.0; !forest.CanChop(tx, ty); s += 1)
+            {
+                var (px, py) = forest.Grove.Ridge.PointAt(forest.Grove.Ridge.CampS + s);   // the first tree ahead of camp
+                (tx, ty) = ((int)px, (int)py);
+            }
             for (var i = 0; i < 2000 && !forest.IsFelled(tx, ty); i++) g.Sites.PlayerChopCell("site.forest", tx, ty, 0.1f);
             Assert.IsTrue(forest.IsFelled(tx, ty));
             Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 4, "a tree's four logs (herbs are a bonus roll)");

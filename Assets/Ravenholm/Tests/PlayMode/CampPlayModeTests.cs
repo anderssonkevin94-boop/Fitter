@@ -13,9 +13,9 @@ using Object = UnityEngine.Object;
 namespace Ravenholm.Tests
 {
     /// <summary>
-    /// Camp 1 (the journey, 2026-10-15): the town is the camp's clearing, wrapped by forest and hills on its two low sides
-    /// and around its side tips, with the cliff along its two high sides. There is no quarry: the hills are the Mine, and
-    /// the further out from the clearing, the tougher the trees and the deeper the ore.
+    /// Camp 1 (the journey, Kevin 2026-10-15): the camp's clearing sits on a long, wide, winding mountain top that leads
+    /// forward (up the screen) toward the castle on the horizon, past a gate of old trees. There is no quarry: the hills
+    /// are the Mine, and the further forward, the tougher the trees and the deeper the ore.
     /// </summary>
     public sealed class CampPlayModeTests
     {
@@ -76,65 +76,87 @@ namespace Ravenholm.Tests
             Assert.IsTrue(done(), what());
         }
 
+        /// <summary>The first tree that can be cut on or beside the line, at least <paramref name="ahead"/> cells forward of the camp.</summary>
+        public static Vector3Int TreeAhead(SiteSimulator sim, double ahead, bool anyTier = false)
+        {
+            var r = sim.Config.Grove.Ridge;
+            for (var s = ahead; s < r.Length - r.CampS; s += 1)
+            {
+                var (px, py) = r.PointAt(r.CampS + s);
+                for (var k = 0; k <= 12; k++)
+                foreach (var side in new[] { k, -k })
+                {
+                    var (x, y) = ((int)px + side, (int)py - side);
+                    if (sim.CanChop(x, y) && (anyTier || r.GateTierAt(x, y) == 0)) return new Vector3Int(x, y, 0);
+                }
+            }
+            Assert.Fail($"no tree {ahead} ahead");
+            return default;
+        }
+
+        private static IEnumerator Look(Vector2 at, string capture)
+        {
+            Motor.Teleport(at);
+            SandboxSceneController.Current.SnapPlayerToSavedPosition();
+            yield return new WaitForSeconds(1.0f);
+            yield return Capture.Take(capture);
+        }
+
         [UnityTest]
-        public IEnumerator TheCampIsAClearingWrappedByForestWithTheCliffNorth()
+        public IEnumerator TheCampSitsOnAWindingRidgeThatLeadsForward()
         {
             yield return Boot();
+            GameRoot.Instance.Hud.Tips.HideAll();   // a clear view for the pictures
             var settings = GameRoot.Instance.Config.SandboxSettings;
             var camp = settings.camp;
             Assert.NotNull(camp, "the scene shows a camp");
             Assert.AreEqual(camp, GameRoot.Instance.Config.Catalogue.CurrentCamp);
             var forest = Object.FindAnyObjectByType<ForestGridView>();
             var sim = S.Sites.Get("site.forest");
-            var g = sim.Config.Grove;
-            Assert.IsTrue(g.Ring, "the forest is the camp's ring");
-            var c = camp.Clearing;
-            var b = camp.Bounds;
+            var r = sim.Config.Grove.Ridge;
+            Assert.NotNull(r, "the forest is the camp's ridge");
+            var ground = Map("Ground");
 
-            // Forest on both low sides and around the side tips; none in the clearing or past the cliff.
-            Assert.IsTrue(forest.CellOf(c.xMin - 1, 0, out _), "forest beyond the clearing's lower-left edge");
-            Assert.IsTrue(forest.CellOf(0, c.yMin - 1, out _), "forest beyond its lower-right edge");
-            Assert.IsTrue(forest.CellOf(c.xMin - 3, c.yMax - 1, out _), "around the left tip, up to the cliff");
-            Assert.IsTrue(forest.CellOf(c.xMax - 1, c.yMin - 3, out _), "around the right tip, up to the cliff");
-            Assert.IsTrue(forest.CellOf(b.xMin, b.yMin, out _), "out to the camp's far corner");
-            Assert.IsFalse(forest.CellOf(0, 0, out _), "the clearing is open");
-            Assert.IsFalse(forest.CellOf(0, c.yMax, out _), "nothing past the cliff");
+            // The clearing is open; the forest is ahead; nothing past the ragged edges.
+            Assert.IsFalse(forest.CellOf((int)camp.ClearingCentre.x, (int)camp.ClearingCentre.y, out _), "the clearing is open");
+            var ahead = TreeAhead(sim, 20);
+            Assert.IsTrue(forest.CellOf(ahead.x, ahead.y, out _), "trees ahead of the camp");
+            var (px, py) = r.PointAt(r.CampS + 60);
+            Assert.IsFalse(ground.HasTile(new Vector3Int((int)px + 70, (int)py - 70, 0)), "no land far off to the side");
             Assert.IsNull(GameObject.Find("DigSpot"), "no quarry");
-            Assert.IsNull(GameObject.Find("SurfaceOutcrops"), "no outcrops in the clearing");
-            Assert.IsNull(GameObject.Find("Stone Face"), "no rock faces in the clearing");
+            Assert.IsNull(GameObject.Find("Overlook"), "no cliff overlook");
+            Assert.IsNotNull(GameObject.Find("Horizon"), "the horizon ahead");
 
-            // The cliff lip runs the camp's whole width on both high sides.
-            var lips = 0;
-            foreach (Transform t in GameObject.Find("Overlook").transform) if (t.name == "CliffLip" || t.name == "CliffPath") lips++;
-            Assert.GreaterOrEqual(lips, c.xMax - b.xMin + c.yMax - b.yMin);
-
-            // Further out: tougher trees, and the hills hold deeper layers.
+            // Further forward: tougher trees, and the hills hold deeper layers.
             var mine = S.Sites.Get("site.mine");
-            Assert.AreEqual(1, sim.BandOf(c.xMin - 1, 0));
-            Assert.Greater(sim.BandOf(c.xMin - 20, 0), 1, "the outer forest is a later band");
-            Assert.Greater(sim.TreeDurabilityMicro(c.xMin - 20, 0), sim.TreeDurabilityMicro(c.xMin - 1, 0));
-            Assert.Greater(mine.SurfaceBand(0, c.yMin - 20), mine.SurfaceBand(0, c.yMin - 1), "deeper ore further out");
-            Assert.AreEqual(0, sim.TerrainHeight(c.xMin - 1, 0), "flat beside the clearing");
+            var far = TreeAhead(sim, 100);
+            Assert.AreEqual(1, sim.BandOf(ahead.x, ahead.y));
+            Assert.Greater(sim.BandOf(far.x, far.y), 1, "a later band further forward");
+            Assert.Greater(sim.TreeDurabilityMicro(far.x, far.y), sim.TreeDurabilityMicro(ahead.x, ahead.y));
+            Assert.Greater(mine.SurfaceBand(far.x, far.y), mine.SurfaceBand(ahead.x, ahead.y), "deeper ore further forward");
 
-            // The view: stand at the clearing's left edge looking out over the forest.
-            Motor.Teleport(SandboxSettings.CellCentre(c.xMin + 1, 2));
-            SandboxSceneController.Current.SnapPlayerToSavedPosition();
-            yield return new WaitForSeconds(1.0f);
-            yield return Capture.Take("camp1_forest_edge");
-            Motor.Teleport(SandboxSettings.CellCentre(c.xMin + 1, c.yMax - 3));
-            SandboxSceneController.Current.SnapPlayerToSavedPosition();
-            yield return new WaitForSeconds(1.0f);
-            yield return Capture.Take("camp1_left_tip");
-            Motor.Teleport(SandboxSettings.CellCentre(4, c.yMin + 1));
-            SandboxSceneController.Current.SnapPlayerToSavedPosition();
-            yield return new WaitForSeconds(1.0f);
-            yield return Capture.Take("camp1_south");
-            foreach (var x in new[] { c.xMin - 8, c.xMin - 18 })
+            // The gate: old trees across the ridge that the basic tool can't cut.
+            var gateAhead = camp.Gates[0].ahead;
+            var gate = TreeAhead(sim, gateAhead - 1, anyTier: true);
+            Assert.Greater(r.GateTierAt(gate.x, gate.y), 0, "a gate tree");
+            Assert.IsTrue(S.Sites.ToolTooWeak(gate.x, gate.y), "too tough for the basic tool");
+            Motor.Teleport(forest.WorkSpotOf(gate));
+            yield return null;
+            yield return null;
+            var spot = SandboxSceneController.Current.ContextTarget as ForestChopSpot;
+            if (spot != null && spot.Cell == gate)
             {
-                Motor.Teleport(SandboxSettings.CellCentre(x, c.yMax - 2));
-                SandboxSceneController.Current.SnapPlayerToSavedPosition();
-                yield return new WaitForSeconds(1.0f);
-                yield return Capture.Take($"camp1_cliff_{c.xMin - x}");
+                Assert.AreEqual("Needs", spot.ContextVerb, "the button says what is needed");
+                Assert.IsFalse(spot.Holdable);
+            }
+            Assert.AreEqual(0, S.Sites.PlayerChopCell("site.forest", gate.x, gate.y, 5f), "no progress on a gate tree");
+
+            // Pictures for Kevin: the camp, the road ahead, the gate, the next clearing.
+            yield return Look(Vector2.zero, "journey_camp");
+            foreach (var at in new[] { 22, 38, gateAhead - 6, camp.NextCampAhead })
+            {
+                var (x, y) = r.PointAt(r.CampS + at);
+                yield return Look(SandboxSettings.CellCentre((int)x, (int)y), $"journey_ahead_{at}");
             }
         }
 
@@ -144,7 +166,6 @@ namespace Ravenholm.Tests
             yield return Boot();
             var forest = Object.FindAnyObjectByType<ForestGridView>();
             var sim = S.Sites.Get("site.forest");
-            var g = sim.Config.Grove;
             var ground = Map("Ground");
             int H(Vector3Int c) => sim.TerrainHeight(c.x, c.y);
             bool Laid(Vector3Int c) => forest.CellOf(c.x, c.y, out _);
@@ -236,19 +257,18 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
-        public IEnumerator TheForestIsAGridOfTreesAroundTheClearing()
+        public IEnumerator TheForestIsAGridOfTreesAheadOfTheCamp()
         {
             yield return Boot();
             var s = GameRoot.Instance.Services;
             var forest = Object.FindAnyObjectByType<ForestGridView>();
             var slab = MineSlabView.Current;
             var sim = s.Sites.Get("site.forest");
-            var g = sim.Config.Grove;
             var ground = Map("Ground");
             Assert.NotNull(forest);
             Assert.IsTrue(sim.GroveMode, "any tree can be cut");
-            var (ax, ay) = (g.ClearX0 - 1, 4);
-            while (!sim.CanChop(ax, ay)) ay++;   // some spots are open ground
+            var t0 = TreeAhead(sim, 20);
+            var (ax, ay) = (t0.x, t0.y);
             Assert.IsTrue(forest.CellOf(ax, ay, out var firstCell));
             var first = ground.GetCellCenterWorld(firstCell);
 
@@ -260,9 +280,9 @@ namespace Ravenholm.Tests
             Assert.IsFalse(forest.HasStandingTree(firstCell), "a felled tree leaves open ground");
             Assert.IsTrue(slab.SurfaceWalkable(first));
 
-            // Further out within a band costs a little more; the next band (further out) more again.
-            Assert.Greater(sim.TreeDurabilityMicro(ax - 5, ay), sim.TreeDurabilityMicro(ax, ay));
-            Assert.Greater(sim.TreeDurabilityMicro(ax - g.BandWidth, ay), sim.TreeDurabilityMicro(ax, ay));
+            // Further forward costs more: the next band (beyond the gate) more again.
+            var t1 = TreeAhead(sim, 100);
+            Assert.Greater(sim.TreeDurabilityMicro(t1.x, t1.y), sim.TreeDurabilityMicro(ax, ay));
             Motor.Teleport(first);   // on the stump, among the standing trees
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
             yield return new WaitForSeconds(1.5f);

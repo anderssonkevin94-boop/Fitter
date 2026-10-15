@@ -28,18 +28,23 @@ namespace Ravenholm.Tests
         }
 
         /// <summary>
-        /// Camp 1 (2026-10-15): the hills' blocks are the Mine. The top block of the first hill cells found out from the
-        /// clearing's lower-left edge at <paramref name="depth"/> or further out, in order.
+        /// The journey (2026-10-15): the hills' blocks are the Mine. The top block of hill cells found at
+        /// <paramref name="ahead"/> cells or further forward of the camp along the ridge, in order.
         /// </summary>
-        public static System.Collections.Generic.IEnumerable<(int x, int y, int level)> HillBlocks(GameServices g, int depth)
+        public static System.Collections.Generic.IEnumerable<(int x, int y, int level)> HillBlocks(GameServices g, int ahead)
         {
             var forest = g.Sites.Get("site.forest");
-            var ring = forest.Config.Grove;
-            for (var d = depth; d <= 20; d++)
-            for (var y = ring.ClearY0; y < ring.ClearY1; y++)
+            var ridge = forest.Config.Grove.Ridge;
+            var seen = new System.Collections.Generic.HashSet<(int, int)>();
+            for (var s = ahead; s < ridge.Length - ridge.CampS; s++)
             {
-                var x = ring.ClearX0 - d;
-                for (var level = forest.TerrainHeight(x, y); level >= 1; level--) yield return (x, y, level);
+                var (px, py) = ridge.PointAt(ridge.CampS + s);
+                for (var dx = -15; dx <= 15; dx++)
+                {
+                    var (x, y) = ((int)px + dx, (int)py - dx);
+                    if (!seen.Add((x, y)) || g.Sites.ToolTooWeak(x, y)) continue;
+                    for (var level = forest.TerrainHeight(x, y); level >= 1; level--) yield return (x, y, level);
+                }
             }
         }
 

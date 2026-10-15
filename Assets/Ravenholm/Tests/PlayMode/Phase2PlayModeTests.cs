@@ -91,18 +91,16 @@ namespace Ravenholm.Tests
             var services = GameRoot.Instance.Services;
             var forest = services.Sites.Get("site.forest");
             var view = Object.FindAnyObjectByType<ForestGridView>();
-            // Beside a tree at the edge of the camp's clearing: any tree can be cut.
-            var g = forest.Config.Grove;
-            var ey = 2;
-            while (!forest.CanChop(g.ClearX0 - 1, ey)) ey++;   // some spots are open ground
-            Assert.IsTrue(view.CellOf(g.ClearX0 - 1, ey, out var edge));
+            // Beside a tree ahead of the camp: any tree can be cut.
+            var tree = CampPlayModeTests.TreeAhead(forest, 20);
+            Assert.IsTrue(view.CellOf(tree.x, tree.y, out var edge));
             SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(view.WorkSpotOf(edge));
             yield return null;
             yield return null;
             var target = SandboxSceneController.Current.ContextTarget as ForestChopSpot;
             Assert.NotNull(target, "the context button targets the nearest tree");
             Assert.AreEqual("Chop", target.ContextVerb);
-            Assert.Less(target.Area, g.ClearX0, "a tree of the forest on the clearing's left side");
+            Assert.IsTrue(forest.Config.Grove.InGrove(target.Area, target.Slot), "a tree of the forest ahead of the camp");
             var (area, slot, cell) = (target.Area, target.Slot, target.Cell);
             services.Sites.SpeedMultiplier = 20f;
             GameRoot.Instance.Hud.ScriptedHold = true;   // hold the button

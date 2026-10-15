@@ -201,6 +201,7 @@ namespace Ravenholm.Services
         {
             var sim = Get("site.mine");
             if (sim == null || !sim.DigMode) return false;
+            if (ToolTooWeak(x, y)) return false;   // a gate: the rock wall needs a better pickaxe
             _digMs += seconds * 1000.0 * SpeedMultiplier;
             var ms = (long)Math.Floor(_digMs);
             _digMs -= ms;
@@ -278,11 +279,29 @@ namespace Ravenholm.Services
             return true;
         }
 
+        /// <summary>The tier of the supplier's tool (1 = the basic tool).</summary>
+        public int PlayerToolTier => _catalogue.TryGet<WorkerEquipmentDefinition>(PlayerToolId, out var e) ? e.Tier : 1;
+
+        /// <summary>The tool tier a camp's gate needs at a map cell (0 = any tool).</summary>
+        public int RequiredToolTier(int x, int y) => _catalogue.CurrentCamp != null ? _catalogue.CurrentCamp.Ridge.GateTierAt(x, y) : 0;
+
+        /// <summary>A gate the supplier's tool can't get through yet.</summary>
+        public bool ToolTooWeak(int x, int y) => RequiredToolTier(x, y) > PlayerToolTier;
+
+        /// <summary>The name of the first tool of a tier (for "Needs the Iron tool").</summary>
+        public string ToolNameOfTier(int tier)
+        {
+            foreach (var e in _catalogue.All())
+                if (e is WorkerEquipmentDefinition w && w.Slot == EquipmentSlot.Tool && w.Tier == tier) return w.DisplayName;
+            return $"a tier {tier} tool";
+        }
+
         /// <summary>The supplier cuts a tree of the Forest's grid for a moment. Returns the logs cut.</summary>
         public int PlayerChopCell(string siteId, int area, int slot, float seconds)
         {
             var sim = Get(siteId);
             if (sim == null || !sim.GroveMode) return 0;
+            if (sim.Grove.Ridge != null && ToolTooWeak(area, slot)) return 0;   // a gate: old trees need a better axe
             _chopMs += seconds * 1000.0 * SpeedMultiplier;
             var ms = (long)Math.Floor(_chopMs);
             _chopMs -= ms;
@@ -382,21 +401,10 @@ namespace Ravenholm.Services
 
         // ------------------------------------------------------------------ build
 
-        /// <summary>The Forest's ring around a camp's clearing (null without a camp: the old strip).</summary>
-        public static ForestGrove RingOf(CampDefinition camp, ForestGrove grove)
+        /// <summary>The Forest on a camp's ridge (null without a camp: the old strip).</summary>
+        public static ForestGrove RidgeOf(CampDefinition camp, ForestGrove grove)
         {
-            if (camp == null) return grove;
-            var c = camp.Clearing;
-            var b = camp.Bounds;
-            grove.Ring = true;
-            grove.ClearX0 = c.xMin;
-            grove.ClearY0 = c.yMin;
-            grove.ClearX1 = c.xMax;
-            grove.ClearY1 = c.yMax;
-            grove.CampX0 = b.xMin;
-            grove.CampY0 = b.yMin;
-            grove.BandWidth = camp.BandWidth;
-            grove.FlatMargin = camp.FlatMargin;
+            if (camp != null) grove.Ridge = camp.Ridge;
             return grove;
         }
 
@@ -428,7 +436,7 @@ namespace Ravenholm.Services
                     : null,
                 // Solo play: the Forest is a grid of trees, any of them cut where the supplier reaches (2026-10-12).
                 Grove = def.SiteType == SiteType.Forest
-                    ? RingOf(camp, new ForestGrove { TreesPerContinuation = Math.Max(1, def.TreesPerClearing), RegrowMs = (long)Math.Round(def.TreeRegrowSeconds * 1000) })
+                    ? RidgeOf(camp, new ForestGrove { TreesPerContinuation = Math.Max(1, def.TreesPerClearing), RegrowMs = (long)Math.Round(def.TreeRegrowSeconds * 1000) })
                     : null,
                 HopMs = (int)Math.Round(def.HopSeconds * 1000),
                 DepositMs = (int)Math.Round(def.DepositSeconds * 1000),
@@ -473,11 +481,11 @@ namespace Ravenholm.Services
         {
             var camp = _catalogue.CurrentCamp;
             var sim = new SiteSimulator(BuildConfig(def, camp), record, _logistics.System, _equipment, _scheduler.Coordinator.WorldSeed);
-            // The hills further out from the clearing are the Mine's deeper layers.
+            // The hills further forward along the road are the Mine's deeper layers.
             if (camp != null && def.SiteType == SiteType.Mine)
             {
-                var ring = RingOf(camp, new ForestGrove());
-                sim.SurfaceBandAt = (x, y) => ring.BandAt(x, y);
+                var ridge = camp.Ridge;
+                sim.SurfaceBandAt = (x, y) => ridge.BandAt(x, y);
             }
             var id = def.Id;
             sim.DecisionRequired += () => DecisionRequired?.Invoke(id);

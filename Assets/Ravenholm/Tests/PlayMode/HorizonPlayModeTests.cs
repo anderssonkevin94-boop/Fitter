@@ -11,11 +11,11 @@ using Object = UnityEngine.Object;
 namespace Ravenholm.Tests
 {
     /// <summary>
-    /// The overlook (Astra's valley view, 2026-10-15): the view behind the north cliff, the castle on the far ridge, layers
-    /// moving at their own rates as the camera moves (far slower than near), the lip stopping the walk, and the frames
-    /// for Kevin: standing at the tip and walking along the cliff (Captures/overlook_*.png).
+    /// The horizon ahead (the journey, 2026-10-15): Astra's valley view as a band at the top of the screen, the castle on
+    /// its far ridge, the land ahead fading into haze under it, layers sliding sideways at their own rates (far slower than
+    /// near), and the frames for Kevin: standing in camp and walking forward (Captures/horizon_*.png).
     /// </summary>
-    public sealed class OverlookPlayModeTests
+    public sealed class HorizonPlayModeTests
     {
         private string _dir;
 
@@ -37,7 +37,7 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
-        public IEnumerator TheValleyViewMovesInLayersBehindTheCliff()
+        public IEnumerator TheCastleStaysOnTheHorizonAheadAndTheLandFadesIntoHaze()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);
             var deadline = Time.realtimeSinceStartup + 10f;
@@ -47,46 +47,40 @@ namespace Ravenholm.Tests
             Assert.NotNull(SandboxSceneController.Current);
             GameRoot.Instance.Hud.Tips.HideAll();   // a clear view for the pictures
             var view = ParallaxBackdrop.Current;
-            Assert.NotNull(view, "the valley view is in the scene");
+            Assert.NotNull(view, "the horizon is in the scene");
             Assert.NotNull(view.Castle, "with the castle on the far ridge");
-            var tip = GameObject.Find("CliffCorner").transform.position;
+            Assert.NotNull(view.Haze, "and the haze the land fades into");
+            var cam = SandboxSceneController.Current.WorldCamera;
             var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
-
-            // Standing at the tip, looking out.
-            motor.Teleport((Vector2)tip + new Vector2(0f, -0.9f));
             yield return new WaitForSeconds(1.5f);
-            yield return Capture.Take("overlook_standing");
+            // (Batch mode's own screen has another shape than the phone's, so positions are checked in the world, not the viewport.)
+            Assert.Greater(view.Castle.position.y, view.HazeTopY, "the castle stands above the haze, on the horizon");
+            Assert.AreEqual(cam.transform.position.x, view.Castle.position.x, 1.5f, "straight ahead");
+            Assert.Greater(cam.transform.position.y, motor.transform.position.y + 1.5f, "the supplier sits low, with the road ahead on screen");
+            yield return Capture.Take("horizon_standing");
             var castleA = view.Castle.position;
             var farA = view.LayerOrigin(1);
             var nearA = view.LayerOrigin(3);
-            var camA = SandboxSceneController.Current.WorldCamera.transform.position;
+            var camA = cam.transform.position;
+            var hazeA = view.HazeTopY - camA.y;
 
-            // Walking along the cliff (down-right along the right arm): frames for a little film.
+            // Walking forward (up-right): frames for a little film.
             var router = GameRoot.Instance.InputRouter;
-            router.ScriptedMove = new Vector2(1f, -0.5f).normalized;
+            router.ScriptedMove = new Vector2(1f, 0.5f).normalized;
             for (var i = 0; i < 8; i++)
             {
                 yield return new WaitForSeconds(0.35f);
-                yield return Capture.Take($"overlook_walk_{i}");
+                yield return Capture.Take($"horizon_walk_{i}");
             }
             router.ScriptedMove = null;
-            var camB = SandboxSceneController.Current.WorldCamera.transform.position;
+            var camB = cam.transform.position;
             var moved = (Vector2)(camB - camA);
             Assert.Greater(moved.magnitude, 1f, "the camera followed the walk");
-            var farMoved = view.LayerOrigin(1) - farA;
-            var nearMoved = view.LayerOrigin(3) - nearA;
-            // Relative to the camera, far layers drift less than near ones (screen offset = -displacement × factor).
-            var farScreen = (farMoved - moved).magnitude;
-            var nearScreen = (nearMoved - moved).magnitude;
-            Assert.Less(farScreen, nearScreen, "far moves slower on screen than near");
-            Assert.AreEqual(((Vector2)(view.Castle.position - castleA)).x, farMoved.x, 0.01f, "the castle rides the far ridge");
-
-            // The lip stops the walk: pushing north from the tip never crosses it.
-            motor.Teleport((Vector2)tip + new Vector2(0f, -0.6f));
-            router.ScriptedMove = Vector2.up;
-            yield return new WaitForSeconds(1.2f);
-            router.ScriptedMove = null;
-            Assert.Less(motor.transform.position.y, tip.y, "nobody walks off the cliff");
+            var farScreen = Mathf.Abs((view.LayerOrigin(1) - farA).x - moved.x);
+            var nearScreen = Mathf.Abs((view.LayerOrigin(3) - nearA).x - moved.x);
+            Assert.Less(farScreen, nearScreen, "sideways, far moves slower on screen than near");
+            Assert.AreEqual(((Vector2)(view.Castle.position - castleA)).x, (view.LayerOrigin(1) - farA).x, 0.01f, "the castle rides the far ridge");
+            Assert.AreEqual(hazeA, view.HazeTopY - camB.y, 0.01f, "the horizon stays at the top of the screen");
         }
     }
 }

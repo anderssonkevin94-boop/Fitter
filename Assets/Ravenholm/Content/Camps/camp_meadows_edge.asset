@@ -16,11 +16,34 @@ MonoBehaviour:
   displayName: Meadow's Edge
   contentVersion: 1
   order: 1
-  clearing:
-    x: -20
-    y: -16
-    width: 48
-    height: 37
-  forestDepth: 20
-  bandWidth: 7
+  clearingCentre: {x: -6, y: 3}
+  clearingRadii: {x: 17, y: 23}
+  start: {x: -6, y: -13}
+  stretches:
+  - upRight: 0
+    length: 16
+  - upRight: 1
+    length: 34
+  - upRight: 0
+    length: 38
+  - upRight: 1
+    length: 30
+  - upRight: 0
+    length: 34
+  - upRight: 1
+    length: 30
+  halfWidth: 20
+  widthWobble: 5
+  edgeNoise: 3
+  lineWobble: 4
+  roadWobble: 4
+  bandLength: 45
   flatMargin: 3
+  gates:
+  - ahead: 55
+    thickness: 4
+    tier: 2
+    rock: 0
+  nextCampAhead: 95
+  nextCampRadius: 9
+  seed: 1

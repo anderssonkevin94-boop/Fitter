@@ -39,7 +39,7 @@ There are six camps, two per region (the job regions that already exist), then t
 
 | # | Camp | Ground and new materials | Jobs (castle tier) | Blocker on the way down | To break through |
 |---|---|---|---|---|---|
-| 1 | Meadow's Edge | meadow and cedar woods, soft hills: cedar, copper, stone, herbs | Frontier Paths 1: patrols, surveys | Fallen giant cedars across the cliff path | Iron axe |
+| 1 | Meadow's Edge | meadow and cedar woods, soft hills: cedar, copper, stone, herbs | Frontier Paths 1: patrols, surveys | A band of old trees across the ridge | Iron tool |
 | 2 | River Bend | river valley, maple, clay banks: maple, iron, coal | Frontier Paths 2: watchtowers, the quarry road | A rockslide over the trail | Iron pickaxe, plus a timber retaining wall (lumber) |
 | 3 | Hollow Wood | dense old forest, ironwood, fur, rope | Hollow March 1: warrens, trappers | A ravine | A bridge (ironwood lumber and rope) and a steel axe |
 | 4 | Witchlight Fen | marsh and mist: fen herbs, arcane dust | Hollow March 2: fens, the sunken archive | A flooded causeway | A causeway (stone and lumber) and steel tools |
@@ -52,11 +52,14 @@ There are six camps, two per region (the job regions that already exist), then t
 
 ## 4. A camp's map
 
-- **Layout.** Each camp is a hand-shaped map, about 40 × 40 tiles (to tune), with:
-  - a small starting clearing where the wagon parks;
-  - forest and hills all round it;
-  - the overlook cliff to the north, with the path down (blocked);
-  - the way up from the previous camp to the south, where you arrived.
+- **Layout (revised with Kevin, 2026-10-15).** The land is one long, wide, winding mountain top running forward (up the screen) toward the castle, so you are never working behind yourself:
+  - each camp is a small clearing on it, where the wagon parks;
+  - ahead, forest and hills about three screens wide (two and a half to four as it winds), with ragged, organic edges that fall away into the valley haze;
+  - an old cobble road, mostly overgrown, wanders forward, alternating up-left and up-right with a wobble;
+  - a gate across the whole ridge (old trees that need a better axe, or a rock wall that needs a better pickaxe), then the next camp's clearing;
+  - the castle on the horizon ahead: the valley view is a band at the top of the screen, and the land fades into haze under it, so new land comes up as you go forward.
+
+  The cliff overlook is dropped. It is "going down" in feel only; the ground does not actually descend.
 - **Clearing.**
   - Chop trees (logs).
   - Dig through hills (stone, ore). This replaces the Mine, which is removed: digging the hills does its job.
@@ -154,7 +157,7 @@ As today:
 ## 11. Building it, step by step (each step playable on your phone)
 
 1. **Camp 1.** Replace today's town with camp 1:
-   - the starting clearing, the forest and hills ring, the overlook and the blocked path;
+   - the starting clearing, the ridge ahead with the old road, the gate, camp 2's clearing, and the horizon;
    - remove the Mine; ore from the hills;
    - stations stand where they are for now.
 2. **Placing stations.** Stations are placed on cleared ground (footprints, placement, building them).

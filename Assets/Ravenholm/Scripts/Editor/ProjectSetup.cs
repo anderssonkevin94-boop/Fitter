@@ -815,18 +815,24 @@ namespace Ravenholm.EditorTools
         public const string CampDir = Root + "Content/Camps/";
 
         /// <summary>
-        /// The journey (Docs/JOURNEY_OUTLINE.md, 2026-10-15): camp 1, Meadow's Edge, replaces the old town. Its clearing is
-        /// the old town plot; the forest and hills wrap it on the low sides, the cliff runs along the high sides.
+        /// The journey (Docs/JOURNEY_OUTLINE.md, Kevin 2026-10-15): camp 1, Meadow's Edge, on a long, wide, winding mountain
+        /// top that runs forward toward the castle. Its clearing is round the old town; the old road leads on through the
+        /// forest and hills, past a gate of old trees (the iron tool), to camp 2's clearing. Laid out once (an older camp
+        /// asset without a ridge is laid out again).
         /// </summary>
         private static void EnsureCamps(ContentCatalogue catalogue, SandboxSettings settings)
         {
             var path = CampDir + "camp_meadows_edge.asset";
             var created = !File.Exists(path);
             var camp = EnsureAsset<CampDefinition>(path);
-            if (created)
+            if (created) camp.EditorInitialize("camp.meadows_edge", "Meadow's Edge");
+            if (created || camp.StretchCount == 0)
             {
-                camp.EditorInitialize("camp.meadows_edge", "Meadow's Edge");
-                camp.EditorSetup(1, settings.townCells, 20, 7, 3);
+                CampDefinition.Stretch S(bool upRight, int length) => new CampDefinition.Stretch { upRight = upRight, length = length };
+                camp.EditorSetup(1, new Vector2(-6, 3), new Vector2(17, 23), new Vector2Int(-6, -13),
+                    new List<CampDefinition.Stretch> { S(false, 16), S(true, 34), S(false, 38), S(true, 30), S(false, 34), S(true, 30) },
+                    new List<CampDefinition.GateSpec> { new CampDefinition.GateSpec { ahead = 55, thickness = 4, tier = 2, rock = false } },
+                    95, 9f);
                 EditorUtility.SetDirty(camp);
             }
             if (catalogue.Camps.Count == 0) { catalogue.EditorSetCamps(new List<CampDefinition> { camp }); EditorUtility.SetDirty(catalogue); }

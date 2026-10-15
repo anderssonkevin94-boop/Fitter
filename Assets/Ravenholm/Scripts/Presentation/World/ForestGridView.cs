@@ -49,13 +49,8 @@ namespace Ravenholm.Presentation
         private Camera _camera;
         private readonly List<List<Vector3Int>> _columns = new List<List<Vector3Int>>();   // per area: cells bottom-up
         private readonly Dictionary<Vector3Int, (int area, int slot)> _slotOf = new Dictionary<Vector3Int, (int, int)>();
-        private readonly List<(Vector3Int cell, int area, int slot, bool border)> _all = new List<(Vector3Int, int, int, bool)>();   // every tree tile
-        private readonly HashSet<Vector3Int> _border = new HashSet<Vector3Int>();   // the deep forest past the camp's edge (scenery)
-        [Tooltip("A camp's deep forest beyond its low edges: drawn like the Forest (trees, hills), never walked or cut.")]
-        [SerializeField] private Tilemap beyond;
-
-        public void EditorSetupBeyond(Tilemap map) => beyond = map;
-        private bool _ring;   // a camp's ring: a tree's (area, slot) is its tile's (x, y)
+        private readonly List<(Vector3Int cell, int area, int slot)> _all = new List<(Vector3Int, int, int)>();   // every tree tile
+        private bool _ring;   // a camp's ridge: a tree's (area, slot) is its tile's (x, y)
         private readonly List<SpriteRenderer> _pool = new List<SpriteRenderer>();
         private readonly Dictionary<Vector3Int, SpriteRenderer> _shown = new Dictionary<Vector3Int, SpriteRenderer>();
         private readonly Dictionary<int, Coroutine> _shakes = new Dictionary<int, Coroutine>();
@@ -111,29 +106,17 @@ namespace Ravenholm.Presentation
             _columns.Add(new List<Vector3Int>());   // areas are 1-based
             _all.Clear();
             var grove = sim.Config.Grove;
-            _ring = grove != null && grove.Ring;
+            _ring = grove != null && grove.Ridge != null;
             if (_ring)
             {
-                // A camp (2026-10-15): every ground tile of the ring is a tree tile, named by its own cell.
+                // A camp (2026-10-15): every ground tile of the ridge's forest is a tree tile, named by its own cell.
                 for (var x = b.xMin; x < b.xMax; x++)
                 for (var y = b.yMin; y < b.yMax; y++)
                 {
                     var c = new Vector3Int(x, y, 0);
                     if (!ground.HasTile(c) || !grove.InGrove(x, y)) continue;
                     _slotOf[c] = (x, y);
-                    _all.Add((c, x, y, false));
-                }
-                if (beyond != null)
-                {
-                    var bb = beyond.cellBounds;
-                    for (var x = bb.xMin; x < bb.xMax; x++)
-                    for (var y = bb.yMin; y < bb.yMax; y++)
-                    {
-                        var c = new Vector3Int(x, y, 0);
-                        if (!beyond.HasTile(c) || ground.HasTile(c)) continue;
-                        _border.Add(c);
-                        _all.Add((c, x, y, true));
-                    }
+                    _all.Add((c, x, y));
                 }
                 return;
             }
@@ -152,7 +135,7 @@ namespace Ravenholm.Presentation
                 var list = byArea[a];
                 // The cliff-edge row first, then each row further back; along a row, nearest the town first.
                 list.Sort((p, q) => p.x != q.x ? p.x.CompareTo(q.x) : p.y.CompareTo(q.y));
-                for (var i = 0; i < list.Count; i++) { _slotOf[list[i]] = (a, i); _all.Add((list[i], a, i, false)); }
+                for (var i = 0; i < list.Count; i++) { _slotOf[list[i]] = (a, i); _all.Add((list[i], a, i)); }
                 _columns.Add(list);
             }
         }
@@ -283,14 +266,13 @@ namespace Ravenholm.Presentation
             var halfW = _camera != null ? halfH * _camera.aspect + 1.5f : 8f;
             var keep = new HashSet<Vector3Int>();
             var cells = new HashSet<Vector3Int>();
-            foreach (var (c, a, slot, border) in _all)
+            foreach (var (c, a, slot) in _all)
             {
                 {
                     var p = Centre(c);
                     if (Mathf.Abs(p.y - cam.y) > halfH + 4f || Mathf.Abs(p.x - cam.x) > halfW) continue;
                     cells.Add(c);
-                    var tree = -1;
-                    var state = border ? sim.IsRock(a, slot) ? TreeState.None : TreeState.Standing : State(a, slot, out tree);
+                    var state = State(a, slot, out var tree);
                     if (state == TreeState.None) continue;
                     keep.Add(c);
                     var top = SurfaceTop(c);
@@ -300,7 +282,9 @@ namespace Ravenholm.Presentation
                     sr.sortingLayerName = "Ground";
                     sr.sortingOrder = TerrainOrder(c, top + 1) + 2;
                     sr.sprite = state == TreeState.Cut ? stumpSprite : SpriteFor(SpeciesAt(sim, a, tree, slot));
-                    sr.color = AreaTint(sim, sim.BandOf(a, slot));
+                    var gate = _ring && sim.Grove.GateTierAt(a, slot) > 0;
+                    sr.color = gate ? GateTint : AreaTint(sim, sim.BandOf(a, slot));
+                    sr.transform.localScale = Vector3.one * treeScale * (gate ? 1.25f : 1f);   // a gate's old trees: bigger, darker
                     sr.name = tree >= 0 ? $"Tree{tree}" : "ForestTree";
                 }
             }
@@ -324,6 +308,8 @@ namespace Ravenholm.Presentation
             }
             return null;
         }
+
+        private static readonly Color GateTint = new Color(0.52f, 0.5f, 0.42f);
 
         /// <summary>Bands further out are darker and cooler; bands not entered yet are darker still.</summary>
         public Color AreaTint(SiteSimulator sim, int band)

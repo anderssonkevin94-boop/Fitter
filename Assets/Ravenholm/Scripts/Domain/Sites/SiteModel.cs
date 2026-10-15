@@ -171,49 +171,34 @@ namespace Ravenholm.Domain.Sites
         public long RegrowMs = 300000;          // a stump left standing grows back into its tree after this long (0 = never)
 
         public bool InGrove(int area, int slot) =>
-            Ring ? slot >= CampY0 && slot < ClearY1 && area >= CampX0 && area < ClearX1 && !InClearing(area, slot)
-                 : area >= 1 && area <= Areas && slot >= 0 && slot < Rows * AreaLength;
+            Ridge != null ? Ridge.InGrove(area, slot) : area >= 1 && area <= Areas && slot >= 0 && slot < Rows * AreaLength;
 
-        // ------------------------------------------------------------------ the camp's ring (2026-10-15)
+        // ------------------------------------------------------------------ the journey's land (2026-10-15)
 
         /// <summary>
-        /// The camp layout (the journey, camp 1): a cell is a map cell (<c>Area</c> = cell x, <c>Slot</c> = cell y). The
-        /// forest wraps the clearing (the town) on its two low sides and around its side tips; its two high sides are the
-        /// cliff. The further out from the clearing, the later the band (new wood, tougher), every <see cref="BandWidth"/>
-        /// cells; the ground beside the clearing stays flat for <see cref="FlatMargin"/> cells, then the hills rise.
+        /// A camp on the journey: the forest is the winding mountain top ahead of the camp (<see cref="RidgeLayout"/>), a
+        /// tree named by its map cell (<c>Area</c> = cell x, <c>Slot</c> = cell y). Null: the old strip.
         /// </summary>
-        public bool Ring;
-        public int ClearX0, ClearY0, ClearX1, ClearY1;   // the clearing's cells (max exclusive)
-        public int CampX0, CampY0;                       // the camp's low corner: the forest reaches this far
-        public int BandWidth = 7;
-        public int FlatMargin = 3;
+        public RidgeLayout Ridge;
 
-        public bool InClearing(int x, int y) => x >= ClearX0 && x < ClearX1 && y >= ClearY0 && y < ClearY1;
+        /// <summary>The band of a cell: the strip's area, or the ridge's band forward along the road.</summary>
+        public int BandAt(int area, int slot) => Ridge != null ? Ridge.BandAt(area, slot) : area;
 
-        /// <summary>Cells out from the clearing (0 inside it).</summary>
-        public int DepthAt(int x, int y) => Math.Max(0, Math.Max(ClearX0 - x, ClearY0 - y));
-
-        /// <summary>The band of a cell: the area itself in the strip, or the ring's band by depth.</summary>
-        public int BandAt(int area, int slot) => Ring ? 1 + Math.Max(0, DepthAt(area, slot) - 1) / Math.Max(1, BandWidth) : area;
-
-        /// <summary>Extra effort within a band: further back in a strip area, or further out within a ring band.</summary>
+        /// <summary>Extra effort within a band: further back in a strip area, or further forward within a ridge band.</summary>
         public int ContinuationAt(int area, int slot, int bands) =>
-            Ring ? Math.Max(0, DepthAt(area, slot) - 1) % Math.Max(1, BandWidth) / 3
-                 : Math.Max(0, slot) / Math.Max(1, TreesPerContinuation) + Math.Max(0, area - bands);
+            Ridge != null ? Ridge.ContinuationAt(area, slot)
+                          : Math.Max(0, slot) / Math.Max(1, TreesPerContinuation) + Math.Max(0, area - bands);
 
         /// <summary>The ground's height at a cell (either layout).</summary>
-        public int TerrainHeightAt(ulong seed, int area, int slot)
-        {
-            if (!Ring) return TerrainHeight(seed, RowOf(slot), AlongOf(area, slot));
-            var d = DepthAt(area, slot);
-            if (d < FlatMargin) return 0;
-            var h = TerrainHeight(seed, area - CampX0 + 1, slot - CampY0 + FlatEntrance + 1);
-            return Math.Min(h, (d - FlatMargin) * 2);   // rising gently out of the flat margin
-        }
+        public int TerrainHeightAt(ulong seed, int area, int slot) =>
+            Ridge != null ? Ridge.TerrainHeightAt(seed, area, slot) : TerrainHeight(seed, RowOf(slot), AlongOf(area, slot));
 
         /// <summary>No tree here (either layout).</summary>
         public bool OpenGroundAt(ulong seed, int area, int slot) =>
-            Ring ? OpenGround(seed, area - CampX0 + 1, slot - CampY0 + 1) : OpenGround(seed, RowOf(slot), AlongOf(area, slot));
+            Ridge != null ? Ridge.OpenGroundAt(seed, area, slot) : OpenGround(seed, RowOf(slot), AlongOf(area, slot));
+
+        /// <summary>The tool tier needed to cut or dig here (0 = any tool): a gate across the ridge.</summary>
+        public int GateTierAt(int area, int slot) => Ridge != null ? Ridge.GateTierAt(area, slot) : 0;
 
         // ------------------------------------------------------------------ the ground's shape (forest mountains)
 

@@ -32,7 +32,7 @@ MonoBehaviour:
   - 7
   - 8.5
   defaultViewWidthIndex: 1
-  cameraLookAheadY: 0.6
+  cameraLookAheadY: 2.4
   outlines: {fileID: 11400000, guid: 36cdc70b21ff54dce9702649a6388c68, type: 2}
   cameraDeadZone: {x: 0.45, y: 0.7}
   cameraSmoothTime: 0.18
