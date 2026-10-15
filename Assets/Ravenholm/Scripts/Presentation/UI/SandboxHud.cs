@@ -31,6 +31,7 @@ namespace Ravenholm.Presentation
         private LoadoutPanel _loadout;
         private ResultPanel _result;
         private TextMeshProUGUI _forceButtonText;
+        private TextMeshProUGUI _campButtonText;
         private RectTransform _carryChip;
         private float _carryPulse;
         private Image _joyRing;
@@ -693,6 +694,14 @@ namespace Ravenholm.Presentation
                 PerfProbe.Begin(60f);
                 ShowToast("Recording performance for 60 s");
             }, out _);
+            _ui.Button("Camp", content, "", () =>
+            {
+                var camp = _root.Services.Camp;
+                var next = camp.HasNext ? camp.Index + 1 : 0;
+                CloseDebug();
+                camp.DebugJumpTo(next);
+                ShowToast($"Debug: the company is at {camp.Name} (camp {camp.Index + 1})");
+            }, out _campButtonText);
             _ui.Button("Trader", content, "Summon the Trader now (debug)", () =>
             {
                 _root.Services.Economy.DebugSummonTrader();
@@ -931,6 +940,11 @@ namespace Ravenholm.Presentation
                 (status.LastError != null ? "\n<color=#FFB3A0>Save error</color>" : "");
 
             if (_labelsButtonText != null) _labelsButtonText.text = $"Building labels: {(WorldLabel.Visible ? "ON" : "OFF")}";
+            if (_campButtonText != null)
+            {
+                var camp = _root.Services.Camp;
+                _campButtonText.text = camp.HasNext ? $"Jump to next camp: {camp.NextName} (debug)" : "Jump back to camp 1 (debug)";
+            }
             if (_forceButtonText != null)
             {
                 var f = _root.Services.Jobs.State.ForcedNext;

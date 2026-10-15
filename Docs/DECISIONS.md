@@ -1470,3 +1470,5 @@ Built:
   - EditMode `RoadTests`: the six camps and their blockers, the land's length, one band per camp, tints, building the bridge from stock and saving it, and the finale and summons.
   - PlayMode `RoadPlayModeTests`: captures of camps 2–6; the ravine blocks until the bridge is built at its sign, then can be stood on.
 - **Not yet:** Art for each camp, the bridge and the causeway (all placeholders), plus Astra's walk-in cart.
+
+- **Debug camp jump** (Kevin, 2026-10-16). Developer tools has "Jump to next camp" (`CampService.DebugJumpTo`). It answers the summons on the way, builds the projects behind and drives up one camp. At the last camp it jumps back to camp 1 with no drive.

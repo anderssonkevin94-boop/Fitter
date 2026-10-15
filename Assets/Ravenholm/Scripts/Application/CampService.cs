@@ -193,6 +193,20 @@ namespace Ravenholm.Services
             Moved?.Invoke(from, Index);
         }
 
+        /// <summary>
+        /// DEBUG (playtesting the later camps): put the company at a camp as if it had got there: the castle's summons
+        /// on the way answered and the build projects behind it built. Stations stay where they stand.
+        /// </summary>
+        public void DebugJumpTo(int index)
+        {
+            if (Road == null) return;
+            index = Math.Max(0, Math.Min(index, Road.CampCount - 1));
+            for (var c = 1; c <= index; c++)
+                if (!_jobs.Board.SummonsAnswered(c)) _jobs.Board.DebugRecordSuccess(_jobs.Board.SummonsFor(c).Id);
+            foreach (var g in Projects()) if (g < index) Built.Add(g);
+            DebugSetIndex(index);
+        }
+
         // ------------------------------------------------------------------ save
 
         void ISaveSection.Write(SaveEnvelope env)

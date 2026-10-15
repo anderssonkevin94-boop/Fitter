@@ -92,6 +92,22 @@ namespace Ravenholm.Tests
             yield return new WaitForSeconds(0.6f);
             Assert.Less(Vector2.Distance(motor.transform.position, midWorld), 0.5f, "standing on the bridge, not sent back");
             yield return Capture.Take("road_bridge");
+
+            // The developer tools' camp jump: up the road to Hollow Wood (the drive), then straight back to camp 1.
+            s.Camp.DebugJumpTo(2);
+            yield return null;
+            deadline = Time.realtimeSinceStartup + 60f;
+            while (DriveView.Current.Driving && Time.realtimeSinceStartup < deadline) yield return null;
+            yield return new WaitForSeconds(0.5f);
+            Assert.Less(Vector2.Distance(motor.transform.position, s.Camp.CentreOf(2)), 9f, "the supplier arrived at Hollow Wood");
+            yield return Capture.Take("road_jump_hollow_wood");
+            s.Camp.DebugJumpTo(0);
+            yield return null;
+            deadline = Time.realtimeSinceStartup + 5f;
+            while (DriveView.Current.Driving && Time.realtimeSinceStartup < deadline) yield return null;
+            Assert.IsFalse(DriveView.Current.Driving, "no drive back down the road");
+            yield return new WaitForSeconds(0.3f);
+            Assert.Less(Vector2.Distance(motor.transform.position, s.Camp.CentreOf(0)), 9f, "back at Meadow's Edge");
             CollectionAssert.IsEmpty(s.Logistics.System.Audit());
         }
     }

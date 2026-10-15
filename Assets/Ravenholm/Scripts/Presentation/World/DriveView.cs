@@ -71,6 +71,7 @@ namespace Ravenholm.Presentation
             var start = end - (camp.OffsetOf(to) - camp.OffsetOf(from));
             // Along the old road, from the camp left behind to the new one.
             var path = new List<Vector2> { start };
+            if (to < from) path.Clear();   // a debug jump back down the road: no drive, just there
             var ridge = road.Ridge;
             for (var s = road.CampAhead(from) + 14; s < road.CampAhead(to) - 8; s += 3)
             {

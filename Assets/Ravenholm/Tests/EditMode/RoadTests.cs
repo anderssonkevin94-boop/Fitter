@@ -75,6 +75,20 @@ namespace Ravenholm.Tests
         }
 
         [Test]
+        public void TheDebugJumpPutsTheCompanyAtALaterCampAsIfItHadGotThere()
+        {
+            var g = Boot();
+            g.Camp.DebugJumpTo(4);
+            Assert.AreEqual(4, g.Camp.Index);
+            Assert.AreEqual("Crown Highlands", g.Camp.Name);
+            for (var c = 1; c <= 4; c++) Assert.IsTrue(g.Jobs.Board.SummonsAnswered(c), $"summons {c} answered on the way");
+            Assert.IsFalse(g.Jobs.Board.SummonsAnswered(5), "this camp's own summons is still to answer");
+            Assert.IsTrue(g.Camp.IsBuilt(2) && g.Camp.IsBuilt(3), "the bridge and causeway behind are built");
+            g.Camp.DebugJumpTo(0);
+            Assert.AreEqual(0, g.Camp.Index, "and back to camp 1");
+        }
+
+        [Test]
         public void TheFinaleIsTheCastlesLastGreatJobAtTheLastCamp()
         {
             var finale = Cat.Quests.Single(q => q.CampaignFinale);
