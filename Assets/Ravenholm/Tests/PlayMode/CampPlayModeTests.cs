@@ -77,7 +77,7 @@ namespace Ravenholm.Tests
         }
 
         /// <summary>The first tree that can be cut on or beside the line, at least <paramref name="ahead"/> cells forward of the camp.</summary>
-        public static Vector3Int TreeAhead(SiteSimulator sim, double ahead, bool anyTier = false)
+        public static Vector3Int TreeAhead(SiteSimulator sim, double ahead, bool anyTier = false, bool withNeighbour = false)
         {
             var r = sim.Config.Grove.Ridge;
             for (var s = ahead; s < r.Length - r.CampS; s += 1)
@@ -87,10 +87,15 @@ namespace Ravenholm.Tests
                 foreach (var side in new[] { k, -k })
                 {
                     var (x, y) = ((int)px + side, (int)py - side);
-                    if (sim.CanChop(x, y) && (anyTier || r.GateTierAt(x, y) == 0)) return new Vector3Int(x, y, 0);
+                    if (!sim.CanChop(x, y) || !anyTier && r.GateTierAt(x, y) != 0) continue;
+                    // On flat ground with another flat tree right beside it (the trees are spaced out: not every one has).
+                    if (withNeighbour && (sim.TerrainHeight(x, y) != 0 ||
+                                          !(Flat(x + 1, y) || Flat(x - 1, y) || Flat(x, y + 1) || Flat(x, y - 1)))) continue;
+                    return new Vector3Int(x, y, 0);
                 }
             }
             Assert.Fail($"no tree {ahead} ahead");
+            bool Flat(int x, int y) => sim.CanChop(x, y) && sim.TerrainHeight(x, y) == 0 && r.GateTierAt(x, y) == 0;
             return default;
         }
 
@@ -158,6 +163,16 @@ namespace Ravenholm.Tests
                 var (x, y) = r.PointAt(r.CampS + at);
                 yield return Look(SandboxSettings.CellCentre((int)x, (int)y), $"journey_ahead_{at}");
             }
+
+            // At the ridge's edge: a short face of earth, then the valley; and never near Unity's renderer limit (4095):
+            // the long ragged edges once drew a face down the whole screen at each of them (21,000 sprites, 2026-10-15).
+            var (ex, ey) = r.PointAt(r.CampS + 38);
+            var edge = new Vector3Int((int)ex, (int)ey, 0);
+            while (ground.HasTile(edge + new Vector3Int(1, -1, 0))) edge += new Vector3Int(1, -1, 0);
+            yield return Look(SandboxSettings.CellCentre(edge.x, edge.y), "journey_edge");
+            var drawn = 0;
+            foreach (var sr in Object.FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)) if (sr.enabled) drawn++;
+            Assert.Less(drawn, 3000, $"sprites drawn at the edge ({drawn})");
         }
 
         [UnityTest]

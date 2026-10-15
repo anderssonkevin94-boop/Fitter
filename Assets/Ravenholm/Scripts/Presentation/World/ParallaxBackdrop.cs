@@ -6,9 +6,9 @@ namespace Ravenholm.Presentation
 {
     /// <summary>
     /// The horizon ahead (Astra's valley view, re-used for the journey, Kevin 2026-10-15): the view's layers sit in a band
-    /// across the top of the screen, over the land, which fades into haze under them, so the castle is always ahead and
-    /// new land keeps coming up out of the haze as you go forward. The layers repeat sideways and slide by their own
-    /// fraction of the camera's sideways movement (far ones barely move); up and down they stay with the screen. The
+    /// across the top of the screen, behind the land, so they show wherever the ridge ends: past its edges and its far
+    /// end. Below the band the camera's background is the valley's colour. The layers repeat sideways and slide by their
+    /// own fraction of the camera's sideways movement (far ones barely move); up and down they stay with the screen. The
     /// castle stands on the far ridge (it never repeats), and a tiny traveller walks the valley road toward it when an
     /// adventurer leaves. Composition pixels are 256 per unit before <see cref="scale"/>.
     /// </summary>
@@ -33,14 +33,11 @@ namespace Ravenholm.Presentation
         [SerializeField] private float scale = 0.45f;
         [Tooltip("Where the composition's top sits, in units below the top of the screen.")]
         [SerializeField] private float topBelowScreen = 0f;
-        [Tooltip("The composition's pixel row where the land's haze begins (the near layer's bottom).")]
-        [SerializeField] private float hazeTopPx = 2000f;
-        [Tooltip("How far (units) the haze fades down over the land.")]
-        [SerializeField] private float hazeDepth = 2.2f;
-        [Tooltip("How far (units) the haze reaches up over the near layer's bottom, so the two blend.")]
-        [SerializeField] private float hazeOverlap = 0.7f;
-        [SerializeField] private Color hazeColour = new Color32(112, 155, 92, 255);
         [SerializeField] private Material material;
+        [Tooltip("The composition's pixel row where the view ends (the near layer's bottom); it fades into the valley colour above it.")]
+        [SerializeField] private float bottomPx = 2000f;
+        [SerializeField] private float fadeHeight = 1.4f;
+        [SerializeField] private Color valleyColour = new Color32(112, 155, 92, 255);
 
         [Header("Castle (on the far layer; never repeats)")]
         [SerializeField] private Sprite castle;
@@ -57,31 +54,29 @@ namespace Ravenholm.Presentation
         [Tooltip("How far the sky's top row is extended upward (world units).")]
         [SerializeField] private float fillDepth = 40f;
 
-        public const string SortingLayer = "Overlay";
-        public const int BaseOrder = -400;   // over the land and the people, under every label and marker
+        public const string SortingLayer = "Ground";
+        public const int BaseOrder = -30000;   // behind the land, its edge faces and everything on it
 
         private Camera _camera;
         private readonly List<(Transform root, List<Transform> copies, Layer layer)> _built = new List<(Transform, List<Transform>, Layer)>();
         private Transform _castle;
-        private SpriteRenderer _haze;
+        private SpriteRenderer _fade;
         private readonly List<(Transform t, float started)> _travellers = new List<(Transform, float)>();
         private GameRoot _root;
 
         public static ParallaxBackdrop Current { get; private set; }
         public Transform Castle => _castle;
-        public SpriteRenderer Haze => _haze;
 
-        /// <summary>The world height where the haze begins (land above this is under the view).</summary>
-        public float HazeTopY => ScreenTop() - topBelowScreen - hazeTopPx * scale / pixelsPerUnit;
+        /// <summary>The world height of the view's top edge (it stays with the screen).</summary>
+        public float TopY => ScreenTop() - topBelowScreen;
         public int Travellers => _travellers.Count;
 
 #if UNITY_EDITOR
-        public void EditorSetup(List<Layer> l, float viewScale, float hazeTop, Color haze, Material mat)
+        public void EditorSetup(List<Layer> l, float viewScale, Color valley, Material mat)
         {
             layers = l;
             scale = viewScale;
-            hazeTopPx = hazeTop;
-            hazeColour = haze;
+            valleyColour = valley;
             material = mat;
         }
 
@@ -132,9 +127,9 @@ namespace Ravenholm.Presentation
                 }
                 _built.Add((root, copies, l));
             }
-            // The land ahead fades into haze under the view (the near layer's bottom row carries on as mist).
-            _haze = Renderer(transform, "Haze", HazeSprite(hazeOverlap / (hazeOverlap + hazeDepth)), Vector2.zero, BaseOrder + 40);
-            _haze.color = hazeColour;
+            // The view's bottom edge melts into the valley colour (the camera's background, past the ridge's edges).
+            _fade = Renderer(transform, "Fade", FadeSprite(), Vector2.zero, BaseOrder + 40);
+            _fade.color = valleyColour;
             if (castle != null && castleLayer >= 0 && castleLayer < _built.Count)
             {
                 var sr = Renderer(transform, "Castle", castle, Vector2.zero, layers[castleLayer].order + 1);
@@ -176,25 +171,20 @@ namespace Ravenholm.Presentation
                                ScreenTop() - topBelowScreen - l.originPx.y * scale / pixelsPerUnit);
         }
 
-        /// <summary>
-        /// The haze: a vertical band, clear at the top (over the near layer), thickest where the near layer ends
-        /// (<paramref name="peak"/> of the way down), then thinning to clear over the land.
-        /// </summary>
-        private static Sprite HazeSprite(float peak)
+        /// <summary>A vertical ramp, opaque at the bottom (its pivot): 1 unit wide, 16 tall.</summary>
+        private static Sprite FadeSprite()
         {
             const int h = 64;
             var tex = new Texture2D(4, h, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
             var px = new Color32[4 * h];
             for (var y = 0; y < h; y++)
             {
-                var down = 1f - y / (h - 1f);   // 0 at the top
-                var k = down < peak ? Mathf.SmoothStep(0f, 1f, down / Mathf.Max(0.01f, peak)) : Mathf.SmoothStep(0f, 1f, (1f - down) / Mathf.Max(0.01f, 1f - peak));
-                var a = (byte)Mathf.RoundToInt(255f * k);
+                var a = (byte)Mathf.RoundToInt(255f * Mathf.SmoothStep(1f, 0f, y / (h - 1f)));
                 for (var x = 0; x < 4; x++) px[y * 4 + x] = new Color32(255, 255, 255, a);
             }
             tex.SetPixels32(px);
             tex.Apply();
-            return Sprite.Create(tex, new Rect(0, 0, 4, h), new Vector2(0.5f, 1f), 4f);   // pivot at the top: 1 unit wide, 16 tall
+            return Sprite.Create(tex, new Rect(0, 0, 4, h), new Vector2(0.5f, 0f), 4f);
         }
 
         private void LateUpdate()
@@ -210,11 +200,10 @@ namespace Ravenholm.Presentation
                 for (var c = 0; c < copies.Count; c++)
                     copies[c].position = new Vector3(origin.x + (k + c - 1) * width, origin.y, 0f);
             }
-            if (_haze != null)
+            if (_fade != null)
             {
-                var w = _camera.orthographicSize * _camera.aspect * 2f + 4f;
-                _haze.transform.position = new Vector3(camX, HazeTopY + hazeOverlap, 0f);
-                _haze.transform.localScale = new Vector3(w, (hazeDepth + hazeOverlap) / 16f, 1f);
+                _fade.transform.position = new Vector3(camX, TopY - bottomPx * scale / pixelsPerUnit + 0.02f, 0f);
+                _fade.transform.localScale = new Vector3(_camera.orthographicSize * _camera.aspect * 2f + 4f, fadeHeight / 16f, 1f);
             }
             if (_castle != null) _castle.position = LayerPoint(castleLayer, castleGroundInLayerPx);
             for (var i = _travellers.Count - 1; i >= 0; i--)

@@ -23,6 +23,7 @@ namespace Ravenholm.EditorTools
     {
         private const string UnlitMaterialPath = "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat";
         private static readonly Color Backdrop = new Color32(58, 86, 92, 255);
+        private static readonly Color Valley = new Color32(112, 155, 92, 255);
 
         private static Material _unlit;
         /// <summary>The Mine pit's front cell and front corner (world), snapped to the tile grid at the town's front edge.</summary>
@@ -170,7 +171,7 @@ namespace Ravenholm.EditorTools
             cam.orthographic = true;
             cam.orthographicSize = 9f;
             cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = Backdrop;
+            cam.backgroundColor = Valley;   // past the ridge's edges: the valley far below, the near view layer's own green
             cam.nearClipPlane = 0.1f;
             cam.farClipPlane = 50f;
             camGo.transform.position = new Vector3(0, 0, -10f);
@@ -648,8 +649,9 @@ namespace Ravenholm.EditorTools
         }
 
         /// <summary>
-        /// The horizon ahead (the journey, 2026-10-15): Astra's valley view as a band across the top of the screen, the
-        /// castle on its far ridge, the land ahead fading into haze under it. Returns where adventurers come from and go to:
+        /// The horizon ahead (the journey, 2026-10-15): Astra's valley view as a band across the top of the screen, behind
+        /// the land, with the castle on its far ridge: it shows where the ridge ends (Kevin: no fade, the land just ends at
+        /// its edge; the castle needn't be in view all the time). Returns where adventurers come from and go to:
         /// a little way up the old road ahead, toward the castle.
         /// </summary>
         private static Vector2 Horizon(Transform world, SandboxSettings settings)
@@ -673,7 +675,7 @@ namespace Ravenholm.EditorTools
             }
             var backdrop = new GameObject("Horizon").AddComponent<ParallaxBackdrop>();
             backdrop.transform.SetParent(world, false);
-            backdrop.EditorSetup(layers, 0.45f, 2000f, new Color32(112, 155, 92, 255), _unlit);
+            backdrop.EditorSetup(layers, 0.45f, Valley, _unlit);
             var c = par["castle"];
             backdrop.EditorSetupCastle(ProjectSetup.LoadSprite("View/castle"), index[((string)c["parent"])],
                 new Vector2((float)c["ground_in_parent_px"][0], (float)c["ground_in_parent_px"][1]), (float)c["scale"] * 1.45f);   // the goal: bigger

@@ -92,7 +92,7 @@ namespace Ravenholm.Tests
             var forest = services.Sites.Get("site.forest");
             var view = Object.FindAnyObjectByType<ForestGridView>();
             // Beside a tree ahead of the camp: any tree can be cut.
-            var tree = CampPlayModeTests.TreeAhead(forest, 20);
+            var tree = CampPlayModeTests.TreeAhead(forest, 20, withNeighbour: true);
             Assert.IsTrue(view.CellOf(tree.x, tree.y, out var edge));
             SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(view.WorkSpotOf(edge));
             yield return null;

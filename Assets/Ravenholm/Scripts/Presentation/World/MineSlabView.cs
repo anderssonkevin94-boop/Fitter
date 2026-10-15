@@ -247,6 +247,9 @@ namespace Ravenholm.Presentation
 
         // ------------------------------------------------------------------ drawing
 
+        /// <summary>How many blocks deep the face at the land's edge is drawn.</summary>
+        public const int EdgeFaceRows = 5;
+
         private static readonly Color Topsoil = new Color(0.80f, 0.64f, 0.46f);
         private static readonly Color InsideShade = new Color(0.5f, 0.48f, 0.5f);
 
@@ -302,6 +305,9 @@ namespace Ravenholm.Presentation
                 // Rows whose block faces fall inside the view.
                 var first = Mathf.Max(0, Mathf.FloorToInt((top.y - (cam.y + halfH)) / RowHeight));
                 var last = Mathf.CeilToInt((top.y - (cam.y - halfH)) / RowHeight);
+                // The land's edge shows a short face of earth, then the valley far below (the ridge's edges are long:
+                // a face down the whole screen at each of them was tens of thousands of blocks, 2026-10-15).
+                if (!SlabCell(cell, out _, out _)) last = Mathf.Min(last, EdgeFaceRows - 1);
                 if (last < 0) return;
                 for (var row = first; row <= last; row++)
                 {

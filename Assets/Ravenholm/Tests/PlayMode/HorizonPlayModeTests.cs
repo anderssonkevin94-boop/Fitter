@@ -11,8 +11,8 @@ using Object = UnityEngine.Object;
 namespace Ravenholm.Tests
 {
     /// <summary>
-    /// The horizon ahead (the journey, 2026-10-15): Astra's valley view as a band at the top of the screen, the castle on
-    /// its far ridge, the land ahead fading into haze under it, layers sliding sideways at their own rates (far slower than
+    /// The horizon ahead (the journey, 2026-10-15): Astra's valley view as a band at the top of the screen behind the land,
+    /// the castle on its far ridge, showing where the ridge ends, layers sliding sideways at their own rates (far slower than
     /// near), and the frames for Kevin: standing in camp and walking forward (Captures/horizon_*.png).
     /// </summary>
     public sealed class HorizonPlayModeTests
@@ -37,7 +37,7 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
-        public IEnumerator TheCastleStaysOnTheHorizonAheadAndTheLandFadesIntoHaze()
+        public IEnumerator TheCastleStandsOnTheHorizonBehindTheLand()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);
             var deadline = Time.realtimeSinceStartup + 10f;
@@ -49,20 +49,20 @@ namespace Ravenholm.Tests
             var view = ParallaxBackdrop.Current;
             Assert.NotNull(view, "the horizon is in the scene");
             Assert.NotNull(view.Castle, "with the castle on the far ridge");
-            Assert.NotNull(view.Haze, "and the haze the land fades into");
             var cam = SandboxSceneController.Current.WorldCamera;
             var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
             yield return new WaitForSeconds(1.5f);
             // (Batch mode's own screen has another shape than the phone's, so positions are checked in the world, not the viewport.)
-            Assert.Greater(view.Castle.position.y, view.HazeTopY, "the castle stands above the haze, on the horizon");
+            Assert.Greater(view.Castle.position.y, cam.transform.position.y, "the castle stands on the horizon, up the screen");
             Assert.AreEqual(cam.transform.position.x, view.Castle.position.x, 1.5f, "straight ahead");
+            Assert.Less(view.Castle.GetComponent<SpriteRenderer>().sortingOrder, ForestGridView.TerrainBase - 10000, "behind the land: it shows only where the ridge ends");
             Assert.Greater(cam.transform.position.y, motor.transform.position.y + 1.5f, "the supplier sits low, with the road ahead on screen");
             yield return Capture.Take("horizon_standing");
             var castleA = view.Castle.position;
             var farA = view.LayerOrigin(1);
             var nearA = view.LayerOrigin(3);
             var camA = cam.transform.position;
-            var hazeA = view.HazeTopY - camA.y;
+            var topA = view.TopY - camA.y;
 
             // Walking forward (up-right): frames for a little film.
             var router = GameRoot.Instance.InputRouter;
@@ -80,7 +80,7 @@ namespace Ravenholm.Tests
             var nearScreen = Mathf.Abs((view.LayerOrigin(3) - nearA).x - moved.x);
             Assert.Less(farScreen, nearScreen, "sideways, far moves slower on screen than near");
             Assert.AreEqual(((Vector2)(view.Castle.position - castleA)).x, (view.LayerOrigin(1) - farA).x, 0.01f, "the castle rides the far ridge");
-            Assert.AreEqual(hazeA, view.HazeTopY - camB.y, 0.01f, "the horizon stays at the top of the screen");
+            Assert.AreEqual(topA, view.TopY - camB.y, 0.01f, "the horizon stays at the top of the screen");
         }
     }
 }

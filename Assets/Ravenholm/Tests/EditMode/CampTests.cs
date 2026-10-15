@@ -74,7 +74,7 @@ namespace Ravenholm.Tests
             Assert.AreEqual(1, camp.Gates.Count);
             var (gx, gy) = r.PointAt(r.CampS + camp.Gates[0].ahead);
             Assert.AreEqual(2, r.GateTierAt((int)gx, (int)gy), "the gate across the road needs the iron tool");
-            Assert.IsFalse(r.OpenGroundAt(42, (int)gx, (int)gy), "solid: no gaps in the old trees");
+            Assert.IsTrue(r.FixedOpen(42, (int)gx, (int)gy, out var open) && !open, "solid: no gaps in the old trees");
             var (fx, fy) = r.PointAt(r.CampS + 20);
             Assert.AreEqual(0, r.GateTierAt((int)fx, (int)fy), "the forest before it takes any tool");
         }
@@ -93,9 +93,21 @@ namespace Ravenholm.Tests
             var forest = SitesService.BuildConfig(cat.Get<SiteDefinition>("site.forest"), cat.CurrentCamp);
             Assert.AreSame(r, forest.Grove.Ridge);
             Assert.IsFalse(forest.Grove.InGrove((int)Camp().ClearingCentre.x, (int)Camp().ClearingCentre.y), "no trees in the clearing");
-            for (var x = (int)ax - 10; x <= (int)ax + 10; x++)
-            for (var y = (int)ay - 10; y <= (int)ay + 10; y++)
-                if (r.OnRoad(x, y)) Assert.AreEqual(0, r.TerrainHeightAt(42, x, y), "the road stays flat");
+            var hills = 0;
+            var trees = 0;
+            var cells = 0;
+            for (var x = (int)ax - 25; x <= (int)ax + 25; x++)
+            for (var y = (int)ay - 25; y <= (int)ay + 25; y++)
+            {
+                if (!forest.Grove.InGrove(x, y)) continue;
+                var h = forest.Grove.TerrainHeightAt(42, x, y);
+                if (r.OnRoad(x, y)) Assert.AreEqual(0, h, "the road stays flat");
+                cells++;
+                if (h >= 3) hills++;
+                if (!forest.Grove.OpenGroundAt(42, x, y)) trees++;
+            }
+            Assert.Greater(hills, cells / 20, $"the forest-mountains hills are back ({hills} of {cells} cells 3+ high)");
+            Assert.Less(trees, cells * 6 / 10, $"trees not packed tight ({trees} of {cells})");
         }
     }
 }

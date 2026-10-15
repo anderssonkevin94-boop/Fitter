@@ -43,7 +43,6 @@ namespace Ravenholm.Domain.Sites
         public double HalfWidth = 20, WidthWobble = 5, EdgeNoise = 3, LineWobble = 4, RoadWobble = 4, RoadHalfWidth = 1.3;
         public int BandLength = 45;
         public int FlatMargin = 3;
-        public int MaxHill = 5;
         public double CampS;   // bands count forward from here (camp 1)
         public int Seed = 1;
 
@@ -272,31 +271,42 @@ namespace Ravenholm.Domain.Sites
         }
 
         /// <summary>
-        /// The ground's height: flat in and beside the clearings, along the road and at gates; hills elsewhere, rising
-        /// gently out of the flat margin.
+        /// Ground the layout decides itself (the forest-mountains terrain decides the rest, see
+        /// <see cref="ForestGrove.TerrainHeightAt"/>): off the land and at gates. A rock gate is a wall four blocks high;
+        /// a tree gate is flat.
         /// </summary>
-        public int TerrainHeightAt(ulong seed, int x, int y)
+        public bool FixedHeight(int x, int y, out int height)
         {
-            if (!InGrove(x, y)) return 0;
+            height = 0;
+            if (!InGrove(x, y)) return true;
             var gate = GateAt(x, y);
-            if (gate != null) return gate.Rock ? 4 : 0;
-            var margin = ClearingDistance(x, y) - FlatMargin;
-            if (margin <= 0 || RoadDistance(x, y) < RoadHalfWidth + 2) return 0;
-            var salt = (int)(seed % 997);
-            var n = Noise2(x / 9.0, y / 9.0, 61 + salt) * 0.75 + Noise2(x / 3.5, y / 3.5, 67 + salt) * 0.25;
-            var h = n < 0.5 ? 0 : (int)Math.Round((n - 0.5) * 2 * (MaxHill + 1));
-            h = Math.Min(h, (int)Math.Floor(margin * 2));
-            h = Math.Min(h, (int)Math.Floor((RoadDistance(x, y) - RoadHalfWidth - 2) * 2));
-            return Math.Max(0, Math.Min(MaxHill, h));
+            if (gate == null) return false;
+            height = gate.Rock ? 4 : 0;
+            return true;
         }
 
-        /// <summary>No tree here: glades in the forest, and most of the old road (a young tree here and there). Gates are solid.</summary>
-        public bool OpenGroundAt(ulong seed, int x, int y)
+        /// <summary>
+        /// The highest the hills may stand here: flat beside the clearings (<see cref="FlatMargin"/>) and along the road,
+        /// rising two blocks a cell away from them.
+        /// </summary>
+        public int HeightCap(int x, int y)
         {
-            if (GateAt(x, y) != null) return false;
-            var r = Hash01(x, y, 71 + (int)(seed % 997));
-            if (OnRoad(x, y)) return r < 0.75;
-            return Noise2(x / 3.0, y / 3.0, 73) > 0.74 || r < 0.06;
+            var fromClearing = ClearingDistance(x, y) - FlatMargin;
+            var fromRoad = RoadDistance(x, y) - RoadHalfWidth - 1;
+            return Math.Max(0, (int)Math.Floor(Math.Min(fromClearing, fromRoad) * 2));
+        }
+
+        /// <summary>
+        /// Whether a tree grows here, where the layout decides it: gates are solid; the old road is mostly open (a young
+        /// tree here and there). False: the forest-mountains rule decides (thick in the valleys, thin up the hills).
+        /// </summary>
+        public bool FixedOpen(ulong seed, int x, int y, out bool open)
+        {
+            open = false;
+            if (GateAt(x, y) != null) return true;
+            if (!OnRoad(x, y)) return false;
+            open = Hash01(x, y, 71 + (int)(seed % 997)) < 0.75;
+            return true;
         }
 
         // ------------------------------------------------------------------ noise (deterministic, engine-free)

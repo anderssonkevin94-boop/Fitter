@@ -189,13 +189,27 @@ namespace Ravenholm.Domain.Sites
             Ridge != null ? Ridge.ContinuationAt(area, slot)
                           : Math.Max(0, slot) / Math.Max(1, TreesPerContinuation) + Math.Max(0, area - bands);
 
-        /// <summary>The ground's height at a cell (either layout).</summary>
-        public int TerrainHeightAt(ulong seed, int area, int slot) =>
-            Ridge != null ? Ridge.TerrainHeightAt(seed, area, slot) : TerrainHeight(seed, RowOf(slot), AlongOf(area, slot));
+        /// <summary>The ridge's cells shifted clear of the prototype's flat entrance (its first row and tiles).</summary>
+        private const int RidgeShift = 4096;
 
-        /// <summary>No tree here (either layout).</summary>
-        public bool OpenGroundAt(ulong seed, int area, int slot) =>
-            Ridge != null ? Ridge.OpenGroundAt(seed, area, slot) : OpenGround(seed, RowOf(slot), AlongOf(area, slot));
+        /// <summary>
+        /// The ground's height at a cell. On a ridge it is the forest-mountains prototype's terrain (Kevin's favourite),
+        /// kept flat in and beside the clearings and along the road, and set at gates.
+        /// </summary>
+        public int TerrainHeightAt(ulong seed, int area, int slot)
+        {
+            if (Ridge == null) return TerrainHeight(seed, RowOf(slot), AlongOf(area, slot));
+            if (Ridge.FixedHeight(area, slot, out var fixedHeight)) return fixedHeight;
+            return Math.Min(TerrainHeight(seed, area + RidgeShift, slot + RidgeShift), Ridge.HeightCap(area, slot));
+        }
+
+        /// <summary>No tree here: on a ridge the prototype's density (thick in the valleys, thin up the hills), the road and gates aside.</summary>
+        public bool OpenGroundAt(ulong seed, int area, int slot)
+        {
+            if (Ridge == null) return OpenGround(seed, RowOf(slot), AlongOf(area, slot));
+            if (Ridge.FixedOpen(seed, area, slot, out var open)) return open;
+            return OpenGround(seed, area + RidgeShift, slot + RidgeShift);
+        }
 
         /// <summary>The tool tier needed to cut or dig here (0 = any tool): a gate across the ridge.</summary>
         public int GateTierAt(int area, int slot) => Ridge != null ? Ridge.GateTierAt(area, slot) : 0;

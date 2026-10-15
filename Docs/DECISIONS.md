@@ -1241,3 +1241,12 @@ The camera look-ahead is raised from 0.6 to 2.4, so the supplier sits low with t
 - the ring layout;
 - the deep-forest border;
 - the town's three background trees.
+
+**Playtest fixes, the same day (Kevin):**
+- **Lag and red console errors.** Unity reported about 21,500 renderers against its 4,095 limit. Every one of the ridge's long, ragged edges drew a column of earth blocks down the whole screen. The face at the land's edge is now 5 blocks deep (`MineSlabView.EdgeFaceRows`). A test now counts the sprites drawn at an edge and requires fewer than 3,000.
+- **No fade over the land.** Kevin: "it ends naturally with the edge"; the castle needn't always be in view. The view band now sorts behind the land (Ground −30000), so it shows only where the ridge ends. The camera's background past the edges is the valley green, and the band's bottom edge fades into it over 1.4 units.
+- **The terrain is back.** On the ridge, ground height and tree density are the forest-mountains prototype's again (Kevin's favourite, 2026-10-13):
+  - hills up to 7 blocks from two layers of noise;
+  - trees cover 42% of the valleys, 20% of the slopes and 8% of the peaks.
+
+  The ridge only keeps the clearings, the road and gates flat. Away from them the hills may rise two blocks a cell, and the road keeps three-quarters of its cells open.
