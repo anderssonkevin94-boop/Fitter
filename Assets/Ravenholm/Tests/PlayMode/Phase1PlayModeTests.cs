@@ -269,12 +269,16 @@ namespace Ravenholm.Tests
         public IEnumerator BuildingFadesWhenPlayerIsBehindIt()
         {
             yield return Boot();
-            var store = GameObject.Find("Store").GetComponent<SpriteRenderer>();
-            yield return StandAt(new Vector2(0.4f, 4.5f), 0.6f);
-            Assert.Less(store.color.a, 0.6f);
+            // Behind the shop's back-left wall: that wall fades.
+            var shop = ShopView.Current;
+            var edge = shop.Vertex(2.5f, 4f);
+            var wall = Object.FindObjectsByType<ObstructionFader>(FindObjectsSortMode.None).Select(f => f.GetComponent<SpriteRenderer>())
+                .OrderBy(sr => Vector2.Distance(sr.transform.position, edge)).First();
+            yield return StandAt(edge + new Vector2(0f, 0.45f), 0.6f);
+            Assert.Less(wall.color.a, 0.6f);
             yield return Capture.Take("phase1_behind_store");
             yield return StandAt(new Vector2(0f, 0f), 0.6f);
-            Assert.AreEqual(1f, store.color.a, 1e-3f);
+            Assert.AreEqual(1f, wall.color.a, 1e-3f);
         }
     }
 

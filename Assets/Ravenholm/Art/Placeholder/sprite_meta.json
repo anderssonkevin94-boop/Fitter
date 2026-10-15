@@ -1813,6 +1813,76 @@
     0.0652
    ]
   },
+  "Shop/plot_sign.png": {
+   "pivot": [
+    0.5,
+    0.08333
+   ],
+   "ppu": 256
+  },
+  "Shop/post_low.png": {
+   "pivot": [
+    0.5,
+    0.07273
+   ],
+   "ppu": 256
+  },
+  "Shop/post_tall.png": {
+   "pivot": [
+    0.5,
+    0.02286
+   ],
+   "ppu": 256
+  },
+  "Shop/tile_blocked.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Shop/tile_ok.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Shop/wall_low_left.png": {
+   "pivot": [
+    0.5,
+    0.21818
+   ],
+   "ppu": 256
+  },
+  "Shop/wall_low_right.png": {
+   "pivot": [
+    0.5,
+    0.21818
+   ],
+   "ppu": 256
+  },
+  "Shop/wall_tall_left.png": {
+   "pivot": [
+    0.5,
+    0.06857
+   ],
+   "ppu": 256
+  },
+  "Shop/wall_tall_right.png": {
+   "pivot": [
+    0.5,
+    0.06857
+   ],
+   "ppu": 256
+  },
+  "Shop/weapon_rack_placeholder.png": {
+   "pivot": [
+    0.5,
+    0.1682
+   ],
+   "ppu": 160
+  },
   "Stacks/stack_antidote.png": {
    "pivot": [
     0.5,

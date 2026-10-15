@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 using System.IO;
 using NUnit.Framework;
 using Ravenholm.Presentation;
@@ -54,6 +55,8 @@ namespace Ravenholm.Tests
 
         private static StationInspectable Station(string name) => GameObject.Find(name).GetComponent<StationInspectable>();
 
+        private static FurnitureView Piece(string id) => ShopView.Current.Views.Values.First(v => v.Definition.Id == id);
+
         [UnityTest]
         public IEnumerator CraftCarryStockAndInspect()
         {
@@ -79,9 +82,8 @@ namespace Ravenholm.Tests
             yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.6f);  // store receiving strip
             Assert.AreEqual(2, log.State.StoreItems.Count);
             yield return null;
-            var rack = GameObject.Find("Weapon Rack").GetComponentInChildren<RackView>();
-            Assert.AreEqual(1, rack.VisibleCount, "the sword on the weapon rack");
-            Assert.AreEqual(1, GameObject.Find("Display Table").GetComponent<FurnitureView>().VisibleCount, "the dagger on the display table");
+            Assert.AreEqual(1, Piece("furniture.weapon_rack").VisibleCount, "the sword on the weapon rack");
+            Assert.AreEqual(1, Piece("furniture.display_table").VisibleCount, "the dagger on the display table");
             yield return Capture.Take("phase3_store_racks");
 
             GameRoot.Instance.Hud.ShowStore();
@@ -129,7 +131,7 @@ namespace Ravenholm.Tests
                 yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.8f);
             }
             Assert.AreEqual(10, log.State.StoreItems.Count);
-            var shelf = GameObject.Find("Potion Shelf").GetComponent<FurnitureView>();
+            var shelf = Piece("furniture.potion_shelf");
             yield return null;
             Assert.AreEqual(1, shelf.VisibleCount, "one distinct potion shown with a ×10 badge");
             CollectionAssert.IsEmpty(log.Audit());

@@ -42,6 +42,8 @@ namespace Ravenholm.Content
         [SerializeField] private List<UpgradeDefinition> upgrades = new List<UpgradeDefinition>();
         [SerializeField] private List<RegionDefinition> regions = new List<RegionDefinition>();
         [SerializeField] private List<TutorialStepDefinition> tutorial = new List<TutorialStepDefinition>();
+        [SerializeField] private ShopDefinition shop;
+        [SerializeField] private List<ShopFurnitureDefinition> shopFurniture = new List<ShopFurnitureDefinition>();
         [Tooltip("Applied balance revisions (Phase 9). Each revision is one documented, versioned set of tuning changes.")]
         [SerializeField] private int balanceRevision;
 
@@ -58,6 +60,8 @@ namespace Ravenholm.Content
         public IReadOnlyList<RecipeDefinition> Recipes => recipes;
         public IReadOnlyList<BlueprintDefinition> Blueprints => blueprints;
         public StartingState StartingState => startingState;
+        public ShopDefinition Shop => shop;
+        public IReadOnlyList<ShopFurnitureDefinition> ShopFurniture => shopFurniture;
         public IReadOnlyList<AdventurerClassDefinition> Classes => classes;
         public IReadOnlyList<TraitDefinition> Traits => traits;
         public IReadOnlyList<ThreatDefinition> Threats => threats;
@@ -91,6 +95,8 @@ namespace Ravenholm.Content
             foreach (var x in upgrades) yield return x;
             foreach (var x in regions) yield return x;
             foreach (var x in tutorial) yield return x;
+            if (shop != null) yield return shop;
+            foreach (var x in shopFurniture) yield return x;
         }
 
         public bool TryGet<T>(string id, out T definition) where T : ContentDefinition
@@ -236,6 +242,13 @@ namespace Ravenholm.Content
         }
 
         public void EditorSetBalanceRevision(int r) => balanceRevision = r;
+
+        public void EditorSetShop(ShopDefinition newShop, List<ShopFurnitureDefinition> furniture)
+        {
+            shop = newShop;
+            shopFurniture = furniture;
+            _byId = null;
+        }
 
         public void EditorSetTutorial(List<TutorialStepDefinition> steps)
         {

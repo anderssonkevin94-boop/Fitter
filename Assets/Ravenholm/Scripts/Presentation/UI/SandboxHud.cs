@@ -114,6 +114,18 @@ namespace Ravenholm.Presentation
             _result.Show(expeditionId);
         }
 
+        private ShopBuildPanel _shopBuild;
+        public ShopBuildPanel ShopBuild => _shopBuild;
+
+        /// <summary>Opens or closes the shop's build mode.</summary>
+        public void ToggleShopBuild()
+        {
+            if (_shopBuild.IsOpen) CloseShopBuild();
+            else { HideInfo(); _shopBuild.Open(); }
+        }
+
+        public void CloseShopBuild() => _shopBuild?.Close();
+
         public void ShowJobBoard()
         {
             HideInfo();
@@ -190,6 +202,7 @@ namespace Ravenholm.Presentation
             _tips = TipCard.Create(safe, _ui, root);   // below every modal layer: tips never cover a panel
             BuildJoystick();
             BuildInfoLayer(safe);
+            _shopBuild = ShopBuildPanel.Create(safe, _ui, root);
             _stationPanel = StationPanel.Create(safe, _ui, root);
             _storePanel = StorePanel.Create(safe, _ui, root);
             _jobBoard = JobBoardPanel.Create(safe, _ui, root);
@@ -257,6 +270,14 @@ namespace Ravenholm.Presentation
             UiFactory.Place(badge.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(10f, 10f), new Vector2(64f, 56f));
             _boardBadge = _ui.Text("Count", badge.transform, "", _theme.smallSize - 4f, Color.white, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(_boardBadge.rectTransform);
+
+            // Build mode for the shop (Shop Titans style): move, turn, upgrade and buy furniture; grow the shop.
+            var build = _ui.Panel("BuildButton", bar, _theme.roundButton);
+            build.type = Image.Type.Simple;
+            UiFactory.Place(build.rectTransform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-300f, 0), new Vector2(132f, 132f));
+            build.gameObject.AddComponent<Button>().onClick.AddListener(ToggleShopBuild);
+            var bl = _ui.Text("Label", build.transform, "Build", _theme.smallSize - 4f, _theme.ink, TextAlignmentOptions.Center, FontStyles.Bold);
+            UiFactory.Stretch(bl.rectTransform, 10f);
 
             var gear = _ui.Panel("DebugButton", bar, _theme.roundButton);
             gear.type = Image.Type.Simple;
@@ -789,6 +810,7 @@ namespace Ravenholm.Presentation
             HideInfo();
             _stationPanel.Close();
             _storePanel.Close();
+            CloseShopBuild();
             _traderPanel.Close();
             _awayPanel.Close();
             _settingsPanel.Close();

@@ -1,106 +1,105 @@
 using System.Collections.Generic;
+using Ravenholm.Content;
+using Ravenholm.Domain.Shop;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Ravenholm.Presentation
 {
     /// <summary>
-    /// A piece of Store furniture (GDD 4): shows the level the Store's station has reached and, in that level's slot
-    /// boxes, a representative subset of stocked items (the racks' order: pinned, strongest, newest). Each item is
-    /// scaled uniformly to fit its box; potions stand on the box's bottom, other pieces sit centred. The floor
-    /// footprint that blocks walking follows the level (the display tables grow longer).
+    /// One placed piece of shop furniture (GDD 4, Shop Titans style): its level's art in its facing (facing B mirrors
+    /// facing A until that art exists), the stock <see cref="ShopView"/> hands it, scaled uniformly into the level's slot
+    /// boxes (potions stand on the box's bottom, everything else sits centred), and, on the floor, a footprint that
+    /// blocks walking. Built and placed by <see cref="ShopView"/>; it never changes the shop itself.
     /// </summary>
     public sealed class FurnitureView : MonoBehaviour
     {
-        [SerializeField] private StoreFurnitureDefinition definition;
-        [SerializeField] private SpriteRenderer visual;
-        [SerializeField] private PolygonCollider2D footprint;
-
-        private GameRoot _root;
-        private readonly List<SpriteRenderer> _items = new List<SpriteRenderer>();
-        private readonly List<TextMeshPro> _badges = new List<TextMeshPro>();
-        private string _key = "";
-        private int _shownLevel = -1;
-
-        public int Level => _shownLevel;
-        public int SlotCount => _items.Count;
-        public int VisibleCount { get; private set; }
-        public StoreFurnitureDefinition Definition => definition;
-
-        /// <summary>The room's two floor axes, one tile each (front corner → right, front corner → left).</summary>
+        /// <summary>The shop's two floor axes, one tile each (front corner → right, front corner → left).</summary>
         public static readonly Vector2 AxisA = new Vector2(0.5f, 0.25f), AxisB = new Vector2(-0.5f, 0.25f);
 
-        public void EditorSetup(StoreFurnitureDefinition def, SpriteRenderer sr, PolygonCollider2D blocker)
-        {
-            definition = def;
-            visual = sr;
-            footprint = blocker;
-        }
-
-        private void Start()
-        {
-            _root = GameRoot.Instance;
-            if (_root == null || definition == null) { enabled = false; return; }
-            Update();
-        }
-
-        private void Update()
-        {
-            var level = definition.LevelFrom != null ? _root.Services.Production.System.Level(definition.LevelFrom.Id) : 1;
-            if (level != _shownLevel) ShowLevel(level);
-            if (_items.Count == 0) { VisibleCount = 0; return; }
-
-            var st = _root.Services.Logistics.System.State;
-            var key = st.StoreItems.Count + ":" + (st.StoreItems.Count > 0 ? st.StoreItems[st.StoreItems.Count - 1] : "") + ":" + string.Join(",", st.PinnedDefinitions);
-            if (key == _key) return;
-            _key = key;
-            var list = RackView.Representative(_root, definition.Shows);
-            VisibleCount = Mathf.Min(list.Count, _items.Count);
-            for (var i = 0; i < _items.Count; i++)
-            {
-                var on = i < list.Count && list[i].def.StackSprite != null;
-                _items[i].gameObject.SetActive(on);
-                if (!on) continue;
-                _items[i].sprite = list[i].def.StackSprite;
-                Fit(_items[i], i);
-                _badges[i].text = list[i].count > 1 ? "×" + list[i].count : "";
-            }
-        }
-
+        private ShopFurnitureDefinition _def;
+        private SpriteRenderer _visual;
+        private PolygonCollider2D _footprint;
+        private readonly List<SpriteRenderer> _items = new List<SpriteRenderer>();
+        private readonly List<TextMeshPro> _badges = new List<TextMeshPro>();
         private readonly List<Rect> _boxes = new List<Rect>();
+        private string _stockKey = "";
 
-        private void ShowLevel(int level)
+        public string PlacementId { get; private set; }
+        public int Level { get; private set; }
+        public Facing Facing { get; private set; }
+        public bool Mirrored { get; private set; }
+        public ShopFurnitureDefinition Definition => _def;
+        public int SlotCount => _boxes.Count;
+        public int VisibleCount { get; private set; }
+        public IReadOnlyList<Rect> Boxes => _boxes;
+        public SpriteRenderer Visual => _visual;
+
+        /// <summary>Creates the piece's object under <paramref name="parent"/>.</summary>
+        public static FurnitureView Create(Transform parent, ShopFurnitureDefinition def, Material material, int blockerLayer)
         {
-            _shownLevel = level;
-            _key = "";
-            var l = definition.At(level);
-            if (l == null) return;
-            if (visual != null) visual.sprite = l.sprite;
-            if (footprint != null)
+            var go = new GameObject(def.DisplayName);
+            go.transform.SetParent(parent, false);
+            go.AddComponent<SortingGroup>();
+            var view = go.AddComponent<FurnitureView>();
+            view._def = def;
+            var vis = new GameObject("Visual");
+            vis.transform.SetParent(go.transform, false);
+            view._visual = vis.AddComponent<SpriteRenderer>();
+            view._visual.spriteSortPoint = SpriteSortPoint.Pivot;
+            if (material != null) view._visual.sharedMaterial = material;
+            if (!def.Wall)
             {
-                var a = AxisA * (l.footprint.x * 0.5f);
-                var b = AxisB * (l.footprint.y * 0.5f);
-                footprint.enabled = l.footprint.x > 0f && l.footprint.y > 0f;
-                footprint.points = new[] { -a - b, a - b, a + b, -a + b };
+                var blocker = new GameObject("Footprint") { layer = blockerLayer };
+                blocker.transform.SetParent(go.transform, false);
+                view._footprint = blocker.AddComponent<PolygonCollider2D>();
+            }
+            go.AddComponent<SpriteOutline>();
+            return view;
+        }
+
+        /// <summary>Shows a placement: its level and facing, at <paramref name="ground"/> (the footprint centre, or the wall anchor).</summary>
+        public void Show(Placement p, Vector2 ground, (int a, int b) footprint)
+        {
+            PlacementId = p.Id;
+            transform.position = ground;
+            if (Level == p.Level && Facing == p.Facing && _visual.sprite != null) return;
+            Level = p.Level;
+            Facing = p.Facing;
+            var level = _def.At(p.Level);
+            var art = p.Facing == Facing.B && level.facingB.sprite != null ? level.facingB : level.facingA;
+            Mirrored = p.Facing == Facing.B && level.facingB.sprite == null;
+            _visual.sprite = art.sprite;
+            _visual.flipX = Mirrored;
+
+            if (_footprint != null)
+            {
+                var a = AxisA * (footprint.a * 0.5f);
+                var b = AxisB * (footprint.b * 0.5f);
+                _footprint.points = new[] { -a - b, a - b, a + b, -a + b };
             }
 
             foreach (var sr in _items) Destroy(sr.gameObject);
             _items.Clear();
             _badges.Clear();
             _boxes.Clear();
-            var ppu = definition.PixelsPerUnit;
-            foreach (var s in l.slots)
+            _stockKey = "";
+            var ppu = _def.PixelsPerUnit;
+            foreach (var s in art.slots)
             {
-                // Pixels (top-left origin) → local units from the ground point (y up).
-                _boxes.Add(new Rect((s.x - l.ground.x) / ppu, (l.ground.y - s.yMax) / ppu, s.width / ppu, s.height / ppu));
+                // Pixels (top-left origin) → local units from the ground point (y up); mirrored with the art.
+                var x = (s.x - art.ground.x) / ppu;
+                if (Mirrored) x = -x - s.width / ppu;
+                _boxes.Add(new Rect(x, (art.ground.y - s.yMax) / ppu, s.width / ppu, s.height / ppu));
                 var go = new GameObject("Slot");
                 go.transform.SetParent(transform, false);
                 var sr = go.AddComponent<SpriteRenderer>();
                 sr.sortingOrder = 5;
-                if (visual != null) sr.sharedMaterial = visual.sharedMaterial;
+                sr.sharedMaterial = _visual.sharedMaterial;
                 _items.Add(sr);
                 var badgeGo = new GameObject("Badge");
-                badgeGo.transform.SetParent(transform, false);
+                badgeGo.transform.SetParent(go.transform, false);
                 var t = badgeGo.AddComponent<TextMeshPro>();
                 t.fontSize = 1.6f;
                 t.fontStyle = FontStyles.Bold;
@@ -110,30 +109,44 @@ namespace Ravenholm.Presentation
                 t.outlineWidth = 0.3f;
                 t.rectTransform.sizeDelta = new Vector2(0.6f, 0.3f);
                 t.sortingOrder = 6;
-                badgeGo.transform.SetParent(go.transform, true);
                 _badges.Add(t);
                 go.SetActive(false);
             }
         }
 
-        /// <summary>Scales the item uniformly into its box: potions on the box's bottom, everything else centred.</summary>
+        /// <summary>Fills the slots with these items (one per slot, in order) and their counts.</summary>
+        public void SetStock(IReadOnlyList<(ItemDefinition def, int count)> stock)
+        {
+            var key = new System.Text.StringBuilder();
+            foreach (var s in stock) key.Append(s.def.Id).Append('x').Append(s.count).Append(',');
+            if (key.ToString() == _stockKey) return;
+            _stockKey = key.ToString();
+            VisibleCount = 0;
+            for (var i = 0; i < _items.Count; i++)
+            {
+                var on = i < stock.Count && stock[i].def.StackSprite != null;
+                _items[i].gameObject.SetActive(on);
+                if (!on) continue;
+                VisibleCount++;
+                _items[i].sprite = stock[i].def.StackSprite;
+                Fit(_items[i], i);
+                _badges[i].text = stock[i].count > 1 ? "×" + stock[i].count : "";
+            }
+        }
+
         private void Fit(SpriteRenderer sr, int i)
         {
             var box = _boxes[i];
             var b = sr.sprite.bounds;   // local to the sprite's pivot
             var scale = Mathf.Min(box.width / Mathf.Max(b.size.x, 0.001f), box.height / Mathf.Max(b.size.y, 0.001f));
             sr.transform.localScale = Vector3.one * scale;
-            var bottom = definition.Display == FurnitureDisplay.Potion;
+            var bottom = _def.Display == FurnitureDisplay.Potion;
             var target = bottom ? new Vector2(box.center.x, box.yMin) : box.center;
             var anchor = bottom ? new Vector2(b.center.x, b.min.y) : (Vector2)b.center;
             sr.transform.localPosition = target - anchor * scale;
-            // The count sits at the box's lower right (badge size is independent of the item's scale).
             var badge = _badges[i].transform;
             badge.localScale = Vector3.one / Mathf.Max(scale, 0.001f);
             badge.position = transform.TransformPoint(new Vector3(box.xMax, box.yMin + 0.04f, 0f));
         }
-
-        /// <summary>The level's slot boxes in local units (for tests).</summary>
-        public IReadOnlyList<Rect> Boxes => _boxes;
     }
 }

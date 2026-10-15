@@ -1021,3 +1021,36 @@ Kevin: the supplier is the only one gathering, by hand; nothing is gathered whil
 - **Direction.** Kevin turned down the fixed furniture placement. The shop will work like Shop Titans: the player places furniture freely on a tile grid and expands the building strip by strip with resources. It has no roof and is always seen as an open room.
 - **Brief.** The modular art brief is `Docs/ART_BRIEF_SHOP_MODULAR.md`, which replaces the roof-lift brief. Its templates and layout mock-up are in `Docs/astra-refs/shop-modular/`, made by `Tools/ArtImport/make_shop_templates.py`. The art comes in two steps: a sample for approval first.
 - **Interim.** The current furniture placement stays in the game until the modular shop is built. The v2 furniture art and its configs carry over.
+
+## 2026-10-15: the modular shop, first playable (placeholders)
+
+Kevin: 4 × 6 to start, 2 × 2 add-ons, no roof for now, and Astra has visual freedom as long as the pieces work.
+
+- **Roof.** None. Add-ons make L, T and U shapes, and a pitched roof over any shape would need many fragile pieces. Shop Titans has no roof either. Per-tile roof pieces that fade out could come later without changing the system.
+- **Domain** (`Domain/Shop/ShopModel.cs`, engine-free). `ShopGrid` covers:
+  - **Floor:** tiles from the owned 2 × 2 blocks.
+  - **Edges:**
+    - back edges with no floor behind them get full walls;
+    - a full wall that would hide floor diagonally behind it becomes a low wall (inside corners);
+    - front edges get low walls;
+    - the entrance is a gap.
+  - **Posts:** wherever a run turns, ends or changes height.
+  - **Placement rules:**
+    - floor pieces sit on free floor, never on the entrance tile;
+    - every piece must border a tile you can walk to from the entrance;
+    - wall pieces hang across 2 full-wall edges, without overlapping;
+    - bought blocks must join the shop inside the 5 × 5-block lot.
+- **Content.**
+  - `ShopDefinition` (`shop.main`): start blocks, lot, entrance and the escalating block prices (80 gold and 10 cedar lumber for the first, up to 360 gold, 18 maple lumber and 8 steel ingots; the last price repeats).
+  - `ShopFurnitureDefinition` (`furniture.*`): per level, a footprint, art for both facings or both walls, slots, and a price to buy or upgrade.
+  - Desk (2 × 1, not for sale), display table (1 × 1, 1 × 2, 1 × 3 along B), armour stand, potion shelves (wall) and weapon rack (wall; the old rack art as a placeholder).
+  - All prices are balance starting points. Furniture levels are now per piece; the fixed shop's Service Desk station and its upgrades are retired.
+- **Service** (`ShopService`, save section `shop`): place, move, turn, put away, upgrade, buy furniture and buy blocks. Every command validates first, then pays and applies. Buying a block puts away any piece that no longer fits. Older saves start with the default shop.
+- **Presentation.**
+  - `ShopView` draws the floor, walls and posts (placeholder art from `Tools/ArtImport/make_shop_placeholders.py`, on Astra's template canvases and anchors).
+  - **Sorting:** full walls sort 0.2 behind their edge, so wall furniture and anyone inside draw in front. Full walls fade while you stand behind them.
+  - **Stock:** each piece shows its slice of the stock; pieces of the same kind take consecutive slices.
+  - **Facing B:** mirrors facing A until Astra draws it.
+  - **Build mode:** the Build button opens a bottom panel and shows the buyable plots. Taps pick, move and place pieces; while a piece is selected, a tap counts only what stands on the tapped tile.
+  - **Desk:** it opens the Store inventory and carries the bell's tap target. The store receiver stands on the tile inside the entrance.
+- **Not yet.** Astra's shell pieces, facing-B art, the new furniture (long rack, pedestal), a drag-to-move preview, customers walking the shop, and re-laying the town around the larger lot.

@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using V2 = UnityEngine.Vector2Int;
 
 namespace Ravenholm.EditorTools
 {
@@ -85,7 +86,7 @@ namespace Ravenholm.EditorTools
             EnsurePostgameContent(catalogue);
             EnsureKnowledgeContent(catalogue);
             ApplyBalanceRevisions(catalogue);
-            EnsureShopFurniture(catalogue);
+            EnsureShop(catalogue);
             var settings = EnsureAsset<SandboxSettings>(ConfigDir + "SandboxSettings.asset");
             var theme = EnsureUiTheme();
             EnsureOreBlocks();
@@ -808,34 +809,17 @@ namespace Ravenholm.EditorTools
             AssetDatabase.SaveAssets();
         }
 
-        public const string FurnitureDir = ConfigDir + "Furniture/";
-        public const string ShopStationId = "station.store";
+        public const string ShopDir = Root + "Content/Shop/";
 
         /// <summary>
-        /// Astra's shop furniture (2026-10-15): the Shop station (levels 1-3, bought at the service desk), its two
-        /// upgrades, the small pieces shown on the display tables, and one furniture config per piece built from the
-        /// art's points.json (sprites, ground points, item-slot boxes) plus the floor footprints chosen here.
-        /// Idempotent: creates what is missing; the configs are rebuilt from the art each run.
+        /// The modular shop (Shop Titans style, Kevin 2026-10-15): the shop (4 x 6 tiles to start, 2 x 2 blocks to buy,
+        /// a 10 x 10 lot) and its furniture types, with art, footprints, slots and costs per level. The art comes from
+        /// Astra's furniture pack (points.json) and the shop placeholders; prices are created once (balance starting
+        /// points), the art is refreshed each run. Also retires the fixed-shop "Service Desk" station and its upgrades.
         /// </summary>
-        private static void EnsureShopFurniture(ContentCatalogue catalogue)
+        private static void EnsureShop(ContentCatalogue catalogue)
         {
-            // The Shop station: its level is the furniture's level.
-            var stationPath = ProductionDir + "station_store.asset";
-            var stationCreated = !File.Exists(stationPath);
-            var shop = EnsureAsset<StationDefinition>(stationPath);
-            if (stationCreated)
-            {
-                shop.EditorInitialize(ShopStationId, "Service Desk");
-                shop.EditorSetupStation("", 6, 1, 3);
-                EditorUtility.SetDirty(shop);
-            }
-            if (!catalogue.Stations.Contains(shop))
-            {
-                var stations = new List<StationDefinition>(catalogue.Stations) { shop };
-                catalogue.EditorSetProduction(stations, new List<ProcessDefinition>(catalogue.Processes), new List<RecipeDefinition>(catalogue.Recipes),
-                    new List<BlueprintDefinition>(catalogue.Blueprints), catalogue.StartingState);
-                EditorUtility.SetDirty(catalogue);
-            }
+            RetireFixedShop(catalogue);
 
             List<ResourceCost> M(params (string r, int q)[] c)
             {
@@ -843,69 +827,142 @@ namespace Ravenholm.EditorTools
                 foreach (var (r, qty) in c) l.Add(new ResourceCost { resource = catalogue.Get<ResourceDefinition>("resource." + r), quantity = qty });
                 return l;
             }
-            UpgradeDefinition Up(string key, string name, int level, int gold, List<ResourceCost> mats, string effect, UpgradeDefinition req)
-            {
-                var path = EconomyDir + "upgrade_" + key + ".asset";
-                var created = !File.Exists(path);
-                var u = EnsureAsset<UpgradeDefinition>(path);
-                if (!created) return u;
-                u.EditorInitialize("upgrade." + key, name);
-                u.EditorSetupUpgrade(UpgradeKind.StationLevel, shop, null, level, gold, mats, effect, req, null, 0, null, 0);
-                EditorUtility.SetDirty(u);
-                return u;
-            }
-            // Balance starting points (not in the GDD table).
-            var shop2 = Up("store_2", "Shop furniture 2", 2, 60, M(("cedar_lumber", 10), ("iron_ingot", 4)),
-                "Walnut and iron furniture: potion shelves hold 6, a longer display table holds 3", null);
-            var shop3 = Up("store_3", "Shop furniture 3", 3, 150, M(("maple_lumber", 8), ("steel_ingot", 4), ("copper_ingot", 2)),
-                "Dark wood, brass and velvet: potion shelves hold 9, the long display table holds 4", shop2);
-            var upgrades = new List<UpgradeDefinition>(catalogue.Upgrades);
-            var added = false;
-            foreach (var u in new[] { shop2, shop3 }) if (!upgrades.Contains(u)) { upgrades.Add(u); added = true; }
-            if (added) { catalogue.EditorSetEconomy(catalogue.TraderStock, upgrades); EditorUtility.SetDirty(catalogue); }
 
             // Small pieces go on the display tables (content, not code: one flag per item).
             foreach (var id in new[] { "item.iron_dagger", "item.steel_stiletto", "item.moonsilver_focus" })
                 if (catalogue.TryGet<ItemDefinition>(id, out var item) && !item.SmallDisplay) { item.EditorSetSmallDisplay(true); EditorUtility.SetDirty(item); }
 
-            // Furniture configs from the art's points.json.
             var json = PlaceholderSpriteImporter.ArtRoot + "Furniture/points.json";
             if (!File.Exists(json)) return;
             var pts = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(json));
-            var ppu = (float)pts["pixels_per_unit"];
-            // Floor footprints that block walking, in tiles along the room's axes (front→right, front→left), per level.
-            var pieces = new (string key, FurnitureDisplay display, Vector2[] footprint)[]
+
+            ShopFurnitureDefinition.Art Astra(string file)
             {
-                ("armor_stand", FurnitureDisplay.Armor, new[] { new Vector2(0.55f, 0.55f), new Vector2(0.55f, 0.55f), new Vector2(0.55f, 0.55f) }),
-                ("potion_shelf", FurnitureDisplay.Potion, new[] { Vector2.zero, Vector2.zero, Vector2.zero }),   // on the wall
-                ("display_table", FurnitureDisplay.Small, new[] { new Vector2(0.6f, 0.75f), new Vector2(0.6f, 1.5f), new Vector2(0.55f, 2.2f) }),
-                ("desk", FurnitureDisplay.None, new[] { new Vector2(1.7f, 0.5f), new Vector2(1.7f, 0.5f), new Vector2(1.7f, 0.5f) }),
-            };
-            foreach (var (key, display, footprint) in pieces)
-            {
-                var levels = new List<StoreFurnitureDefinition.Level>();
-                for (var n = 1; n <= 3; n++)
+                var a = pts["assets"][file + ".png"];
+                var slots = new List<Rect>();
+                foreach (var sl in a["slots"]) slots.Add(new Rect((float)sl["x"], (float)sl["y"], (float)sl["w"], (float)sl["h"]));
+                return new ShopFurnitureDefinition.Art
                 {
-                    var a = pts["assets"][$"{key}_{n}.png"];
-                    var slots = new List<Rect>();
-                    foreach (var sl in a["slots"]) slots.Add(new Rect((float)sl["x"], (float)sl["y"], (float)sl["w"], (float)sl["h"]));
-                    levels.Add(new StoreFurnitureDefinition.Level
-                    {
-                        sprite = LoadSprite($"Furniture/{key}_{n}"),
-                        ground = new Vector2((float)a["ground"]["x"], (float)a["ground"]["y"]),
-                        slots = slots,
-                        footprint = footprint[n - 1],
-                    });
+                    sprite = LoadSprite("Furniture/" + file), ground = new Vector2((float)a["ground"]["x"], (float)a["ground"]["y"]), slots = slots,
+                };
+            }
+
+            // Placeholder weapon rack (the old rack art) with n slots spread across it.
+            ShopFurnitureDefinition.Art Rack(int n)
+            {
+                var sprite = LoadSprite("Shop/weapon_rack_placeholder");
+                var w = sprite.rect.width;
+                var slots = new List<Rect>();
+                for (var i = 0; i < n; i++)
+                {
+                    var bw = (w - 28f) / n;
+                    slots.Add(new Rect(14f + i * bw + 2f, 28f, bw - 4f, 66f));
                 }
-                var def = EnsureAsset<StoreFurnitureDefinition>(FurnitureDir + "furniture_" + key + ".asset");
-                def.EditorSetup(display, shop, ppu, levels);
+                return new ShopFurnitureDefinition.Art { sprite = sprite, ground = new Vector2(w * 0.5f, sprite.rect.height * (1f - 0.1682f)), slots = slots };
+            }
+
+            ShopFurnitureDefinition.Level L(Vector2Int fp, ShopFurnitureDefinition.Art a, int gold, List<ResourceCost> mats) =>
+                new ShopFurnitureDefinition.Level { footprint = fp, facingA = a, facingB = new ShopFurnitureDefinition.Art(), gold = gold, materials = mats };
+
+            ShopFurnitureDefinition Furniture(string key, string name, FurnitureDisplay display, bool wall, float ppu, bool forSale,
+                params ShopFurnitureDefinition.Level[] levels)
+            {
+                var path = ShopDir + "furniture_" + key + ".asset";
+                var created = !File.Exists(path);
+                var def = EnsureAsset<ShopFurnitureDefinition>(path);
+                if (created) def.EditorInitialize("furniture." + key, name);
+                else
+                {
+                    // Keep authored prices; refresh art, slots and footprints from the art.
+                    for (var i = 0; i < levels.Length && i < def.Levels.Count; i++)
+                    {
+                        levels[i].gold = def.Levels[i].gold;
+                        levels[i].materials = new List<ResourceCost>(def.Levels[i].materials);
+                    }
+                }
+                def.EditorSetup(display, wall, 2, ppu, forSale, new List<ShopFurnitureDefinition.Level>(levels));
                 EditorUtility.SetDirty(def);
+                return def;
+            }
+
+            V2 One = new V2(1, 1);
+            var desk = Furniture("desk", "Service Desk", FurnitureDisplay.None, false, 256f, false,
+                L(new V2(2, 1), Astra("desk_1"), 0, M()),
+                L(new V2(2, 1), Astra("desk_2"), 60, M(("cedar_lumber", 10), ("iron_ingot", 4))),
+                L(new V2(2, 1), Astra("desk_3"), 150, M(("maple_lumber", 8), ("steel_ingot", 4), ("copper_ingot", 2))));
+            var table = Furniture("display_table", "Display Table", FurnitureDisplay.Small, false, 256f, true,
+                L(One, Astra("display_table_1"), 30, M(("cedar_lumber", 4))),
+                L(new V2(1, 2), Astra("display_table_2"), 70, M(("cedar_lumber", 8), ("iron_ingot", 2))),
+                L(new V2(1, 3), Astra("display_table_3"), 140, M(("maple_lumber", 8), ("steel_ingot", 3))));
+            var armor = Furniture("armor_stand", "Armour Stand", FurnitureDisplay.Armor, false, 256f, true,
+                L(One, Astra("armor_stand_1"), 30, M(("cedar_lumber", 3), ("iron_ingot", 2))),
+                L(One, Astra("armor_stand_2"), 60, M(("cedar_lumber", 4), ("iron_ingot", 4))),
+                L(One, Astra("armor_stand_3"), 130, M(("maple_lumber", 4), ("steel_ingot", 3))));
+            var shelf = Furniture("potion_shelf", "Potion Shelves", FurnitureDisplay.Potion, true, 256f, true,
+                L(One, Astra("potion_shelf_1"), 25, M(("cedar_lumber", 4))),
+                L(One, Astra("potion_shelf_2"), 55, M(("cedar_lumber", 6), ("copper_ingot", 2))),
+                L(One, Astra("potion_shelf_3"), 120, M(("maple_lumber", 6), ("copper_ingot", 3))));
+            var rack = Furniture("weapon_rack", "Weapon Rack", FurnitureDisplay.Weapon, true, 160f, true,
+                L(One, Rack(3), 30, M(("cedar_lumber", 4), ("iron_ingot", 2))),
+                L(One, Rack(4), 60, M(("cedar_lumber", 6), ("iron_ingot", 4))),
+                L(One, Rack(5), 130, M(("maple_lumber", 6), ("steel_ingot", 3))));
+
+            var shopPath = ShopDir + "shop.asset";
+            var shopCreated = !File.Exists(shopPath);
+            var shop = EnsureAsset<ShopDefinition>(shopPath);
+            if (shopCreated)
+            {
+                shop.EditorInitialize("shop.main", "Your Shop");
+                ShopDefinition.Cost C(int gold, List<ResourceCost> m) => new ShopDefinition.Cost { gold = gold, materials = m };
+                ShopDefinition.StartingPiece P(ShopFurnitureDefinition f, int a, int b, bool facingB = false) =>
+                    new ShopDefinition.StartingPiece { furniture = f, level = 1, tile = new V2(a, b), facingB = facingB };
+                // 6 tiles along A by 4 along B (blocks 0..2 x 0..1); the entrance on the front-right edge, near the front corner.
+                shop.EditorSetup(new V2(5, 5),
+                    new List<V2> { new V2(0, 0), new V2(1, 0), new V2(2, 0), new V2(0, 1), new V2(1, 1), new V2(2, 1) },
+                    new V2(1, 0), ShopDefinition.EntranceEdge.FrontRight,
+                    new List<ShopDefinition.Cost>
+                    {
+                        C(80, M(("cedar_lumber", 10))),
+                        C(120, M(("cedar_lumber", 14), ("iron_ingot", 4))),
+                        C(180, M(("maple_lumber", 10), ("iron_ingot", 6))),
+                        C(260, M(("maple_lumber", 14), ("steel_ingot", 4))),
+                        C(360, M(("maple_lumber", 18), ("steel_ingot", 8))),
+                    },
+                    new List<ShopDefinition.StartingPiece>
+                    {
+                        P(desk, 2, 0), P(table, 1, 2), P(armor, 4, 2), P(shelf, 1, 3), P(rack, 5, 1, facingB: true),
+                    });
+                EditorUtility.SetDirty(shop);
+            }
+            var furniture = new List<ShopFurnitureDefinition> { desk, table, armor, shelf, rack };
+            if (catalogue.Shop != shop || catalogue.ShopFurniture.Count != furniture.Count)
+            {
+                catalogue.EditorSetShop(shop, furniture);
+                EditorUtility.SetDirty(catalogue);
             }
             AssetDatabase.SaveAssets();
         }
 
-        public static StoreFurnitureDefinition LoadFurniture(string key) =>
-            AssetDatabase.LoadAssetAtPath<StoreFurnitureDefinition>(FurnitureDir + "furniture_" + key + ".asset");
+        /// <summary>The fixed shop's "Service Desk" station, its upgrades and furniture configs (2026-10-15, not approved).</summary>
+        private static void RetireFixedShop(ContentCatalogue catalogue)
+        {
+            var stations = new List<StationDefinition>(catalogue.Stations);
+            if (stations.RemoveAll(s => s != null && s.Id == "station.store") > 0)
+            {
+                catalogue.EditorSetProduction(stations, new List<ProcessDefinition>(catalogue.Processes), new List<RecipeDefinition>(catalogue.Recipes),
+                    new List<BlueprintDefinition>(catalogue.Blueprints), catalogue.StartingState);
+                EditorUtility.SetDirty(catalogue);
+            }
+            var upgrades = new List<UpgradeDefinition>(catalogue.Upgrades);
+            if (upgrades.RemoveAll(u => u != null && (u.Id == "upgrade.store_2" || u.Id == "upgrade.store_3")) > 0)
+            {
+                catalogue.EditorSetEconomy(catalogue.TraderStock, upgrades);
+                EditorUtility.SetDirty(catalogue);
+            }
+            foreach (var path in new[] { ProductionDir + "station_store.asset", EconomyDir + "upgrade_store_2.asset", EconomyDir + "upgrade_store_3.asset" })
+                if (File.Exists(path)) AssetDatabase.DeleteAsset(path);
+            if (AssetDatabase.IsValidFolder(ConfigDir + "Furniture")) AssetDatabase.DeleteAsset(ConfigDir + "Furniture");
+        }
 
         public const string SupplierAnimationsPath = ConfigDir + "SupplierAnimations.asset";
 

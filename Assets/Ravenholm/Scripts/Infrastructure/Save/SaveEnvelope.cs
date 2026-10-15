@@ -49,6 +49,9 @@ namespace Ravenholm.Infrastructure.Save
         /// <summary>The supplier's own tool and pack (solo play). Null = starting gear.</summary>
         [JsonProperty("playerGear")] public PlayerGearData PlayerGear;
 
+        /// <summary>The shop's blocks and furniture (2026-10-15). Optional: older saves start with the default shop.</summary>
+        [JsonProperty("shop")] public ShopSaveData Shop;
+
         public ulong GetWorldSeed() => ulong.Parse(WorldSeed, System.Globalization.CultureInfo.InvariantCulture);
 
         public void SetWorldSeed(ulong seed) => WorldSeed = seed.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -404,6 +407,27 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("traderRemaining")] public SortedDictionary<string, int> TraderRemaining = new SortedDictionary<string, int>();
         [JsonProperty("upgrades")] public List<string> Upgrades = new List<string>();
         [JsonProperty("lastCatchUpId")] public string LastCatchUpId = "";
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class ShopSaveData
+    {
+        [JsonProperty("blocks")] public List<int[]> Blocks = new List<int[]>();
+        [JsonProperty("furniture")] public List<ShopFurnitureSaveData> Furniture = new List<ShopFurnitureSaveData>();
+        [JsonProperty("nextId")] public long NextId = 1;
+        [JsonProperty("expansions")] public int Expansions;
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class ShopFurnitureSaveData
+    {
+        [JsonProperty("id")] public string Id = "";
+        [JsonProperty("furniture")] public string Furniture = "";
+        [JsonProperty("level")] public int Level = 1;
+        [JsonProperty("placed")] public bool Placed;
+        [JsonProperty("a")] public int A;
+        [JsonProperty("b")] public int B;
+        [JsonProperty("facing")] public string Facing = "A";
     }
 
     [JsonObject(MemberSerialization.OptIn)]

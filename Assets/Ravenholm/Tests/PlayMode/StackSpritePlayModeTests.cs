@@ -150,8 +150,9 @@ namespace Ravenholm.Tests
             Assert.AreEqual(0, Sys.CarryCount, "all delivered");
             motor.Teleport(new Vector2(0f, 2.6f));
             yield return new WaitForSeconds(0.6f);
-            foreach (var rack in Object.FindObjectsByType<RackView>(FindObjectsSortMode.None))
+            foreach (var rack in ShopView.Current.Views.Values)
             {
+                if (rack.Definition.Display == Ravenholm.Content.FurnitureDisplay.None || rack.Definition.Display == Ravenholm.Content.FurnitureDisplay.Small) continue;
                 Assert.Greater(rack.VisibleCount, 0, $"{rack.name} shows stock");
                 foreach (var sr in rack.GetComponentsInChildren<SpriteRenderer>())
                     if (sr.gameObject.activeInHierarchy && sr.sprite != null && sr.sprite.name.StartsWith("stack_"))

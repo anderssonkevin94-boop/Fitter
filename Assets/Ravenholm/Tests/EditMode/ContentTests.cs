@@ -141,7 +141,7 @@ namespace Ravenholm.Tests
             CollectionAssert.Contains(bootDeps, ProjectSetup.ConfigDir + "BootConfig.asset");
             var sandboxDeps = AssetDatabase.GetDependencies(ProjectSetup.SandboxScene, false);
             CollectionAssert.Contains(sandboxDeps, ProjectSetup.TileDir + "tile_grass_a.asset");
-            CollectionAssert.Contains(sandboxDeps, PlaceholderSpriteImporter.ArtRoot + "Buildings/bld_store.png");
+            CollectionAssert.Contains(sandboxDeps, PlaceholderSpriteImporter.ArtRoot + "Shop/wall_tall_left.png");
         }
 
         [Test]

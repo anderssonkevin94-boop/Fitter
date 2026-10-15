@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -113,10 +114,14 @@ namespace Ravenholm.Presentation
             if (!target.OpensOwnPanel) _root.Hud.ShowInfo(target);
         }
 
+        /// <summary>Takes world taps first while set (the shop's build mode); returns true when it used the tap.</summary>
+        public static Func<Vector2, bool> TapOverride;
+
         private void OnTapped(Vector2 screenPos)
         {
             if (worldCamera == null) return;
             var world = worldCamera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, -worldCamera.transform.position.z));
+            if (TapOverride != null && TapOverride(world)) return;
             var front = FrontmostAt(world);
             if (front != null) Inspect(front);
         }
