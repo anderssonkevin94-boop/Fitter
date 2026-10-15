@@ -53,7 +53,7 @@ namespace Ravenholm.Services
             _config.LotA = def.LotBlocks.x;
             _config.LotB = def.LotBlocks.y;
             foreach (var b in def.StartBlocks) _config.StartBlocks.Add(new Tile(b.x, b.y));
-            _config.Entrance = new Tile(def.EntranceTile.x, def.EntranceTile.y);
+            foreach (var e in def.EntranceTiles()) _config.Entrance.Add(new Tile(e.x, e.y));
             _config.EntranceSide = def.Entrance == ShopDefinition.EntranceEdge.FrontLeft ? EdgeSide.FrontLeft : EdgeSide.FrontRight;
             foreach (var f in _catalogue.ShopFurniture)
             {
@@ -194,17 +194,43 @@ namespace Ravenholm.Services
             return null;
         }
 
-        /// <summary>Puts away every placed piece that no longer fits (after the shell changed).</summary>
-        private void Revalidate()
+        /// <summary>Puts away every placed piece that no longer fits (after the shell changed). Returns them.</summary>
+        private List<Placement> Revalidate()
         {
+            var stored = new List<Placement>();
             foreach (var p in State.Furniture)
             {
                 if (!p.Placed) continue;
                 if (Grid.CanPlace(ShapeOf(p.FurnitureId), p.Level, p.A, p.B, p.Facing, p) == null) continue;
                 p.Placed = false;
+                stored.Add(p);
                 _grid = null;
             }
+            return stored;
         }
+
+        /// <summary>Puts these pieces where a new shop has the same kind of piece, if that spot is free.</summary>
+        private void PlaceAtStart(List<Placement> pieces)
+        {
+            var used = new HashSet<ShopDefinition.StartingPiece>();
+            foreach (var p in pieces)
+                foreach (var s in Definition.StartingFurniture)
+                {
+                    if (used.Contains(s) || s.furniture == null || s.furniture.Id != p.FurnitureId) continue;
+                    var f = s.facingB ? Facing.B : Facing.A;
+                    if (Grid.CanPlace(ShapeOf(p.FurnitureId), p.Level, s.tile.x, s.tile.y, f, p) != null) continue;
+                    used.Add(s);
+                    p.Placed = true;
+                    p.A = s.tile.x;
+                    p.B = s.tile.y;
+                    p.Facing = f;
+                    _grid = null;
+                    break;
+                }
+        }
+
+        /// <summary>Saved shop layout version (see Read).</summary>
+        public const int LayoutVersion = 2;
 
         // ------------------------------------------------------------------ costs
 
@@ -233,7 +259,7 @@ namespace Ravenholm.Services
         void ISaveSection.Write(SaveEnvelope env)
         {
             if (!Enabled) return;
-            var d = new ShopSaveData { NextId = State.NextId, Expansions = State.Expansions };
+            var d = new ShopSaveData { NextId = State.NextId, Expansions = State.Expansions, Layout = LayoutVersion };
             foreach (var b in State.Blocks) d.Blocks.Add(new[] { b.A, b.B });
             foreach (var p in State.Furniture)
                 d.Furniture.Add(new ShopFurnitureSaveData
@@ -263,8 +289,11 @@ namespace Ravenholm.Services
                     A = f.A, B = f.B, Facing = f.Facing == "B" ? Facing.B : Facing.A,
                 });
             }
-            if (State.Blocks.Count == 0) foreach (var b in _config.StartBlocks) State.Blocks.Add(b);
-            Revalidate();
+            // Layout 2 (2026-10-15): the start grew from 4 x 6 to 6 x 6 and the entrance to 2 tiles. Older shops get the
+            // new start blocks; pieces that no longer fit go back to where a new shop has them, else into storage.
+            foreach (var b in _config.StartBlocks) if (!State.Blocks.Contains(b)) State.Blocks.Add(b);
+            var stored = Revalidate();
+            if (d.Layout < LayoutVersion) PlaceAtStart(stored);
             Changed?.Invoke();
         }
 

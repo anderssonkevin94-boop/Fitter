@@ -14,17 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ShopDefinition
   id: shop.main
   displayName: Your Shop
-  contentVersion: 1
+  contentVersion: 2
   lotBlocks: {x: 5, y: 5}
   startBlocks:
   - {x: 0, y: 0}
-  - {x: 1, y: 0}
-  - {x: 2, y: 0}
   - {x: 0, y: 1}
+  - {x: 0, y: 2}
+  - {x: 1, y: 0}
   - {x: 1, y: 1}
+  - {x: 1, y: 2}
+  - {x: 2, y: 0}
   - {x: 2, y: 1}
+  - {x: 2, y: 2}
   entranceTile: {x: 1, y: 0}
   entranceEdge: 1
+  entranceWidth: 2
   expansionCosts:
   - gold: 80
     materials:
@@ -57,21 +61,21 @@ MonoBehaviour:
   startingFurniture:
   - furniture: {fileID: 11400000, guid: 5f594a4a330ce415b99594e66d8da622, type: 2}
     level: 1
-    tile: {x: 2, y: 0}
+    tile: {x: 3, y: 0}
     facingB: 0
   - furniture: {fileID: 11400000, guid: 57f74e501d4c54c68a8acdc92a501b80, type: 2}
     level: 1
-    tile: {x: 1, y: 2}
+    tile: {x: 1, y: 3}
     facingB: 0
   - furniture: {fileID: 11400000, guid: c2ac8fed2c7f74626904523fe843aa73, type: 2}
     level: 1
-    tile: {x: 4, y: 2}
+    tile: {x: 4, y: 3}
     facingB: 0
   - furniture: {fileID: 11400000, guid: c4162a417cf27419ca172156ffcc4d02, type: 2}
     level: 1
-    tile: {x: 1, y: 3}
+    tile: {x: 1, y: 5}
     facingB: 0
   - furniture: {fileID: 11400000, guid: 792e46d64ac0d42f1af4c4e4652f9666, type: 2}
     level: 1
-    tile: {x: 5, y: 1}
+    tile: {x: 5, y: 2}
     facingB: 1

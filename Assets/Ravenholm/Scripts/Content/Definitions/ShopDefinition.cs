@@ -36,6 +36,8 @@ namespace Ravenholm.Content
         [Tooltip("The floor tile just inside the entrance.")]
         [SerializeField] private Vector2Int entranceTile;
         [SerializeField] private EntranceEdge entranceEdge = EntranceEdge.FrontRight;
+        [Tooltip("How many tiles wide the entrance is, from the entrance tile along its edge.")]
+        [Min(1)] [SerializeField] private int entranceWidth = 2;
         [Tooltip("Price of each 2 x 2 block, in order of purchase; the last price repeats.")]
         [SerializeField] private List<Cost> expansionCosts = new List<Cost>();
         [SerializeField] private List<StartingPiece> startingFurniture = new List<StartingPiece>();
@@ -45,6 +47,16 @@ namespace Ravenholm.Content
         public IReadOnlyList<Vector2Int> StartBlocks => startBlocks;
         public Vector2Int EntranceTile => entranceTile;
         public EntranceEdge Entrance => entranceEdge;
+        public int EntranceWidth => entranceWidth;
+
+        /// <summary>The tiles just inside the entrance: from the entrance tile along its edge.</summary>
+        public List<Vector2Int> EntranceTiles()
+        {
+            var tiles = new List<Vector2Int>();
+            var step = entranceEdge == EntranceEdge.FrontRight ? new Vector2Int(1, 0) : new Vector2Int(0, 1);
+            for (var i = 0; i < Mathf.Max(1, entranceWidth); i++) tiles.Add(entranceTile + step * i);
+            return tiles;
+        }
         public IReadOnlyList<StartingPiece> StartingFurniture => startingFurniture;
 
         public Cost ExpansionCost(int purchaseIndex) =>
@@ -59,6 +71,14 @@ namespace Ravenholm.Content
         }
 
 #if UNITY_EDITOR
+        public void EditorSetLayout(List<Vector2Int> start, Vector2Int entrance, int width, List<StartingPiece> furniture)
+        {
+            startBlocks = start;
+            entranceTile = entrance;
+            entranceWidth = width;
+            startingFurniture = furniture;
+        }
+
         public void EditorSetup(Vector2Int lot, List<Vector2Int> start, Vector2Int entrance, EntranceEdge edge, List<Cost> costs, List<StartingPiece> furniture)
         {
             lotBlocks = lot;

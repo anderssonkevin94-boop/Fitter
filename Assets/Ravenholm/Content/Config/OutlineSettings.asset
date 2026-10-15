@@ -16,6 +16,8 @@ MonoBehaviour:
   thicknessPx: 4
   referenceScreenHeight: 2622
   material: {fileID: 2100000, guid: 285987936e13f4c3193670337d693043, type: 2}
+  stencilMarkMaterial: {fileID: 2100000, guid: db9176d1bff6d472a8973f36334a55aa, type: 2}
+  overlapFreeMaterial: {fileID: 2100000, guid: cb37597f06ac9436fb9ca0808fa104d2, type: 2}
   outlinedSprites:
   - {fileID: 21300000, guid: 5836b48eb98f64b1d806240247f120e9, type: 3}
   - {fileID: 21300000, guid: 306a2fb91e6224b2d8306924fdb6741e, type: 3}

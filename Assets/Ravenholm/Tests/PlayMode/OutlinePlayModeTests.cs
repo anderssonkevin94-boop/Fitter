@@ -72,6 +72,21 @@ namespace Ravenholm.Tests
             return o;
         }
 
+        /// <summary>A lone sprite like a tree: no sorting group, sorted by its pivot, overlap-free outline.</summary>
+        private static SpriteOutline MakeTree(Material fill, string name, Vector2 at, Sprite sprite)
+        {
+            var go = new GameObject(name);
+            go.transform.position = at;
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = sprite;
+            sr.spriteSortPoint = SpriteSortPoint.Pivot;
+            if (fill != null) sr.sharedMaterial = fill;
+            var o = go.AddComponent<SpriteOutline>();
+            o.OutlineAll = true;
+            o.OverlapFree = true;
+            return o;
+        }
+
         private static bool IsLine(Color c) => c.r < 0.35f && c.g < 0.35f && c.b < 0.35f;
         private static bool IsBackground(Color c) => c.g > 0.6f && c.r < 0.4f;
 
@@ -104,6 +119,9 @@ namespace Ravenholm.Tests
             var high = MakeObject(unlit, "HighRes", at + new Vector2(0.9f, 1.5f), 2f, true, (Square(320, 64, 1024), Vector2.zero));  // ~0.5 px a texel, scaled 2x
             var pair = MakeObject(unlit, "Pair", at + new Vector2(-1.2f, -2f), 1f, true, (Square(160, 32, 256), Vector2.zero), (Square(160, 32, 256), new Vector2(0.4f, 0f)));
             var off = MakeObject(unlit, "NotSwitchedOn", at + new Vector2(1.2f, -2f), 1f, false, (Square(160, 32, 256), Vector2.zero));
+            // Two separate trees, the right one in front (lower) and overlapping the left one.
+            var backTree = MakeTree(unlit, "BackTree", at + new Vector2(-1.2f, -3.9f), Square(160, 32, 256));
+            MakeTree(unlit, "FrontTree", at + new Vector2(-0.8f, -4.0f), Square(160, 32, 256));
 
             var cam = SandboxSceneController.Current.WorldCamera;
             var follow = cam.GetComponent<FollowCamera>();
@@ -126,6 +144,7 @@ namespace Ravenholm.Tests
             Vector2 ToScreen(Vector2 world) => cam.WorldToScreenPoint(world);
             Vector2 pLow = ToScreen(low.transform.position), pHigh = ToScreen(high.transform.position);
             Vector2 pPair = ToScreen(pair.transform.position), pOff = ToScreen(off.transform.position);
+            Vector2 pTrees = ToScreen(backTree.transform.position);
             cam.targetTexture = null;
             var dir = Path.GetFullPath(Path.Combine(UnityEngine.Application.dataPath, "..", "Captures"));
             Directory.CreateDirectory(dir);
@@ -143,6 +162,9 @@ namespace Ravenholm.Tests
             var pairRun = LineRun(tex, pPair);
             Assert.AreEqual(expected, pairRun, 1.5f, "no line where an object's own pieces overlap");
             Assert.AreEqual(2, pair.ActiveOutlines);
+
+            // Across two overlapping trees: the front tree's outline doesn't cross the tree behind (Kevin, 2026-10-15).
+            Assert.AreEqual(expected, LineRun(tex, pTrees), 1.5f, "no line where trees overlap, only at their outer edge");
 
             Assert.AreEqual(0, off.ActiveOutlines, "art that isn't switched on keeps its own look");
             Assert.AreEqual(0, LineRun(tex, pOff), "no game outline on it");

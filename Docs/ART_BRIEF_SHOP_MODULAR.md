@@ -2,7 +2,7 @@
 
 Kevin's direction (2026-10-15):
 - The player places furniture freely.
-- The shop starts at 4 × 6 tiles and grows by buying 2 × 2 blocks.
+- The shop starts at 6 × 6 tiles and grows by buying 2 × 2 blocks.
 - No roof for now.
 - Astra has full visual freedom, as long as the pieces work.
 
@@ -18,14 +18,14 @@ Hi Astra, Kevin has redesigned the shop to work like Shop Titans: the player pla
 YOU HAVE FULL VISUAL FREEDOM. Design the shop however you think looks best in your style: materials, colours, beams, plaster, stone, details. The only hard requirements are the functional ones below: sizes, anchors, seamless joins, and the right set of pieces. The attached templates are NOT a style reference. They are plain grey shapes that show the exact size, angle and anchor point each piece must fit. Please don't copy their look.
 
 HOW THE SHOP WORKS IN THE GAME
-- The shop is a floor of isometric tiles. It starts as 4 x 6 tiles. The player buys 2 x 2 blocks next to the existing floor, so the shop can become L-, T- or U-shaped, not just a rectangle.
+- The shop is a floor of isometric tiles. It starts as 6 x 6 tiles. The player buys 2 x 2 blocks next to the existing floor, so the shop can become L-, T- or U-shaped, not just a rectangle.
 - There is NO roof: the shop is always seen from above as an open room, like Shop Titans.
 - The game assembles the shop from one-tile pieces:
   - FLOOR: one tile each.
   - BACK WALLS (full height): on every edge that faces away from the camera with no floor behind it. You see their inside faces.
   - LOW WALLS (cut short like a slice of cake, so you can see the wall's thickness): on every edge that faces the camera. The game also uses them in place of a back wall wherever a full wall would hide floor behind it (inside corners of L-shapes).
   - POSTS: at every corner where wall pieces meet (outside corners and inside corners).
-  - The ENTRANCE is a gap in one low wall at the front.
+  - The ENTRANCE is a gap in one low wall at the front, 2 tiles wide: two stub_entrance pieces side by side, so the threshold must join seamlessly between them.
 - The player places furniture on whole tiles, and can rotate floor furniture between two facings. Wall furniture hangs on full-height back walls.
 
 GRID, SCALE AND LIGHT (exact; the templates show these)
@@ -48,7 +48,7 @@ A) SHELL (one PNG each)
    - wall_rail: a wall that wall furniture hangs on. It can be the same as wall_plain if hanging works on it.
 3. Low walls, one tile edge each, in a _left and a _right version (template_stub_left and template_stub_right):
    - stub_plain
-   - stub_entrance: the gap customers walk through, with a threshold.
+   - stub_entrance: one tile edge of the doorway customers walk through, with a threshold. The doorway is two of these side by side.
 4. Posts:
    - post_tall: where full walls meet, and where a full wall meets a low wall (template_post_back).
    - post_low: where low walls meet (template_post_front).
@@ -85,8 +85,8 @@ Step 1, a sample for Kevin's approval:
 - stub_plain_left, stub_plain_right, stub_entrance_left
 - post_tall, post_low
 - desk_1_B
-- a contact sheet: a 4 x 6 shop with one 2 x 2 block added at the back (making an L-shape), built from these pieces, with your v2 furniture placed in both facings and the character standing inside.
-Step 2, after approval: everything else, plus contact sheets of the 4 x 6 start and of a larger irregular shop using every piece.
+- a contact sheet: a 6 x 6 shop with one 2 x 2 block added at the back (making an L-shape), built from these pieces, with your v2 furniture placed in both facings and the character standing inside.
+Step 2, after approval: everything else, plus contact sheets of the 6 x 6 start and of a larger irregular shop using every piece.
 
 CHECK BEFORE SENDING
 [ ] Walls, low walls and posts join seamlessly at any length, and at outside AND inside corners.

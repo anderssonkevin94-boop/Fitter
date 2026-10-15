@@ -8,6 +8,8 @@ Shader "Ravenholm/SpriteOutlineSilhouette"
     Properties
     {
         [PerRendererData] _MainTex ("Sprite", 2D) = "white" {}
+        // Always: a normal outline. NotEqual (6): skip pixels marked by SpriteUnlitStencilMark (trees over trees).
+        [Enum(UnityEngine.Rendering.CompareFunction)] _StencilComp ("Stencil Comparison", Float) = 8
     }
     SubShader
     {
@@ -15,6 +17,12 @@ Shader "Ravenholm/SpriteOutlineSilhouette"
         Blend SrcAlpha OneMinusSrcAlpha
         Cull Off
         ZWrite Off
+        Stencil
+        {
+            Ref 64
+            ReadMask 64
+            Comp [_StencilComp]
+        }
 
         Pass
         {

@@ -274,7 +274,7 @@ namespace Ravenholm.Presentation
             // Build mode for the shop (Shop Titans style): move, turn, upgrade and buy furniture; grow the shop.
             var build = _ui.Panel("BuildButton", bar, _theme.roundButton);
             build.type = Image.Type.Simple;
-            UiFactory.Place(build.rectTransform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-300f, 0), new Vector2(132f, 132f));
+            UiFactory.Place(build.rectTransform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(0, -150f), new Vector2(132f, 132f));   // under the settings button, clear of the chips
             build.gameObject.AddComponent<Button>().onClick.AddListener(ToggleShopBuild);
             var bl = _ui.Text("Label", build.transform, "Build", _theme.smallSize - 4f, _theme.ink, TextAlignmentOptions.Center, FontStyles.Bold);
             UiFactory.Stretch(bl.rectTransform, 10f);

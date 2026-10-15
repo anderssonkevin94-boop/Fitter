@@ -25,6 +25,12 @@ namespace Ravenholm.Presentation
         private static readonly int PxId = Shader.PropertyToID("_RavenholmOutlinePx");
         private static int _globalsFrame = -1;
 
+        [Tooltip("Like trees: where this object overlaps another overlap-free one drawn before it, no line crosses that one.")]
+        [SerializeField] private bool overlapFree;
+
+        /// <summary>Overlap-free outlines (trees): the pieces mark the stencil and the outline skips what is marked.</summary>
+        public bool OverlapFree { get => overlapFree; set => overlapFree = value; }
+
         /// <summary>Outline every piece, listed or not (tests, and objects built entirely from outline-free art).</summary>
         public bool OutlineAll { get; set; }
 
@@ -78,7 +84,10 @@ namespace Ravenholm.Presentation
                     if (copy != null) copy.enabled = false;
                     continue;
                 }
+                var free = overlapFree && s.overlapFreeMaterial != null && s.stencilMarkMaterial != null;
+                if (free && sr.sharedMaterial != s.stencilMarkMaterial) sr.sharedMaterial = s.stencilMarkMaterial;
                 if (copy == null) copy = MakeCopy(sr, s.material);
+                copy.sharedMaterial = free ? s.overlapFreeMaterial : s.material;
                 copy.enabled = true;
                 copy.sprite = sr.sprite;
                 copy.flipX = sr.flipX;

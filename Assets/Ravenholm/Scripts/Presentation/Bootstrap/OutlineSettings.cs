@@ -20,6 +20,10 @@ namespace Ravenholm.Presentation
         [Min(1f)] public float referenceScreenHeight = 2622f;
         [Tooltip("The silhouette material (Ravenholm/SpriteOutlineSilhouette).")]
         public Material material;
+        [Tooltip("Overlap-free outlines (trees): the pieces' material, which marks their pixels in the stencil...")]
+        public Material stencilMarkMaterial;
+        [Tooltip("...and their outline, which skips pixels already marked, so no line crosses an overlapping neighbour.")]
+        public Material overlapFreeMaterial;
         [Tooltip("Sprites drawn without painted outlines: these get the game's outline.")]
         public List<Sprite> outlinedSprites = new List<Sprite>();
 

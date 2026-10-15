@@ -907,6 +907,17 @@ namespace Ravenholm.EditorTools
                 L(One, Rack(4), 60, M(("cedar_lumber", 6), ("iron_ingot", 4))),
                 L(One, Rack(5), 130, M(("maple_lumber", 6), ("steel_ingot", 3))));
 
+            // 6 x 6 tiles to start (Kevin, 2026-10-15; first 4 x 6), with a 2-tile entrance on the front-right edge.
+            ShopDefinition.StartingPiece P(ShopFurnitureDefinition f, int a, int b, bool facingB = false) =>
+                new ShopDefinition.StartingPiece { furniture = f, level = 1, tile = new V2(a, b), facingB = facingB };
+            var startBlocks = new List<V2>();
+            for (var a = 0; a < 3; a++)
+                for (var b = 0; b < 3; b++)
+                    startBlocks.Add(new V2(a, b));
+            var startFurniture = new List<ShopDefinition.StartingPiece>
+            {
+                P(desk, 3, 0), P(table, 1, 3), P(armor, 4, 3), P(shelf, 1, 5), P(rack, 5, 2, facingB: true),
+            };
             var shopPath = ShopDir + "shop.asset";
             var shopCreated = !File.Exists(shopPath);
             var shop = EnsureAsset<ShopDefinition>(shopPath);
@@ -914,12 +925,7 @@ namespace Ravenholm.EditorTools
             {
                 shop.EditorInitialize("shop.main", "Your Shop");
                 ShopDefinition.Cost C(int gold, List<ResourceCost> m) => new ShopDefinition.Cost { gold = gold, materials = m };
-                ShopDefinition.StartingPiece P(ShopFurnitureDefinition f, int a, int b, bool facingB = false) =>
-                    new ShopDefinition.StartingPiece { furniture = f, level = 1, tile = new V2(a, b), facingB = facingB };
-                // 6 tiles along A by 4 along B (blocks 0..2 x 0..1); the entrance on the front-right edge, near the front corner.
-                shop.EditorSetup(new V2(5, 5),
-                    new List<V2> { new V2(0, 0), new V2(1, 0), new V2(2, 0), new V2(0, 1), new V2(1, 1), new V2(2, 1) },
-                    new V2(1, 0), ShopDefinition.EntranceEdge.FrontRight,
+                shop.EditorSetup(new V2(5, 5), startBlocks, new V2(1, 0), ShopDefinition.EntranceEdge.FrontRight,
                     new List<ShopDefinition.Cost>
                     {
                         C(80, M(("cedar_lumber", 10))),
@@ -928,10 +934,15 @@ namespace Ravenholm.EditorTools
                         C(260, M(("maple_lumber", 14), ("steel_ingot", 4))),
                         C(360, M(("maple_lumber", 18), ("steel_ingot", 8))),
                     },
-                    new List<ShopDefinition.StartingPiece>
-                    {
-                        P(desk, 2, 0), P(table, 1, 2), P(armor, 4, 2), P(shelf, 1, 3), P(rack, 5, 1, facingB: true),
-                    });
+                    startFurniture);
+                shop.EditorBumpVersion();
+                EditorUtility.SetDirty(shop);
+            }
+            else if (shop.ContentVersion < 2)
+            {
+                // Layout revision 2: the 4 x 6 start becomes 6 x 6 and the entrance 2 tiles wide (prices kept).
+                shop.EditorSetLayout(startBlocks, new V2(1, 0), 2, startFurniture);
+                shop.EditorBumpVersion();
                 EditorUtility.SetDirty(shop);
             }
             var furniture = new List<ShopFurnitureDefinition> { desk, table, armor, shelf, rack };
@@ -1060,6 +1071,23 @@ namespace Ravenholm.EditorTools
             }
             var outlines = EnsureAsset<OutlineSettings>(OutlineSettingsPath);
             outlines.material = mat;
+            // Overlap-free outlines for trees (2026-10-15): a stencil-marking sprite material and an outline that skips it.
+            var mark = AssetDatabase.LoadAssetAtPath<Material>(ConfigDir + "SpriteStencilMark.mat");
+            if (mark == null)
+            {
+                mark = new Material(Shader.Find("Ravenholm/SpriteUnlitStencilMark")) { name = "SpriteStencilMark" };
+                AssetDatabase.CreateAsset(mark, ConfigDir + "SpriteStencilMark.mat");
+            }
+            var free = AssetDatabase.LoadAssetAtPath<Material>(ConfigDir + "OutlineSilhouetteOverlapFree.mat");
+            if (free == null)
+            {
+                free = new Material(mat.shader) { name = "OutlineSilhouetteOverlapFree" };
+                AssetDatabase.CreateAsset(free, ConfigDir + "OutlineSilhouetteOverlapFree.mat");
+            }
+            free.SetFloat("_StencilComp", (float)UnityEngine.Rendering.CompareFunction.NotEqual);
+            EditorUtility.SetDirty(free);
+            outlines.stencilMarkMaterial = mark;
+            outlines.overlapFreeMaterial = free;
             outlines.outlinedSprites.Clear();
             var meta = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(PlaceholderSpriteImporter.ArtRoot + "sprite_meta.json"));
             foreach (var p in (Newtonsoft.Json.Linq.JObject)meta["sprites"])

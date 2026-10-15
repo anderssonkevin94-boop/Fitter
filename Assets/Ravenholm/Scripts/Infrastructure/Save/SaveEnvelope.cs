@@ -416,6 +416,7 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("furniture")] public List<ShopFurnitureSaveData> Furniture = new List<ShopFurnitureSaveData>();
         [JsonProperty("nextId")] public long NextId = 1;
         [JsonProperty("expansions")] public int Expansions;
+        [JsonProperty("layout")] public int Layout = 1;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

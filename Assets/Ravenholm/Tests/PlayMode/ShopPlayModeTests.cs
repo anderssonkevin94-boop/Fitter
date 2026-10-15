@@ -62,8 +62,8 @@ namespace Ravenholm.Tests
             Assert.NotNull(view, "the shop draws itself");
             Assert.AreEqual(5, view.Views.Count, "the starting furniture stands in the shop");
             var shell = view.transform.Find("Shell");
-            Assert.AreEqual(10, shell.Cast<Transform>().Count(t => t.name == "Wall"), "full walls along both back edges (6 + 4)");
-            Assert.AreEqual(9, shell.Cast<Transform>().Count(t => t.name == "LowWall"), "low walls along the front, less the entrance");
+            Assert.AreEqual(12, shell.Cast<Transform>().Count(t => t.name == "Wall"), "full walls along both back edges (6 + 6)");
+            Assert.AreEqual(10, shell.Cast<Transform>().Count(t => t.name == "LowWall"), "low walls along the front, less the 2-tile entrance");
             foreach (var id in new[] { "item.iron_sword", "item.steel_maul", "item.steel_coat", "item.iron_dagger", "item.steel_stiletto", "item.antidote", "item.strong_tonic" })
                 s.Logistics.System.CreateStoreItem(id, "test stock");
             SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(view.TileCentre(1, 0));
@@ -88,12 +88,12 @@ namespace Ravenholm.Tests
             Assert.AreEqual(tableId, view.Selected);
             yield return null;
             StringAssert.Contains("Tap the floor", hud.ShopBuild.InfoText, "the panel offers the piece's moves");
-            Assert.IsTrue(view.HandleTap(view.TileCentre(3, 1)));
+            Assert.IsTrue(view.HandleTap(view.TileCentre(3, 2)));
             var p = s.Shop.Find(tableId);
-            Assert.AreEqual((3, 1), (p.A, p.B), "moved where tapped");
+            Assert.AreEqual((3, 2), (p.A, p.B), "moved where tapped");
             Assert.IsTrue(view.HandleTap(view.TileCentre(1, 0)));
             Assert.AreEqual("Keep the entrance clear", view.LastMessage);
-            Assert.AreEqual((3, 1), (p.A, p.B), "a refused move leaves it where it was");
+            Assert.AreEqual((3, 2), (p.A, p.B), "a refused move leaves it where it was");
 
             s.Jobs.DebugSetGold(5000);
             foreach (var r in new[] { "cedar_lumber", "maple_lumber", "iron_ingot", "steel_ingot", "copper_ingot" })
@@ -111,13 +111,13 @@ namespace Ravenholm.Tests
             Assert.IsNull(view.Selected);
 
             // A plot behind the back-left wall: pick it and buy it.
-            Assert.IsTrue(view.HandleTap(view.TileCentre(1, 4)));
-            Assert.AreEqual(new Tile(0, 2), view.SelectedPlot);
+            Assert.IsTrue(view.HandleTap(view.TileCentre(1, 6)));
+            Assert.AreEqual(new Tile(0, 3), view.SelectedPlot);
             yield return null;
             var gold = s.Jobs.State.Gold;
             Assert.IsTrue(hud.ShopBuild.Press("Buy this plot"), hud.ShopBuild.Message);
             Assert.Less(s.Jobs.State.Gold, gold);
-            Assert.AreEqual(28, s.Shop.Grid.Floor.Count());
+            Assert.AreEqual(40, s.Shop.Grid.Floor.Count());
             Assert.IsNull(view.SelectedPlot, "the bought plot is no longer offered");
             yield return new WaitForSeconds(0.3f);
             Assert.IsFalse(s.Shop.State.Furniture.First(x => x.FurnitureId == "furniture.potion_shelf").Placed, "its wall moved: the shelf is in storage");

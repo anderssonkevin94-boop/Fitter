@@ -103,6 +103,7 @@ namespace Ravenholm.EditorTools
                     "Background tree outside the active clearing.", "");
                 Circle(t.transform, Vector2.zero, 0.22f);
                 t.gameObject.AddComponent<ObstructionFader>();
+                t.GetComponent<SpriteOutline>().OverlapFree = true;   // no outline across a neighbouring tree
             }
             var pocket = ForestGrid(nature, settings);
             var chop = new GameObject("ChopSpot");
@@ -470,11 +471,13 @@ namespace Ravenholm.EditorTools
             return go.transform;
         }
 
-        /// <summary>The middle of the tile just inside the shop's entrance (where goods are stocked).</summary>
+        /// <summary>The middle of the tiles just inside the shop's entrance (where goods are stocked).</summary>
         private static Vector2 ShopEntrance()
         {
-            var e = _catalogue.Shop.EntranceTile;
-            return ShopOrigin + FurnitureView.AxisA * (e.x + 0.5f) + FurnitureView.AxisB * (e.y + 0.5f);
+            var tiles = _catalogue.Shop.EntranceTiles();
+            var sum = Vector2.zero;
+            foreach (var e in tiles) sum += ShopOrigin + FurnitureView.AxisA * (e.x + 0.5f) + FurnitureView.AxisB * (e.y + 0.5f);
+            return sum / tiles.Count;
         }
 
         private static void Circle(Transform parent, Vector2 offset, float radius)

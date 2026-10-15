@@ -1054,3 +1054,17 @@ Kevin: 4 × 6 to start, 2 × 2 add-ons, no roof for now, and Astra has visual fr
   - **Build mode:** the Build button opens a bottom panel and shows the buyable plots. Taps pick, move and place pieces; while a piece is selected, a tap counts only what stands on the tapped tile.
   - **Desk:** it opens the Store inventory and carries the bell's tap target. The store receiver stands on the tile inside the entrance.
 - **Not yet.** Astra's shell pieces, facing-B art, the new furniture (long rack, pedestal), a drag-to-move preview, customers walking the shop, and re-laying the town around the larger lot.
+
+## 2026-10-15: 6 × 6 shop, a 2-tile entrance, overlap-free tree outlines (Kevin)
+
+- **Bigger shop.** It starts at 6 × 6 tiles (blocks 0..2 × 0..2), with a 2-tile entrance on the front-right edge (`ShopDefinition.entranceWidth`).
+  - The starting furniture is re-laid for the bigger room.
+  - The content asset moves to content version 2.
+  - Saved shops at layout 1 gain the new start blocks; pieces that no longer fit go back to where a new shop has them.
+  - Two entrance tiles must stay clear, and reachability starts from both.
+- **Tree outlines.** Where trees overlap, the outline no longer draws across the tree behind.
+  - Trees draw with `SpriteUnlitStencilMark` (marks their opaque pixels, stencil bit 64).
+  - Their outline copies use `OutlineSilhouetteOverlapFree`, which skips pixels that are already marked.
+  - This is switched on per object with `SpriteOutline.OverlapFree` (forest trees, town trees).
+  - Other outlines are unchanged.
+- **Build button.** It now sits under the settings button; at its first spot it covered the carry counter.

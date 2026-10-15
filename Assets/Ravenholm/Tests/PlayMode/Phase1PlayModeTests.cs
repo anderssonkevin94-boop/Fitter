@@ -113,7 +113,7 @@ namespace Ravenholm.Tests
                 (from: (Vector2)GameObject.Find("Smelter").transform.position + new Vector2(0f, -1.7f), to: (Vector2)GameObject.Find("Smelter").transform.position, name: "Smelter"),
                 (from: new Vector2(-3.5f, -5.6f), to: new Vector2(-5.4f, -3.8f), name: "Forge"),
                 (from: new Vector2(-2.9f, -3.2f), to: new Vector2(-2.9f, -1.7f), name: "Apothecary"),
-                (from: new Vector2(0.0f, 5.2f), to: new Vector2(0f, 3.2f), name: "Store back wall"),
+                (from: ShopView.Current.Vertex(3f, 6f) + new Vector2(0f, 0.6f), to: ShopView.Current.Vertex(3f, 3f), name: "Shop back wall"),
                 (from: (Vector2)GameObject.Find("Lumbermill").transform.position + new Vector2(1.9f, -1.2f), to: (Vector2)GameObject.Find("Lumbermill").transform.position, name: "Lumbermill"),
             };
             foreach (var c in cases)
@@ -271,7 +271,7 @@ namespace Ravenholm.Tests
             yield return Boot();
             // Behind the shop's back-left wall: that wall fades.
             var shop = ShopView.Current;
-            var edge = shop.Vertex(2.5f, 4f);
+            var edge = shop.Vertex(2.5f, 6f);
             var wall = Object.FindObjectsByType<ObstructionFader>(FindObjectsSortMode.None).Select(f => f.GetComponent<SpriteRenderer>())
                 .OrderBy(sr => Vector2.Distance(sr.transform.position, edge)).First();
             yield return StandAt(edge + new Vector2(0f, 0.45f), 0.6f);

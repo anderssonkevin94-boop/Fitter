@@ -85,8 +85,8 @@ namespace Ravenholm.Domain.Shop
         /// <summary>The lot, in blocks: the shop can grow to <see cref="LotA"/> x <see cref="LotB"/> blocks.</summary>
         public int LotA = 5, LotB = 5;
         public readonly List<Tile> StartBlocks = new List<Tile>();
-        /// <summary>The tile just inside the entrance, and the front edge the entrance is cut into.</summary>
-        public Tile Entrance;
+        /// <summary>The tiles just inside the entrance (side by side along one front edge), and that front edge.</summary>
+        public readonly List<Tile> Entrance = new List<Tile>();
         public EdgeSide EntranceSide = EdgeSide.FrontRight;
         /// <summary>A full wall covers floor this many depth steps behind it (2.2 units at 0.25 units a step).</summary>
         public int WallDepthSteps = 9;
@@ -121,7 +121,8 @@ namespace Ravenholm.Domain.Shop
         public IEnumerable<Tile> Floor => _floor;
         public bool IsFloor(Tile t) => _floor.Contains(t);
         public bool IsFloor(int a, int b) => _floor.Contains(new Tile(a, b));
-        public Tile Entrance => _config.Entrance;
+        public IReadOnlyList<Tile> Entrance => _config.Entrance;
+        public bool IsEntrance(Tile t) => _config.Entrance.Contains(t);
         public ShopLayoutConfig Config => _config;
 
         public static Tile Neighbour(Tile t, EdgeSide s) => s switch
@@ -148,7 +149,7 @@ namespace Ravenholm.Domain.Shop
                 {
                     if (_floor.Contains(Neighbour(t, side))) continue;
                     EdgeKind kind;
-                    if (t.Equals(_config.Entrance) && side == _config.EntranceSide) kind = EdgeKind.Entrance;
+                    if (side == _config.EntranceSide && _config.Entrance.Contains(t)) kind = EdgeKind.Entrance;
                     else if (side == EdgeSide.BackLeft || side == EdgeSide.BackRight) kind = HidesFloor(t, side) ? EdgeKind.Low : EdgeKind.Tall;
                     else kind = EdgeKind.Low;
                     _edges[(t, side)] = kind;
@@ -266,7 +267,7 @@ namespace Ravenholm.Domain.Shop
             {
                 if (!_floor.Contains(t)) return "Not on the shop floor";
                 if (occupied.Contains(t)) return "Something is in the way";
-                if (t.Equals(_config.Entrance)) return "Keep the entrance clear";
+                if (_config.Entrance.Contains(t)) return "Keep the entrance clear";
             }
             foreach (var t in tiles) occupied.Add(t);
             return Unreachable(occupied);
@@ -291,7 +292,8 @@ namespace Ravenholm.Domain.Shop
         {
             var reach = new HashSet<Tile>();
             var queue = new Queue<Tile>();
-            if (_floor.Contains(_config.Entrance) && !occupied.Contains(_config.Entrance)) { reach.Add(_config.Entrance); queue.Enqueue(_config.Entrance); }
+            foreach (var e in _config.Entrance)
+                if (_floor.Contains(e) && !occupied.Contains(e) && reach.Add(e)) queue.Enqueue(e);
             while (queue.Count > 0)
             {
                 var t = queue.Dequeue();
