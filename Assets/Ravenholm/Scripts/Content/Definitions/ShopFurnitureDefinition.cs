@@ -77,7 +77,7 @@ namespace Ravenholm.Content
         public bool Shows(ItemDefinition item) => display switch
         {
             FurnitureDisplay.Armor => item.IsArmourLike,   // body armour, helmets and shields
-            FurnitureDisplay.Potion => item.Category == ItemCategory.Potion,
+            FurnitureDisplay.Potion => item.IsConsumable,   // potions and food
             FurnitureDisplay.Small => item.SmallDisplay,
             FurnitureDisplay.Weapon => item.Category == ItemCategory.Weapon && !item.SmallDisplay && item.WeaponTag != WeaponTag.Bow && item.WeaponTag != WeaponTag.Staff,
             FurnitureDisplay.Long => item.WeaponTag == WeaponTag.Bow || item.WeaponTag == WeaponTag.Staff,

@@ -84,12 +84,12 @@ namespace Ravenholm.EditorTools
             var smelter = Building(buildings, "Smelter", "bld_smelter", new Vector2(-14.5f, -1.5f), new Vector2(2.2f, 2.4f),
                 "Receives raw ore, coal and gems, then smelts them into ingots automatically.", "", new Vector2(2f, 2f), ReceiverKind.Smelter, stationId: "station.smelter");
             Building(buildings, "Forge", "bld_forge", new Vector2(-5.4f, -3.8f), new Vector2(2.2f, 2.0f),
-                "Covered work area. Crafts metal weapons and armor instantly from permanent blueprints. Finished goods appear on its output pad.",
+                "Covered work area. Makes metal weapons, armour, helmets and shields from permanent blueprints. Finished goods appear on its output pad.",
                 "", new Vector2(2f, 2f), stationId: "station.forge");
             var mill = Building(buildings, "Lumbermill", "bld_lumbermill", new Vector2(-11.6f, 3.2f), new Vector2(2.4f, 2.0f),
                 "Receives logs, then saws them into lumber automatically.", "", new Vector2(2.5f, 2f), ReceiverKind.Lumbermill, stationId: "station.lumbermill");
-            Building(buildings, "Workbench", "bld_workbench", new Vector2(5.6f, -3.8f), new Vector2(1.7f, 1.8f),
-                "Crafts bows and staves instantly. Finished goods appear on its output pad.", "", new Vector2(1.5f, 1.5f), stationId: "station.workbench");
+            Building(buildings, "Workshop", "bld_workbench", new Vector2(5.6f, -3.8f), new Vector2(1.7f, 1.8f),
+                "Makes bows, staves, wooden shields, leather caps and light armour. Finished goods appear on its output pad.", "", new Vector2(1.5f, 1.5f), stationId: "station.workbench");
             var apothecary = Building(buildings, "Apothecary", "bld_apothecary", new Vector2(-2.9f, -1.7f), new Vector2(2.2f, 2.2f),
                 "Receives herbs (no processing needed). Potions are crafted here.", "", new Vector2(2f, 2f), ReceiverKind.Apothecary, stationId: "station.apothecary");
             var traderPad = Building(buildings, "Trader Pad", "bld_trader_pad", new Vector2(3.0f, -2.1f), new Vector2(2.2f, 2.0f),
@@ -143,7 +143,7 @@ namespace Ravenholm.EditorTools
                 null, null, null, hidden: true);
             Container(logistics, "container.forge_pad", "Forge Output", ContainerKind.OutputPad, new Vector2(-4.3f, -4.55f),
                 "Crafted goods appear here (holds 6). Walk close to pick them up, then stock them at the Store.", null, null, 6);
-            Container(logistics, "container.workbench_pad", "Workbench Output", ContainerKind.OutputPad, new Vector2(4.6f, -4.45f),
+            Container(logistics, "container.workbench_pad", "Workshop Output", ContainerKind.OutputPad, new Vector2(4.6f, -4.45f),
                 "Crafted bows and staves appear here (holds 6).", null, null, 6);
             Container(logistics, "container.apothecary_pad", "Apothecary Output", ContainerKind.OutputPad, new Vector2(-3.85f, -2.45f),
                 "Crafted potions appear here (holds 6).", null, null, 6);
@@ -165,7 +165,14 @@ namespace Ravenholm.EditorTools
             Site(buildings, "Lumbermill", "station.lumbermill", logistics, "Receiver Lumbermill");
             Site(buildings, "Apothecary", "station.apothecary", logistics, "Receiver Apothecary", "Apothecary Output");
             Site(buildings, "Forge", "station.forge", logistics, "Forge Output");
-            Site(buildings, "Workbench", "station.workbench", logistics, "Workbench Output");
+            Site(buildings, "Workshop", "station.workbench", logistics, "Workshop Output");
+            // The Kitchen (the crafting expansion, 2026-10-16): it arrives as a kit, to be set up in build mode.
+            Building(buildings, "Kitchen", "bld_kitchen", new Vector2(8.6f, -2.6f), new Vector2(2.2f, 2.2f),
+                "Receives foraged berries and mushrooms. Cooks food for the road.", "", new Vector2(2f, 2f), ReceiverKind.Kitchen, stationId: "station.kitchen");
+            Receiver(logistics, "receiver.kitchen", ReceiverKind.Kitchen, new Vector2(9.35f, -3.35f), 0.55f, buildings.Find("Kitchen"), "icon_berries", true);
+            Container(logistics, "container.kitchen_pad", "Kitchen Output", ContainerKind.OutputPad, new Vector2(7.9f, -3.3f),
+                "Cooked food appears here (holds 6).", null, null, 6);
+            Site(buildings, "Kitchen", "station.kitchen", logistics, "Receiver Kitchen", "Kitchen Output");
 
             // --- people ---
             var player = Character(people, "Supplier (you)", new Vector2(0f, 0f), 0, "ov_supplier",

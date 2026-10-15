@@ -94,7 +94,7 @@ namespace Ravenholm.Tests
             yield return Capture.Take("phase3_store_panel");
             GameRoot.Instance.Hud.StorePanel.Select(StorePanel.Tab.Blueprints);
             yield return new WaitForSeconds(0.2f);
-            Assert.AreEqual(13, GameRoot.Instance.Hud.StorePanel.RowCount, "the six starter blueprints, the helmets and the shields");
+            Assert.AreEqual(18, GameRoot.Instance.Hud.StorePanel.RowCount, "the starter blueprints and the crafting expansion's");
             GameRoot.Instance.Hud.StorePanel.Close();
             CollectionAssert.IsEmpty(log.Audit());
         }

@@ -4023,6 +4023,105 @@
     0.0833333
    ],
    "ppu": 512
+  },
+  "Buildings/bld_kitchen.png": {
+   "outline": true,
+   "pivot": [
+    0.4992,
+    0.2917
+   ],
+   "ppu": 256
+  },
+  "Icons/Resources/icon_berries.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_berries.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Resources/icon_mushroom.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_mushroom.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Items/icon_trail_rations.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_trail_rations.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Items/icon_mushroom_stew.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_mushroom_stew.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Items/icon_hearty_pie.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_hearty_pie.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Items/icon_leather_jerkin.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_leather_jerkin.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Icons/Items/icon_padded_gambeson.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Stacks/stack_padded_gambeson.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
   }
  }
 }

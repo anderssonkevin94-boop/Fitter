@@ -181,6 +181,10 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public RidgeLayout Ridge;
 
+        /// <summary>Foraging (the crafting expansion, 2026-10-16): a felled tree may drop berries, a pulled stump mushrooms.</summary>
+        public string FellForage, StumpForage;
+        public double FellForageChance, StumpForageChance;
+
         /// <summary>The band of a cell: the strip's area, or the ridge's band forward along the road.</summary>
         public int BandAt(int area, int slot) => Ridge != null ? Ridge.BandAt(area, slot) : area;
 

@@ -310,6 +310,7 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("definition")] public string DefinitionId;
         [JsonProperty("survivalBonus")] public int SurvivalBonus;
         [JsonProperty("tag")] public string CounterTag;
+        [JsonProperty("food")] public bool Food;
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -415,6 +416,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("survivalPotionBonus")] public int SurvivalPotionBonus;
         /// <summary>A shield's block chance in percent (optional; 0 = no shield).</summary>
         [JsonProperty("block")] public int BlockChance;
+        [JsonProperty("foodSurvival")] public int FoodSurvival;
+        [JsonProperty("foodReadiness")] public int FoodReadiness;
         [JsonProperty("counters")] public SortedDictionary<string, int> Counters = new SortedDictionary<string, int>();
         [JsonProperty("threats")] public List<string> ThreatIds = new List<string>();
         [JsonProperty("forecast")] public string ForecastBand;

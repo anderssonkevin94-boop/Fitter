@@ -38,3 +38,10 @@ MonoBehaviour:
   levelsPerBand: 3
   hopSeconds: 0.8
   depositSeconds: 0.6
+  scaffoldMaterials: []
+  scaffoldCost: 1
+  treeRegrowSeconds: 300
+  fellForage: {fileID: 11400000, guid: e224f60b24508435eb1c853ae9dd6e64, type: 2}
+  fellForageChance: 0.12
+  stumpForage: {fileID: 11400000, guid: a5f73b4d256d3453c97ddec87a21f69a, type: 2}
+  stumpForageChance: 0.35

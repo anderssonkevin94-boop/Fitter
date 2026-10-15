@@ -49,7 +49,11 @@ namespace Ravenholm.Services
         public StationSite RegisterDefault(string stationId, int x, int y, int w, int h)
         {
             if (!State.Sites.TryGetValue(stationId, out var s))
-                State.Sites[stationId] = s = new StationSite { StationId = stationId, Mode = StationSiteMode.Default };
+            {
+                // A station that arrives as a kit (the Kitchen) waits to be set up.
+                var kit = _catalogue.TryGet<StationDefinition>(stationId, out var def) && def.StartsAsKit;
+                State.Sites[stationId] = s = new StationSite { StationId = stationId, Mode = kit ? StationSiteMode.Packed : StationSiteMode.Default };
+            }
             s.W = w;
             s.H = h;
             if (s.Mode == StationSiteMode.Default) { s.X = x; s.Y = y; }
@@ -178,7 +182,8 @@ namespace Ravenholm.Services
             // Keep the scene's layout (registered defaults) and replace what the save changed.
             var fresh = new CampStationsState();
             foreach (var kv in State.Sites)
-                fresh.Sites[kv.Key] = new StationSite { StationId = kv.Key, Mode = StationSiteMode.Default, W = kv.Value.W, H = kv.Value.H,
+                fresh.Sites[kv.Key] = new StationSite { StationId = kv.Key, W = kv.Value.W, H = kv.Value.H,
+                    Mode = _catalogue.TryGet<StationDefinition>(kv.Key, out var kd) && kd.StartsAsKit ? StationSiteMode.Packed : StationSiteMode.Default,
                     X = kv.Value.Mode == StationSiteMode.Default ? kv.Value.X : 0, Y = kv.Value.Mode == StationSiteMode.Default ? kv.Value.Y : 0 };
             var d = env?.Stations;
             if (d != null && d.Camp == _catalogue.CurrentCamp?.Id)

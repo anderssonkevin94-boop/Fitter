@@ -22,6 +22,8 @@ namespace Ravenholm.Content
         [SerializeField] private bool sellsSupplierTools;
         [Tooltip("Map cells the building stands on, when it is set up at a camp (x right-up, y left-up).")]
         [SerializeField] private Vector2Int footprint = new Vector2Int(2, 2);
+        [Tooltip("A new station arrives as a kit: the player sets it up (the Kitchen, 2026-10-16).")]
+        [SerializeField] private bool startsAsKit;
 
         public override string IdKind => "station";
         public string OutputPadContainerId => outputPadContainerId;
@@ -31,6 +33,7 @@ namespace Ravenholm.Content
         public float BatchTimePerLevel => batchTimePerLevel;
         public bool SellsSupplierTools => sellsSupplierTools;
         public Vector2Int Footprint => footprint;
+        public bool StartsAsKit => startsAsKit;
 
         public override void Validate(List<string> errors)
         {
@@ -42,6 +45,7 @@ namespace Ravenholm.Content
         public void EditorSetMaxLevel(int max) => maxLevel = max;
         public void EditorSetSellsSupplierTools(bool sells) => sellsSupplierTools = sells;
         public void EditorSetFootprint(Vector2Int cells) => footprint = cells;
+        public void EditorSetStartsAsKit(bool kit) => startsAsKit = kit;
 
         public void EditorSetupStation(string pad, int padCapacity, int start, int max)
         {

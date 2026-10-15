@@ -35,6 +35,9 @@ namespace Ravenholm.Content
                     foreach (var w in band.PrimaryWeights) if (w.resource != null && w.weight > 0) g.Materials.Add(w.resource);
                     if (band.RareResource != null && band.RareChance > 0) g.Materials.Add(band.RareResource);
                 }
+                // Foraging (the crafting expansion): what felled trees and pulled stumps turn up.
+                if (site.FellForage != null && site.FellForageChance > 0) g.Materials.Add(site.FellForage);
+                if (site.StumpForage != null && site.StumpForageChance > 0) g.Materials.Add(site.StumpForage);
             }
             if (c.TraderStock != null)
                 foreach (var e in c.TraderStock.Entries)

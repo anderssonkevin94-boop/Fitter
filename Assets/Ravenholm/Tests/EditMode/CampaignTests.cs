@@ -36,7 +36,7 @@ namespace Ravenholm.Tests
             Assert.IsTrue(c.Validate().IsValid, c.Validate().ToString());
             Assert.AreEqual(3, c.Regions.Count);
             Assert.That(c.Quests.Count, Is.InRange(18, 24));
-            Assert.That(c.Recipes.Count, Is.LessThanOrEqualTo(30));
+            Assert.That(c.Recipes.Count, Is.LessThanOrEqualTo(40));   // V1 had 30; the crafting expansion (2026-10-16) adds helmets, shields, light armour and food
             foreach (var site in c.Sites) Assert.AreEqual(6, site.Bands.Count, site.Id);
             Assert.AreEqual(1, c.Quests.Count(q => q.CampaignFinale));
         }

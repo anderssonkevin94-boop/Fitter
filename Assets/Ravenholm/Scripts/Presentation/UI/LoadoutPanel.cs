@@ -178,7 +178,7 @@ namespace Ravenholm.Presentation
                          : slot == Slot.Armor ? info.Kind == ItemKind.Armor
                          : slot == Slot.Head ? info.Kind == ItemKind.Helmet
                          : slot == Slot.OffHand ? info.Kind == ItemKind.Shield && !(Info(_loadout.Weapon) is ItemInfo w && w.TwoHanded)
-                         : info.Kind == ItemKind.Potion;
+                         : info.Kind == ItemKind.Potion || info.Kind == ItemKind.Food;   // consumables: potions and food
                 if (!fits) continue;
                 seen.Add(def);
                 list.Add(inst);
@@ -305,9 +305,11 @@ namespace Ravenholm.Presentation
                 if (p == null) continue;
                 var info = _root.Services.Jobs.Content.Item(_root.Services.Logistics.System.DefinitionOfItem(p));
                 if (info == null) continue;
-                sb.Append(info.SurvivalBonus > 0
-                    ? $"• {UnitVisuals.DisplayName(info.Id)}: used only if things go badly (+{info.SurvivalBonus} survival)\n"
-                    : $"• {UnitVisuals.DisplayName(info.Id)}: used if {info.CounterTag.ToLowerInvariant()} is present\n");
+                sb.Append(info.Kind == ItemKind.Food
+                    ? $"• {UnitVisuals.DisplayName(info.Id)}: eaten on the road (well fed: +{info.FoodSurvival} survival, +{info.FoodReadiness} readiness)\n"
+                    : info.SurvivalBonus > 0
+                        ? $"• {UnitVisuals.DisplayName(info.Id)}: used only if things go badly (+{info.SurvivalBonus} survival)\n"
+                        : $"• {UnitVisuals.DisplayName(info.Id)}: used if {info.CounterTag.ToLowerInvariant()} is present\n");
             }
             if (Info(_loadout.OffHand) is ItemInfo sh && sh.Kind == ItemKind.Shield)
                 sb.Append($"• {UnitVisuals.DisplayName(sh.Id)}: may block a killing blow ({sh.Block}%)\n");
@@ -338,7 +340,7 @@ namespace Ravenholm.Presentation
             foreach (var p in new[] { _loadout.Potion1, _loadout.Potion2 })
             {
                 var info = p != null ? _root.Services.Jobs.Content.Item(_root.Services.Logistics.System.DefinitionOfItem(p)) : null;
-                if (info != null) potions.Add(new CarriedPotion { InstanceId = p, DefinitionId = info.Id, SurvivalBonus = info.SurvivalBonus, CounterTag = info.CounterTag });
+                if (info != null) potions.Add(new CarriedPotion { InstanceId = p, DefinitionId = info.Id, SurvivalBonus = info.SurvivalBonus, CounterTag = info.CounterTag, Food = info.Kind == ItemKind.Food });
             }
             var counts = new int[5];
             for (var i = 0; i < 2000; i++)

@@ -214,7 +214,7 @@ namespace Ravenholm.Presentation
             {
                 case Tab.Weapons: return item.Category == ItemCategory.Weapon;
                 case Tab.Armor: return item.IsArmourLike;
-                case Tab.Potions: return item.Category == ItemCategory.Potion;
+                case Tab.Potions: return item.IsConsumable;
                 default: return true;
             }
         }

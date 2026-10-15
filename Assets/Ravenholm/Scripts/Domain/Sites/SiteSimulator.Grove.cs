@@ -71,6 +71,8 @@ namespace Ravenholm.Domain.Sites
             _s.FelledAtMs.Remove(c);
             TakeIntoCarry(_s.FacePending);
             Release(SpeciesAt(area, slot), true);
+            // Foraging: mushrooms among the roots of a pulled stump.
+            if (!string.IsNullOrEmpty(_c.Grove.StumpForage) && CellRoll(area, slot, 98) < _c.Grove.StumpForageChance) Release(_c.Grove.StumpForage, true);
             FelledVersion++;
             Resolve();
             return true;
@@ -164,6 +166,8 @@ namespace Ravenholm.Domain.Sites
             }
             if (after >= TreeDurabilityMicro(c.Area, c.Slot))
             {
+                // Foraging: berries under a felled tree now and then.
+                if (!string.IsNullOrEmpty(_c.Grove.FellForage) && CellRoll(c.Area, c.Slot, 97) < _c.Grove.FellForageChance) Release(_c.Grove.FellForage, byHand);
                 FelledVersion++;
                 _s.LastChop = c;
                 _s.FelledAtMs[c] = _s.SimMs;

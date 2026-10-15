@@ -13,9 +13,13 @@ MonoBehaviour:
   m_Name: station_workbench
   m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.StationDefinition
   id: station.workbench
-  displayName: Workbench
+  displayName: Workshop
   contentVersion: 1
   outputPadContainerId: container.workbench_pad
   outputPadCapacity: 6
   startingLevel: 1
   maxLevel: 2
+  batchTimePerLevel: 0.85
+  sellsSupplierTools: 0
+  footprint: {x: 2, y: 2}
+  startsAsKit: 0

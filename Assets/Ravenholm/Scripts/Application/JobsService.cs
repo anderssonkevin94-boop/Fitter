@@ -99,7 +99,7 @@ namespace Ravenholm.Services
                 {
                     Id = d.Id, Kind = (ItemKind)(int)d.Category, Power = d.Power, Protection = d.Protection, WeaponTag = d.WeaponTag.ToString(),
                     CounterTag = d.CounterTag == CounterTag.None ? "" : d.CounterTag.ToString(), CounterStrength = d.CounterStrength,
-                    TwoHanded = d.TwoHanded, Block = d.Block,
+                    TwoHanded = d.TwoHanded, Block = d.Block, FoodSurvival = d.FoodSurvival, FoodReadiness = d.FoodReadiness,
                 };
                 switch (d.PotionEffect)
                 {
@@ -485,6 +485,8 @@ namespace Ravenholm.Services
                 e.Snapshot.ArmorProtection = ed.ArmorProtection;
                 e.Snapshot.SurvivalPotionBonus = ed.SurvivalPotionBonus;
                 e.Snapshot.BlockChance = ed.BlockChance;
+                e.Snapshot.FoodSurvival = ed.FoodSurvival;
+                e.Snapshot.FoodReadiness = ed.FoodReadiness;
                 foreach (var kv in ed.Counters) e.Snapshot.Counters[kv.Key] = kv.Value;
                 e.Difficulty = ed.Difficulty;
                 e.ResolverVersion = ed.ResolverVersion;
@@ -496,7 +498,7 @@ namespace Ravenholm.Services
                     });
                 e.RouteBonus = ed.RouteBonus;
                 foreach (var p in ed.Potions)
-                    e.Potions.Add(new CarriedPotion { InstanceId = p.InstanceId, DefinitionId = p.DefinitionId, SurvivalBonus = p.SurvivalBonus, CounterTag = p.CounterTag });
+                    e.Potions.Add(new CarriedPotion { InstanceId = p.InstanceId, DefinitionId = p.DefinitionId, SurvivalBonus = p.SurvivalBonus, CounterTag = p.CounterTag, Food = p.Food });
                 // Pre-Phase 5 expeditions saved no frozen inputs: rebuild them from current content once.
                 if (e.ResolverVersion == 0 && !e.TestDeparture)
                 {
@@ -549,6 +551,7 @@ namespace Ravenholm.Services
                     StartMs = e.StartMs, EndMs = e.EndMs, Seed = e.Seed.ToString(CultureInfo.InvariantCulture),
                     Might = e.Snapshot.Might, Survival = e.Snapshot.Survival, Insight = e.Snapshot.Insight, WeaponPower = e.Snapshot.WeaponPower,
                     ArmorProtection = e.Snapshot.ArmorProtection, SurvivalPotionBonus = e.Snapshot.SurvivalPotionBonus, BlockChance = e.Snapshot.BlockChance,
+                    FoodSurvival = e.Snapshot.FoodSurvival, FoodReadiness = e.Snapshot.FoodReadiness,
                     ForecastBand = e.ForecastBand, TestDeparture = e.TestDeparture, ShopSharePercent = e.ShopSharePercent,
                 };
                 ed.Items.AddRange(e.Items);
@@ -564,7 +567,7 @@ namespace Ravenholm.Services
                     });
                 ed.RouteBonus = e.RouteBonus;
                 foreach (var p in e.Potions)
-                    ed.Potions.Add(new CarriedPotionData { InstanceId = p.InstanceId, DefinitionId = p.DefinitionId, SurvivalBonus = p.SurvivalBonus, CounterTag = p.CounterTag });
+                    ed.Potions.Add(new CarriedPotionData { InstanceId = p.InstanceId, DefinitionId = p.DefinitionId, SurvivalBonus = p.SurvivalBonus, CounterTag = p.CounterTag, Food = p.Food });
                 d.Expeditions.Add(ed);
             }
             foreach (var kv in _state.Progress)

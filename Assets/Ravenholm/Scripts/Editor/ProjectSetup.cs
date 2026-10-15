@@ -85,6 +85,7 @@ namespace Ravenholm.EditorTools
             EnsureTutorialContent(catalogue);
             EnsurePostgameContent(catalogue);
             EnsureJourneyJobs(catalogue);
+            EnsureKitchen(catalogue);
             EnsureArmoury(catalogue);
             EnsureKnowledgeContent(catalogue);
             ApplyBalanceRevisions(catalogue);
@@ -285,6 +286,9 @@ namespace Ravenholm.EditorTools
             new ResourceSpec { Key = "ironwood_log", Name = "Ironwood Log", Category = ResourceCategory.RawTimber, Receiver = ReceiverType.Lumbermill },
             new ResourceSpec { Key = "moonsilver_ingot", Name = "Moonsilver Ingot", Category = ResourceCategory.Processed, Receiver = ReceiverType.None },
             new ResourceSpec { Key = "ironwood_lumber", Name = "Ironwood Lumber", Category = ResourceCategory.Processed, Receiver = ReceiverType.None },
+            // The crafting expansion (2026-10-16): foraged in the forest, cooked at the Kitchen.
+            new ResourceSpec { Key = "berries", Name = "Wild Berries", Category = ResourceCategory.Food, Receiver = ReceiverType.Kitchen },
+            new ResourceSpec { Key = "mushroom", Name = "Forest Mushroom", Category = ResourceCategory.Food, Receiver = ReceiverType.Kitchen },
         };
 
         private struct ItemSpec
@@ -332,6 +336,12 @@ namespace Ravenholm.EditorTools
             new ItemSpec { Key = "wooden_shield", Name = "Wooden Shield", Category = ItemCategory.Shield, BuyValue = 2 },
             new ItemSpec { Key = "iron_shield", Name = "Iron-bound Shield", Category = ItemCategory.Shield, BuyValue = 3 },
             new ItemSpec { Key = "steel_kite_shield", Name = "Steel Kite Shield", Category = ItemCategory.Shield, BuyValue = 5 },
+            // The Workshop's light armour, and the Kitchen's food (see EnsureKitchen).
+            new ItemSpec { Key = "leather_jerkin", Name = "Leather Jerkin", Category = ItemCategory.Armor, Protection = 5, BuyValue = 3 },
+            new ItemSpec { Key = "padded_gambeson", Name = "Padded Gambeson", Category = ItemCategory.Armor, Protection = 4, BuyValue = 2 },
+            new ItemSpec { Key = "trail_rations", Name = "Trail Rations", Category = ItemCategory.Food, BuyValue = 1 },
+            new ItemSpec { Key = "mushroom_stew", Name = "Mushroom Stew", Category = ItemCategory.Food, BuyValue = 1 },
+            new ItemSpec { Key = "hearty_pie", Name = "Hearty Pie", Category = ItemCategory.Food, BuyValue = 2 },
         };
 
         private static ContentCatalogue EnsureContent()

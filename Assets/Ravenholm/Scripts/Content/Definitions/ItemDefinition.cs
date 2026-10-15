@@ -14,6 +14,8 @@ namespace Ravenholm.Content
         Potion,
         Helmet,
         Shield,
+        /// <summary>Cooked at the Kitchen; carried in a consumable slot and always eaten on the trip.</summary>
+        Food,
     }
 
     /// <summary>Weapon compatibility tag; classes list the tags they can use (GDD 9).</summary>
@@ -81,6 +83,9 @@ namespace Ravenholm.Content
         [SerializeField] private bool twoHanded;
         [Tooltip("Shields only: the chance (percent) of blocking a killing blow, turning a death into a wounded retreat.")]
         [Range(0, 60)] [SerializeField] private int block;
+        [Tooltip("Food only: survival and readiness from being well fed on the trip.")]
+        [Min(0)] [SerializeField] private int foodSurvival;
+        [Min(0)] [SerializeField] private int foodReadiness;
 
         [Tooltip("Gold the periodic Trader pays for one unit. Deliberately poor (GDD 15).")]
         [Min(0)] [SerializeField] private int traderBuyValue;
@@ -110,6 +115,10 @@ namespace Ravenholm.Content
         public int CounterStrength => counterStrength;
         public bool TwoHanded => twoHanded;
         public int Block => block;
+        public int FoodSurvival => foodSurvival;
+        public int FoodReadiness => foodReadiness;
+        /// <summary>Goes in a consumable slot: potions and food.</summary>
+        public bool IsConsumable => category == ItemCategory.Potion || category == ItemCategory.Food;
         /// <summary>Shown with the armour (stands and the Store's armour tab): body armour, helmets and shields.</summary>
         public bool IsArmourLike => category == ItemCategory.Armor || category == ItemCategory.Helmet || category == ItemCategory.Shield;
 
@@ -132,6 +141,7 @@ namespace Ravenholm.Content
                 case ItemCategory.Armor: main = $"Protection {protection}"; break;
                 case ItemCategory.Helmet: return $"Helmet · guards against {Readable(counterTag.ToString()).ToLowerInvariant()} +{counterStrength}";
                 case ItemCategory.Shield: main = $"Shield · blocks {block}% of killing blows"; break;
+                case ItemCategory.Food: return $"Food · well fed: +{foodSurvival} survival, +{foodReadiness} readiness (always eaten)";
                 default: main = $"{Readable(potionEffect.ToString())} +{potionStrength}"; break;
             }
             return counterTag == CounterTag.None ? main : $"{main} · {Readable(counterTag.ToString()).ToLowerInvariant()} counter +{counterStrength}";
@@ -185,6 +195,10 @@ namespace Ravenholm.Content
                     if (block <= 0) errors.Add($"{Describe()}: a shield needs a block chance");
                     if (power != 0 || protection != 0 || weaponTag != WeaponTag.None || potionEffect != PotionEffect.None) errors.Add($"{Describe()}: shield has other fields set");
                     break;
+                case ItemCategory.Food:
+                    if (foodSurvival <= 0 && foodReadiness <= 0) errors.Add($"{Describe()}: food needs survival or readiness");
+                    if (power != 0 || protection != 0 || weaponTag != WeaponTag.None || potionEffect != PotionEffect.None) errors.Add($"{Describe()}: food has other fields set");
+                    break;
                 case ItemCategory.Potion:
                     if (potionEffect == PotionEffect.None || potionStrength <= 0) errors.Add($"{Describe()}: potion needs one effect with strength > 0");
                     if (power != 0 || protection != 0 || weaponTag != WeaponTag.None) errors.Add($"{Describe()}: potion has weapon/armor fields set");
@@ -226,6 +240,14 @@ namespace Ravenholm.Content
         public void EditorSetStackStep(float step) => stackStep = step;
         public void EditorSetHands(bool needsBoth) => twoHanded = needsBoth;
         public void EditorSetBlock(int percent) => block = percent;
+
+        public void EditorSetFood(int survival, int readiness)
+        {
+            foodSurvival = survival;
+            foodReadiness = readiness;
+        }
+
+        public void EditorSetProtection(int p) => protection = p;
 #endif
     }
 }

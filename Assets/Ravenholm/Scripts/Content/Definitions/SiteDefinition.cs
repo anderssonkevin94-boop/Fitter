@@ -59,6 +59,11 @@ namespace Ravenholm.Content
         [Min(0)] [SerializeField] private int scaffoldCost = 1;
         [Tooltip("Forest: seconds before a stump left standing grows back into its tree (0 = never). Cleared stumps never do.")]
         [Min(0)] [SerializeField] private float treeRegrowSeconds = 300f;
+        [Tooltip("Foraging (the crafting expansion, 2026-10-16): a felled tree may drop this (berries), and a pulled stump this (mushrooms).")]
+        [SerializeField] private ResourceDefinition fellForage;
+        [Range(0f, 1f)] [SerializeField] private float fellForageChance;
+        [SerializeField] private ResourceDefinition stumpForage;
+        [Range(0f, 1f)] [SerializeField] private float stumpForageChance;
 
         public override string IdKind => "site";
         public SiteType SiteType => siteType;
@@ -81,6 +86,10 @@ namespace Ravenholm.Content
         public IReadOnlyList<ResourceDefinition> ScaffoldMaterials => scaffoldMaterials;
         public int ScaffoldCost => scaffoldCost;
         public float TreeRegrowSeconds => treeRegrowSeconds;
+        public ResourceDefinition FellForage => fellForage;
+        public float FellForageChance => fellForageChance;
+        public ResourceDefinition StumpForage => stumpForage;
+        public float StumpForageChance => stumpForageChance;
 
         public override void Validate(List<string> errors)
         {
@@ -99,6 +108,14 @@ namespace Ravenholm.Content
         }
 
 #if UNITY_EDITOR
+        public void EditorSetForage(ResourceDefinition fell, float fellChance, ResourceDefinition stump, float stumpChance)
+        {
+            fellForage = fell;
+            fellForageChance = fellChance;
+            stumpForage = stump;
+            stumpForageChance = stumpChance;
+        }
+
         public void EditorSetRecruits(List<WorkerDefinition> r) => recruits = r;
         public void EditorSetWorkers(List<WorkerDefinition> w) => workers = w;
         public void EditorSetBands(List<SiteBandDefinition> b) => bands = b;

@@ -46,6 +46,7 @@ namespace Ravenholm.Domain.Logistics
         Lumbermill,
         Apothecary,
         Store,
+        Kitchen,
     }
 
     /// <summary>World container that owns units until the player picks them up. Geometry is on the 2D simulation plane.</summary>

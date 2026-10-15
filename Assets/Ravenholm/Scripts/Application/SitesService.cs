@@ -436,7 +436,12 @@ namespace Ravenholm.Services
                     : null,
                 // Solo play: the Forest is a grid of trees, any of them cut where the supplier reaches (2026-10-12).
                 Grove = def.SiteType == SiteType.Forest
-                    ? RidgeOf(camp, new ForestGrove { TreesPerContinuation = Math.Max(1, def.TreesPerClearing), RegrowMs = (long)Math.Round(def.TreeRegrowSeconds * 1000) })
+                    ? RidgeOf(camp, new ForestGrove
+                    {
+                        TreesPerContinuation = Math.Max(1, def.TreesPerClearing), RegrowMs = (long)Math.Round(def.TreeRegrowSeconds * 1000),
+                        FellForage = def.FellForage != null ? def.FellForage.Id : null, FellForageChance = def.FellForageChance,
+                        StumpForage = def.StumpForage != null ? def.StumpForage.Id : null, StumpForageChance = def.StumpForageChance,
+                    })
                     : null,
                 HopMs = (int)Math.Round(def.HopSeconds * 1000),
                 DepositMs = (int)Math.Round(def.DepositSeconds * 1000),

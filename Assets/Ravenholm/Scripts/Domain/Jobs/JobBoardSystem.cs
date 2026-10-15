@@ -255,7 +255,7 @@ namespace Ravenholm.Domain.Jobs
     }
 
     /// <summary>Same order as the content's item categories (appended only).</summary>
-    public enum ItemKind { Weapon, Armor, Potion, Helmet, Shield }
+    public enum ItemKind { Weapon, Armor, Potion, Helmet, Shield, Food }
 
     public sealed class ItemInfo
     {
@@ -271,6 +271,8 @@ namespace Ravenholm.Domain.Jobs
         public bool TwoHanded;
         /// <summary>Shields: the chance (percent) of blocking a killing blow, turning a death into a wounded retreat.</summary>
         public int Block;
+        /// <summary>Food (eaten on the trip, always): survival and readiness from being well fed.</summary>
+        public int FoodSurvival, FoodReadiness;
     }
 
     /// <summary>Blueprints and shared materials that quest rewards grant.</summary>
@@ -589,7 +591,15 @@ namespace Ravenholm.Domain.Jobs
             foreach (var p in new[] { l.Potion1, l.Potion2 })
             {
                 var pi = Info(p);
-                if (pi == null || pi.Kind != ItemKind.Potion || !seen.Add(pi.Id)) continue;
+                if (pi == null || !seen.Add(pi.Id)) continue;
+                if (pi.Kind == ItemKind.Food)
+                {
+                    // Well fed (the crafting expansion, 2026-10-16): always eaten; the same dish twice does not stack.
+                    s.FoodSurvival += pi.FoodSurvival;
+                    s.FoodReadiness += pi.FoodReadiness;
+                    continue;
+                }
+                if (pi.Kind != ItemKind.Potion) continue;
                 s.SurvivalPotionBonus += pi.SurvivalBonus;
                 s.AddCounter(pi.CounterTag, pi.CounterStrength);
             }
@@ -1248,7 +1258,7 @@ namespace Ravenholm.Domain.Jobs
             foreach (var pid in new[] { l.Potion1, l.Potion2 })
             {
                 var pi = Info(pid);
-                if (pid != null && (pi == null || pi.Kind != ItemKind.Potion)) return "Potion slot holds a non-potion";
+                if (pid != null && (pi == null || pi.Kind != ItemKind.Potion && pi.Kind != ItemKind.Food)) return "Potion slot holds a non-potion";
             }
             var req = RequirementProblem(c, l, q);
             if (req != null) return req;
@@ -1332,8 +1342,8 @@ namespace Ravenholm.Domain.Jobs
             foreach (var pid in new[] { l.Potion1, l.Potion2 })
             {
                 var pi = Info(pid);
-                if (pi == null || pi.Kind != ItemKind.Potion || !seenEffects.Add(pi.Id)) continue;
-                e.Potions.Add(new CarriedPotion { InstanceId = pid, DefinitionId = pi.Id, SurvivalBonus = pi.SurvivalBonus, CounterTag = pi.CounterTag });
+                if (pi == null || pi.Kind != ItemKind.Potion && pi.Kind != ItemKind.Food || !seenEffects.Add(pi.Id)) continue;
+                e.Potions.Add(new CarriedPotion { InstanceId = pid, DefinitionId = pi.Id, SurvivalBonus = pi.SurvivalBonus, CounterTag = pi.CounterTag, Food = pi.Kind == ItemKind.Food });
             }
 
             _s.NextExpeditionNumber++;

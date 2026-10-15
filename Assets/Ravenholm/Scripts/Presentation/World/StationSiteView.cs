@@ -138,10 +138,11 @@ namespace Ravenholm.Presentation
                     var pad = t.GetComponent<WorldContainerView>();
                     if (pad != null) pad.Reregister();
                 }
-                Scaffold().enabled = building;
-                Timer().gameObject.SetActive(building);
+                // Made only when a build starts (never on a packed station: its building is hidden then).
+                if (building || _scaffold != null) Scaffold().enabled = building;
+                if (building && gameObject.activeInHierarchy || _timer != null) Timer().gameObject.SetActive(building);
             }
-            if (building) Timer().text = $"{Mathf.CeilToInt((1f - stations.BuildProgress(stationId)) * _root.Services.Balance.stationBuildSeconds)}s";
+            if (building && _timer != null) _timer.text = $"{Mathf.CeilToInt((1f - stations.BuildProgress(stationId)) * _root.Services.Balance.stationBuildSeconds)}s";
         }
 
         private SpriteRenderer Scaffold()

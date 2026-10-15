@@ -11,6 +11,8 @@ namespace Ravenholm.Content
         Processed,
         Rare,
         External,
+        /// <summary>Foraged food (berries, mushrooms): cooked at the Kitchen.</summary>
+        Food,
     }
 
     /// <summary>Where a carried unit of this resource first enters shared inventory (GDD 8).</summary>
@@ -21,6 +23,7 @@ namespace Ravenholm.Content
         Lumbermill,
         Apothecary,
         Store,
+        Kitchen,
     }
 
     [CreateAssetMenu(menuName = "Ravenholm/Content/Resource Definition", fileName = "resource_")]

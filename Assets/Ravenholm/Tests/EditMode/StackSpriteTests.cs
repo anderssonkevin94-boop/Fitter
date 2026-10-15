@@ -36,7 +36,7 @@ namespace Ravenholm.Tests
                 Assert.AreEqual("stack_" + suffix, sprite.name, $"{id} uses its own art");
                 Assert.IsTrue(seen.Add(sprite), $"{id}: no two items share a sprite");
             }
-            Assert.AreEqual(48, count, "19 materials and 29 crafted items (with the helmets and shields)");
+            Assert.AreEqual(55, count, "21 materials and 34 crafted items (with the crafting expansion)");
         }
 
         [Test]

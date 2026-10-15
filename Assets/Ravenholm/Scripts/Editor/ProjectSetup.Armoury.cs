@@ -80,7 +80,9 @@ namespace Ravenholm.EditorTools
             {
                 if (r == null || r.OutputItem == null) continue;
                 var potion = r.OutputItem.Category == ItemCategory.Potion;
-                var seconds = r.MinFacilityLevel >= 3 ? 7200f
+                var food = r.OutputItem.Category == ItemCategory.Food;   // the Kitchen: quick, cheap (3 minutes, 10 at level 2)
+                var seconds = food ? (r.MinFacilityLevel >= 2 ? 600f : 180f)
+                    : r.MinFacilityLevel >= 3 ? 7200f
                     : r.MinFacilityLevel == 2 ? (potion ? 600f : 1800f)
                     : potion ? 120f
                     : starters.Contains(r.OutputItem.Id) ? 300f : 600f;

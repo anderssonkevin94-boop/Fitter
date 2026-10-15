@@ -25,6 +25,8 @@ MonoBehaviour:
   counterStrength: 0
   twoHanded: 0
   block: 0
+  foodSurvival: 0
+  foodReadiness: 0
   traderBuyValue: 2
   icon: {fileID: 21300000, guid: 548a4c6954d72495aaa61fc0c6960aa9, type: 3}
   stackSprite: {fileID: 21300000, guid: 0eb89f2ce9261416b978eee71a124f74, type: 3}

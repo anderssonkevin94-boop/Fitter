@@ -36,6 +36,7 @@ namespace Ravenholm.Services
                 case ReceiverType.Lumbermill: return Domain.Logistics.ReceiverKind.Lumbermill;
                 case ReceiverType.Apothecary: return Domain.Logistics.ReceiverKind.Apothecary;
                 case ReceiverType.Store: return Domain.Logistics.ReceiverKind.Store;
+                case ReceiverType.Kitchen: return Domain.Logistics.ReceiverKind.Kitchen;
                 default: return null;
             }
         }

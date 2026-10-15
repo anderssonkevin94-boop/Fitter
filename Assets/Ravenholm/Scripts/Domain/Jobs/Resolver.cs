@@ -19,6 +19,8 @@ namespace Ravenholm.Domain.Jobs
         public string DefinitionId = "";
         public int SurvivalBonus;
         public string CounterTag = "";
+        /// <summary>Food: always eaten on the trip.</summary>
+        public bool Food;
     }
 
     public sealed class Resolution
@@ -72,7 +74,14 @@ namespace Ravenholm.Domain.Jobs
                 }
 
             r.E = r.A - difficulty + r.J;
-            var survivalNoPotion = snapshot.Survival + k.SurvivalProtection * snapshot.ArmorProtection + r.SurvivalContext - k.SurvivalDifficulty * difficulty + r.K;
+            var survivalNoPotion = snapshot.Survival + k.SurvivalProtection * snapshot.ArmorProtection + snapshot.FoodSurvival + r.SurvivalContext
+                                   - k.SurvivalDifficulty * difficulty + r.K;
+            foreach (var p in potions)
+                if (p.Food && !r.ConsumedPotions.Contains(p.InstanceId))
+                {
+                    r.ConsumedPotions.Add(p.InstanceId);   // eaten on the way, whatever happens
+                    r.EffectsFired.Add($"{p.DefinitionId} eaten on the road");
+                }
             r.V = survivalNoPotion + snapshot.SurvivalPotionBonus;
 
             if (forced.HasValue)

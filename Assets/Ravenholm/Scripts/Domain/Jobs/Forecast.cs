@@ -55,6 +55,8 @@ namespace Ravenholm.Domain.Jobs
         public int SurvivalPotionBonus;
         /// <summary>A shield's chance (percent) of blocking a killing blow (the crafting expansion, 2026-10-16).</summary>
         public int BlockChance;
+        /// <summary>Food eaten on the trip: added to survival and readiness (the crafting expansion, 2026-10-16).</summary>
+        public int FoodSurvival, FoodReadiness;
 
         public void AddCounter(string tag, int strength)
         {
@@ -139,9 +141,9 @@ namespace Ravenholm.Domain.Jobs
             r.Context = Clamp(c, -k.ContextCap, k.ContextCap);
             r.SurvivalContext = Clamp(survCtx, -k.SurvivalContextCap, k.SurvivalContextCap);
             r.Readiness = k.Might * s.Might + k.Survival * s.Survival + k.Insight * s.Insight
-                          + k.WeaponPower * s.WeaponPower + k.ArmorProtection * s.ArmorProtection + r.Context;
+                          + k.WeaponPower * s.WeaponPower + k.ArmorProtection * s.ArmorProtection + r.Context + s.FoodReadiness;
             r.MeanMargin = r.Readiness - difficulty;
-            r.SurvivalWithoutRoll = s.Survival + k.SurvivalProtection * s.ArmorProtection + s.SurvivalPotionBonus + r.SurvivalContext
+            r.SurvivalWithoutRoll = s.Survival + k.SurvivalProtection * s.ArmorProtection + s.SurvivalPotionBonus + s.FoodSurvival + r.SurvivalContext
                                     - k.SurvivalDifficulty * difficulty;
             r.Band = Band(k, r.MeanMargin);
             // A failure the contractor could not survive worsens the word by one step (GDD 12).

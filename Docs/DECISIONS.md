@@ -1411,3 +1411,28 @@ Built:
 - **Not yet:**
   - the away report doesn't list finished crafts;
   - there's no paying to hurry.
+
+## 2026-10-16: journey step 6c, the Workshop, the Kitchen, foraging and food
+
+- **The Workshop.** The Workbench is renamed the Workshop; its id stays `station.workbench`. It adds two light armours, both made at Workshop level 1:
+  - Leather Jerkin: protection 5, traps +2, from fur and rope;
+  - Padded Gambeson: protection 4, exploration +2, from rope and cedar lumber.
+- **The Kitchen** (`station.kitchen`, max level 2, output pad `container.kitchen_pad`, delivery marker `receiver.kitchen`):
+  - it arrives as a kit (`StationDefinition.startsAsKit`), so the player sets it up in build mode, as at a new camp;
+  - it takes berries and mushrooms (new `ReceiverKind.Kitchen` and `ResourceCategory.Food`);
+  - Kitchen 2 costs 50 gold, 4 iron ingots and 4 maple lumber.
+- **Foraging** (`SiteDefinition.fellForage` and `stumpForage`). A felled tree drops wild berries 12% of the time; a pulled stump gives forest mushrooms 35% of the time. Each roll is fixed per tree spot by the seed. The content graph counts foraging as a source.
+- **Food** (`ItemCategory.Food`), as Kevin chose: a cheap consumable in the potion slots.
+  - It is always eaten on the trip, whatever the outcome.
+  - It adds to survival (forecast and resolver) and to readiness ("well fed").
+  - The same dish twice does not stack.
+
+  | Dish | Survival | Readiness | Made from | Time |
+  |---|---|---|---|---|
+  | Trail Rations | +2 | +1 | 2 berries | 3 min |
+  | Mushroom Stew | +3 | +2 | 2 mushrooms, 1 berry | 3 min |
+  | Hearty Pie (Kitchen 2) | +4 | +3 | berries, mushrooms, a herb | 10 min |
+- **Display.** Food shows in the Store's potions tab and on potion stands.
+- **Saving.** Food is saved with an expedition: its stats in the snapshot, and a `food` flag on what was carried.
+- **Art.** Placeholders: the Kitchen is the Apothecary's building with a red roof; icons and piles come from `Tools/ArtImport/make_kitchen_placeholders.py`.
+- **Content ceiling.** Recipes number 34; the V1 ceiling in `CampaignTests` is raised from 30 to 40 for the expansion.
