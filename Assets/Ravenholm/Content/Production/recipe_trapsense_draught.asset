@@ -25,3 +25,4 @@ MonoBehaviour:
   station: {fileID: 11400000, guid: 7b2aae2fd52e44ce1b6d1a3d2ac0361e, type: 2}
   minFacilityLevel: 2
   requiredBlueprint: {fileID: 11400000, guid: b7ee3ebaf44ae4dfc9956eec4f57a9b7, type: 2}
+  craftSeconds: 600

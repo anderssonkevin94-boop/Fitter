@@ -89,6 +89,14 @@ namespace Ravenholm.Services
 
         // ------------------------------------------------------------------ debug (Phase 3 test unlocks)
 
+        /// <summary>DEBUG: every craft in progress finishes now (onto its pad if there is room).</summary>
+        public void DebugFinishCrafts()
+        {
+            _scheduler.NoteAssisted("finish crafts");
+            System.DebugFinishCrafts();
+            _scheduler.SaveNow("debug: crafts finished");
+        }
+
         public void DebugGrantBlueprint(string blueprintId)
         {
             _scheduler.NoteAssisted("grant blueprint");
@@ -135,6 +143,7 @@ namespace Ravenholm.Services
                 Id = d.Id, Station = d.Station != null ? d.Station.Id : "", MinLevel = d.MinFacilityLevel,
                 OutputItemId = d.OutputItem != null ? d.OutputItem.Id : "", BlueprintId = d.RequiredBlueprint != null ? d.RequiredBlueprint.Id : "",
                 PadContainerId = d.Station != null ? d.Station.OutputPadContainerId : "", PadCapacity = d.Station != null ? d.Station.OutputPadCapacity : 6,
+                DurationMs = (int)Math.Round(d.CraftSeconds * 1000),
             };
             foreach (var c in d.Cost) if (c.resource != null) r.Inputs.Add(new KeyValuePair<string, int>(c.resource.Id, c.quantity));
             return r;
@@ -147,6 +156,7 @@ namespace Ravenholm.Services
             _state.Processors.Clear();
             _state.FacilityLevels.Clear();
             _state.Blueprints.Clear();
+            _state.Crafts.Clear();
             _state.SimMs = 0;
             _msRemainder = 0;
             var d = env?.Production;
@@ -177,6 +187,10 @@ namespace Ravenholm.Services
                     foreach (var kv in p.Reserves) rec.Reserves[kv.Key] = kv.Value;
                     _state.Processors[p.Facility] = rec;
                 }
+                if (d.Crafts != null)
+                    foreach (var c in d.Crafts)
+                        if (System.Recipe(c.Recipe) != null)
+                            _state.Crafts.Add(new CraftJob { Station = c.Station, RecipeId = c.Recipe, StartMs = c.StartMs, EndMs = c.EndMs, Waiting = c.Waiting });
             }
 
             foreach (var p in System.Processes) System.EnsureProcessor(p.Facility);
@@ -197,6 +211,8 @@ namespace Ravenholm.Services
                 foreach (var kv in p.Reserves) pd.Reserves[kv.Key] = kv.Value;
                 d.Processors.Add(pd);
             }
+            foreach (var c in _state.Crafts)
+                d.Crafts.Add(new CraftSaveData { Station = c.Station, Recipe = c.RecipeId, StartMs = c.StartMs, EndMs = c.EndMs, Waiting = c.Waiting });
             env.Production = d;
         }
     }

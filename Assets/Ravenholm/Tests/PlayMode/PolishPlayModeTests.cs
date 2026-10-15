@@ -110,6 +110,7 @@ namespace Ravenholm.Tests
             yield return null;
             Assert.AreEqual("", signals.TraderTimerText, "no timer before the Trader is scheduled");
             Assert.IsTrue(s.Production.Craft("recipe.iron_sword", out var f), f);
+            s.Production.DebugFinishCrafts();   // crafting is timed (the crafting expansion): done now for the test
             Assert.AreEqual(1, signals.Flashes);
             s.Economy.DebugSummonTrader();
             yield return new WaitForSeconds(0.7f);

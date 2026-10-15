@@ -73,6 +73,21 @@ namespace Ravenholm.EditorTools
             Recipe("wooden_shield", bench, M(("cedar_lumber", 3)), 1, "A plank shield: now and then it stops the worst.");
             Recipe("iron_shield", forge, M(("iron_ingot", 2), ("cedar_lumber", 2)), 1, "Iron bands on oak: it blocks more often.");
             Recipe("steel_kite_shield", forge, M(("steel_ingot", 3), ("maple_lumber", 1)), 2, "A tall steel shield that saves lives.");
+            // Timed crafting (Kevin, 2026-10-16: long, Shop Titans style). Balance starting points by tier: the six starters
+            // 5 minutes (the starter tonic 2), other level-1 pieces 10, level-2 pieces 30 (level-2 potions 10), level 3 two hours.
+            var starters = new HashSet<string> { "item.iron_sword", "item.cedar_bow", "item.iron_dagger", "item.cedar_staff", "item.riveted_coat" };
+            foreach (var r in recipes)
+            {
+                if (r == null || r.OutputItem == null) continue;
+                var potion = r.OutputItem.Category == ItemCategory.Potion;
+                var seconds = r.MinFacilityLevel >= 3 ? 7200f
+                    : r.MinFacilityLevel == 2 ? (potion ? 600f : 1800f)
+                    : potion ? 120f
+                    : starters.Contains(r.OutputItem.Id) ? 300f : 600f;
+                if (r.CraftSeconds == seconds) continue;
+                r.EditorSetCraftSeconds(seconds);
+                EditorUtility.SetDirty(r);
+            }
             if (changed)
             {
                 catalogue.EditorSetProduction(new List<StationDefinition>(catalogue.Stations), new List<ProcessDefinition>(catalogue.Processes), recipes, blueprints,

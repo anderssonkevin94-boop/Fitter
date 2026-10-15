@@ -1388,3 +1388,26 @@ Built:
   - Placeholder icons and pile sprites come from `Tools/ArtImport/make_armoury_placeholders.py`, until Astra's art.
   - The seven recipes are owned at the start, gated by station level, with balance starting points.
   - Recipes number 29 of the V1 ceiling of 30.
+
+## 2026-10-16: journey step 6b, timed crafting (Kevin: long, Shop Titans style)
+
+- **Craft slots.** Crafting is no longer instant. Each station has craft slots that work at the same time: 2 at level 1, and 1 more per level above (`ProductionSystem.CraftSlots`). Starting a craft pays the materials and fills a slot (`CraftJob`).
+- **Finishing.** When the time is up the item lands on the station's output pad. If the pad is full it waits in its slot ("done, waiting for room on the pad") until goods are carried away. A full pad no longer stops a craft from starting.
+- **Times** (`RecipeDefinition.craftSeconds`), as balance starting points at the recipe's own station level; each level above it is quicker by the station's batch factor, as for processing:
+
+  | Recipe | Time |
+  |---|---|
+  | the five starter weapons and armour | 5 min |
+  | the starter tonic | 2 min |
+  | other level-1 pieces | 10 min |
+  | level-2 potions | 10 min |
+  | level-2 pieces | 30 min |
+  | level 3 | 2 h |
+- **Time away.** Crafts carry on while you're away, within the usual 8-hour window for production. They are saved in the production section (`crafts`).
+- **The station panel** shows each recipe's time on its card and button, plus the slots: what is being made and how long is left.
+- **Tests:**
+  - new ones cover paying at the start and finishing on time, the slots per level, waiting for a full pad, and saving across a restart;
+  - PlayMode tests that need goods at once call `DebugFinishCrafts`.
+- **Not yet:**
+  - the away report doesn't list finished crafts;
+  - there's no paying to hurry.

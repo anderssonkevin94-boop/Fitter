@@ -121,7 +121,7 @@ namespace Ravenholm.Presentation
         public bool Craft(string recipeId)
         {
             var ok = _root.Services.Production.Craft(recipeId, out var failure);
-            _lastMessage = ok ? $"Crafted {UnitVisuals.DisplayName(Prod.Recipe(recipeId).OutputItemId)}. It is on the output pad: carry it to the Store."
+            _lastMessage = ok ? $"Started {UnitVisuals.DisplayName(Prod.Recipe(recipeId).OutputItemId)}: ready in {Duration(Prod.EffectiveCraftMs(Prod.Recipe(recipeId)))}. It goes onto the output pad when done."
                               : UnitVisuals.PrettyIds(failure);
             if (ok) FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
             Refresh();
@@ -193,8 +193,9 @@ namespace Ravenholm.Presentation
                 if (r.Station == stationId && Prod.State.Blueprints.Contains(r.BlueprintId)) recipes.Add(r);   // unknown recipes stay hidden (GDD 9)
             if (recipes.Count > 0)
             {
-                Header("Craft (instant)");
+                Header("Craft");
                 Text(() => stationDef != null ? $"Output pad: {_root.Services.Logistics.System.ContainerUnitCount(stationDef.OutputPadContainerId)}/{stationDef.OutputPadCapacity}" : "", _theme.smallSize);
+                Text(() => SlotsText(stationId), _theme.smallSize);
                 foreach (var r in recipes)
                 {
                     var recipe = r;
@@ -431,14 +432,35 @@ namespace Ravenholm.Presentation
                 sb.Append(first ? "" : " · ").Append($"<color={colour}>{UnitVisuals.DisplayName(c.Key)} {c.Value} (have {have})</color>");
                 first = false;
             }
-            if (r.MinLevel > 1) sb.Append($"\nRequires station level {r.MinLevel}");
+            sb.Append($"\nTakes {Duration(Prod.EffectiveCraftMs(r))}");
+            if (r.MinLevel > 1) sb.Append($" · requires station level {r.MinLevel}");
             return sb.ToString();
+        }
+
+        /// <summary>The station's craft slots: what is being made and how long is left (the crafting expansion).</summary>
+        private string SlotsText(string stationId)
+        {
+            var sb = new StringBuilder($"Craft slots: {Prod.BusySlots(stationId)} of {Prod.CraftSlots(stationId)} busy");
+            foreach (var j in Prod.CraftsAt(stationId))
+            {
+                var name = UnitVisuals.DisplayName(Prod.Recipe(j.RecipeId)?.OutputItemId ?? j.RecipeId);
+                sb.Append("\n• ").Append(name).Append(j.Waiting ? ": done, waiting for room on the pad" : $": {Duration(j.EndMs - Prod.State.SimMs)} left");
+            }
+            return sb.ToString();
+        }
+
+        private static string Duration(long ms)
+        {
+            var s = Math.Max(0L, (ms + 999) / 1000);
+            if (s < 60) return $"{s} s";
+            if (s < 3600) return $"{s / 60} min {s % 60:00} s";
+            return $"{s / 3600} h {s / 60 % 60:00} min";
         }
 
         private string CraftButtonText(CraftRecipe r)
         {
             var reason = Prod.CraftBlockedReason(r.Id);
-            return reason == null ? $"Craft {UnitVisuals.DisplayName(r.OutputItemId)}" : UnitVisuals.PrettyIds(reason);
+            return reason == null ? $"Craft {UnitVisuals.DisplayName(r.OutputItemId)} ({Duration(Prod.EffectiveCraftMs(r))})" : UnitVisuals.PrettyIds(reason);
         }
     }
 }

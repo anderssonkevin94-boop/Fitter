@@ -3,7 +3,10 @@ using UnityEngine;
 
 namespace Ravenholm.Content
 {
-    /// <summary>Instant crafting recipe for one finished item (GDD 9: no timers, minigames or quality rolls).</summary>
+    /// <summary>
+    /// A crafting recipe for one finished item (GDD 9: no minigames or quality rolls). Timed since the crafting expansion
+    /// (Kevin, 2026-10-16, Shop Titans style): it takes <see cref="CraftSeconds"/> in one of the station's craft slots.
+    /// </summary>
     [CreateAssetMenu(menuName = "Ravenholm/Content/Recipe Definition", fileName = "recipe_")]
     public sealed class RecipeDefinition : ContentDefinition
     {
@@ -13,6 +16,8 @@ namespace Ravenholm.Content
         [SerializeField] private StationDefinition station;
         [Min(1)] [SerializeField] private int minFacilityLevel = 1;
         [SerializeField] private BlueprintDefinition requiredBlueprint;
+        [Tooltip("How long one takes, in seconds, at the station level the recipe needs (higher levels are quicker).")]
+        [Min(1f)] [SerializeField] private float craftSeconds = 300f;
 
         public override string IdKind => "recipe";
         public ItemDefinition OutputItem => outputItem;
@@ -21,6 +26,7 @@ namespace Ravenholm.Content
         public StationDefinition Station => station;
         public int MinFacilityLevel => minFacilityLevel;
         public BlueprintDefinition RequiredBlueprint => requiredBlueprint;
+        public float CraftSeconds => craftSeconds;
 
         public override void Validate(List<string> errors)
         {
@@ -42,6 +48,8 @@ namespace Ravenholm.Content
             minFacilityLevel = level;
             requiredBlueprint = bp;
         }
+
+        public void EditorSetCraftSeconds(float seconds) => craftSeconds = seconds;
 #endif
     }
 }

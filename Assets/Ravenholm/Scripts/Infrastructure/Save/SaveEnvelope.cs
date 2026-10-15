@@ -232,6 +232,18 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("processors")] public List<ProcessorSaveData> Processors = new List<ProcessorSaveData>();
         [JsonProperty("levels")] public SortedDictionary<string, int> FacilityLevels = new SortedDictionary<string, int>();
         [JsonProperty("blueprints")] public List<string> Blueprints = new List<string>();
+        /// <summary>Items being made (the crafting expansion, 2026-10-16; optional).</summary>
+        [JsonProperty("crafts")] public List<CraftSaveData> Crafts = new List<CraftSaveData>();
+    }
+
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class CraftSaveData
+    {
+        [JsonProperty("station")] public string Station;
+        [JsonProperty("recipe")] public string Recipe;
+        [JsonProperty("start")] public long StartMs;
+        [JsonProperty("end")] public long EndMs;
+        [JsonProperty("waiting")] public bool Waiting;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

@@ -69,6 +69,7 @@ namespace Ravenholm.Tests
             Assert.IsTrue(panel.IsOpen);
             Assert.IsTrue(panel.Craft("recipe.iron_sword"), panel.LastMessage);
             Assert.IsTrue(panel.Craft("recipe.iron_dagger"), panel.LastMessage);
+            s.Production.DebugFinishCrafts();   // crafting is timed (the crafting expansion): done now for the test
             Assert.AreEqual(1, log.SharedAvailable("resource.iron_ingot"), "6 - 3 - 2");
             Assert.IsFalse(panel.Craft("recipe.riveted_coat"), "not enough iron left");
             StringAssert.Contains("Iron Ingot", panel.LastMessage, "blocked reasons use display names");
@@ -126,7 +127,11 @@ namespace Ravenholm.Tests
             });
             for (var round = 0; round < 2; round++)
             {
-                for (var i = 0; i < 5; i++) Assert.IsTrue(s.Production.Craft("recipe.recovery_tonic", out var f), f);
+                for (var i = 0; i < 5; i++)
+                {
+                    Assert.IsTrue(s.Production.Craft("recipe.recovery_tonic", out var f), f);
+                    s.Production.DebugFinishCrafts();
+                }
                 yield return StandAt(new Vector2(-3.85f, -1.95f), 0.8f);   // apothecary pad
                 yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.8f);
             }

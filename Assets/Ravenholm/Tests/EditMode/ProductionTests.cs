@@ -48,16 +48,37 @@ namespace Ravenholm.Tests
         private int Shared(string id) => _log.SharedAvailable(id);
 
         [Test]
-        public void CraftUsesExactCostsAndIsInstant()
+        public void CraftPaysAtTheStartAndFinishesOnTime()
         {
             _log.ProduceShared("ingot", 6, "test");
             _log.ProduceShared("lumber", 6, "test");
             Assert.IsTrue(_prod.Craft("recipe.sword", out var f), f);
-            Assert.AreEqual(3, Shared("ingot"));
+            Assert.AreEqual(3, Shared("ingot"), "paid at the start");
             Assert.AreEqual(5, Shared("lumber"));
-            Assert.AreEqual(1, _log.State.Containers[Pad].Items.Count, "the item is on the pad immediately");
+            Assert.AreEqual(0, _log.State.Containers[Pad].Items.Count, "being made (the crafting expansion: timed, Shop Titans style)");
+            Assert.AreEqual(1, _prod.BusySlots("station.forge"));
+            _prod.Advance(_prod.EffectiveCraftMs(_prod.Recipe("recipe.sword")) - 1);
+            Assert.AreEqual(0, _log.State.Containers[Pad].Items.Count, "not quite yet");
+            _prod.Advance(1);
+            Assert.AreEqual(1, _log.State.Containers[Pad].Items.Count, "done: on the pad");
             Assert.AreEqual("item.sword", _log.State.ItemDefinitions[_log.State.Containers[Pad].Items[0]]);
+            Assert.AreEqual(0, _prod.BusySlots("station.forge"), "the slot is free again");
             CollectionAssert.IsEmpty(_log.Audit());
+        }
+
+        [Test]
+        public void AStationHasTwoCraftSlotsAndOneMorePerLevel()
+        {
+            _log.ProduceShared("ingot", 30, "test");
+            _log.ProduceShared("lumber", 30, "test");
+            Assert.AreEqual(2, _prod.CraftSlots("station.forge"));
+            Assert.IsTrue(_prod.Craft("recipe.sword", out _));
+            Assert.IsTrue(_prod.Craft("recipe.sword", out _), "two at once");
+            Assert.IsFalse(_prod.Craft("recipe.sword", out var busy));
+            StringAssert.Contains("busy", busy);
+            _prod.SetLevel("station.forge", 2);
+            Assert.AreEqual(3, _prod.CraftSlots("station.forge"));
+            Assert.IsTrue(_prod.Craft("recipe.sword", out _), "a third slot at level 2");
         }
 
         [Test]
@@ -70,24 +91,34 @@ namespace Ravenholm.Tests
             Assert.AreEqual(2, ok);
             Assert.AreEqual(1, Shared("ingot"));
             Assert.AreEqual(5, Shared("lumber"));
+            StringAssert.Contains("busy", _prod.CraftBlockedReason("recipe.sword"), "both slots in use");
+            _prod.DebugFinishCrafts();
             StringAssert.Contains("Missing 2", _prod.CraftBlockedReason("recipe.sword"));
             CollectionAssert.IsEmpty(_log.Audit());
         }
 
         [Test]
-        public void FullOutputPadBlocksCraftingAndSpendsNothing()
+        public void AFinishedCraftWaitsInItsSlotWhileThePadIsFull()
         {
             _log.ProduceShared("ingot", 30, "test");
             _log.ProduceShared("lumber", 30, "test");
-            for (var i = 0; i < 6; i++) Assert.IsTrue(_prod.Craft("recipe.sword", out _));
-            Assert.IsFalse(_prod.Craft("recipe.sword", out var failure));
-            StringAssert.Contains("Output pad full", failure);
-            Assert.AreEqual(12, Shared("ingot"));
-            Assert.AreEqual(24, Shared("lumber"));
-
-            // A full carry does not matter: only pad space does. Clearing the pad re-enables crafting.
+            for (var round = 0; round < 3; round++)
+            {
+                Assert.IsTrue(_prod.Craft("recipe.sword", out _));
+                Assert.IsTrue(_prod.Craft("recipe.sword", out _));
+                _prod.Advance(_prod.EffectiveCraftMs(_prod.Recipe("recipe.sword")));
+            }
+            Assert.AreEqual(6, _log.State.Containers[Pad].Items.Count, "the pad is full");
+            Assert.IsTrue(_prod.Craft("recipe.sword", out _), "a full pad does not stop a start");
+            _prod.Advance(_prod.EffectiveCraftMs(_prod.Recipe("recipe.sword")));
+            Assert.AreEqual(6, _log.State.Containers[Pad].Items.Count);
+            Assert.IsTrue(_prod.CraftsAt("station.forge").Single().Waiting, "done, waiting for room");
+            // Carry the goods away: the waiting sword lands at once.
             for (var i = 0; i < 20; i++) _log.StepOnce(0f, 0f);
-            Assert.IsTrue(_prod.Craft("recipe.sword", out _));
+            _prod.Advance(0);
+            Assert.AreEqual(0, _prod.BusySlots("station.forge"));
+            Assert.Greater(_log.State.Containers[Pad].Items.Count, 0);
+            CollectionAssert.IsEmpty(_log.Audit());
         }
 
         [Test]
@@ -254,7 +285,10 @@ namespace Ravenholm.Tests
             Assert.IsTrue(a.Production.Craft("recipe.iron_dagger", out _));
             a.Production.DebugGrantBlueprint("blueprint.copper_ward_staff");
             var b = Boot();
-            Assert.AreEqual(1, b.Logistics.System.ContainerUnitCount("container.forge_pad"));
+            Assert.AreEqual(1, b.Production.System.BusySlots("station.forge"), "the craft in progress was saved");
+            Assert.AreEqual(0, b.Logistics.System.ContainerUnitCount("container.forge_pad"));
+            b.Production.AdvanceMs(b.Production.System.EffectiveCraftMs(b.Production.System.Recipe("recipe.iron_dagger")));
+            Assert.AreEqual(1, b.Logistics.System.ContainerUnitCount("container.forge_pad"), "and finishes after the restart");
             Assert.IsTrue(b.Production.System.State.Blueprints.Contains("blueprint.copper_ward_staff"));
             Assert.AreEqual(4, b.Logistics.System.SharedAvailable("resource.iron_ingot"), "starting stock is not granted twice");
             CollectionAssert.IsEmpty(b.Logistics.System.Audit());

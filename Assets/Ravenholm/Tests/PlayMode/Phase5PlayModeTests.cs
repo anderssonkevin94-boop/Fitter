@@ -71,6 +71,7 @@ namespace Ravenholm.Tests
             Assert.IsTrue(s.Production.Craft("recipe.iron_sword", out var f), f);
             Assert.IsTrue(s.Production.Craft("recipe.riveted_coat", out f), f);
             Assert.IsTrue(s.Production.Craft("recipe.recovery_tonic", out f), f);
+            s.Production.DebugFinishCrafts();   // crafting is timed (the crafting expansion): done now for the test
             yield return StandAt(new Vector2(-4.3f, -4.0f), 0.5f);
             yield return StandAt(new Vector2(-3.85f, -1.95f), 0.5f);
             yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.6f);
