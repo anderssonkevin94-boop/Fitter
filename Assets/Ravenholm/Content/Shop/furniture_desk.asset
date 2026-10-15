@@ -27,8 +27,8 @@ MonoBehaviour:
       ground: {x: 256, y: 420}
       slots: []
     facingB:
-      sprite: {fileID: 0}
-      ground: {x: 0, y: 0}
+      sprite: {fileID: 21300000, guid: feb8030b1114d4ba687421eed763258a, type: 3}
+      ground: {x: 256, y: 420}
       slots: []
     gold: 0
     materials: []

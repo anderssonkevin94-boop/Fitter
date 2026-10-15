@@ -25,6 +25,8 @@ namespace Ravenholm.Presentation
         [SerializeField] private Sprite plotSign;
         [SerializeField] private Sprite wallTallLeft, wallTallRight, wallLowLeft, wallLowRight, postTall, postLow;
         [SerializeField] private Sprite tileOk, tileBlocked;
+        [Tooltip("Optional variants: a window on some back-left walls; the doorway's low-wall pieces (left and right shapes).")]
+        [SerializeField] private Sprite wallWindowLeft, wallWindowRight, entranceLeft, entranceRight;
         [SerializeField] private Material material;
         [SerializeField] private int blockerLayer;
 
@@ -68,6 +70,14 @@ namespace Ravenholm.Presentation
             tileBlocked = blocked;
             material = mat;
             blockerLayer = blocker;
+        }
+
+        public void EditorSetupVariants(Sprite windowL, Sprite windowR, Sprite doorL, Sprite doorR)
+        {
+            wallWindowLeft = windowL;
+            wallWindowRight = windowR;
+            entranceLeft = doorL;
+            entranceRight = doorR;
         }
 #endif
 
@@ -137,6 +147,13 @@ namespace Ravenholm.Presentation
             var shop = _root.Services.Shop;
             var grid = shop.Grid;
             Clear(_shell);
+            // Wall edges with furniture hanging on them keep a plain wall (no window behind a shelf).
+            var hung = new HashSet<(Tile, EdgeSide)>();
+            foreach (var p in shop.State.Furniture)
+            {
+                var shape = p.Placed ? shop.ShapeOf(p.FurnitureId) : null;
+                if (shape != null && shape.Wall) foreach (var e in grid.WallEdges(shape, p.A, p.B, p.Facing)) hung.Add(e);
+            }
 
             foreach (var t in grid.Floor)
             {
@@ -152,11 +169,19 @@ namespace Ravenholm.Presentation
                 var p0 = Vertex(a0, b0);
                 var p1 = Vertex(a1, b1);
                 var mid = (p0 + p1) * 0.5f;
-                if (e.Kind != EdgeKind.Entrance) EdgeBlocker(p0, p1, e.Side);
-                if (e.Kind == EdgeKind.Entrance) continue;
                 var alongA = e.Side == EdgeSide.BackLeft || e.Side == EdgeSide.FrontRight;
+                if (e.Kind == EdgeKind.Entrance)
+                {
+                    var door = alongA ? entranceLeft : entranceRight;
+                    if (door != null) Piece(_shell, "Doorway", door, mid, 0f, false);
+                    continue;
+                }
+                EdgeBlocker(p0, p1, e.Side);
                 var tall = e.Kind == EdgeKind.Tall;
                 var sprite = tall ? (alongA ? wallTallLeft : wallTallRight) : (alongA ? wallLowLeft : wallLowRight);
+                // Every third full wall gets a window (where that art exists), counted along the wall.
+                var window = alongA ? wallWindowLeft : wallWindowRight;
+                if (tall && window != null && (alongA ? e.Tile.A : e.Tile.B) % 3 == 1 && !hung.Contains((e.Tile, e.Side))) sprite = window;
                 Piece(_shell, tall ? "Wall" : "LowWall", sprite, mid, tall ? WallSortBack : 0f, tall);
             }
 

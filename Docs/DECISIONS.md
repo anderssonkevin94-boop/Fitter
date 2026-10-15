@@ -1068,3 +1068,19 @@ Kevin: 4 × 6 to start, 2 × 2 add-ons, no roof for now, and Astra has visual fr
   - This is switched on per object with `SpriteOutline.OverlapFree` (forest trees, town trees).
   - Other outlines are unchanged.
 - **Build button.** It now sits under the settings button; at its first spot it covered the carry counter.
+
+## 2026-10-15: Astra's modular shop, step 1 sample in the game (awaiting Kevin's approval)
+
+- **Import.** `Tools/ArtImport/import_shop_modular.py` brings in her step-1 pack:
+  - **Shell pieces** to `Art/Placeholder/Shop/` (256 px per unit, her pivots, no outline);
+  - **desk_1_B** to `Furniture/`, with its points merged into `Furniture/points.json`.
+  - The builder uses her pieces where they exist and the placeholders otherwise.
+  - Setup reads `<sprite>_B` and `<sprite>_right` entries as a second facing.
+- **Windows.** Every third full wall along A gets a window, except where furniture hangs on it.
+- **Doorway.** The entrance edges draw `stub_entrance_left` (or `_right`).
+- **Seen in the game:**
+  - walls, floors and the L's inside corner join seamlessly;
+  - two doorway pieces side by side leave an upright in the middle of the 2-tile door;
+  - desk_1_B's dark panels don't match level-1 desk_1's plain oak;
+  - she built the sample at 4 × 6 (the brief before the change to 6 × 6).
+- **Tests.** The EditMode test `SuccessReturnsGearRewardsUnlocksAndSurvivesRestart` failed once and passed on the rerun with no change (intermittent; not investigated yet).

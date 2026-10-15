@@ -861,8 +861,16 @@ namespace Ravenholm.EditorTools
                 return new ShopFurnitureDefinition.Art { sprite = sprite, ground = new Vector2(w * 0.5f, sprite.rect.height * (1f - 0.1682f)), slots = slots };
             }
 
+            // Facing B (or the right-hand wall) where Astra has drawn it: "<file>_B" / "<file>_right" in points.json.
+            ShopFurnitureDefinition.Art Second(ShopFurnitureDefinition.Art a)
+            {
+                var name = a.sprite != null ? a.sprite.name : "";
+                foreach (var suffix in new[] { "_B", "_right" })
+                    if (pts["assets"][name + suffix + ".png"] != null) return Astra(name + suffix);
+                return new ShopFurnitureDefinition.Art();
+            }
             ShopFurnitureDefinition.Level L(Vector2Int fp, ShopFurnitureDefinition.Art a, int gold, List<ResourceCost> mats) =>
-                new ShopFurnitureDefinition.Level { footprint = fp, facingA = a, facingB = new ShopFurnitureDefinition.Art(), gold = gold, materials = mats };
+                new ShopFurnitureDefinition.Level { footprint = fp, facingA = a, facingB = Second(a), gold = gold, materials = mats };
 
             ShopFurnitureDefinition Furniture(string key, string name, FurnitureDisplay display, bool wall, float ppu, bool forSale,
                 params ShopFurnitureDefinition.Level[] levels)

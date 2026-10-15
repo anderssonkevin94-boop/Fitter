@@ -461,14 +461,23 @@ namespace Ravenholm.EditorTools
         {
             var go = new GameObject("Shop");
             go.transform.SetParent(parent, false);
-            go.AddComponent<ShopView>().EditorSetup(ShopOrigin,
-                new[] { ProjectSetup.LoadSprite("Painted/Ground/ground_planks") }, ProjectSetup.LoadSprite("Painted/Ground/ground_dirt_dug"),
-                ProjectSetup.LoadSprite("Shop/plot_sign"),
-                ProjectSetup.LoadSprite("Shop/wall_tall_left"), ProjectSetup.LoadSprite("Shop/wall_tall_right"),
-                ProjectSetup.LoadSprite("Shop/wall_low_left"), ProjectSetup.LoadSprite("Shop/wall_low_right"),
-                ProjectSetup.LoadSprite("Shop/post_tall"), ProjectSetup.LoadSprite("Shop/post_low"),
-                ProjectSetup.LoadSprite("Shop/tile_ok"), ProjectSetup.LoadSprite("Shop/tile_blocked"), _unlit, ProjectSetup.BlockerLayerIndex);
+            // Astra's pieces where they exist (step 1, 2026-10-15), the placeholders otherwise.
+            Sprite Art(string astra, string placeholder) => OptionalSprite("Shop/" + astra) ?? (placeholder != null ? ProjectSetup.LoadSprite(placeholder) : null);
+            var view = go.AddComponent<ShopView>();
+            view.EditorSetup(ShopOrigin,
+                new[] { Art("floor_1", "Painted/Ground/ground_planks") }, Art("floor_plot", "Painted/Ground/ground_dirt_dug"),
+                Art("plot_sign", "Shop/plot_sign"),
+                Art("wall_plain_left", "Shop/wall_tall_left"), Art("wall_plain_right", "Shop/wall_tall_right"),
+                Art("stub_plain_left", "Shop/wall_low_left"), Art("stub_plain_right", "Shop/wall_low_right"),
+                Art("post_tall", "Shop/post_tall"), Art("post_low", "Shop/post_low"),
+                Art("tile_ok", "Shop/tile_ok"), Art("tile_blocked", "Shop/tile_blocked"), _unlit, ProjectSetup.BlockerLayerIndex);
+            view.EditorSetupVariants(Art("wall_window_left", null), Art("wall_window_right", null), Art("stub_entrance_left", null), Art("stub_entrance_right", null));
             return go.transform;
+        }
+
+        private static Sprite OptionalSprite(string relativeNoExt)
+        {
+            return AssetDatabase.LoadAssetAtPath<Sprite>(PlaceholderSpriteImporter.ArtRoot + relativeNoExt + ".png");
         }
 
         /// <summary>The middle of the tiles just inside the shop's entrance (where goods are stocked).</summary>

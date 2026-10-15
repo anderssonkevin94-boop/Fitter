@@ -919,6 +919,14 @@
    ],
    "ppu": 256
   },
+  "Furniture/desk_1_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
   "Furniture/desk_2.png": {
    "outline": true,
    "pivot": [
@@ -1813,6 +1821,20 @@
     0.0652
    ]
   },
+  "Shop/floor_1.png": {
+   "pivot": [
+    0.5,
+    0.57895
+   ],
+   "ppu": 256
+  },
+  "Shop/floor_plot.png": {
+   "pivot": [
+    0.5,
+    0.57895
+   ],
+   "ppu": 256
+  },
   "Shop/plot_sign.png": {
    "pivot": [
     0.5,
@@ -1831,6 +1853,27 @@
    "pivot": [
     0.5,
     0.02286
+   ],
+   "ppu": 256
+  },
+  "Shop/stub_entrance_left.png": {
+   "pivot": [
+    0.5,
+    0.21818
+   ],
+   "ppu": 256
+  },
+  "Shop/stub_plain_left.png": {
+   "pivot": [
+    0.5,
+    0.21818
+   ],
+   "ppu": 256
+  },
+  "Shop/stub_plain_right.png": {
+   "pivot": [
+    0.5,
+    0.21818
    ],
    "ppu": 256
   },
@@ -1862,6 +1905,20 @@
    ],
    "ppu": 256
   },
+  "Shop/wall_plain_left.png": {
+   "pivot": [
+    0.5,
+    0.06857
+   ],
+   "ppu": 256
+  },
+  "Shop/wall_plain_right.png": {
+   "pivot": [
+    0.5,
+    0.06857
+   ],
+   "ppu": 256
+  },
   "Shop/wall_tall_left.png": {
    "pivot": [
     0.5,
@@ -1870,6 +1927,13 @@
    "ppu": 256
   },
   "Shop/wall_tall_right.png": {
+   "pivot": [
+    0.5,
+    0.06857
+   ],
+   "ppu": 256
+  },
+  "Shop/wall_window_left.png": {
    "pivot": [
     0.5,
     0.06857

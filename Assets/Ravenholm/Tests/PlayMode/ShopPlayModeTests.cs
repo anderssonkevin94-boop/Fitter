@@ -64,6 +64,10 @@ namespace Ravenholm.Tests
             var shell = view.transform.Find("Shell");
             Assert.AreEqual(12, shell.Cast<Transform>().Count(t => t.name == "Wall"), "full walls along both back edges (6 + 6)");
             Assert.AreEqual(10, shell.Cast<Transform>().Count(t => t.name == "LowWall"), "low walls along the front, less the 2-tile entrance");
+            var shelf = Piece("furniture.potion_shelf");
+            foreach (var w in shell.Cast<Transform>().Where(t => t.name == "Wall"))
+                if (Vector2.Distance(w.GetChild(0).position, shelf.transform.position) < 0.6f)
+                    StringAssert.DoesNotContain("window", w.GetComponentInChildren<SpriteRenderer>().sprite.name, "no window behind a shelf");
             foreach (var id in new[] { "item.iron_sword", "item.steel_maul", "item.steel_coat", "item.iron_dagger", "item.steel_stiletto", "item.antidote", "item.strong_tonic" })
                 s.Logistics.System.CreateStoreItem(id, "test stock");
             SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(view.TileCentre(1, 0));
@@ -106,6 +110,15 @@ namespace Ravenholm.Tests
             yield return new WaitForSeconds(0.3f);
             Assert.AreEqual(2, Piece("furniture.display_table").VisibleCount, "the longer table still shows both small pieces");
             Assert.IsTrue(Piece("furniture.display_table").Mirrored, "facing B mirrors the art until it is drawn");
+            // The desk turned: Astra drew its facing B, so it shows that art rather than a mirror image.
+            var desk = Piece("furniture.desk");
+            view.Select(desk.PlacementId);
+            yield return null;
+            Assert.IsTrue(hud.ShopBuild.Press("Turn"), view.LastMessage);
+            yield return new WaitForSeconds(0.2f);
+            Assert.AreEqual(Facing.B, desk.Facing);
+            Assert.IsFalse(desk.Mirrored, "desk_1_B is drawn");
+            StringAssert.EndsWith("_B", desk.Visual.sprite.name);
             yield return Capture.Take("shop_build_moved");
             Assert.IsTrue(hud.ShopBuild.Press("Done"));
             Assert.IsNull(view.Selected);
