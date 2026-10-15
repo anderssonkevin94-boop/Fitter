@@ -19,7 +19,7 @@ namespace Ravenholm.EditorTools
         private static Dictionary<string, (Vector2 pivot, Vector4 border, bool hasBorder, float ppu)> _meta;
         private static float _ppu = 128f;
 
-        public override uint GetVersion() => 11;
+        public override uint GetVersion() => 12;
 
         private void OnPreprocessTexture()
         {
@@ -62,6 +62,12 @@ namespace Ravenholm.EditorTools
             if (rel.StartsWith("Painted/Blocks/") || rel.StartsWith("Painted/Ground/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Outline-free nature and buildings (v4): the game's outline is drawn inside the sprite's rectangle.
             if (rel.StartsWith("Painted/Nature/") || rel.StartsWith("Nature/") || rel.StartsWith("Buildings/") || rel.StartsWith("Furniture/")) settings.spriteMeshType = SpriteMeshType.FullRect;
+            // Astra's valley view (2026-10-15): 4096-px repeating layers, kept sharp on the phone; full-rect so they tile.
+            if (rel.StartsWith("View/"))
+            {
+                ti.maxTextureSize = 4096;
+                settings.spriteMeshType = SpriteMeshType.FullRect;
+            }
             ti.SetTextureSettings(settings);
         }
 

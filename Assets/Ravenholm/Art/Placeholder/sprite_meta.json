@@ -3557,6 +3557,125 @@
     0.5,
     0.5
    ]
+  },
+  "View/castle.png": {
+   "pivot": [
+    0.645,
+    0.02778
+   ],
+   "ppu": 256
+  },
+  "View/cliff_lip_corner.png": {
+   "pivot": [
+    0.5,
+    0.21818
+   ],
+   "ppu": 256
+  },
+  "View/cliff_lip_left.png": {
+   "pivot": [
+    0.5,
+    0.21818
+   ],
+   "ppu": 256
+  },
+  "View/cliff_lip_right.png": {
+   "pivot": [
+    0.5,
+    0.21818
+   ],
+   "ppu": 256
+  },
+  "View/cliff_path_top.png": {
+   "pivot": [
+    0.5,
+    0.21818
+   ],
+   "ppu": 256
+  },
+  "View/valley_walker.png": {
+   "pivot": [
+    0.5,
+    0.20312
+   ],
+   "ppu": 256
+  },
+  "View/view_far.png": {
+   "pivot": [
+    0,
+    1
+   ],
+   "ppu": 256
+  },
+  "View/view_far_fill.png": {
+   "pivot": [
+    0,
+    1
+   ],
+   "ppu": 256
+  },
+  "View/view_front.png": {
+   "pivot": [
+    0,
+    1
+   ],
+   "ppu": 256
+  },
+  "View/view_front_fill.png": {
+   "pivot": [
+    0,
+    1
+   ],
+   "ppu": 256
+  },
+  "View/view_mid.png": {
+   "pivot": [
+    0,
+    1
+   ],
+   "ppu": 256
+  },
+  "View/view_mid_fill.png": {
+   "pivot": [
+    0,
+    1
+   ],
+   "ppu": 256
+  },
+  "View/view_near.png": {
+   "pivot": [
+    0,
+    1
+   ],
+   "ppu": 256
+  },
+  "View/view_near_fill.png": {
+   "pivot": [
+    0,
+    1
+   ],
+   "ppu": 256
+  },
+  "View/view_sky.png": {
+   "pivot": [
+    0,
+    1
+   ],
+   "ppu": 256
+  },
+  "View/view_sky_fill.png": {
+   "pivot": [
+    0,
+    1
+   ],
+   "ppu": 256
+  },
+  "View/view_sky_top.png": {
+   "pivot": [
+    0,
+    0
+   ],
+   "ppu": 256
   }
  }
 }

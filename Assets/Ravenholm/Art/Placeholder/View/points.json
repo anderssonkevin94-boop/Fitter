@@ -1,0 +1,248 @@
+{
+  "version": 2,
+  "coordinate_system": "Pixels from top-left; x right, y down. Anchors are coordinates, not painted dots.",
+  "assets": {
+    "view_sky": {
+      "file": "view_sky.png",
+      "canvas_px": [
+        4096,
+        1024
+      ],
+      "ground_point_px": [
+        0,
+        0
+      ],
+      "pivot_normalized_bottom_left": [
+        0,
+        1
+      ],
+      "repeat_x": true,
+      "outline": false
+    },
+    "view_far": {
+      "file": "view_far.png",
+      "canvas_px": [
+        4096,
+        1024
+      ],
+      "ground_point_px": [
+        0,
+        0
+      ],
+      "pivot_normalized_bottom_left": [
+        0,
+        1
+      ],
+      "repeat_x": true,
+      "outline": false
+    },
+    "view_mid": {
+      "file": "view_mid.png",
+      "canvas_px": [
+        4096,
+        1024
+      ],
+      "ground_point_px": [
+        0,
+        0
+      ],
+      "pivot_normalized_bottom_left": [
+        0,
+        1
+      ],
+      "repeat_x": true,
+      "outline": false
+    },
+    "view_near": {
+      "file": "view_near.png",
+      "canvas_px": [
+        4096,
+        1024
+      ],
+      "ground_point_px": [
+        0,
+        0
+      ],
+      "pivot_normalized_bottom_left": [
+        0,
+        1
+      ],
+      "repeat_x": true,
+      "outline": false
+    },
+    "view_front": {
+      "file": "view_front.png",
+      "canvas_px": [
+        4096,
+        512
+      ],
+      "ground_point_px": [
+        0,
+        0
+      ],
+      "pivot_normalized_bottom_left": [
+        0,
+        1
+      ],
+      "repeat_x": true,
+      "outline": false
+    },
+    "castle": {
+      "file": "castle.png",
+      "canvas_px": [
+        1200,
+        900
+      ],
+      "ground_point_px": [
+        774,
+        875
+      ],
+      "pivot_normalized_bottom_left": [
+        0.645,
+        0.02777777777777779
+      ],
+      "repeat_x": false,
+      "outline": false
+    },
+    "cliff_lip_left": {
+      "file": "cliff_lip_left.png",
+      "canvas_px": [
+        176,
+        220
+      ],
+      "ground_point_px": [
+        88,
+        172
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.21818181818181814
+      ],
+      "repeat_x": false,
+      "outline": false,
+      "pixels_per_unit": 256,
+      "edge_endpoints_px": [
+        [
+          24,
+          204
+        ],
+        [
+          152,
+          140
+        ]
+      ],
+      "repeat_step_px": [
+        128,
+        -64
+      ]
+    },
+    "cliff_lip_right": {
+      "file": "cliff_lip_right.png",
+      "canvas_px": [
+        176,
+        220
+      ],
+      "ground_point_px": [
+        88,
+        172
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.21818181818181814
+      ],
+      "repeat_x": false,
+      "outline": false,
+      "pixels_per_unit": 256,
+      "edge_endpoints_px": [
+        [
+          24,
+          140
+        ],
+        [
+          152,
+          204
+        ]
+      ],
+      "repeat_step_px": [
+        128,
+        64
+      ]
+    },
+    "cliff_lip_corner": {
+      "file": "cliff_lip_corner.png",
+      "canvas_px": [
+        128,
+        220
+      ],
+      "ground_point_px": [
+        64,
+        172
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.21818181818181814
+      ],
+      "repeat_x": false,
+      "outline": false,
+      "pixels_per_unit": 256,
+      "overlap_each_arm_px": 50
+    },
+    "cliff_path_top": {
+      "file": "cliff_path_top.png",
+      "canvas_px": [
+        176,
+        220
+      ],
+      "ground_point_px": [
+        88,
+        172
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.21818181818181814
+      ],
+      "repeat_x": false,
+      "outline": false,
+      "pixels_per_unit": 256,
+      "edge_endpoints_px": [
+        [
+          24,
+          204
+        ],
+        [
+          152,
+          140
+        ]
+      ],
+      "repeat_step_px": [
+        128,
+        -64
+      ],
+      "entry_px": [
+        88,
+        174
+      ],
+      "disappear_px": [
+        78,
+        149
+      ]
+    },
+    "valley_walker": {
+      "file": "valley_walker.png",
+      "canvas_px": [
+        64,
+        64
+      ],
+      "ground_point_px": [
+        32,
+        51
+      ],
+      "pivot_normalized_bottom_left": [
+        0.5,
+        0.203125
+      ],
+      "repeat_x": false,
+      "outline": false
+    }
+  }
+}

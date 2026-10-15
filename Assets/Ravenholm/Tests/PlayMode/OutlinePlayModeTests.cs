@@ -123,6 +123,7 @@ namespace Ravenholm.Tests
             var backTree = MakeTree(unlit, "BackTree", at + new Vector2(-1.2f, -3.9f), Square(160, 32, 256));
             MakeTree(unlit, "FrontTree", at + new Vector2(-0.8f, -4.0f), Square(160, 32, 256));
 
+            if (ParallaxBackdrop.Current != null) ParallaxBackdrop.Current.gameObject.SetActive(false);   // a plain background to measure on
             var cam = SandboxSceneController.Current.WorldCamera;
             var follow = cam.GetComponent<FollowCamera>();
             if (follow != null) follow.enabled = false;

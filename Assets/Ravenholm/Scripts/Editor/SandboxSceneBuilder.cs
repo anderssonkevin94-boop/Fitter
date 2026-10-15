@@ -135,9 +135,9 @@ namespace Ravenholm.EditorTools
                 Circle(r.transform, new Vector2(0f, 0.15f), 0.45f);
             }
 
-            // The castle posts the jobs (2026-10-15): it stands where the road leaves town; adventurers come and go from it.
-            Prop(buildings, "Castle", "Props/castle", new Vector2(0f, -9.2f),
-                "The castle posts the jobs. Adventurers take them and come to your shop to be kitted out; they pay you a share of the castle's reward when they return.", "");
+            // The valley view beyond the north cliff, with the castle on the far ridge (Astra, 2026-10-15). The placeholder
+            // castle at the road's end is gone; adventurers come and go by the cliff path.
+            var pathTop = Overlook(world, settings);
             // Phase 7: the Beacon trophy, hidden until the campaign finale succeeds.
             Prop(props, "Beacon Trophy", "Props/prop_beacon_trophy", new Vector2(-3.2f, 2.3f),
                 "The relit Beacon's flame, carried home by your contractors. Ravenholm remembers.", "").gameObject.AddComponent<TrophyView>();
@@ -174,6 +174,7 @@ namespace Ravenholm.EditorTools
                 new List<Sprite> { ProjectSetup.LoadSprite("Characters/char_base_0"), ProjectSetup.LoadSprite("Characters/char_base_1"), ProjectSetup.LoadSprite("Characters/char_base_2") });
             // For now every NPC is the blond citizen, walking exactly like the supplier (Kevin, 2026-10-15).
             crowd.EditorSetupCitizen(Citizen(), AssetDatabase.LoadAssetAtPath<CharacterAnimationSet>(ProjectSetup.SupplierAnimationsPath));
+            crowd.EditorSetupDeparture(pathTop);
 
             Animate(player.Find("Visual"));
             player.gameObject.AddComponent<PlayerMotor>().EditorSetup(player.Find("Visual"));
@@ -742,6 +743,89 @@ namespace Ravenholm.EditorTools
             col.isTrigger = true;
             col.radius = 0.4f;
             spot.AddComponent<OutcropSpot>();
+        }
+
+        /// <summary>
+        /// The overlook (Astra's valley view v2): the north tip of the town plot is the cliff's tip. Grassy lip pieces run
+        /// down both arms (the left arm stops where the Forest joins the town), the corner caps the tip, and one left-arm
+        /// piece is the path down; walking stops at the lip. Behind it, the repeating parallax layers and the castle.
+        /// Returns where adventurers disappear down the path.
+        /// </summary>
+        private static Vector2 Overlook(Transform world, SandboxSettings settings)
+        {
+            var root = new GameObject("Overlook").transform;
+            root.SetParent(world, false);
+            var t = settings.townCells;
+            var tip = SandboxSettings.CellCentre(t.xMax - 1, t.yMax - 1) + new Vector2(0f, 0.25f);
+            var forestEnd = settings.mineCell.x + settings.frontierWidthCells;   // the left arm runs from the tip to the Forest
+            var leftCount = Mathf.Max(0, t.xMax - forestEnd);
+            var rightCount = t.height;
+            const int pathIndex = 6;
+            Vector2 left0 = tip + new Vector2(-0.25f, -0.125f), right0 = tip + new Vector2(0.25f, -0.125f);
+            Vector2 leftStep = new Vector2(-0.5f, -0.25f), rightStep = new Vector2(0.5f, -0.25f);
+            var pathTop = left0 + leftStep * pathIndex;
+            for (var k = 0; k < leftCount; k++)
+            {
+                var at = left0 + leftStep * k;
+                var sr = Sprite(root, k == pathIndex ? "CliffPath" : "CliffLip", k == pathIndex ? "View/cliff_path_top" : "View/cliff_lip_left", at);
+                sr.sortingLayerName = "Ground";
+                sr.sortingOrder = 50;
+                if (k != pathIndex) CliffBlocker(root, at, leftStep, new Vector2(-0.5f, 0.25f));
+            }
+            for (var k = 0; k < rightCount; k++)
+            {
+                var at = right0 + rightStep * k;
+                var sr = Sprite(root, "CliffLip", "View/cliff_lip_right", at);
+                sr.sortingLayerName = "Ground";
+                sr.sortingOrder = 50;
+                CliffBlocker(root, at, rightStep, new Vector2(0.5f, 0.25f));
+            }
+            var corner = Sprite(root, "CliffCorner", "View/cliff_lip_corner", tip);
+            corner.sortingLayerName = "Ground";
+            corner.sortingOrder = 51;
+
+            // The parallax layers, from Astra's parallax.json.
+            var par = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(PlaceholderSpriteImporter.ArtRoot + "View/parallax.json"));
+            var layers = new List<ParallaxBackdrop.Layer>();
+            var index = new Dictionary<string, int>();
+            foreach (var l in par["layers"])
+            {
+                var file = ((string)l["file"]).Replace(".png", "");
+                index[file] = layers.Count;
+                layers.Add(new ParallaxBackdrop.Layer
+                {
+                    sprite = ProjectSetup.LoadSprite("View/" + file),
+                    fill = (bool)l["extend_bottom_edge"] ? ProjectSetup.LoadSprite("View/" + file + "_fill") : null,
+                    top = (int)l["order"] == 0 ? ProjectSetup.LoadSprite("View/" + file + "_top") : null,
+                    originPx = new Vector2((float)l["origin_px"][0], (float)l["origin_px"][1]),
+                    factor = (float)l["parallax_factor"],
+                    order = -200 + (int)l["order"] * 5,
+                });
+            }
+            var tipPx = new Vector2((float)par["cliff"]["preview_north_tip_px"][0], (float)par["cliff"]["preview_north_tip_px"][1]);
+            var backdrop = new GameObject("ValleyView").AddComponent<ParallaxBackdrop>();
+            backdrop.transform.SetParent(root, false);
+            backdrop.EditorSetup(layers, tip, tipPx, new Vector2(0f, 1.5f), _unlit);
+            var c = par["castle"];
+            backdrop.EditorSetupCastle(ProjectSetup.LoadSprite("View/castle"), index[((string)c["parent"])],
+                new Vector2((float)c["ground_in_parent_px"][0], (float)c["ground_in_parent_px"][1]), (float)c["scale"]);
+            var w = par["walker"];
+            var road = new List<Vector2>();
+            foreach (var p in w["road_path_px"]) road.Add(new Vector2((float)p[0], (float)p[1]));
+            backdrop.EditorSetupWalker(ProjectSetup.LoadSprite("View/valley_walker"), index[(string)w["parent"]], road);
+
+            // Adventurers vanish just over the brink, down the steps (Astra's disappear point).
+            return pathTop + new Vector2(-10f, 172f - 149f) / 256f;
+        }
+
+        /// <summary>A thin wall along a cliff edge (one tile edge long), just outside the lip.</summary>
+        private static void CliffBlocker(Transform parent, Vector2 mid, Vector2 along, Vector2 outward)
+        {
+            var go = Blocker(parent, "CliffEdge");
+            var a = mid - along * 0.5f;
+            var b = mid + along * 0.5f;
+            var o = outward.normalized * 0.08f;
+            go.AddComponent<PolygonCollider2D>().points = new[] { a - o * 0.5f, b - o * 0.5f, b + o * 2f, a + o * 2f };
         }
 
         private static HoseCharacterDefinition Citizen() =>

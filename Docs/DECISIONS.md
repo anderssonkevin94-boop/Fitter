@@ -1152,3 +1152,24 @@ Kevin's choices: the shop lends its gear and takes a cut; adventurers arrive wit
   - Citizens appear and disappear at the castle gate rather than fading, since the rig's limbs are meshes.
 - **Dropped.** The old figures' greeting bob.
 - **Tests.** `CitizenPlayModeTests` checks all eight directions (the three west-facing ones are mirrored), the walk pose, the shared parts and his tuning, and that adventurers are citizens.
+
+## 2026-10-15: the journey (Kevin), the wagon brief, and the valley view in the game
+
+- **Direction (agreed in outline; design document to follow, nothing built yet).**
+  - The game becomes a journey to the castle, made in camps.
+  - Your shop folds out of a wagon pulled by your ox: carpet, furniture, a tarp roof. Everything is visible, and wagon upgrades make it more luxurious.
+  - Stations pack into kits and are set up again in each camp's small starting clearing.
+  - Tools clear tougher terrain to open the way forward. The valley seen from each camp is where the next camp lies.
+  - Reaching the castle is the goal.
+  - Crafting structure (agreed, on hold):
+    - processing: Smelter, Sawmill, later a Tannery;
+    - crafting: Forge (metal), Workshop (wood, leather, cloth), Apothecary, Kitchen;
+    - loadout slots: weapon, off-hand, head, body, and two consumables (potion or food).
+- **Brief.** The ox and wagon brief for Astra is in `Docs/ART_BRIEF_WAGON.md`.
+- **The valley view, as camp 1's overlook.**
+  - **Import:** `Tools/ArtImport/import_view.py` brings in Astra's `ravenholm-view-v2` to `Art/Placeholder/View/`: 256 px per unit (the composition's scale), her pivots, textures up to 4096, and no game outline. It writes a bottom-row fill strip for each layer and a top-row strip for the sky; the game stretches them so the view never ends in a gap.
+  - **`ParallaxBackdrop`:** five layers repeat sideways behind the ground, using Astra's factors from parallax.json (screen offset = −camera displacement × factor; her composition is aligned when the camera sits 1.5 units above the cliff tip). The castle is fixed to the far ridge and never repeats. A tiny traveller walks the valley road toward the castle on each dispatch.
+  - **The cliff:** for now it is fitted to the town plot's north tip. Lip pieces run down both north edges; the left edge stops where the Forest strip joins. The corner piece caps the tip, and blockers stop the walk at the lip.
+  - **Adventurers:** they come and go by Astra's cliff path; her stair's disappear point is now the crowd's departure point. The placeholder castle at the road's end is removed.
+  - **Interim:** until the world is reworked into camps, the Forest strip still pokes past the cliff line in places.
+- **Tests.** `OverlookPlayModeTests` checks the view, that far moves slower than near and that the castle stays on its ridge, and saves the standing and walking frames (Captures/overlook_*). The outline test hides the view so it measures on a plain background.

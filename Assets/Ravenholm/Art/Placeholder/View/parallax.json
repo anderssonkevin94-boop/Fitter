@@ -1,0 +1,219 @@
+{
+  "version": 2,
+  "preview_canvas": [
+    4096,
+    2000
+  ],
+  "coordinate_system": "Pixels from top-left; x right, y down. Anchors are coordinates, not painted dots.",
+  "layers": [
+    {
+      "file": "view_sky.png",
+      "order": 0,
+      "origin_px": [
+        0,
+        0
+      ],
+      "parallax_factor": 0.015,
+      "repeat_x": true,
+      "extend_bottom_edge": true
+    },
+    {
+      "file": "view_far.png",
+      "order": 1,
+      "origin_px": [
+        0,
+        320
+      ],
+      "parallax_factor": 0.06,
+      "repeat_x": true,
+      "extend_bottom_edge": true
+    },
+    {
+      "file": "view_mid.png",
+      "order": 3,
+      "origin_px": [
+        0,
+        620
+      ],
+      "parallax_factor": 0.18,
+      "repeat_x": true,
+      "extend_bottom_edge": true
+    },
+    {
+      "file": "view_near.png",
+      "order": 4,
+      "origin_px": [
+        -1150,
+        976
+      ],
+      "parallax_factor": 0.35,
+      "repeat_x": true,
+      "extend_bottom_edge": true
+    },
+    {
+      "file": "view_front.png",
+      "order": 5,
+      "origin_px": [
+        0,
+        1488
+      ],
+      "parallax_factor": 0.6,
+      "repeat_x": true,
+      "extend_bottom_edge": true
+    }
+  ],
+  "castle": {
+    "file": "castle.png",
+    "order": 2,
+    "parent": "view_far",
+    "ground_in_parent_px": [
+      2520,
+      795
+    ],
+    "scale": 0.62,
+    "repeat": false,
+    "parallax_factor": 0.06
+  },
+  "motion": {
+    "formula": "screenOffset = -cameraDisplacement * parallax_factor",
+    "tested_camera_displacement_px": {
+      "x": [
+        -180,
+        180
+      ],
+      "y": [
+        -60,
+        60
+      ]
+    },
+    "note": "Repeat backgrounds in X; keep castle parented to the SAME ridge instance. Do not repeat the castle. Clamp Y or extend bottom edge colours; never repeat vertically."
+  },
+  "cliff": {
+    "preview_north_tip_px": [
+      2048,
+      1580
+    ],
+    "pixels_per_unit": 256,
+    "orientation": "North/west and north/east edges form an inverted V. Playable ground is below/in front; valley behind.",
+    "left_first_ground_from_tip": [
+      -64,
+      32
+    ],
+    "right_first_ground_from_tip": [
+      64,
+      32
+    ],
+    "corner_ground_at_tip": [
+      0,
+      0
+    ],
+    "draw_order": "backgrounds, valley foreground, plateau ground, cliff lip pieces, corner cap, town objects"
+  },
+  "walker": {
+    "file": "valley_walker.png",
+    "parent": "view_mid",
+    "path_direction": "toward castle = reverse the polyline",
+    "road_path_px": [
+      [
+        2698,
+        424
+      ],
+      [
+        2648,
+        448
+      ],
+      [
+        2604,
+        472
+      ],
+      [
+        2587,
+        496
+      ],
+      [
+        2599,
+        520
+      ],
+      [
+        2645,
+        544
+      ],
+      [
+        2715,
+        568
+      ],
+      [
+        2808,
+        592
+      ],
+      [
+        2900,
+        616
+      ],
+      [
+        2981,
+        640
+      ],
+      [
+        3028,
+        664
+      ],
+      [
+        3045,
+        688
+      ],
+      [
+        3035,
+        712
+      ],
+      [
+        2998,
+        736
+      ],
+      [
+        2935,
+        760
+      ],
+      [
+        2825,
+        784
+      ],
+      [
+        2700,
+        808
+      ],
+      [
+        2602,
+        832
+      ],
+      [
+        2521,
+        856
+      ],
+      [
+        2459,
+        880
+      ],
+      [
+        2403,
+        904
+      ],
+      [
+        2343,
+        928
+      ],
+      [
+        2291,
+        952
+      ],
+      [
+        2247,
+        976
+      ],
+      [
+        2206,
+        1000
+      ]
+    ]
+  }
+}

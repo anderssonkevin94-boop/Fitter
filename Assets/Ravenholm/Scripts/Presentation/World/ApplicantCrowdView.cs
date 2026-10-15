@@ -32,6 +32,9 @@ namespace Ravenholm.Presentation
             skins = skinSprites;
         }
 
+        /// <summary>Where adventurers come from and go to (the top of the cliff path, 2026-10-15).</summary>
+        public void EditorSetupDeparture(Vector2 point) => departurePoint = point;
+
         public void EditorSetupCitizen(HoseCharacterDefinition body, CharacterAnimationSet set)
         {
             citizen = body;
