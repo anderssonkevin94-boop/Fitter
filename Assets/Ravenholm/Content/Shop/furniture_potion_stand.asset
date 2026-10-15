@@ -1,0 +1,258 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2701883dd315a4aab9f53ceaf8c1bf12, type: 3}
+  m_Name: furniture_potion_stand
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ShopFurnitureDefinition
+  id: furniture.potion_stand
+  displayName: Potion Stand
+  contentVersion: 1
+  display: 2
+  wall: 0
+  wallEdges: 2
+  pixelsPerUnit: 256
+  forSale: 1
+  levels:
+  - footprint: {x: 2, y: 1}
+    facingA:
+      sprite: {fileID: 21300000, guid: 09a21f2f748ee48a59181a3883b53ab0, type: 3}
+      ground: {x: 320, y: 602}
+      slots:
+      - serializedVersion: 2
+        x: 209
+        y: 269
+        width: 47
+        height: 64
+      - serializedVersion: 2
+        x: 282
+        y: 235
+        width: 47
+        height: 64
+      - serializedVersion: 2
+        x: 209
+        y: 360
+        width: 47
+        height: 64
+      - serializedVersion: 2
+        x: 282
+        y: 329
+        width: 47
+        height: 64
+    facingB:
+      sprite: {fileID: 21300000, guid: 418e4f9d7430e42d3bf5b8353f308405, type: 3}
+      ground: {x: 88, y: 512}
+      slots:
+      - serializedVersion: 2
+        x: 69
+        y: 126
+        width: 44
+        height: 64
+      - serializedVersion: 2
+        x: 158
+        y: 164
+        width: 44
+        height: 64
+      - serializedVersion: 2
+        x: 66
+        y: 216
+        width: 44
+        height: 64
+      - serializedVersion: 2
+        x: 153
+        y: 253
+        width: 44
+        height: 64
+    gold: 25
+    materials:
+    - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
+      quantity: 4
+  - footprint: {x: 2, y: 1}
+    facingA:
+      sprite: {fileID: 21300000, guid: 0c4e6633bb6854ca386430231fe04097, type: 3}
+      ground: {x: 320, y: 602}
+      slots:
+      - serializedVersion: 2
+        x: 204
+        y: 296
+        width: 36
+        height: 54
+      - serializedVersion: 2
+        x: 253
+        y: 274
+        width: 36
+        height: 54
+      - serializedVersion: 2
+        x: 300
+        y: 252
+        width: 36
+        height: 54
+      - serializedVersion: 2
+        x: 204
+        y: 385
+        width: 36
+        height: 54
+      - serializedVersion: 2
+        x: 253
+        y: 363
+        width: 36
+        height: 54
+      - serializedVersion: 2
+        x: 300
+        y: 342
+        width: 36
+        height: 54
+    facingB:
+      sprite: {fileID: 21300000, guid: e10bb401ff7aa4a458d7943588489843, type: 3}
+      ground: {x: 88, y: 512}
+      slots:
+      - serializedVersion: 2
+        x: 65
+        y: 141
+        width: 36
+        height: 53
+      - serializedVersion: 2
+        x: 121
+        y: 169
+        width: 36
+        height: 53
+      - serializedVersion: 2
+        x: 178
+        y: 201
+        width: 36
+        height: 53
+      - serializedVersion: 2
+        x: 62
+        y: 254
+        width: 36
+        height: 53
+      - serializedVersion: 2
+        x: 119
+        y: 285
+        width: 36
+        height: 53
+      - serializedVersion: 2
+        x: 180
+        y: 317
+        width: 36
+        height: 53
+    gold: 55
+    materials:
+    - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
+      quantity: 6
+    - resource: {fileID: 11400000, guid: c144f82c08b12462abad968826505e73, type: 2}
+      quantity: 2
+  - footprint: {x: 2, y: 1}
+    facingA:
+      sprite: {fileID: 21300000, guid: dc94eb5a3ce1849329df5dea5397293f, type: 3}
+      ground: {x: 215.99998, y: 512}
+      slots:
+      - serializedVersion: 2
+        x: 101
+        y: 198
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 149
+        y: 174
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 201
+        y: 150
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 101
+        y: 257
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 149
+        y: 233
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 201
+        y: 210
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 101
+        y: 317
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 149
+        y: 293
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 201
+        y: 269
+        width: 36
+        height: 48
+    facingB:
+      sprite: {fileID: 21300000, guid: 2e5de7bf3e6794d54bf69b10a2aa71e3, type: 3}
+      ground: {x: 88, y: 512}
+      slots:
+      - serializedVersion: 2
+        x: 65
+        y: 161
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 114
+        y: 188
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 165
+        y: 215
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 65
+        y: 221
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 114
+        y: 247
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 165
+        y: 274
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 65
+        y: 280
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 114
+        y: 307
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 165
+        y: 334
+        width: 36
+        height: 48
+    gold: 120
+    materials:
+    - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+      quantity: 6
+    - resource: {fileID: 11400000, guid: c144f82c08b12462abad968826505e73, type: 2}
+      quantity: 3
+  standingVersion: {fileID: 0}
+  retiredByWagon: 0

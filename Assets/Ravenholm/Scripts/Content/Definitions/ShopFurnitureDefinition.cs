@@ -54,6 +54,11 @@ namespace Ravenholm.Content
         [Tooltip("Can be bought more than once (the desk cannot).")]
         [SerializeField] private bool forSale = true;
         [SerializeField] private List<Level> levels = new List<Level>();
+        [Header("The wagon shop (the journey, step 3)")]
+        [Tooltip("A wall piece's free-standing version: on the wagon's carpet (no walls) the piece becomes this, at its level.")]
+        [SerializeField] private ShopFurnitureDefinition standingVersion;
+        [Tooltip("Not used at the wagon (the desk: the wagon's counter does its job). Upgrades paid for it are refunded.")]
+        [SerializeField] private bool retiredByWagon;
 
         public override string IdKind => "furniture";
         public FurnitureDisplay Display => display;
@@ -63,6 +68,8 @@ namespace Ravenholm.Content
         public bool ForSale => forSale;
         public IReadOnlyList<Level> Levels => levels;
         public int MaxLevel => levels.Count;
+        public ShopFurnitureDefinition StandingVersion => standingVersion;
+        public bool RetiredByWagon => retiredByWagon;
 
         public Level At(int level) => levels.Count == 0 ? null : levels[Mathf.Clamp(level - 1, 0, levels.Count - 1)];
 
@@ -90,6 +97,13 @@ namespace Ravenholm.Content
         }
 
 #if UNITY_EDITOR
+        public void EditorSetWagon(ShopFurnitureDefinition standing, bool retired, bool sale)
+        {
+            standingVersion = standing;
+            retiredByWagon = retired;
+            forSale = sale;
+        }
+
         public void EditorSetup(FurnitureDisplay d, bool isWall, int edges, float ppu, bool sale, List<Level> l)
         {
             forSale = sale;

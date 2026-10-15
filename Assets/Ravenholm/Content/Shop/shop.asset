@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ShopDefinition
   id: shop.main
   displayName: Your Shop
-  contentVersion: 2
+  contentVersion: 4
   lotBlocks: {x: 5, y: 5}
   startBlocks:
   - {x: 0, y: 0}
@@ -78,4 +78,43 @@ MonoBehaviour:
   - furniture: {fileID: 11400000, guid: 792e46d64ac0d42f1af4c4e4652f9666, type: 2}
     level: 1
     tile: {x: 5, y: 2}
+    facingB: 1
+  carpetSizes:
+  - {x: 4, y: 4}
+  - {x: 6, y: 4}
+  - {x: 6, y: 6}
+  - {x: 8, y: 6}
+  wagonCosts:
+  - gold: 100
+    materials:
+    - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
+      quantity: 12
+  - gold: 200
+    materials:
+    - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+      quantity: 10
+    - resource: {fileID: 11400000, guid: 7c9623d2f89ef4f0bb58c106302da3e3, type: 2}
+      quantity: 6
+  - gold: 320
+    materials:
+    - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+      quantity: 16
+    - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
+      quantity: 6
+  wagonFurniture:
+  - furniture: {fileID: 11400000, guid: 64fd6b84c0a4949178153588cf59dafa, type: 2}
+    level: 1
+    tile: {x: 0, y: 0}
+    facingB: 1
+  - furniture: {fileID: 11400000, guid: 57f74e501d4c54c68a8acdc92a501b80, type: 2}
+    level: 1
+    tile: {x: 2, y: 0}
+    facingB: 0
+  - furniture: {fileID: 11400000, guid: c2ac8fed2c7f74626904523fe843aa73, type: 2}
+    level: 1
+    tile: {x: 2, y: 1}
+    facingB: 0
+  - furniture: {fileID: 11400000, guid: 51abea8335473469faadee80ec53195c, type: 2}
+    level: 1
+    tile: {x: 3, y: 1}
     facingB: 1

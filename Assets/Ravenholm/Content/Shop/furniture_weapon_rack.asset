@@ -19,7 +19,7 @@ MonoBehaviour:
   wall: 1
   wallEdges: 2
   pixelsPerUnit: 256
-  forSale: 1
+  forSale: 0
   levels:
   - footprint: {x: 1, y: 1}
     facingA:
@@ -186,3 +186,5 @@ MonoBehaviour:
       quantity: 6
     - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
       quantity: 3
+  standingVersion: {fileID: 11400000, guid: 64fd6b84c0a4949178153588cf59dafa, type: 2}
+  retiredByWagon: 0

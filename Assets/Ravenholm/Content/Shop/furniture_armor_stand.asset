@@ -96,3 +96,5 @@ MonoBehaviour:
       quantity: 4
     - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
       quantity: 3
+  standingVersion: {fileID: 0}
+  retiredByWagon: 0

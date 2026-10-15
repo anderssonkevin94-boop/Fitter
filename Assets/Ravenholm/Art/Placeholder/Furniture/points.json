@@ -2846,6 +2846,998 @@
      "flat palette"
     ]
    }
+  },
+  "weapon_rack_1_stand_A.png": {
+   "file": "Furniture/weapon_rack_1_stand_A.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.7105263157894737,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 216,
+    "y": 512
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 72,
+     "y": 192,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 133,
+     "y": 158,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 195,
+     "y": 125,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "weapon_rack_1_stand_B.png": {
+   "file": "Furniture/weapon_rack_1_stand_B.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.2894736842105263,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 88,
+    "y": 512
+   },
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "B",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 59,
+     "y": 146,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 123,
+     "y": 181,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 187,
+     "y": 215,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "weapon_rack_2_stand_A.png": {
+   "file": "Furniture/weapon_rack_2_stand_A.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.7105263157894737,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 216,
+    "y": 512
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 58,
+     "y": 212,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 104,
+     "y": 189,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 153,
+     "y": 162,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 201,
+     "y": 136,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "weapon_rack_2_stand_B.png": {
+   "file": "Furniture/weapon_rack_2_stand_B.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.2894736842105263,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 88,
+    "y": 512
+   },
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "B",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 58,
+     "y": 120,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 104,
+     "y": 145,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 155,
+     "y": 170,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 204,
+     "y": 195,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "weapon_rack_3_stand_A.png": {
+   "file": "Furniture/weapon_rack_3_stand_A.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.7105263157894737,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 216,
+    "y": 512
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 52,
+     "y": 186,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 93,
+     "y": 169,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 134,
+     "y": 149,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 178,
+     "y": 132,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 218,
+     "y": 113,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "weapon_rack_3_stand_B.png": {
+   "file": "Furniture/weapon_rack_3_stand_B.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.2894736842105263,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 88,
+    "y": 512
+   },
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "B",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 52,
+     "y": 119,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 93,
+     "y": 140,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 137,
+     "y": 157,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 180,
+     "y": 178,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 221,
+     "y": 196,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "long_rack_1_stand_A.png": {
+   "file": "Furniture/long_rack_1_stand_A.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.7105263157894737,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 216,
+    "y": 512
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 87,
+     "y": 182,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 179,
+     "y": 132,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "long_rack_1_stand_B.png": {
+   "file": "Furniture/long_rack_1_stand_B.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.2894736842105263,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 88,
+    "y": 512
+   },
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "B",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 74,
+     "y": 110,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 169,
+     "y": 163,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "long_rack_2_stand_A.png": {
+   "file": "Furniture/long_rack_2_stand_A.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.7105263157894737,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 216,
+    "y": 512
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 64,
+     "y": 186,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 125,
+     "y": 156,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 189,
+     "y": 123,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "long_rack_2_stand_B.png": {
+   "file": "Furniture/long_rack_2_stand_B.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.2894736842105263,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 88,
+    "y": 512
+   },
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "B",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 67,
+     "y": 104,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 128,
+     "y": 141,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 189,
+     "y": 175,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "long_rack_3_stand_A.png": {
+   "file": "Furniture/long_rack_3_stand_A.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.7105263157894737,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 216,
+    "y": 512
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 59,
+     "y": 196,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 108,
+     "y": 176,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 156,
+     "y": 159,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 202,
+     "y": 141,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "long_rack_3_stand_B.png": {
+   "file": "Furniture/long_rack_3_stand_B.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.2894736842105263,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 88,
+    "y": 512
+   },
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "B",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 56,
+     "y": 108,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 102,
+     "y": 130,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 151,
+     "y": 153,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 200,
+     "y": 178,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "potion_shelf_1_stand_A.png": {
+   "file": "Furniture/potion_shelf_1_stand_A.png",
+   "canvas": {
+    "w": 512,
+    "h": 680
+   },
+   "pivot": {
+    "x": 0.625,
+    "y": 0.11470588235294121
+   },
+   "ground": {
+    "x": 320,
+    "y": 602
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 209,
+     "y": 269,
+     "w": 47,
+     "h": 64,
+     "kind": "potion"
+    },
+    {
+     "x": 282,
+     "y": 235,
+     "w": 47,
+     "h": 64,
+     "kind": "potion"
+    },
+    {
+     "x": 209,
+     "y": 360,
+     "w": 47,
+     "h": 64,
+     "kind": "potion"
+    },
+    {
+     "x": 282,
+     "y": 329,
+     "w": 47,
+     "h": 64,
+     "kind": "potion"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "potion_shelf_1_stand_B.png": {
+   "file": "Furniture/potion_shelf_1_stand_B.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.2894736842105263,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 88,
+    "y": 512
+   },
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "B",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 69,
+     "y": 126,
+     "w": 44,
+     "h": 64,
+     "kind": "potion"
+    },
+    {
+     "x": 158,
+     "y": 164,
+     "w": 44,
+     "h": 64,
+     "kind": "potion"
+    },
+    {
+     "x": 66,
+     "y": 216,
+     "w": 44,
+     "h": 64,
+     "kind": "potion"
+    },
+    {
+     "x": 153,
+     "y": 253,
+     "w": 44,
+     "h": 64,
+     "kind": "potion"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "potion_shelf_2_stand_A.png": {
+   "file": "Furniture/potion_shelf_2_stand_A.png",
+   "canvas": {
+    "w": 512,
+    "h": 680
+   },
+   "pivot": {
+    "x": 0.625,
+    "y": 0.11470588235294121
+   },
+   "ground": {
+    "x": 320,
+    "y": 602
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 204,
+     "y": 296,
+     "w": 36,
+     "h": 54,
+     "kind": "potion"
+    },
+    {
+     "x": 253,
+     "y": 274,
+     "w": 36,
+     "h": 54,
+     "kind": "potion"
+    },
+    {
+     "x": 300,
+     "y": 252,
+     "w": 36,
+     "h": 54,
+     "kind": "potion"
+    },
+    {
+     "x": 204,
+     "y": 385,
+     "w": 36,
+     "h": 54,
+     "kind": "potion"
+    },
+    {
+     "x": 253,
+     "y": 363,
+     "w": 36,
+     "h": 54,
+     "kind": "potion"
+    },
+    {
+     "x": 300,
+     "y": 342,
+     "w": 36,
+     "h": 54,
+     "kind": "potion"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "potion_shelf_2_stand_B.png": {
+   "file": "Furniture/potion_shelf_2_stand_B.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.2894736842105263,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 88,
+    "y": 512
+   },
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "B",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 65,
+     "y": 141,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    },
+    {
+     "x": 121,
+     "y": 169,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    },
+    {
+     "x": 178,
+     "y": 201,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    },
+    {
+     "x": 62,
+     "y": 254,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    },
+    {
+     "x": 119,
+     "y": 285,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    },
+    {
+     "x": 180,
+     "y": 317,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "potion_shelf_3_stand_A.png": {
+   "file": "Furniture/potion_shelf_3_stand_A.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.7105263157894737,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 216,
+    "y": 512
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 101,
+     "y": 198,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 149,
+     "y": 174,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 201,
+     "y": 150,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 101,
+     "y": 257,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 149,
+     "y": 233,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 201,
+     "y": 210,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 101,
+     "y": 317,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 149,
+     "y": 293,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 201,
+     "y": 269,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "potion_shelf_3_stand_B.png": {
+   "file": "Furniture/potion_shelf_3_stand_B.png",
+   "canvas": {
+    "w": 304,
+    "h": 600
+   },
+   "pivot": {
+    "x": 0.2894736842105263,
+    "y": 0.1466666666666666
+   },
+   "ground": {
+    "x": 88,
+    "y": 512
+   },
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "B",
+   "mount": "floor",
+   "slots": [
+    {
+     "x": 65,
+     "y": 161,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 114,
+     "y": 188,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 165,
+     "y": 215,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 65,
+     "y": 221,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 114,
+     "y": 247,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 165,
+     "y": 274,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 65,
+     "y": 280,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 114,
+     "y": 307,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 165,
+     "y": 334,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    }
+   ],
+   "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
   }
  }
 }

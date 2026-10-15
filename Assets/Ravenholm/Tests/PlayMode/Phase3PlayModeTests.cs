@@ -82,7 +82,7 @@ namespace Ravenholm.Tests
             yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.6f);  // store receiving strip
             Assert.AreEqual(2, log.State.StoreItems.Count);
             yield return null;
-            Assert.AreEqual(1, Piece("furniture.weapon_rack").VisibleCount, "the sword on the weapon rack");
+            Assert.AreEqual(1, Piece("furniture.weapon_stand").VisibleCount, "the sword on the weapon stand");
             Assert.AreEqual(1, Piece("furniture.display_table").VisibleCount, "the dagger on the display table");
             yield return Capture.Take("phase3_store_racks");
 
@@ -131,7 +131,7 @@ namespace Ravenholm.Tests
                 yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.8f);
             }
             Assert.AreEqual(10, log.State.StoreItems.Count);
-            var shelf = Piece("furniture.potion_shelf");
+            var shelf = Piece("furniture.potion_stand");
             yield return null;
             Assert.AreEqual(1, shelf.VisibleCount, "one distinct potion shown with a ×10 badge");
             CollectionAssert.IsEmpty(log.Audit());

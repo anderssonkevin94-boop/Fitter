@@ -170,16 +170,18 @@ namespace Ravenholm.Tests
         }
 
         [Test]
-        public void ANewShopIsSixBySixWithItsStartingFurniturePlaced()
+        public void ANewShopIsTheWagonsFourByFourCarpetWithItsStartingFurniture()
         {
             var g = Boot();
             var shop = g.Shop;
             Assert.IsTrue(shop.Enabled);
-            Assert.AreEqual(36, shop.Grid.Floor.Count(), "6 x 6 tiles");
-            Assert.AreEqual(2, shop.Grid.Entrance.Count, "a 2-tile entrance");
-            Assert.AreEqual(5, shop.State.Furniture.Count);
+            Assert.IsTrue(shop.Wagon, "the shop folds out of the wagon (the journey, step 3)");
+            Assert.AreEqual(1, shop.WagonLevel);
+            Assert.AreEqual(16, shop.Grid.Floor.Count(), "a 4 x 4 carpet");
+            Assert.IsFalse(shop.Grid.Edges.Any(e => e.Kind == EdgeKind.Tall), "no walls");
+            Assert.AreEqual(4, shop.State.Furniture.Count);
             Assert.IsTrue(shop.State.Furniture.All(p => p.Placed), "every starting piece fits where the content puts it");
-            CollectionAssert.AreEquivalent(new[] { "furniture.desk", "furniture.display_table", "furniture.armor_stand", "furniture.potion_shelf", "furniture.weapon_rack" },
+            CollectionAssert.AreEquivalent(new[] { "furniture.display_table", "furniture.armor_stand", "furniture.weapon_stand", "furniture.potion_stand" },
                 shop.State.Furniture.Select(p => p.FurnitureId));
         }
 
@@ -190,19 +192,21 @@ namespace Ravenholm.Tests
             Grant(g);
             var shop = g.Shop;
             var table = shop.State.Furniture.First(p => p.FurnitureId == "furniture.display_table");
-            Assert.IsNull(shop.Place(table.Id, 3, 2, Facing.A));
-            Assert.AreEqual("Keep the entrance clear", shop.Place(table.Id, 1, 0, Facing.A));
+            Assert.IsNull(shop.Place(table.Id, 1, 0, Facing.A), "anywhere on the carpet, front edge included");
             var gold = g.Jobs.State.Gold;
             Assert.IsNull(shop.Upgrade(table.Id));
             Assert.AreEqual(2, table.Level);
             Assert.AreEqual(gold - shop.FurnitureOf(table).At(2).gold, g.Jobs.State.Gold);
             Assert.IsNull(shop.Rotate(table.Id), "1 x 2 turns to 2 x 1 in place");
             Assert.AreEqual(Facing.B, table.Facing);
-            Assert.AreEqual("Not for sale", shop.Buy(g.Catalogue.Get<ShopFurnitureDefinition>("furniture.desk"), out _));
-            Assert.IsNull(shop.Buy(g.Catalogue.Get<ShopFurnitureDefinition>("furniture.armor_stand"), out var stand));
+            Assert.AreEqual("Not for sale", shop.Buy(g.Catalogue.Get<ShopFurnitureDefinition>("furniture.desk"), out _), "the counter replaced the desk");
+            Assert.AreEqual("Not for sale", shop.Buy(g.Catalogue.Get<ShopFurnitureDefinition>("furniture.weapon_rack"), out _), "no walls to hang it on");
+            Assert.IsNull(shop.Buy(g.Catalogue.Get<ShopFurnitureDefinition>("furniture.long_stand"), out var stand));
             Assert.IsFalse(stand.Placed, "bought pieces wait in storage");
-            Assert.IsNull(shop.Place(stand.Id, 0, 4, Facing.A));
+            Assert.AreEqual("Needs a full wall", shop.CanPlace(new Placement { FurnitureId = "furniture.potion_shelf", Level = 1 }, 0, 0, Facing.A));
+            Assert.IsNotNull(shop.Place(stand.Id, 2, 2, Facing.A), "it would shut the potion stand and the counter off");
             Assert.IsNull(shop.Store(table.Id));
+            Assert.IsNull(shop.Place(stand.Id, 1, 0, Facing.A));
             g.Scheduler.SaveNow("test");
 
             var back = Boot();
@@ -211,29 +215,85 @@ namespace Ravenholm.Tests
             Assert.AreEqual(2, t2.Level);
             Assert.AreEqual(Facing.B, t2.Facing);
             Assert.IsTrue(back.Shop.Find(stand.Id).Placed);
-            Assert.AreEqual(6, back.Shop.State.Furniture.Count);
+            Assert.AreEqual(5, back.Shop.State.Furniture.Count);
             CollectionAssert.IsEmpty(back.Logistics.System.Audit());
         }
 
         [Test]
-        public void ExpandingCostsMoreEachTimeAndPutsAwayPiecesThatLoseTheirWall()
+        public void AWayToTheCounterIsAlwaysKept()
         {
             var g = Boot();
             Grant(g);
             var shop = g.Shop;
-            var shelf = shop.State.Furniture.First(p => p.FurnitureId == "furniture.potion_shelf");
-            Assert.AreEqual("Must join the shop", shop.BuyBlock(4, 4));
-            var first = shop.NextBlockCost.gold;
+            foreach (var p in shop.State.Furniture.ToArray()) shop.Store(p.Id);
+            // Fill the carpet's back row (along the counter) with stands: the last one would shut the counter off.
+            var stands = new List<Placement>();
+            for (var i = 0; i < 2; i++)
+            {
+                Assert.IsNull(shop.Buy(g.Catalogue.Get<ShopFurnitureDefinition>("furniture.weapon_stand"), out var st));
+                stands.Add(st);
+            }
+            Assert.IsNull(shop.Place(stands[0].Id, 0, 3, Facing.A));
+            Assert.AreEqual("Keep a way to the counter", shop.Place(stands[1].Id, 2, 3, Facing.A));
+        }
+
+        [Test]
+        public void UpgradingTheWagonGrowsTheCarpetAndCosts()
+        {
+            var g = Boot();
+            Grant(g);
+            var shop = g.Shop;
+            var cost = shop.NextWagonCost.gold;
             var gold = g.Jobs.State.Gold;
-            Assert.IsNull(shop.BuyBlock(0, 3), "behind the shelf's wall");
-            Assert.AreEqual(gold - first, g.Jobs.State.Gold);
-            Assert.Greater(shop.NextBlockCost.gold, first, "the next block costs more");
-            Assert.AreEqual(40, shop.Grid.Floor.Count());
-            Assert.IsFalse(shelf.Placed, "its wall is gone: the shelf went into storage");
+            Assert.IsNull(shop.UpgradeWagon());
+            Assert.AreEqual(2, shop.WagonLevel);
+            Assert.AreEqual(24, shop.Grid.Floor.Count(), "6 x 4");
+            Assert.AreEqual(gold - cost, g.Jobs.State.Gold);
+            Assert.IsNull(shop.UpgradeWagon());
+            Assert.IsNull(shop.UpgradeWagon());
+            Assert.AreEqual(48, shop.Grid.Floor.Count(), "8 x 6 at the top");
+            Assert.AreEqual("Fully upgraded", shop.UpgradeWagon());
             g.Scheduler.SaveNow("test");
             var back = Boot();
-            Assert.AreEqual(40, back.Shop.Grid.Floor.Count(), "the new block is saved");
-            Assert.AreEqual(1, back.Shop.State.Expansions);
+            Assert.AreEqual(4, back.Shop.WagonLevel, "the wagon's level is saved");
+            Assert.AreEqual(48, back.Shop.Grid.Floor.Count());
+        }
+
+        [Test]
+        public void TheCarpetOnlyGrowsOntoClearedGround()
+        {
+            var g = Boot();
+            Grant(g);
+            g.Shop.CarpetGround = (a, b) => a >= 4 ? "Clear the trees first" : null;
+            StringAssert.Contains("Clear the trees first", g.Shop.WagonUpgradeBlockedReason());
+            Assert.IsNotNull(g.Shop.UpgradeWagon());
+            Assert.AreEqual(1, g.Shop.WagonLevel);
+        }
+
+        [Test]
+        public void AWalledShopFromBeforeTheJourneyMovesOntoTheWagon()
+        {
+            var g = Boot();
+            var old = new Infrastructure.Save.ShopSaveData { Layout = 2, NextId = 10 };
+            for (var a = 0; a < 3; a++)
+                for (var b = 0; b < 3; b++)
+                    old.Blocks.Add(new[] { a, b });
+            old.Furniture.Add(new Infrastructure.Save.ShopFurnitureSaveData { Id = "furniture.1", Furniture = "furniture.desk", Level = 2, Placed = true, A = 3, B = 0, Facing = "A" });
+            old.Furniture.Add(new Infrastructure.Save.ShopFurnitureSaveData { Id = "furniture.2", Furniture = "furniture.potion_shelf", Level = 2, Placed = true, A = 1, B = 5, Facing = "A" });
+            old.Furniture.Add(new Infrastructure.Save.ShopFurnitureSaveData { Id = "furniture.3", Furniture = "furniture.display_table", Level = 1, Placed = true, A = 1, B = 3, Facing = "A" });
+            var gold = g.Jobs.State.Gold;
+            var desk = g.Catalogue.Get<ShopFurnitureDefinition>("furniture.desk");
+            ((ISaveSection)g.Shop).Read(new Infrastructure.Save.SaveEnvelope { Shop = old });
+            var shop = g.Shop;
+            Assert.AreEqual(3, shop.WagonLevel, "a 6 x 6 floor is a level-3 carpet");
+            Assert.IsNull(shop.Find("furniture.1"), "the desk is retired");
+            Assert.AreEqual(gold + desk.At(2).gold, g.Jobs.State.Gold, "its upgrade refunded");
+            var shelf = shop.Find("furniture.2");
+            Assert.AreEqual("furniture.potion_stand", shelf.FurnitureId, "the wall shelf stands free now");
+            Assert.AreEqual(2, shelf.Level);
+            Assert.IsTrue(shelf.Placed, "set out on the carpet");
+            Assert.IsTrue(shop.Find("furniture.3").Placed);
+            CollectionAssert.IsEmpty(g.Logistics.System.Audit());
         }
     }
 }

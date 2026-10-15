@@ -1269,3 +1269,38 @@ Kevin: "start on step 2, placing stations". Defaults chosen from the approved ou
 - **Processing** carries on wherever a station is.
 - **Saving.** Placements save in a new `stations` section, only for stations that were moved or packed, keyed by camp.
 - **Not yet:** the Trader's pad and the shop stay fixed. The shop becomes the wagon in step 3.
+
+## 2026-10-15: journey step 3, the wagon shop (placeholder art; awaiting Kevin's approval)
+
+Kevin: "start on step 3, the wagon shop". Built to the approved outline, with placeholders until Astra's ox and wagon land (`Tools/ArtImport/make_wagon_placeholders.py`):
+- **The carpet is the shop floor** (`ShopLayoutConfig.Open`):
+  - no walls, posts or doorway;
+  - customers step on from its front edges;
+  - furniture is placed, turned, stored and upgraded in build mode as before.
+- **The wagon** parks behind the carpet's back-left edge, with its long side facing the camera and folded down into the counter:
+  - it takes the desk's job: open the Store, the bell, the Store's delivery marker on the carpet's back row;
+  - it blocks walking (you can walk round it);
+  - a placement must always leave a way to the counter ("Keep a way to the counter").
+- **Reachability is now per piece.** A piece needs open floor somewhere along it; previously every tile of it did, which wrongly refused a 2-tile table pushed between two pieces.
+- **Wagon levels** (`ShopDefinition.carpetSizes`, `wagonCosts`) are bought in build mode with "Upgrade the wagon":
+
+  | Level | Carpet | Price |
+  |---|---|---|
+  | 1 | 4 × 4 | start |
+  | 2 | 6 × 4 | 100 gold, 12 cedar lumber |
+  | 3 | 6 × 6 | 200 gold, 10 maple lumber, 6 iron ingot |
+  | 4 | 8 × 6 | 320 gold, 16 maple lumber, 6 steel ingot |
+
+  The carpet art steps 1 / 2 / 2 / 3, and the wagon's paint with it. The carpet only grows onto cleared ground that no station stands on (`StationsService.LandProblem`).
+- **Free-standing furniture:**
+  - **Stands:** Weapon Stand, Bow and Staff Stand and Potion Stand (2 × 1 tiles; placeholders: the wall art on legs). Each is the wall piece's `standingVersion`, and its prices copy the wall piece's.
+  - **No longer sold:** the wall pieces.
+  - **Retired:** the desk (`retiredByWagon`).
+- **The start:** a 4 × 4 carpet with a weapon stand, a display table, an armour stand and a potion stand, keeping the counter's row open.
+- **Older saves** move onto the wagon:
+  - a 6 × 6 floor becomes level 3, and a bought block makes it level 4;
+  - the desk is removed, with its upgrades refunded (gold and materials);
+  - wall pieces become their stands at the same level and are set out on the carpet.
+- **Not yet:**
+  - the tarp, the fold-out animation and the ox;
+  - wagon storage for travelling, which belongs to step 4.

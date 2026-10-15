@@ -31,6 +31,16 @@ namespace Ravenholm.Presentation
         [SerializeField] private Sprite wallDoorLeft, wallDoorRight, wallRailLeft, wallRailRight;
         [SerializeField] private Material material;
         [SerializeField] private int blockerLayer;
+        [Header("The wagon shop (the journey, step 3): per art level 1-3")]
+        [SerializeField] private Sprite[] wagonSprites = Array.Empty<Sprite>();
+        [SerializeField] private Sprite[] carpetSprites = Array.Empty<Sprite>();
+        [SerializeField] private Sprite[] carpetEdgeA = Array.Empty<Sprite>();
+        [SerializeField] private Sprite[] carpetEdgeB = Array.Empty<Sprite>();
+
+        /// <summary>The wagon's depth behind the carpet (tiles along B) and where its counter is.</summary>
+        public const float WagonDepth = 1.4f;
+
+        public Transform Wagon { get; private set; }
 
         /// <summary>Full walls sort this far behind their edge, so furniture hanging on them and anyone inside draw in front.</summary>
         private const float WallSortBack = 0.2f;
@@ -74,6 +84,14 @@ namespace Ravenholm.Presentation
             blockerLayer = blocker;
         }
 
+        public void EditorSetupWagon(Sprite[] wagons, Sprite[] carpets, Sprite[] edgesA, Sprite[] edgesB)
+        {
+            wagonSprites = wagons;
+            carpetSprites = carpets;
+            carpetEdgeA = edgesA;
+            carpetEdgeB = edgesB;
+        }
+
         public void EditorSetupVariants(Sprite windowL, Sprite windowR, Sprite doorL, Sprite doorR)
         {
             wallWindowLeft = windowL;
@@ -104,6 +122,12 @@ namespace Ravenholm.Presentation
             var def = _root != null ? _root.Services.Shop.Definition : null;
             if (def == null) return false;
             var t = TileAt(world);
+            if (def.Wagon)
+            {
+                // The biggest carpet and the wagon parked behind it.
+                var max = def.CarpetSize(def.WagonMaxLevel);
+                return t.A >= -1 && t.B >= -1 && t.A <= max.x && t.B <= max.y + 2;
+            }
             return t.A >= -1 && t.B >= -1 && t.A <= def.LotBlocks.x * ShopGrid.BlockSize && t.B <= def.LotBlocks.y * ShopGrid.BlockSize;
         }
 
@@ -135,6 +159,10 @@ namespace Ravenholm.Presentation
             _marks = Group("Marks");
             _furnitureRoot = Group("Furniture");
             _root.Services.Shop.Changed += Rebuild;
+            // The carpet grows only onto cleared ground: shop tile (a, b) is map cell (ox + a, oy + b).
+            var ox = Mathf.RoundToInt(origin.x + 2f * origin.y);
+            var oy = Mathf.RoundToInt(2f * origin.y - origin.x);
+            _root.Services.Shop.CarpetGround = (a, b) => _root.Services.Stations.LandProblem(ox + a, oy + b);
             Rebuild();
         }
 
@@ -166,6 +194,15 @@ namespace Ravenholm.Presentation
             var shop = _root.Services.Shop;
             var grid = shop.Grid;
             Clear(_shell);
+            if (shop.Wagon)
+            {
+                RebuildWagon();
+                SyncFurniture();
+                DrawPlots();
+                DrawSelection();
+                SandboxSceneController.Current?.RefreshInspectables();
+                return;
+            }
             // The stockroom door: the free back-right wall edge furthest along it (nothing hangs there).
             var stockDoor = new Tile(int.MinValue, 0);
             foreach (var e in grid.Edges)
@@ -224,6 +261,84 @@ namespace Ravenholm.Presentation
             DrawPlots();
             DrawSelection();
             SandboxSceneController.Current?.RefreshInspectables();
+        }
+
+        /// <summary>Which of the three art levels a wagon level uses (1, 2, 2, 3).</summary>
+        private static int ArtIndex(int wagonLevel) => wagonLevel <= 1 ? 0 : wagonLevel >= 4 ? 2 : 1;
+
+        private static Sprite Pick(Sprite[] sprites, int i) => sprites.Length == 0 ? null : sprites[Mathf.Clamp(i, 0, sprites.Length - 1)];
+
+        /// <summary>
+        /// The wagon shop: the carpet laid on the ground with its fringe, the wagon parked behind it (its long side, folded
+        /// down into the counter, facing the carpet), the Store's marker at the counter. Nothing hides anything: no walls.
+        /// </summary>
+        private void RebuildWagon()
+        {
+            var shop = _root.Services.Shop;
+            var grid = shop.Grid;
+            var art = ArtIndex(shop.WagonLevel);
+            foreach (var t in grid.Floor)
+            {
+                var sr = Sprite(_shell, "Carpet", Pick(carpetSprites, art), TileCentre(t.A, t.B));
+                sr.sortingLayerName = "Ground";
+                sr.sortingOrder = 1;
+            }
+            foreach (var e in grid.Edges)
+            {
+                var ((a0, b0), (a1, b1)) = ShopGrid.Ends(e.Tile, e.Side);
+                var alongA = e.Side == EdgeSide.BackLeft || e.Side == EdgeSide.FrontRight;
+                var sr = Sprite(_shell, "Fringe", Pick(alongA ? carpetEdgeA : carpetEdgeB, art), (Vertex(a0, b0) + Vertex(a1, b1)) * 0.5f);
+                sr.sortingLayerName = "Ground";
+                sr.sortingOrder = 2;
+            }
+
+            var size = shop.CarpetSize;
+            var ground = Vertex(size.x * 0.5f, size.y + WagonDepth * 0.5f);
+            var wagon = new GameObject("Wagon");
+            wagon.transform.SetParent(_shell, false);
+            wagon.transform.position = ground;
+            Wagon = wagon.transform;
+            var body = wagon.AddComponent<SpriteRenderer>();
+            body.sprite = Pick(wagonSprites, art);
+            body.spriteSortPoint = SpriteSortPoint.Pivot;
+            if (material != null) body.sharedMaterial = material;
+            wagon.AddComponent<SpriteOutline>();
+            // It stands in the way: a footprint 3 tiles along the carpet, the wagon's depth back.
+            var blocker = new GameObject("WagonBlocker") { layer = blockerLayer };
+            blocker.transform.SetParent(wagon.transform, false);
+            var a0w = size.x * 0.5f - 1.5f;
+            var a1w = size.x * 0.5f + 1.5f;
+            var b0w = size.y + 0.15f;
+            var b1w = size.y + WagonDepth;
+            blocker.AddComponent<PolygonCollider2D>().points = new[]
+            {
+                Vertex(a0w, b0w) - ground, Vertex(a1w, b0w) - ground, Vertex(a1w, b1w) - ground, Vertex(a0w, b1w) - ground,
+            };
+            // The counter does the desk's job: tap it for the Store; ring its bell.
+            var col = wagon.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+            col.size = new Vector2(2.6f, 1.6f);
+            col.offset = new Vector2(0f, 0.7f);
+            var counter = wagon.AddComponent<StationInspectable>();
+            counter.EditorSetup("Wagon counter", "Where customers do business. Open the Store's inventory here; in build mode, upgrade the wagon.", "");
+            counter.EditorSetupStation("", true, Domain.Logistics.ReceiverKind.Store);
+            var bell = new GameObject("Store Bell");
+            bell.transform.SetParent(wagon.transform, false);
+            bell.transform.position = ground - new Vector2(0f, 0.01f);   // just in front of the wagon, so its tap wins
+            var bc = bell.AddComponent<BoxCollider2D>();
+            bc.isTrigger = true;
+            bc.size = new Vector2(0.45f, 0.45f);
+            bc.offset = new Vector2(0.96f, 0.5f);   // over the bell painted on the counter's end
+            var bi = bell.AddComponent<BellInspectable>();
+            bi.EditorSetup("Store Bell", "", "");
+            bi.EditorSetupVisual(bell.transform);
+            // Customers stand at the counter: the Store's marker is on the carpet's back row, in front of it.
+            if (ReceiverView.TryGet("receiver.store", out var store))
+            {
+                store.transform.position = Vertex(size.x * 0.5f, size.y - 0.5f);
+                store.Reregister(true);
+            }
+            Physics2D.SyncTransforms();
         }
 
         private void SyncFurniture()

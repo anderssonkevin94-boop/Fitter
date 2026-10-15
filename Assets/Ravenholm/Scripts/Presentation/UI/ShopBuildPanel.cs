@@ -115,7 +115,7 @@ namespace Ravenholm.Presentation
         }
 
         private string Key() =>
-            $"{Shop.State.Furniture.Count}|{Shop.State.Expansions}|{View.Selected}|{View.SelectedPlot}|{_listing}|{_listingKits}|{Placed(View.Selected)}" +
+            $"{Shop.State.Furniture.Count}|{Shop.State.Expansions}|{Shop.WagonLevel}|{View.Selected}|{View.SelectedPlot}|{_listing}|{_listingKits}|{Placed(View.Selected)}" +
             $"|{StationBuild.Selected}|{KitCount()}|{(StationBuild.Selected != null && Stations.Site(StationBuild.Selected) is Ravenholm.Domain.Camp.StationSite s && s.Standing)}";
 
         // ------------------------------------------------------------------ states
@@ -138,10 +138,14 @@ namespace Ravenholm.Presentation
             var stored = Shop.State.Furniture.FindAll(x => !x.Placed).Count;
             _title.text = "Build mode";
             var kits = KitCount();
-            _info.text = "Tap a piece to move it, or a plot (marked with a sign) to grow the shop by 2 x 2 tiles. Tap a station to set it up somewhere else." +
+            var grow = Shop.Wagon ? WagonText() : "Tap a plot (marked with a sign) to grow the shop by 2 x 2 tiles.";
+            _info.text = "Tap a piece to move it. " + grow + " Tap a station to set it up somewhere else." +
                          (stored > 0 ? $"\n{stored} piece{(stored == 1 ? "" : "s")} in storage." : "") +
                          (kits > 0 ? $"\n{kits} station{(kits == 1 ? "" : "s")} packed in kits." : "");
             Button(() => "Furniture", () => { _listing = true; Rebuild(); });
+            if (Shop.Wagon)
+                Button(() => Shop.WagonLevel >= Shop.Definition.WagonMaxLevel ? "Wagon fully upgraded" : $"Upgrade the wagon to {Shop.WagonLevel + 1}",
+                    () => View.Report(Shop.UpgradeWagon() ?? "A bigger, finer carpet."), () => Shop.WagonUpgradeBlockedReason() == null);
             if (kits > 0) Button(() => $"Station kits ({KitCount()})", () => { _listingKits = true; Rebuild(); });
             Button(() => "Done", () => _root.Hud.CloseShopBuild());
         }
@@ -182,6 +186,17 @@ namespace Ravenholm.Presentation
                 Button(() => $"Set up {StationName(id)}", () => { _listingKits = false; StationBuild.Select(id); });
             }
             Button(() => "Back", () => { _listingKits = false; Rebuild(); });
+        }
+
+        private string WagonText()
+        {
+            var size = Shop.CarpetSize;
+            if (Shop.WagonLevel >= Shop.Definition.WagonMaxLevel) return $"The wagon is fully upgraded ({size.x} x {size.y} carpet).";
+            var next = Shop.Definition.CarpetSize(Shop.WagonLevel + 1);
+            var c = Shop.NextWagonCost;
+            var why = Shop.WagonUpgradeBlockedReason();
+            return $"Wagon level {Shop.WagonLevel}, a {size.x} x {size.y} carpet. Level {Shop.WagonLevel + 1}: {next.x} x {next.y}, " +
+                   $"{CostText(c.gold, c.materials)}." + (why != null ? $" <color=#B44034>{why}</color>" : "");
         }
 
         private void PieceChoice(Placement p)

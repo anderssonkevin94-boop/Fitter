@@ -1,0 +1,158 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2701883dd315a4aab9f53ceaf8c1bf12, type: 3}
+  m_Name: furniture_long_stand
+  m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ShopFurnitureDefinition
+  id: furniture.long_stand
+  displayName: Bow and Staff Stand
+  contentVersion: 1
+  display: 5
+  wall: 0
+  wallEdges: 2
+  pixelsPerUnit: 256
+  forSale: 1
+  levels:
+  - footprint: {x: 2, y: 1}
+    facingA:
+      sprite: {fileID: 21300000, guid: b8e96ce98e160458cbc38da3a2034db1, type: 3}
+      ground: {x: 215.99998, y: 512}
+      slots:
+      - serializedVersion: 2
+        x: 87
+        y: 182
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 179
+        y: 132
+        width: 48
+        height: 190
+    facingB:
+      sprite: {fileID: 21300000, guid: 32c4b3ae6e72d49cda403844162d36ec, type: 3}
+      ground: {x: 88, y: 512}
+      slots:
+      - serializedVersion: 2
+        x: 74
+        y: 110
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 169
+        y: 163
+        width: 48
+        height: 190
+    gold: 30
+    materials:
+    - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
+      quantity: 5
+  - footprint: {x: 2, y: 1}
+    facingA:
+      sprite: {fileID: 21300000, guid: fff01fbc614ec42ec9a3a19cc793ff95, type: 3}
+      ground: {x: 215.99998, y: 512}
+      slots:
+      - serializedVersion: 2
+        x: 64
+        y: 186
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 125
+        y: 156
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 189
+        y: 123
+        width: 48
+        height: 190
+    facingB:
+      sprite: {fileID: 21300000, guid: c1167cce8c221469d808d950ea6f3603, type: 3}
+      ground: {x: 88, y: 512}
+      slots:
+      - serializedVersion: 2
+        x: 67
+        y: 104
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 128
+        y: 141
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 189
+        y: 175
+        width: 48
+        height: 190
+    gold: 60
+    materials:
+    - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
+      quantity: 6
+    - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+      quantity: 2
+  - footprint: {x: 2, y: 1}
+    facingA:
+      sprite: {fileID: 21300000, guid: 32b3e1daf180c4fb789e5e11e1da5e4f, type: 3}
+      ground: {x: 215.99998, y: 512}
+      slots:
+      - serializedVersion: 2
+        x: 59
+        y: 196
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 108
+        y: 176
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 156
+        y: 159
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 202
+        y: 141
+        width: 48
+        height: 190
+    facingB:
+      sprite: {fileID: 21300000, guid: 33d19ce9fa6cd4c019b07d4df1f68909, type: 3}
+      ground: {x: 88, y: 512}
+      slots:
+      - serializedVersion: 2
+        x: 56
+        y: 108
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 102
+        y: 130
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 151
+        y: 153
+        width: 48
+        height: 190
+      - serializedVersion: 2
+        x: 200
+        y: 178
+        width: 48
+        height: 190
+    gold: 130
+    materials:
+    - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+      quantity: 8
+    - resource: {fileID: 11400000, guid: c144f82c08b12462abad968826505e73, type: 2}
+      quantity: 2
+  standingVersion: {fileID: 0}
+  retiredByWagon: 0

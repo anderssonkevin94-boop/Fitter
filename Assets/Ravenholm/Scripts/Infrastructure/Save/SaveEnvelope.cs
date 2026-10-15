@@ -446,6 +446,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("nextId")] public long NextId = 1;
         [JsonProperty("expansions")] public int Expansions;
         [JsonProperty("layout")] public int Layout = 1;
+        /// <summary>The wagon's level (0: a walled shop, from before the journey).</summary>
+        [JsonProperty("wagon")] public int Wagon;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

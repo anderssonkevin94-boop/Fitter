@@ -78,6 +78,8 @@ namespace Ravenholm.Domain.Shop
         public readonly List<Placement> Furniture = new List<Placement>();
         public long NextId = 1;
         public int Expansions;
+        /// <summary>The wagon's level (the journey, 2026-10-15): it sets the carpet's size. 0 = the walled shop.</summary>
+        public int WagonLevel;
     }
 
     public sealed class ShopLayoutConfig
@@ -90,6 +92,11 @@ namespace Ravenholm.Domain.Shop
         public EdgeSide EntranceSide = EdgeSide.FrontRight;
         /// <summary>A full wall covers floor this many depth steps behind it (1.4 units at 0.25 units a step).</summary>
         public int WallDepthSteps = 6;
+        /// <summary>
+        /// The wagon shop (the journey, step 3): an open carpet, no walls. Customers step on from its front edges; the
+        /// wagon's counter runs along its back-left edge (the row furthest along B), which must stay reachable.
+        /// </summary>
+        public bool Open;
     }
 
     /// <summary>
@@ -105,6 +112,7 @@ namespace Ravenholm.Domain.Shop
         private readonly Func<string, FurnitureShape> _shapes;
         private readonly HashSet<Tile> _floor = new HashSet<Tile>();
         private readonly Dictionary<(Tile, EdgeSide), EdgeKind> _edges = new Dictionary<(Tile, EdgeSide), EdgeKind>();
+        private readonly List<Tile> _entrance = new List<Tile>();
 
         public ShopGrid(ShopState state, ShopLayoutConfig config, Func<string, FurnitureShape> shapes)
         {
@@ -115,14 +123,24 @@ namespace Ravenholm.Domain.Shop
                 for (var i = 0; i < BlockSize; i++)
                     for (var j = 0; j < BlockSize; j++)
                         _floor.Add(new Tile(b.A * BlockSize + i, b.B * BlockSize + j));
+            if (config.Open)
+            {
+                // The carpet's front edges are its way in.
+                foreach (var t in _floor)
+                    if (!_floor.Contains(Neighbour(t, EdgeSide.FrontLeft)) || !_floor.Contains(Neighbour(t, EdgeSide.FrontRight))) _entrance.Add(t);
+            }
+            else _entrance.AddRange(config.Entrance);
             BuildEdges();
         }
 
         public IEnumerable<Tile> Floor => _floor;
         public bool IsFloor(Tile t) => _floor.Contains(t);
         public bool IsFloor(int a, int b) => _floor.Contains(new Tile(a, b));
-        public IReadOnlyList<Tile> Entrance => _config.Entrance;
-        public bool IsEntrance(Tile t) => _config.Entrance.Contains(t);
+        public IReadOnlyList<Tile> Entrance => _entrance;
+        public bool IsEntrance(Tile t) => !_config.Open && _entrance.Contains(t);
+
+        /// <summary>The carpet's back row, along the wagon's counter (open shops only).</summary>
+        public bool AtCounter(Tile t) => _config.Open && _floor.Contains(t) && !_floor.Contains(Neighbour(t, EdgeSide.BackLeft));
         public ShopLayoutConfig Config => _config;
 
         public static Tile Neighbour(Tile t, EdgeSide s) => s switch
@@ -149,7 +167,8 @@ namespace Ravenholm.Domain.Shop
                 {
                     if (_floor.Contains(Neighbour(t, side))) continue;
                     EdgeKind kind;
-                    if (side == _config.EntranceSide && _config.Entrance.Contains(t)) kind = EdgeKind.Entrance;
+                    if (_config.Open) kind = EdgeKind.Low;   // the carpet's edge: nothing stands there
+                    else if (side == _config.EntranceSide && _config.Entrance.Contains(t)) kind = EdgeKind.Entrance;
                     else if (side == EdgeSide.BackLeft || side == EdgeSide.BackRight) kind = HidesFloor(t, side) ? EdgeKind.Low : EdgeKind.Tall;
                     else kind = EdgeKind.Low;
                     _edges[(t, side)] = kind;
@@ -267,10 +286,12 @@ namespace Ravenholm.Domain.Shop
             {
                 if (!_floor.Contains(t)) return "Not on the shop floor";
                 if (occupied.Contains(t)) return "Something is in the way";
-                if (_config.Entrance.Contains(t)) return "Keep the entrance clear";
+                if (!_config.Open && _config.Entrance.Contains(t)) return "Keep the entrance clear";
             }
             foreach (var t in tiles) occupied.Add(t);
-            return Unreachable(occupied);
+            var pieces = Pieces(ignore);
+            pieces.Add(tiles);
+            return Unreachable(occupied, pieces);
         }
 
         /// <summary>Floor tiles covered by placed floor furniture.</summary>
@@ -287,12 +308,26 @@ namespace Ravenholm.Domain.Shop
             return occupied;
         }
 
-        /// <summary>Every floor piece must border a free tile that can be walked to from the entrance.</summary>
-        private string Unreachable(HashSet<Tile> occupied)
+        /// <summary>Each placed floor piece's tiles.</summary>
+        private List<List<Tile>> Pieces(Placement ignore)
+        {
+            var pieces = new List<List<Tile>>();
+            foreach (var p in _s.Furniture)
+            {
+                if (!p.Placed || p == ignore) continue;
+                var shape = _shapes(p.FurnitureId);
+                if (shape == null || shape.Wall) continue;
+                pieces.Add(new List<Tile>(FootprintTiles(shape, p.Level, p.A, p.B, p.Facing)));
+            }
+            return pieces;
+        }
+
+        /// <summary>Every floor piece must border (somewhere along it) a free tile that can be walked to from the entrance.</summary>
+        private string Unreachable(HashSet<Tile> occupied, List<List<Tile>> pieces)
         {
             var reach = new HashSet<Tile>();
             var queue = new Queue<Tile>();
-            foreach (var e in _config.Entrance)
+            foreach (var e in _entrance)
                 if (_floor.Contains(e) && !occupied.Contains(e) && reach.Add(e)) queue.Enqueue(e);
             while (queue.Count > 0)
             {
@@ -303,12 +338,22 @@ namespace Ravenholm.Domain.Shop
                     if (_floor.Contains(n) && !occupied.Contains(n) && reach.Add(n)) queue.Enqueue(n);
                 }
             }
-            foreach (var t in occupied)
+            foreach (var piece in pieces)
             {
                 var ok = false;
-                foreach (EdgeSide s in Enum.GetValues(typeof(EdgeSide)))
-                    if (reach.Contains(Neighbour(t, s))) { ok = true; break; }
+                foreach (var t in piece)
+                {
+                    foreach (EdgeSide s in Enum.GetValues(typeof(EdgeSide)))
+                        if (reach.Contains(Neighbour(t, s))) { ok = true; break; }
+                    if (ok) break;
+                }
                 if (!ok) return "That would block the way to something";
+            }
+            if (_config.Open)
+            {
+                var counter = false;
+                foreach (var t in reach) if (AtCounter(t)) { counter = true; break; }
+                if (!counter) return "Keep a way to the counter";
             }
             return null;
         }
@@ -326,6 +371,7 @@ namespace Ravenholm.Domain.Shop
 
         public string CanBuy(Tile block)
         {
+            if (_config.Open) return "Upgrade the wagon for a bigger carpet";
             if (block.A < 0 || block.B < 0 || block.A >= _config.LotA || block.B >= _config.LotB) return "Outside the lot";
             if (_s.Blocks.Contains(block)) return "Already yours";
             foreach (EdgeSide s in Enum.GetValues(typeof(EdgeSide)))

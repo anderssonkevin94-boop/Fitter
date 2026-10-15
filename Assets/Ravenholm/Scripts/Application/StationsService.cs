@@ -88,6 +88,21 @@ namespace Ravenholm.Services
             return null;
         }
 
+        /// <summary>Why the land at a cell can't take something new (the wagon's carpet): the ground, or a station on it.</summary>
+        public string LandProblem(int x, int y)
+        {
+            var others = OccupiedByOthers;
+            OccupiedByOthers = null;
+            try
+            {
+                var why = GroundProblem(x, y);
+                if (why != null) return why;
+            }
+            finally { OccupiedByOthers = others; }
+            foreach (var s in State.Sites.Values) if (s.Covers(x, y)) return "A station stands there";
+            return null;
+        }
+
         public string CanPlace(string stationId, int x, int y)
         {
             var s = Site(stationId);

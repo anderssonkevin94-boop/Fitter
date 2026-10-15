@@ -55,6 +55,7 @@ namespace Ravenholm.Services
             foreach (var b in def.StartBlocks) _config.StartBlocks.Add(new Tile(b.x, b.y));
             foreach (var e in def.EntranceTiles()) _config.Entrance.Add(new Tile(e.x, e.y));
             _config.EntranceSide = def.Entrance == ShopDefinition.EntranceEdge.FrontLeft ? EdgeSide.FrontLeft : EdgeSide.FrontRight;
+            _config.Open = def.Wagon;
             foreach (var f in _catalogue.ShopFurniture)
             {
                 if (f == null) continue;
@@ -167,6 +168,120 @@ namespace Ravenholm.Services
             return p;
         }
 
+        // ------------------------------------------------------------------ the wagon (the journey, step 3)
+
+        public bool Wagon => Enabled && Definition.Wagon;
+        public int WagonLevel => State.WagonLevel;
+        public UnityEngine.Vector2Int CarpetSize => Definition.CarpetSize(State.WagonLevel);
+
+        /// <summary>Why a carpet tile's ground isn't ready (null: cleared, level ground). Set by the scene.</summary>
+        public Func<int, int, string> CarpetGround;
+
+        public ShopDefinition.Cost NextWagonCost => Definition.WagonCost(State.WagonLevel + 1);
+
+        public string WagonUpgradeBlockedReason()
+        {
+            if (!Wagon) return "No wagon";
+            if (State.WagonLevel >= Definition.WagonMaxLevel) return "Fully upgraded";
+            var next = Definition.CarpetSize(State.WagonLevel + 1);
+            if (CarpetGround != null)
+                for (var a = 0; a < next.x; a++)
+                    for (var b = 0; b < next.y; b++)
+                    {
+                        if (Grid.IsFloor(a, b)) continue;
+                        var why = CarpetGround(a, b);
+                        if (why != null) return "Room for the bigger carpet: " + why;
+                    }
+            var c = NextWagonCost;
+            return CostBlockedReason(c.gold, c.materials);
+        }
+
+        /// <summary>Upgrades the wagon: a bigger, richer carpet.</summary>
+        public string UpgradeWagon()
+        {
+            var why = WagonUpgradeBlockedReason();
+            if (why != null) return why;
+            var c = NextWagonCost;
+            if (!Pay(c.gold, c.materials, "wagon upgrade")) return "Materials changed; try again";
+            SetCarpet(State.WagonLevel + 1);
+            Revalidate();
+            Commit("shop: wagon upgraded");
+            return null;
+        }
+
+        private void SetCarpet(int level)
+        {
+            State.WagonLevel = Math.Max(1, Math.Min(level, Definition.WagonMaxLevel));
+            var size = Definition.CarpetSize(State.WagonLevel);
+            State.Blocks.Clear();
+            for (var a = 0; a < size.x / ShopGrid.BlockSize; a++)
+                for (var b = 0; b < size.y / ShopGrid.BlockSize; b++)
+                    State.Blocks.Add(new Tile(a, b));
+            _grid = null;
+        }
+
+        /// <summary>
+        /// A walled shop from before the journey moves onto the wagon's carpet: a carpet as big as its floor (6 x 6 is
+        /// level 3; any bought block makes it level 4); the desk is retired (its upgrades refunded); wall pieces become
+        /// their free-standing versions, at their level.
+        /// </summary>
+        private void MoveOntoTheWagon()
+        {
+            SetCarpet(State.Blocks.Count > 9 ? 4 : State.Blocks.Count >= 9 ? 3 : 1);
+            foreach (var p in State.Furniture.ToArray())
+            {
+                var def = FurnitureOf(p);
+                if (def == null) continue;
+                if (def.RetiredByWagon)
+                {
+                    for (var l = 2; l <= p.Level; l++)
+                    {
+                        var paid = def.At(l);
+                        _jobs.AddGold(paid.gold);
+                        foreach (var m in paid.materials) _logistics.System.ProduceShared(m.resource.Id, m.quantity, "refund: the desk retired");
+                    }
+                    State.Furniture.Remove(p);
+                    continue;
+                }
+                if (def.Wall && def.StandingVersion != null)
+                {
+                    p.FurnitureId = def.StandingVersion.Id;
+                    p.Level = Math.Min(p.Level, def.StandingVersion.MaxLevel);
+                    p.Placed = false;
+                }
+            }
+        }
+
+        /// <summary>Stored pieces go where a new shop has them, then onto the first spot they fit.</summary>
+        private void AutoPlace(List<Placement> pieces)
+        {
+            PlaceAtStart(pieces);
+            foreach (var p in pieces)
+            {
+                if (p.Placed) continue;
+                var shape = ShapeOf(p.FurnitureId);
+                if (shape == null || shape.Wall) continue;
+                var floor = new List<Tile>(Grid.Floor);
+                floor.Sort((x, y) => x.A != y.A ? x.A.CompareTo(y.A) : x.B.CompareTo(y.B));
+                foreach (var t in floor)
+                {
+                    var placed = false;
+                    foreach (var f in new[] { Facing.A, Facing.B })
+                        if (Grid.CanPlace(shape, p.Level, t.A, t.B, f, p) == null)
+                        {
+                            p.Placed = true;
+                            p.A = t.A;
+                            p.B = t.B;
+                            p.Facing = f;
+                            _grid = null;
+                            placed = true;
+                            break;
+                        }
+                    if (placed) break;
+                }
+            }
+        }
+
         // ------------------------------------------------------------------ expansion
 
         public ShopDefinition.Cost NextBlockCost => Definition.ExpansionCost(State.Expansions);
@@ -259,7 +374,7 @@ namespace Ravenholm.Services
         void ISaveSection.Write(SaveEnvelope env)
         {
             if (!Enabled) return;
-            var d = new ShopSaveData { NextId = State.NextId, Expansions = State.Expansions, Layout = LayoutVersion };
+            var d = new ShopSaveData { NextId = State.NextId, Expansions = State.Expansions, Layout = LayoutVersion, Wagon = State.WagonLevel };
             foreach (var b in State.Blocks) d.Blocks.Add(new[] { b.A, b.B });
             foreach (var p in State.Furniture)
                 d.Furniture.Add(new ShopFurnitureSaveData
@@ -289,6 +404,15 @@ namespace Ravenholm.Services
                     A = f.A, B = f.B, Facing = f.Facing == "B" ? Facing.B : Facing.A,
                 });
             }
+            if (Wagon)
+            {
+                if (d.Wagon > 0) SetCarpet(d.Wagon);
+                else MoveOntoTheWagon();
+                Revalidate();
+                if (d.Wagon == 0) AutoPlace(State.Furniture.FindAll(p => !p.Placed));   // moved onto the carpet: set it out
+                Changed?.Invoke();
+                return;
+            }
             // Layout 2 (2026-10-15): the start grew from 4 x 6 to 6 x 6 and the entrance to 2 tiles. Older shops get the
             // new start blocks; pieces that no longer fit go back to where a new shop has them, else into storage.
             foreach (var b in _config.StartBlocks) if (!State.Blocks.Contains(b)) State.Blocks.Add(b);
@@ -300,7 +424,8 @@ namespace Ravenholm.Services
         /// <summary>A new shop: the start blocks and the starting furniture where the content places it.</summary>
         private void Fresh()
         {
-            foreach (var b in _config.StartBlocks) State.Blocks.Add(b);
+            if (Wagon) SetCarpet(1);
+            else foreach (var b in _config.StartBlocks) State.Blocks.Add(b);
             foreach (var s in Definition.StartingFurniture)
             {
                 if (s.furniture == null) continue;

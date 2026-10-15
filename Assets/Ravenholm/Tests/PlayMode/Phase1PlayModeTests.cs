@@ -113,7 +113,7 @@ namespace Ravenholm.Tests
                 (from: (Vector2)GameObject.Find("Smelter").transform.position + new Vector2(0f, -1.7f), to: (Vector2)GameObject.Find("Smelter").transform.position, name: "Smelter"),
                 (from: new Vector2(-3.5f, -5.6f), to: new Vector2(-5.4f, -3.8f), name: "Forge"),
                 (from: new Vector2(-2.9f, -3.2f), to: new Vector2(-2.9f, -1.7f), name: "Apothecary"),
-                (from: ShopView.Current.Vertex(3f, 6f) + new Vector2(0f, 0.6f), to: ShopView.Current.Vertex(3f, 3f), name: "Shop back wall"),
+                (from: (Vector2)ShopView.Current.Wagon.position + new Vector2(0f, 1.1f), to: (Vector2)ShopView.Current.Wagon.position, name: "The wagon"),
                 (from: (Vector2)GameObject.Find("Lumbermill").transform.position + new Vector2(1.9f, -1.2f), to: (Vector2)GameObject.Find("Lumbermill").transform.position, name: "Lumbermill"),
             };
             foreach (var c in cases)
@@ -269,12 +269,11 @@ namespace Ravenholm.Tests
         public IEnumerator BuildingFadesWhenPlayerIsBehindIt()
         {
             yield return Boot();
-            // Behind the shop's back-left wall: that wall fades.
-            var shop = ShopView.Current;
-            var edge = shop.Vertex(2.5f, 6f);
-            var wall = Object.FindObjectsByType<ObstructionFader>(FindObjectsSortMode.None).Select(f => f.GetComponent<SpriteRenderer>())
-                .OrderBy(sr => Vector2.Distance(sr.transform.position, edge)).First();
-            yield return StandAt(edge + new Vector2(0f, 0.45f), 0.6f);
+            // Behind a station (the shop is the wagon's open carpet now: nothing of it hides anyone): the station fades.
+            var smelter = GameObject.Find("Smelter");
+            var wall = smelter.GetComponent<SpriteRenderer>();
+            var edge = (Vector2)smelter.transform.position;
+            yield return StandAt(edge + new Vector2(0f, 0.9f), 0.6f);
             Assert.Less(wall.color.a, 0.6f);
             yield return Capture.Take("phase1_behind_store");
             yield return StandAt(new Vector2(0f, 0f), 0.6f);

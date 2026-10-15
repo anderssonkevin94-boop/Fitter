@@ -41,6 +41,13 @@ namespace Ravenholm.Content
         [Tooltip("Price of each 2 x 2 block, in order of purchase; the last price repeats.")]
         [SerializeField] private List<Cost> expansionCosts = new List<Cost>();
         [SerializeField] private List<StartingPiece> startingFurniture = new List<StartingPiece>();
+        [Header("The wagon shop (the journey, step 3)")]
+        [Tooltip("The carpet's size in tiles (along A x along B) at each wagon level. Empty: the walled shop.")]
+        [SerializeField] private List<Vector2Int> carpetSizes = new List<Vector2Int>();
+        [Tooltip("The price of each wagon upgrade: to level 2, 3, ...")]
+        [SerializeField] private List<Cost> wagonCosts = new List<Cost>();
+        [Tooltip("The wagon shop's starting furniture (on the level-1 carpet).")]
+        [SerializeField] private List<StartingPiece> wagonFurniture = new List<StartingPiece>();
 
         public override string IdKind => "shop";
         public Vector2Int LotBlocks => lotBlocks;
@@ -57,7 +64,14 @@ namespace Ravenholm.Content
             for (var i = 0; i < Mathf.Max(1, entranceWidth); i++) tiles.Add(entranceTile + step * i);
             return tiles;
         }
-        public IReadOnlyList<StartingPiece> StartingFurniture => startingFurniture;
+        public IReadOnlyList<StartingPiece> StartingFurniture => Wagon ? wagonFurniture : startingFurniture;
+
+        /// <summary>The shop is the wagon's fold-out carpet (no walls), grown by upgrading the wagon.</summary>
+        public bool Wagon => carpetSizes.Count > 0;
+        public int WagonMaxLevel => carpetSizes.Count;
+        public Vector2Int CarpetSize(int level) => carpetSizes.Count == 0 ? Vector2Int.zero : carpetSizes[Mathf.Clamp(level - 1, 0, carpetSizes.Count - 1)];
+        /// <summary>The price of upgrading the wagon to <paramref name="level"/> (2 and up).</summary>
+        public Cost WagonCost(int level) => wagonCosts.Count == 0 ? new Cost() : wagonCosts[Mathf.Clamp(level - 2, 0, wagonCosts.Count - 1)];
 
         public Cost ExpansionCost(int purchaseIndex) =>
             expansionCosts.Count == 0 ? new Cost() : expansionCosts[Mathf.Clamp(purchaseIndex, 0, expansionCosts.Count - 1)];
@@ -68,9 +82,20 @@ namespace Ravenholm.Content
             if (startBlocks.Count == 0) errors.Add($"{Describe()}: no start blocks");
             foreach (var p in startingFurniture)
                 if (p.furniture == null) errors.Add($"{Describe()}: a starting piece has no furniture");
+            foreach (var c in carpetSizes)
+                if (c.x < 2 || c.y < 2 || c.x % 2 != 0 || c.y % 2 != 0) errors.Add($"{Describe()}: carpet sizes are whole 2 x 2 blocks");
         }
 
 #if UNITY_EDITOR
+        public void EditorSetWagon(List<Vector2Int> sizes, List<Cost> costs, List<StartingPiece> furniture)
+        {
+            carpetSizes = sizes;
+            wagonCosts = costs;
+            wagonFurniture = furniture;
+        }
+
+        public bool EditorHasWagon => carpetSizes.Count > 0;
+
         public void EditorSetLayout(List<Vector2Int> start, Vector2Int entrance, int width, List<StartingPiece> furniture)
         {
             startBlocks = start;

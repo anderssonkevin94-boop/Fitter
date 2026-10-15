@@ -3676,6 +3676,246 @@
     0
    ],
    "ppu": 256
+  },
+  "Wagon/wagon_parked_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Wagon/wagon_parked_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Wagon/wagon_parked_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Wagon/carpet_1.png": {
+   "outline": false,
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Wagon/carpet_edge_1_a.png": {
+   "outline": false,
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Wagon/carpet_edge_1_b.png": {
+   "outline": false,
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Wagon/carpet_2.png": {
+   "outline": false,
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Wagon/carpet_edge_2_a.png": {
+   "outline": false,
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Wagon/carpet_edge_2_b.png": {
+   "outline": false,
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Wagon/carpet_3.png": {
+   "outline": false,
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Wagon/carpet_edge_3_a.png": {
+   "outline": false,
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Wagon/carpet_edge_3_b.png": {
+   "outline": false,
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Furniture/weapon_rack_1_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/weapon_rack_1_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/weapon_rack_2_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/weapon_rack_2_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/weapon_rack_3_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/weapon_rack_3_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/long_rack_1_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/long_rack_1_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/long_rack_2_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/long_rack_2_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/long_rack_3_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/long_rack_3_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_1_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.625,
+    0.11471
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_1_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_2_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.625,
+    0.11471
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_2_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_3_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_3_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
   }
  }
 }

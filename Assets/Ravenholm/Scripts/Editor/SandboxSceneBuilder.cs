@@ -467,6 +467,10 @@ namespace Ravenholm.EditorTools
                 Art("tile_ok", "Shop/tile_ok"), Art("tile_blocked", "Shop/tile_blocked"), _unlit, ProjectSetup.BlockerLayerIndex);
             view.EditorSetupVariants(Art("wall_window_left", null), Art("wall_window_right", null), Art("stub_entrance_left", null), Art("stub_entrance_right", null));
             view.EditorSetupWallKinds(Art("wall_door_left", null), Art("wall_door_right", null), Art("wall_rail_left", null), Art("wall_rail_right", null));
+            // The wagon shop (the journey, step 3): placeholders until Astra's ox and wagon land.
+            Sprite[] Levels(string name) => new[] { ProjectSetup.LoadSprite($"Wagon/{name}".Replace("#", "1")), ProjectSetup.LoadSprite($"Wagon/{name}".Replace("#", "2")),
+                ProjectSetup.LoadSprite($"Wagon/{name}".Replace("#", "3")) };
+            view.EditorSetupWagon(Levels("wagon_parked_#"), Levels("carpet_#"), Levels("carpet_edge_#_a"), Levels("carpet_edge_#_b"));
             return go.transform;
         }
 

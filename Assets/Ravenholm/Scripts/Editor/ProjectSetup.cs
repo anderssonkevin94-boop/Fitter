@@ -950,6 +950,31 @@ namespace Ravenholm.EditorTools
                 L("pedestal", 2, One, 80, M(("iron_ingot", 4), ("copper_ingot", 2))),
                 L("pedestal", 3, One, 160, M(("steel_ingot", 3), ("maple_lumber", 4))));
 
+            // The wagon shop (the journey, step 3): free-standing versions of the wall pieces (placeholders: the wall art on
+            // legs, 2 x 1 tiles), the walled pieces no longer sold, and the desk retired (the wagon's counter does its job).
+            ShopFurnitureDefinition.Level S(string key, int n, int gold, List<ResourceCost> mats) => new ShopFurnitureDefinition.Level
+            {
+                footprint = new V2(2, 1), facingA = Astra($"{key}_{n}_stand_A"), facingB = Astra($"{key}_{n}_stand_B"), gold = gold, materials = mats,
+            };
+            ShopFurnitureDefinition Standing(string key, string name, FurnitureDisplay display, ShopFurnitureDefinition wallPiece)
+            {
+                var levels = new List<ShopFurnitureDefinition.Level>();
+                for (var n = 1; n <= wallPiece.MaxLevel && Has($"{wallPiece.Id.Substring("furniture.".Length)}_{n}_stand_A"); n++)
+                {
+                    var paid = wallPiece.At(n);
+                    levels.Add(S(wallPiece.Id.Substring("furniture.".Length), n, paid.gold, new List<ResourceCost>(paid.materials)));
+                }
+                var def = Furniture(key, name, display, false, 256f, true, levels.ToArray());
+                wallPiece.EditorSetWagon(def, false, false);
+                EditorUtility.SetDirty(wallPiece);
+                return def;
+            }
+            var weaponStand = Standing("weapon_stand", "Weapon Stand", FurnitureDisplay.Weapon, rack);
+            var longStand = Standing("long_stand", "Bow and Staff Stand", FurnitureDisplay.Long, longRack);
+            var potionStand = Standing("potion_stand", "Potion Stand", FurnitureDisplay.Potion, shelf);
+            desk.EditorSetWagon(null, true, false);
+            EditorUtility.SetDirty(desk);
+
             // Items on display: Astra's two views of each item (A on left-facing furniture), with their visible bounds.
             var itemJson = PlaceholderSpriteImporter.ArtRoot + "Items/points.json";
             if (File.Exists(itemJson))
@@ -1006,7 +1031,26 @@ namespace Ravenholm.EditorTools
                 shop.EditorBumpVersion();
                 EditorUtility.SetDirty(shop);
             }
-            var furniture = new List<ShopFurnitureDefinition> { desk, table, armor, shelf, rack, longRack, pedestal };
+            if (!shop.EditorHasWagon || shop.ContentVersion < 4)
+            {
+                // The wagon: carpets of 4 x 4, 6 x 4, 6 x 6 and 8 x 6 tiles (the outline); prices are balance starting points.
+                ShopDefinition.Cost WC(int gold, List<ResourceCost> m) => new ShopDefinition.Cost { gold = gold, materials = m };
+                shop.EditorSetWagon(new List<V2> { new V2(4, 4), new V2(6, 4), new V2(6, 6), new V2(8, 6) },
+                    new List<ShopDefinition.Cost>
+                    {
+                        WC(100, M(("cedar_lumber", 12))),
+                        WC(200, M(("maple_lumber", 10), ("iron_ingot", 6))),
+                        WC(320, M(("maple_lumber", 16), ("steel_ingot", 6))),
+                    },
+                    new List<ShopDefinition.StartingPiece>
+                    {
+                        // The back row along the counter stays open for customers.
+                        P(weaponStand, 0, 0, facingB: true), P(table, 2, 0), P(armor, 2, 1), P(potionStand, 3, 1, facingB: true),
+                    });
+                while (shop.ContentVersion < 4) shop.EditorBumpVersion();
+                EditorUtility.SetDirty(shop);
+            }
+            var furniture = new List<ShopFurnitureDefinition> { desk, table, armor, shelf, rack, longRack, pedestal, weaponStand, longStand, potionStand };
             if (catalogue.Shop != shop || catalogue.ShopFurniture.Count != furniture.Count)
             {
                 catalogue.EditorSetShop(shop, furniture);
