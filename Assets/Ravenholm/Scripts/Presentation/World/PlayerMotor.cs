@@ -44,13 +44,6 @@ namespace Ravenholm.Presentation
             var move = _root.InputRouter.MoveVector;
             if (move.sqrMagnitude > 0.04f) LastMove = move;
             var slab = MineSlabView.Current;
-            // Solo play: on a routine the supplier is out working it (drawn by the routine's avatar); moving takes over.
-            if (_root.Services.Sites.RoutineSiteId != null)
-            {
-                if (move.sqrMagnitude > 0.01f) TakeOverFromRoutine(slab);
-                else { SetHidden(true); return; }
-            }
-            SetHidden(false);
             if (slab != null && slab.PlayerInside) slab.UpdatePlayer(move);
             else if (move.sqrMagnitude > 0.0001f || _walkVel.sqrMagnitude > 0.0004f) WalkTown(move, slab);   // easing to a stop too
 
@@ -257,28 +250,7 @@ namespace Ravenholm.Presentation
         public bool Swinging => _swing > 0f;
         private float _swing;
 
-        private bool _hidden;
 
-        private void SetHidden(bool hidden)
-        {
-            if (_hidden == hidden) return;
-            _hidden = hidden;
-            foreach (var r in GetComponentsInChildren<Renderer>(true)) r.enabled = !hidden;
-        }
-
-        public bool HiddenForRoutine => _hidden;
-
-        /// <summary>The supplier steps back in: the routine ends where their avatar was (in town, or beside the Mine's entry).</summary>
-        private void TakeOverFromRoutine(MineSlabView mine)
-        {
-            var avatar = WorkerView.PlayerAvatar;
-            var at = avatar != null ? (Vector2)avatar.transform.position : (Vector2)transform.position;
-            var underground = avatar != null && avatar.InShaft;
-            _root.Services.Sites.EndRoutine();
-            if (mine != null && (underground || mine.PlayerInside || !mine.SurfaceWalkable(at))) at = mine.BesideEntry;
-            Teleport(at);
-            SandboxSceneController.Current?.SnapPlayerToSavedPosition();
-        }
         public bool Reaching => _reach > 0f;
 
         /// <summary>Safe "unstuck": moves the player without touching what they carry.</summary>

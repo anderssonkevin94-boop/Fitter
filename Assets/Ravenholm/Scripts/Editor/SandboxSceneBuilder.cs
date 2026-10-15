@@ -96,11 +96,7 @@ namespace Ravenholm.EditorTools
             var traderPad = Building(buildings, "Trader Pad", "bld_trader_pad", new Vector2(3.0f, -2.1f), new Vector2(2.2f, 2.0f),
                 "A periodic visitor sets up here to sell external materials and buy Store goods at poor prices.", "", new Vector2(2f, 2f));
             TraderStall(traderPad);
-            var mine = MineDig(buildings);
-            // The Forest's signpost (its panel and marker) where the old wooden arch stood (2026-10-15: the arch is gone).
-            var gate = SiteSign(buildings, "Forest", new Vector2(-15.5f, 3.0f), "site.forest",
-                "The frontier Forest, left of town above the Mine. Further left are new kinds of wood; its hills can be climbed a block " +
-                "at a time or dug through. Stumps grow back unless you pull them out.");
+            MineDig(buildings);
 
             // --- nature ---
             foreach (var (spot, cedar) in new[] { (new Vector2(5.4f, 8.2f), true), (new Vector2(11.4f, 5.0f), false), (new Vector2(7.2f, 8.8f), false) })
@@ -159,11 +155,12 @@ namespace Ravenholm.EditorTools
             Receiver(logistics, "receiver.apothecary", ReceiverKind.Apothecary, new Vector2(-2.15f, -2.45f), 0.55f, apothecary.transform, "icon_herb", true);
             Receiver(logistics, "receiver.store", ReceiverKind.Store, new Vector2(-0.55f, 2.95f), 0.55f, store.transform, "icon_iron_sword", false);
 
-            var mineStaging = Container(logistics, "container.mine_staging", "Mine Staging", ContainerKind.RawPile,
-                (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineEntry + 2, 3, 0)),
-                "Ore lands here while you dig on a routine (capacity 96). Ore you dig by hand goes straight into your carry.", null, null, 96);
-            var forestStaging = Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(-17.6f, 2.0f),
-                "The woodcutter drops logs and herbs here (capacity 96). Logs go to the Lumbermill, herbs to the Apothecary.", null, null, 96);
+            // The sites' staging piles stay as places for leftovers (old saves, overflow) but show nothing while empty:
+            // there is no AFK gathering, everything you gather goes into your carry (2026-10-15).
+            Container(logistics, "container.mine_staging", "Mine Staging", ContainerKind.RawPile,
+                (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineEntry + 2, 3, 0)), null, null, null, hidden: true);
+            Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(-17.6f, 2.0f),
+                null, null, null, hidden: true);
             Container(logistics, "container.forge_pad", "Forge Output", ContainerKind.OutputPad, new Vector2(-4.3f, -4.55f),
                 "Crafted goods appear here (holds 6). Walk close to pick them up, then stock them at the Store.", null, null, 6);
             Container(logistics, "container.workbench_pad", "Workbench Output", ContainerKind.OutputPad, new Vector2(4.6f, -4.45f),
@@ -181,12 +178,6 @@ namespace Ravenholm.EditorTools
             crowd.transform.SetParent(people, false);
             crowd.EditorSetup(new List<Vector2> { new Vector2(-1.9f, 1.75f), new Vector2(-1.15f, 1.35f), new Vector2(1.15f, 1.35f), new Vector2(1.9f, 1.75f) },
                 new List<Sprite> { ProjectSetup.LoadSprite("Characters/char_base_0"), ProjectSetup.LoadSprite("Characters/char_base_1"), ProjectSetup.LoadSprite("Characters/char_base_2") });
-            var mouth = mine.transform;   // the routine avatar walks from the entry to its tunnel (MineSlabView)
-            // Solo play: the supplier is the only one working. While on a routine they are drawn by these figures instead.
-            Worker(people, "You (mining)", "site.mine", "worker.player", 0, "ov_supplier", mineStaging, mouth, null);
-            Worker(people, "You (woodcutting)", "site.forest", "worker.player", 0, "ov_supplier", forestStaging, null, pocket);
-            SiteMarker(mine.transform, "site.mine", 2.4f);
-            SiteMarker(gate.transform, "site.forest", 2.0f);
 
             Animate(player.Find("Visual"));
             player.gameObject.AddComponent<PlayerMotor>().EditorSetup(player.Find("Visual"));
@@ -376,7 +367,7 @@ namespace Ravenholm.EditorTools
         /// diamond collision footprint (a × b tiles) independent of the roof art (GDD 3).
         /// </summary>
         private static SpriteRenderer Building(Transform parent, string title, string sprite, Vector2 pos, Vector2 tapSize,
-            string description, string phase, Vector2? footprint, ReceiverKind? station = null, string siteId = null, string stationId = null)
+            string description, string phase, Vector2? footprint, ReceiverKind? station = null, string stationId = null)
         {
             var sr = Sprite(parent, title, "Buildings/" + sprite, pos);
             sr.gameObject.AddComponent<SpriteOutline>();   // the game's outline (outline-free art)
@@ -384,13 +375,7 @@ namespace Ravenholm.EditorTools
             col.isTrigger = true;
             col.size = tapSize;
             col.offset = new Vector2(0f, tapSize.y * 0.3f);
-            if (siteId != null)
-            {
-                var site = sr.gameObject.AddComponent<SiteInspectable>();
-                site.EditorSetup(title, description, phase);
-                site.EditorSetupSite(siteId);
-            }
-            else if (station.HasValue || stationId != null)
+            if (station.HasValue || stationId != null)
             {
                 var s = sr.gameObject.AddComponent<StationInspectable>();
                 s.EditorSetup(title, description, phase);
@@ -443,39 +428,10 @@ namespace Ravenholm.EditorTools
             digCol.radius = 0.3f;
             dig.AddComponent<MineDigSpot>();
 
-            // The Mine's signpost (its panel and marker), beside the entry on town ground.
+            // An anchor beside the entry (its yellow-flag signpost went with the routines, 2026-10-15).
             var go = new GameObject("Mine");
             go.transform.SetParent(parent, false);
             go.transform.position = _grid.GetCellCenterWorld(_mineCell + new Vector3Int(QuarryDepth + 1, 1, 0));   // beside the quarry
-            Sprite(go.transform, "Sign", "Props/trail_marker", Vector2.zero, 0);
-            var tap = go.AddComponent<CircleCollider2D>();
-            tap.isTrigger = true;
-            tap.radius = 0.5f;
-            tap.offset = new Vector2(0f, 0.4f);
-            var site = go.AddComponent<SiteInspectable>();
-            site.EditorSetup("Mine", "Your quarry: the dirt plot at the cliff's edge. Stand on it and hold Dig to dig down; dig into the walls you walk " +
-                                     "into. Blocks are half a level tall, so you are two blocks tall: step up one block at a time, so leave steps (or build " +
-                                     "scaffolds with lumber) to climb back out. Deeper reaches the next layers (new ores, harder rock).", "");
-            site.EditorSetupSite("site.mine");
-            AddLabel(go.transform, "Mine", 1.6f);
-            return go;
-        }
-
-        /// <summary>A site's signpost: tap it for the site's panel; it carries the site's marker.</summary>
-        private static GameObject SiteSign(Transform parent, string title, Vector2 pos, string siteId, string description)
-        {
-            var go = new GameObject(title);
-            go.transform.SetParent(parent, false);
-            go.transform.localPosition = pos;
-            Sprite(go.transform, "Sign", "Props/trail_marker", Vector2.zero, 0);
-            var tap = go.AddComponent<CircleCollider2D>();
-            tap.isTrigger = true;
-            tap.radius = 0.5f;
-            tap.offset = new Vector2(0f, 0.4f);
-            var site = go.AddComponent<SiteInspectable>();
-            site.EditorSetup(title, description, "");
-            site.EditorSetupSite(siteId);
-            AddLabel(go.transform, title, 1.6f);
             return go;
         }
 
@@ -578,14 +534,14 @@ namespace Ravenholm.EditorTools
         }
 
         private static Transform Container(Transform parent, string id, string title, ContainerKind kind, Vector2 pos, string description,
-            List<WorldContainerView.ResourceAmount> materials, string[] itemIds, int capacity = 0)
+            List<WorldContainerView.ResourceAmount> materials, string[] itemIds, int capacity = 0, bool hidden = false)
         {
             var root = new GameObject(title);
             root.transform.SetParent(parent, false);
             root.transform.localPosition = pos;
             root.AddComponent<SortingGroup>();
             if (kind == ContainerKind.OutputPad) Sprite(root.transform, "Pad", "Props/prop_output_pad", Vector2.zero);
-            else Sprite(root.transform, "Shadow", "Props/blob_shadow", new Vector2(0f, 0.05f)).transform.localScale = new Vector3(1.6f, 1.4f, 1f);
+            else if (!hidden) Sprite(root.transform, "Shadow", "Props/blob_shadow", new Vector2(0f, 0.05f)).transform.localScale = new Vector3(1.6f, 1.4f, 1f);
 
             var items = new List<ItemDefinition>();
             if (itemIds != null) foreach (var i in itemIds) items.Add(_catalogue.Get<ItemDefinition>(i));
@@ -597,7 +553,7 @@ namespace Ravenholm.EditorTools
             col.isTrigger = true;
             col.size = new Vector2(1.0f, 0.9f);
             col.offset = new Vector2(0f, 0.3f);
-            root.AddComponent<Inspectable>().EditorSetup(title, description, "");
+            if (!hidden) root.AddComponent<Inspectable>().EditorSetup(title, description, "");
             return root.transform;
         }
 
@@ -664,41 +620,6 @@ namespace Ravenholm.EditorTools
             return view;
         }
 
-        private static void Worker(Transform parent, string title, string siteId, string workerId, int skin, string overlay,
-            Transform staging, Transform workPoint, ForestGridView pocket)
-        {
-            var root = new GameObject(title);
-            root.transform.SetParent(parent, false);
-            root.transform.position = staging.position + new Vector3(0.55f, -0.1f, 0f);
-            root.AddComponent<SortingGroup>();
-            var visual = new GameObject("Visual").transform;
-            visual.SetParent(root.transform, false);
-            Sprite(visual, "Base", $"Characters/char_base_{skin}", Vector2.zero, 0);
-            Sprite(visual, "Overlay", $"Characters/{overlay}", Vector2.zero, 1);
-            var bubble = Sprite(root.transform, "Bubble", "Props/ui_bubble", new Vector2(0f, 1.25f));
-            bubble.transform.localScale = Vector3.one * 0.8f;
-            bubble.sortingOrder = 20;
-            var icon = Sprite(bubble.transform, "Icon", "UI/Icons/ic_unknown", new Vector2(0f, 0.36f));
-            icon.transform.localScale = Vector3.one * 0.55f;
-            icon.sortingOrder = 21;
-            bubble.gameObject.SetActive(false);
-            var col = root.AddComponent<BoxCollider2D>();
-            col.isTrigger = true;
-            col.size = new Vector2(0.7f, 1.1f);
-            col.offset = new Vector2(0f, 0.5f);
-            if (workerId == Ravenholm.Domain.Sites.SiteSimulator.PlayerId)
-            {
-                Animate(visual);   // the supplier's own figure on a routine
-                root.AddComponent<SpriteOutline>();
-            }
-            var view = root.AddComponent<WorkerView>();
-            view.EditorSetup(siteId, workerId, visual, staging, workPoint, pocket, bubble, icon,
-                ProjectSetup.LoadSprite("UI/Icons/ic_unknown"), ProjectSetup.LoadSprite("UI/Icons/ic_warning"));
-            var insp = root.AddComponent<WorkerInspectable>();
-            insp.EditorSetup(title, "Worker.", "");
-            insp.EditorSetupWorker(view);
-        }
-
         /// <summary>Phase 6: the visiting Trader and goods, shown only while the Trader is in town.</summary>
         private static void TraderStall(SpriteRenderer pad)
         {
@@ -718,38 +639,6 @@ namespace Ravenholm.EditorTools
             var trader = pad.gameObject.AddComponent<TraderInspectable>();
             trader.EditorSetup(title, "A periodic visitor sets up here to sell external materials and buy Store goods at poor prices.", "");
             trader.EditorSetupTrader(stall);
-        }
-
-        private static void SiteMarker(Transform site, string siteId, float height)
-        {
-            var root = new GameObject("SiteMarker");
-            root.transform.SetParent(site, false);
-            var bubbleRoot = new GameObject("Bubble");
-            bubbleRoot.transform.SetParent(root.transform, false);
-            bubbleRoot.transform.localPosition = new Vector3(0f, height, 0f);
-            var panel = Sprite(bubbleRoot.transform, "Back", "UI/ui_chip", Vector2.zero);
-            panel.drawMode = SpriteDrawMode.Sliced;
-            panel.size = new Vector2(3.0f, 0.62f);
-            panel.sortingLayerName = "Overlay";
-            panel.sortingOrder = 3;
-            var icon = Sprite(bubbleRoot.transform, "Icon", "UI/Icons/ic_unknown", new Vector2(-1.15f, 0.02f));
-            icon.transform.localScale = Vector3.one * 0.85f;
-            icon.sortingLayerName = "Overlay";
-            icon.sortingOrder = 4;
-            var labelGo = new GameObject("Label");
-            labelGo.transform.SetParent(bubbleRoot.transform, false);
-            labelGo.transform.localPosition = new Vector3(0.25f, 0f, 0f);
-            var tmp = labelGo.AddComponent<TextMeshPro>();
-            tmp.fontSize = 2.6f;
-            tmp.fontStyle = FontStyles.Bold;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.color = new Color32(59, 42, 32, 255);
-            tmp.rectTransform.sizeDelta = new Vector2(2.6f, 0.5f);
-            tmp.sortingLayerID = SortingLayer.NameToID("Overlay");
-            tmp.sortingOrder = 5;
-            bubbleRoot.SetActive(false);
-            root.AddComponent<SiteMarkerView>().EditorSetup(siteId, bubbleRoot, icon, tmp,
-                ProjectSetup.LoadSprite("UI/Icons/ic_unknown"), ProjectSetup.LoadSprite("UI/Icons/ic_warning"));
         }
 
         private static List<WorldContainerView.ResourceAmount> Mats(params (string id, int qty)[] entries)

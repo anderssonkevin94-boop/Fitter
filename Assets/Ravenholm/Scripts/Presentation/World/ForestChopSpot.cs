@@ -48,7 +48,7 @@ namespace Ravenholm.Presentation
             var player = SandboxSceneController.Current != null ? SandboxSceneController.Current.Player : null;
             var motor = player != null ? player.GetComponent<PlayerMotor>() : null;
             var sim = root != null ? root.Services.Sites.Get(SiteId) : null;
-            if (forest != null && sim != null && motor != null && !motor.HiddenForRoutine && !motor.Underground) Refresh(forest, sim, player.position);
+            if (forest != null && sim != null && motor != null && !motor.Underground) Refresh(forest, sim, player.position);
             if (_collider != null) _collider.enabled = Available;
         }
 
@@ -94,19 +94,6 @@ namespace Ravenholm.Presentation
                 Available = true;
                 return;
             }
-            // The clearing is cut: the next choice is up the area or further left.
-            if (s.Status == SiteStatus.AwaitDecision)
-            {
-                foreach (var t in s.Trees)
-                    if (Vector2.Distance(me, forest.WorkSpot(t.Index)) < Reach * 2f)
-                    {
-                        _verb = "Choose";
-                        transform.position = me + new Vector2(0f, 0.4f);
-                        EditorSetup("next trees", "This clearing is cut. Continue up this area, or push deeper left.", "");
-                        Available = true;
-                        return;
-                    }
-            }
         }
 
         public override void OnHold(float deltaSeconds)
@@ -136,8 +123,7 @@ namespace Ravenholm.Presentation
         {
             var root = GameRoot.Instance;
             if (root == null || !Available) return;
-            if (Holdable) { OnHold(0.25f); return; }   // a tap is one swing
-            root.Hud.ShowSite(SiteId);
+            if (Holdable) OnHold(0.25f);   // a tap is one swing
         }
     }
 }

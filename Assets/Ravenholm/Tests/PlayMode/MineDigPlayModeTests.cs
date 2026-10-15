@@ -364,45 +364,6 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
-        public IEnumerator ARoutineCarriesOnTheLastTunnel()
-        {
-            yield return Boot();
-            var slab = MineSlabView.Current;
-            Assert.IsFalse(S.Sites.StartRoutine("site.mine"), "nothing dug yet: no tunnel to carry on");
-            S.Sites.SpeedMultiplier = 20f;
-            yield return DigDown(slab, 3);
-            Stick(Into);
-            HoldDig(true);
-            yield return Until(() => slab.X > 1.5f, 30f, "starts a cut back into the plot");
-            HoldDig(false);
-            Stick(null);
-            S.Sites.SpeedMultiplier = 1f;
-            var startX = Mathf.RoundToInt(slab.X);
-
-            Assert.IsTrue(S.Sites.StartRoutine("site.mine"));
-            yield return null;
-            yield return null;
-            Assert.IsTrue(Motor.HiddenForRoutine, "the supplier is out on the routine");
-            Assert.NotNull(WorkerView.PlayerAvatar, "drawn by the routine's figure");
-            var dug = Mine.Record.Dug.Count;
-            S.Simulation.Advance(600_000, 600_000);
-            Assert.Greater(Mine.Record.Dug.Count, dug, "the routine digs on along the tunnel");
-            var f = Mine.Record.RoutineFace;
-            Assert.AreEqual(3, f.Feet, "on the same level");
-            Assert.Greater(f.X, startX, "further in");
-
-            // Moving takes over: the routine ends and the supplier is back beside the Mine's entry.
-            Stick(Vector2.right);
-            yield return Until(() => S.Sites.RoutineSiteId == null, 5f, "moving ends the routine");
-            Stick(null);
-            yield return null;
-            Assert.IsFalse(Motor.HiddenForRoutine);
-            Assert.IsFalse(slab.PlayerInside);
-        }
-
-        // ------------------------------------------------------------------ the frontier Forest
-
-        [UnityTest]
         public IEnumerator TheForestIsAGridOfTreesAboveTheMine()
         {
             yield return Boot();

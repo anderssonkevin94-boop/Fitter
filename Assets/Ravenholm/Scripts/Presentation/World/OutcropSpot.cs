@@ -26,7 +26,7 @@ namespace Ravenholm.Presentation
             var view = SurfaceOutcropView.Current;
             var player = SandboxSceneController.Current != null ? SandboxSceneController.Current.Player : null;
             var motor = player != null ? player.GetComponent<PlayerMotor>() : null;
-            Available = view != null && motor != null && !motor.HiddenForRoutine && !motor.Underground && view.Nearest(player.position, out _target);
+            Available = view != null && motor != null && !motor.Underground && view.Nearest(player.position, out _target);
             if (_collider != null) _collider.enabled = Available;
             if (!Available) return;
             transform.position = view.BlockTop(_target.x, _target.y, 0);

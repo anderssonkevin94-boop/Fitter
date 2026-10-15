@@ -29,7 +29,7 @@ namespace Ravenholm.Presentation
             var root = GameRoot.Instance;
             var player = SandboxSceneController.Current != null ? SandboxSceneController.Current.Player : null;
             var motor = player != null ? player.GetComponent<PlayerMotor>() : null;
-            Available = forest != null && root != null && motor != null && !motor.HiddenForRoutine && !motor.Underground &&
+            Available = forest != null && root != null && motor != null && !motor.Underground &&
                         forest.RockTarget(player.position, motor.LastMove, root.InputRouter.MoveVector.sqrMagnitude < 0.04f, out _block);
             if (_collider != null) _collider.enabled = Available;
             if (!Available) return;

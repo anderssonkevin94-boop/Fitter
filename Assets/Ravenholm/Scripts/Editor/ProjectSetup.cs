@@ -512,6 +512,7 @@ namespace Ravenholm.EditorTools
             var mill = Station("lumbermill", "Lumbermill", "");
             var apothecary = Station("apothecary", "Apothecary", "container.apothecary_pad");
             var forge = Station("forge", "Forge", "container.forge_pad");
+            if (!forge.SellsSupplierTools) { forge.EditorSetSellsSupplierTools(true); EditorUtility.SetDirty(forge); }   // tools moved from the site panels (2026-10-15)
             var bench = Station("workbench", "Workbench", "container.workbench_pad");
 
             ProcessDefinition Process(string key, string name, StationDefinition f, int level, List<ResourceCost> ins, string output, float seconds)

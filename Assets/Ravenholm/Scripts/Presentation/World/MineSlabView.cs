@@ -821,7 +821,7 @@ namespace Ravenholm.Presentation
         {
             var sim = Sim;
             _target = null;
-            if (_motor != null && _motor.HiddenForRoutine || !Standing(out var x, out var u, out var feet)) { _highlight.enabled = false; return; }
+            if (!Standing(out var x, out var u, out var feet)) { _highlight.enabled = false; return; }
             var here = new Vector3Int(x, u, feet);
             if (here != _aimFrom) { _aimFrom = here; _selected = null; }
             if (_selected.HasValue && (!sim.CanDig(_selected.Value.X, _selected.Value.U, _selected.Value.Row) || !InReach(_selected.Value))) _selected = null;
@@ -892,7 +892,7 @@ namespace Ravenholm.Presentation
         /// <summary>A tap picks the reachable block nearest the finger; tapping again steps through exact overlaps, then clears.</summary>
         public void OnTapped(Vector2 screen)
         {
-            if (_camera == null || _motor == null || _motor.HiddenForRoutine) return;
+            if (_camera == null || _motor == null) return;
             var world = (Vector2)_camera.ScreenToWorldPoint(new Vector3(screen.x, screen.y, 10f));
             if (BuildMode) { BuildAt(world); return; }
             var near = NearestReachable(world);
@@ -940,11 +940,10 @@ namespace Ravenholm.Presentation
         {
             var sim = Sim;
             Standing(out var x, out var u, out var feet);
-            var key = $"{x}|{u}|{feet}|{sim.Record.Dug.Count}|{_inside}|{_motor != null && _motor.HiddenForRoutine}|{BuildMode}|{sim.Record.Scaffolds.Count}";
+            var key = $"{x}|{u}|{feet}|{sim.Record.Dug.Count}|{_inside}|{BuildMode}|{sim.Record.Scaffolds.Count}";
             if (key == _outlineKey) return;
             _outlineKey = key;
             foreach (var k in new List<Vector3Int>(_outlines.Keys)) Remove(_outlines, k);
-            if (_motor != null && _motor.HiddenForRoutine) return;
             if (BuildMode)
             {
                 // Building: open spaces in reach glow green, scaffolds (which can be taken down) amber.
@@ -1094,7 +1093,7 @@ namespace Ravenholm.Presentation
         public string LastTapNote { get; private set; } = "";
 
         /// <summary>In the Mine, or at its entry, and not on a routine.</summary>
-        public bool CanTap => _motor != null && !_motor.HiddenForRoutine && (_inside || Standing(out var x, out var u, out _) && InSlabColumn(x, u));
+        public bool CanTap => _motor != null && (_inside || Standing(out var x, out var u, out _) && InSlabColumn(x, u));
 
         public float TapCooldownLeft => Mathf.Max(0f, _lastTap + TapCooldown - Time.time);
 

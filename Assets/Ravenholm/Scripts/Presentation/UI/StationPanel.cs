@@ -150,6 +150,7 @@ namespace Ravenholm.Presentation
             var sb = new StringBuilder(_station.StationId);
             sb.Append('|').Append(Prod.Level(_station.StationId));
             sb.Append('|').Append(_root.Services.Economy.Purchased.Count).Append('|').Append(Feel.DeveloperMode);
+            sb.Append('|').Append(_root.Services.Sites.PlayerToolId);
             foreach (var bp in Prod.State.Blueprints) sb.Append('|').Append(bp);
             return sb.ToString();
         }
@@ -203,6 +204,7 @@ namespace Ravenholm.Presentation
             }
 
             if (stationDef != null) UpgradeSection(stationDef);
+            if (stationDef != null && stationDef.SellsSupplierTools) ToolsSection();
 
             if (stationDef != null && Feel.DeveloperMode)
                 Button(() => $"DEBUG station level: {Prod.Level(stationId)} of {stationDef.MaxLevel} · tap to change",
@@ -228,6 +230,56 @@ namespace Ravenholm.Presentation
             Button(() => UpgradeButtonText(_root, u2), () => BuyUpgrade(u2), () => _root.Services.Economy.UpgradeBlockedReason(u2) == null);
         }
 
+        /// <summary>
+        /// The supplier's own tool (solo play: you are the only one gathering). Each site's equipment upgrade unlocks
+        /// the next tool tier; only the next step of each is offered.
+        /// </summary>
+        private void ToolsSection()
+        {
+            var eco = _root.Services.Economy;
+            var sites = _root.Services.Sites;
+            Header("Your tools");
+            Text(() => $"Your tool: {ToolName(sites.PlayerToolId)}. It sets how fast you mine and chop. " +
+                       "Upgrading a site's equipment unlocks the next tool.", _theme.smallSize);
+
+            foreach (var u in Cat.Upgrades)
+            {
+                if (u == null || u.Kind != UpgradeKind.SiteEquipment || u.Site == null || eco.Purchased.Contains(u.Id)) continue;
+                if (u.Level != eco.SiteEquipmentLevel(u.Site.Id) + 1) continue;
+                var up = u;
+                Text(() => UpgradeCard(_root, up), _theme.smallSize);
+                Button(() => UpgradeButtonText(_root, up), () => BuyUpgrade(up), () => eco.UpgradeBlockedReason(up) == null);
+            }
+
+            var curTier = Cat.TryGet<WorkerEquipmentDefinition>(sites.PlayerToolId, out var ce) ? ce.Tier : 1;
+            foreach (var e in Cat.Equipment)
+            {
+                if (e == null || e.Slot != EquipmentSlot.Tool || e.Tier != curTier + 1) continue;   // only the next step
+                var eq = e;
+                Button(() => ToolButtonText(eq), () => BuyTool(eq), () => eco.PlayerEquipmentBlockedReason(eq) == null);
+            }
+        }
+
+        private string ToolName(string id) => Cat.TryGet<WorkerEquipmentDefinition>(id, out var e) ? e.DisplayName : "bare hands";
+
+        private string ToolButtonText(WorkerEquipmentDefinition e)
+        {
+            var reason = _root.Services.Economy.PlayerEquipmentBlockedReason(e);
+            var cost = new StringBuilder().Append(e.GoldCost).Append(" gold");
+            foreach (var c in e.MaterialCost) cost.Append(", ").Append(c.resource.DisplayName).Append(' ').Append(c.quantity);
+            return reason == null ? $"Buy {e.DisplayName} ({cost})" : $"{e.DisplayName}: {reason}";
+        }
+
+        public bool BuyTool(WorkerEquipmentDefinition e)
+        {
+            var ok = _root.Services.Economy.BuyPlayerEquipment(e, out var failure);
+            _lastMessage = ok ? $"{e.DisplayName} in hand." : failure;
+            if (ok) FeedbackAudio.Play(FeedbackAudio.Cue.Craft);
+            _structureKey = "";
+            Refresh();
+            return ok;
+        }
+
         public bool BuyUpgrade(UpgradeDefinition u)
         {
             var ok = _root.Services.Economy.BuyUpgrade(u, out var failure);
@@ -238,7 +290,7 @@ namespace Ravenholm.Presentation
             return ok;
         }
 
-        /// <summary>Exact effect, cost against what you have, and prerequisite (shared with the site panel).</summary>
+        /// <summary>Exact effect, cost against what you have, and prerequisite.</summary>
         public static string UpgradeCard(GameRoot root, UpgradeDefinition u)
         {
             var sb = new StringBuilder();

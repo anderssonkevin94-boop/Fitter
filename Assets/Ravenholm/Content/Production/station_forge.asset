@@ -20,3 +20,4 @@ MonoBehaviour:
   startingLevel: 1
   maxLevel: 3
   batchTimePerLevel: 0.85
+  sellsSupplierTools: 1

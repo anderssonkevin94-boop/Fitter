@@ -83,7 +83,6 @@ namespace Ravenholm.Tests
             {
                 ("Job Board", hud.ShowJobBoard, () => hud.JobBoard.Close()),
                 ("Smelter", () => SandboxSceneController.Current.Inspect(GameObject.Find("Smelter").GetComponent<StationInspectable>()), () => hud.StationPanel.Close()),
-                ("Mine", () => hud.ShowSite("site.mine"), () => hud.SitePanel.Close()),
                 ("Store", hud.ShowStore, () => hud.StorePanel.Close()),
                 ("Trader", hud.ShowTrader, () => hud.TraderPanel.Close()),
                 ("Settings", hud.ShowSettings, () => hud.SettingsPanel.Close()),

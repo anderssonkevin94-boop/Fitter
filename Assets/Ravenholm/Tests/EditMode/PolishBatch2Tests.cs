@@ -59,19 +59,6 @@ namespace Ravenholm.Tests
         }
 
         [Test]
-        public void BottleneckAccountingSeesStalledWorkers()
-        {
-            var g = Boot();
-            var mine = g.Sites.Get("site.mine");
-            DigTestKit.StartMiningRoutine(g);   // solo play: the supplier on a mining routine
-            mine.ResetMeasurement();
-            g.Simulation.Advance(8 * 3_600_000L, 8 * 3_600_000L);   // nobody hauls: staging fills or the section waits for a choice
-            Assert.Greater(mine.ObservedWorkerMs, 0);
-            Assert.Greater(mine.StagingFullWorkerMs + mine.WaitingForChoiceWorkerMs, mine.ObservedWorkerMs / 2, mine.BottleneckText);
-            StringAssert.StartsWith("blocked", mine.BottleneckText);
-        }
-
-        [Test]
         public void EveryRiskWordHasItsOwnMarker()
         {
             var markers = Enum.GetValues(typeof(RiskBand)).Cast<RiskBand>().Select(LoadoutPanel.BandMarker).ToList();

@@ -65,10 +65,6 @@ namespace Ravenholm.Tests
             yield return new WaitForSeconds(0.4f);
             Assert.IsFalse(AnyVisibleText(hud.transform, "DEBUG station level"));
             hud.StationPanel.Close();
-            hud.ShowSite("site.mine");
-            yield return new WaitForSeconds(0.4f);
-            Assert.IsFalse(AnyVisibleText(hud.transform, "DEBUG tool"));
-            hud.SitePanel.Close();
             hud.ShowSettings();
             yield return new WaitForSeconds(0.3f);
             Assert.IsFalse(AnyVisibleText(hud.transform, "Developer tools"));

@@ -34,12 +34,5 @@ namespace Ravenholm.Tests
                 Assert.IsTrue(Dig(g, 0, u, row, new DigFace { X = 0, U = u, Feet = row, DX = 0, DU = 1 }), $"dig down to row {row}");
         }
 
-        /// <summary>Digs the first block of a tunnel along the cliff and leaves the supplier on a routine carrying it on.</summary>
-        public static void StartMiningRoutine(GameServices g)
-        {
-            Assert.IsTrue(Dig(g, 0, 2, 2, Along), "dig the first block of the tunnel");
-            g.Logistics.System.DebugUnloadCarry();
-            Assert.IsTrue(g.Sites.StartRoutine("site.mine"), "the routine carries on the tunnel just dug");
-        }
     }
 }

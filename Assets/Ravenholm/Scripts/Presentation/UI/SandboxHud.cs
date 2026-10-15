@@ -46,7 +46,6 @@ namespace Ravenholm.Presentation
         private TextMeshProUGUI _infoTitle;
         private TextMeshProUGUI _infoBody;
         private GameObject _debugLayer;
-        private SitePanel _sitePanel;
         private StationPanel _stationPanel;
         private StorePanel _storePanel;
         private TraderPanel _traderPanel;
@@ -70,7 +69,6 @@ namespace Ravenholm.Presentation
 
         public bool IsInfoOpen => _infoLayer != null && _infoLayer.activeSelf;
         public bool IsDebugOpen => _debugLayer != null && _debugLayer.activeSelf;
-        public SitePanel SitePanel => _sitePanel;
         public StationPanel StationPanel => _stationPanel;
         public StorePanel StorePanel => _storePanel;
         public TraderPanel TraderPanel => _traderPanel;
@@ -138,12 +136,6 @@ namespace Ravenholm.Presentation
             _storePanel.Show();
         }
 
-        /// <summary>Opens the Mine or Forest panel (strata or trail, decisions).</summary>
-        public void ShowSite(string siteId)
-        {
-            HideInfo();
-            _sitePanel.Show(siteId);
-        }
         public Canvas Canvas => _canvas;
         public string PersistenceText => _persistText != null ? _persistText.text : "";
 
@@ -198,7 +190,6 @@ namespace Ravenholm.Presentation
             _tips = TipCard.Create(safe, _ui, root);   // below every modal layer: tips never cover a panel
             BuildJoystick();
             BuildInfoLayer(safe);
-            _sitePanel = SitePanel.Create(safe, _ui, root);
             _stationPanel = StationPanel.Create(safe, _ui, root);
             _storePanel = StorePanel.Create(safe, _ui, root);
             _jobBoard = JobBoardPanel.Create(safe, _ui, root);
@@ -796,7 +787,6 @@ namespace Ravenholm.Presentation
         {
             if (IsDebugOpen) return;
             HideInfo();
-            _sitePanel.Close();
             _stationPanel.Close();
             _storePanel.Close();
             _traderPanel.Close();

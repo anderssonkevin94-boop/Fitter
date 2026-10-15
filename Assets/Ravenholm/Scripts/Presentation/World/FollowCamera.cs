@@ -41,8 +41,7 @@ namespace Ravenholm.Presentation
             _viewWidthIndex = Mathf.Clamp(_viewWidthIndex, 0, s.viewWidthOptions.Length - 1);
             _camera.orthographicSize = OrthoSizeForWidth(s.viewWidthOptions[_viewWidthIndex], _camera.aspect);
 
-            // On a routine the supplier's figure is their routine avatar.
-            var followed = WorkerView.PlayerAvatar != null ? WorkerView.PlayerAvatar.transform : target;
+            var followed = target;
             var t = (Vector2)followed.position + new Vector2(0f, s.cameraLookAheadY);
             // The camera simply follows the player, into the Mine too (GDD 6); "Look down the shaft" frames the working
             // level until the player moves again. The view may reach below the town as deep as anyone can stand.

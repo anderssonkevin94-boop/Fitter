@@ -125,55 +125,8 @@ namespace Ravenholm.Services
         {
             if (toolId != null) PlayerToolId = toolId;
             if (packId != null) PlayerPackId = packId;
-            foreach (var sim in _sims) sim.Equip(SiteSimulator.PlayerId, toolId, packId);   // a routine in progress gets it too
             _scheduler.SaveNow("player gear");
         }
-
-        /// <summary>The site the supplier is working on a routine, or null.</summary>
-        public string RoutineSiteId => _sims.Find(s => s.Record.Workers.Exists(w => w.Id == SiteSimulator.PlayerId))?.Config.SiteId;
-
-        public WorkerRecord RoutineWorker
-        {
-            get
-            {
-                foreach (var s in _sims)
-                {
-                    var w = s.Record.Workers.Find(x => x.Id == SiteSimulator.PlayerId);
-                    if (w != null) return w;
-                }
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Puts the supplier on a routine while away (one job: mine a face, or cut the forest). The simulation does that
-        /// work at the ordinary rate, online and offline, until the supplier takes control again.
-        /// </summary>
-        public bool StartRoutine(string siteId, int face = 0)
-        {
-            var sim = Get(siteId);
-            if (sim == null) return false;
-            if (sim.DigMode && !sim.AimRoutineAtLastDig()) return false;   // nothing dug yet: no tunnel to carry on
-            if (sim.GroveMode && !sim.AimRoutineAtLastChop()) return false;   // nothing cut yet
-            EndRoutine();
-            sim.AddWorker(new WorkerRecord { Id = SiteSimulator.PlayerId, Name = "You", ToolId = PlayerToolId, PackId = PlayerPackId, Face = face });
-            _scheduler.SaveNow("routine started");
-            RoutineChanged?.Invoke();
-            return true;
-        }
-
-        /// <summary>Ends the routine: whatever the supplier carries for it comes back to the carry (else staging).</summary>
-        public bool EndRoutine()
-        {
-            var ended = false;
-            foreach (var sim in _sims) ended |= sim.RemoveWorker(SiteSimulator.PlayerId);
-            if (!ended) return false;
-            _scheduler.SaveNow("routine ended");
-            RoutineChanged?.Invoke();
-            return true;
-        }
-
-        public event Action RoutineChanged;
 
         private double _mineMs, _chopMs;
 
@@ -522,9 +475,9 @@ namespace Ravenholm.Services
                     if (def.SiteType == SiteType.Forest && saved.Layout < ForestLayout) SiteSimulator.ConvertToGrove(record, def.TreesPerClearing);
                     var loaded = Create(def, record);
                     loaded.EnsureElevatorShaft();   // older saves get the elevator shaft too
-                    // Solo play: hired crews from older saves go home; what they carried stays on the site to collect.
-                    foreach (var w in record.Workers.ToArray())
-                        if (w.Id != SiteSimulator.PlayerId) loaded.RemoveWorker(w.Id, keepOnSite: true);
+                    // Solo play, no AFK gathering (2026-10-15): hired crews and the supplier's old routine from older saves
+                    // end; what they carried stays on the site to collect.
+                    foreach (var w in record.Workers.ToArray()) loaded.RemoveWorker(w.Id, keepOnSite: true);
                     _sims.Add(loaded);
                     continue;
                 }

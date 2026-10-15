@@ -11,7 +11,7 @@ using Object = UnityEngine.Object;
 
 namespace Ravenholm.Tests
 {
-    /// <summary>Phase 2 acceptance in the real scene: workers, staging, markers, site panels and decisions.</summary>
+    /// <summary>Phase 2 acceptance in the real scene: the supplier gathers by hand; nothing gathers while away.</summary>
     public sealed class Phase2PlayModeTests
     {
         private string _dir;
@@ -56,52 +56,31 @@ namespace Ravenholm.Tests
         private static int Staging(string id) => GameRoot.Instance.Services.Logistics.System.State.Containers[id].UnitCount;
 
         [UnityTest]
-        public IEnumerator ARoutineCutsNearTheLastTreeAndHaulsToStaging()
+        public IEnumerator NothingIsGatheredWhileYouAreAway()
         {
             yield return Boot();
             var services = GameRoot.Instance.Services;
-            var forest = services.Sites.Get("site.forest");
-            var player = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
-            player.Teleport(new Vector2(1.5f, -5.5f));   // stand away from the piles so we do not pick them up
-            services.Sites.SpeedMultiplier = 20f;
-
-            // Solo play: the supplier leaves themself on a woodcutting routine; it carries on beside the last tree cut.
-            Assert.IsFalse(services.Sites.StartRoutine("site.forest"), "nothing cut yet");
-            for (var i = 0; i < 4000 && !forest.IsFelled(1, 0); i++) services.Sites.PlayerChopCell("site.forest", 1, 0, 0.1f);
-            services.Logistics.System.DebugUnloadCarry();
-            Assert.IsTrue(services.Sites.StartRoutine("site.forest"));
-            yield return null;
-            var cutter = WorkerView.PlayerAvatar;
-            Assert.NotNull(cutter, "the supplier's routine figure appears");
-            Assert.IsTrue(player.HiddenForRoutine, "and the supplier is out working it");
-            var start = cutter.transform.position;
-            var furthest = 0f;
-            yield return WaitUntil(() =>
+            // Solo play, no AFK gathering (2026-10-15): no routine figures, no site signposts, no empty staging piles.
+            Assert.IsNull(GameObject.Find("SiteMarker"), "no site markers");
+            var mine = GameObject.Find("Mine");
+            Assert.IsTrue(mine == null || mine.GetComponentsInChildren<Renderer>().Length == 0, "no Mine signpost");
+            Assert.IsNull(GameObject.Find("Forest"), "no Forest signpost");
+            foreach (var id in new[] { "container.mine_staging", "container.forest_staging" })
             {
-                furthest = Mathf.Max(furthest, Vector3.Distance(start, cutter.transform.position));
-                return Staging("container.forest_staging") > 0;
-            }, 10f, "first deposits");
-            Assert.Greater(furthest, 0.5f, "the routine visibly walks to the trees and back");
-            Assert.AreEqual(SiteStatus.Working, forest.Record.Status, "nothing waits for a choice: cutting is the choice");
-            CollectionAssert.IsEmpty(services.Logistics.System.Audit());
-            yield return Capture.Take("phase2_forest_working");
+                Assert.IsTrue(WorldContainerView.TryGet(id, out var pile));
+                Assert.AreEqual(0, Staging(id));
+                foreach (var r in pile.GetComponentsInChildren<Renderer>())
+                    Assert.IsFalse(r.enabled && r.gameObject.activeInHierarchy && !(r.GetComponent<TMPro.TextMeshPro>() is TMPro.TextMeshPro t && string.IsNullOrEmpty(t.text)),
+                        $"{id}: nothing drawn while empty ({r.name})");
+                Assert.IsNull(pile.GetComponent<Inspectable>(), $"{id}: nothing to tap");
+            }
+            foreach (var s in services.Sites.Sites) Assert.AreEqual(0, s.Record.Workers.Count, $"{s.Config.SiteId}: nobody works it");
 
-            GameRoot.Instance.Hud.ShowSite("site.forest");
+            var carry = services.Logistics.System.CarryCount;
+            services.Simulation.Advance(600_000, 600_000);   // ten minutes away
             yield return null;
-            Assert.IsTrue(GameRoot.Instance.Hud.SitePanel.IsOpen);
-            Assert.IsTrue(TouchInputRouter.IsBlocked, "site panel is modal for movement");
-            StringAssert.Contains("Cut:", GameRoot.Instance.Hud.SitePanel.StatusText);
-            yield return Capture.Take("phase2_forest_panel");
-            GameRoot.Instance.Hud.SitePanel.Close();
-            Assert.IsFalse(TouchInputRouter.IsBlocked);
-
-            // Moving takes over again.
-            GameRoot.Instance.InputRouter.ScriptedMove = Vector2.right;
-            yield return null;
-            yield return null;
-            GameRoot.Instance.InputRouter.ScriptedMove = null;
-            Assert.IsNull(services.Sites.RoutineSiteId, "moving ends the routine");
-            Assert.IsFalse(player.HiddenForRoutine);
+            Assert.AreEqual(0, Staging("container.mine_staging") + Staging("container.forest_staging"), "nothing arrived while away");
+            Assert.AreEqual(carry, services.Logistics.System.CarryCount);
             CollectionAssert.IsEmpty(services.Logistics.System.Audit());
         }
 

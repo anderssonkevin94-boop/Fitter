@@ -106,7 +106,10 @@ namespace Ravenholm.Tests
         public void CatchUpCapsResourcesAtEightHoursAndMakesNoDecisions()
         {
             var g = Boot(T0);
-            DigTestKit.StartMiningRoutine(g);   // solo play: the supplier leaves themself mining
+            Assert.IsTrue(DigTestKit.Dig(g, 0, 2, 2, DigTestKit.Along), "dig a block by hand before leaving");
+            g.Logistics.System.DebugUnloadCarry();
+            var dug = g.Sites.Get("site.mine").Record.Dug.Count;
+            var stagedBefore = g.Sites.Sites.ToDictionary(x => x.Config.SiteId, x => g.Logistics.System.ContainerUnitCount(x.Config.StagingContainerId));
             var oreBefore = g.Logistics.System.SharedAvailable("resource.iron_ore");
             var sitesMs = g.Sites.Get("site.mine").Record.SimMs;
             var jobsMs = g.Jobs.State.SimMs;
@@ -125,11 +128,11 @@ namespace Ravenholm.Tests
             {
                 Assert.AreEqual(1, sim.Record.Depth, "catch-up never digs deeper or pushes on");
                 var staging = back.Logistics.System.ContainerUnitCount(sim.Config.StagingContainerId);
-                Assert.LessOrEqual(staging, sim.Config.StagingCapacity);
+                Assert.AreEqual(stagedBefore[sim.Config.SiteId], staging, "no AFK gathering: nothing lands in staging while away");
             }
             Assert.AreEqual(oreBefore, back.Logistics.System.SharedAvailable("resource.iron_ore"), "nothing is hauled to the facilities for you");
+            Assert.AreEqual(dug, back.Sites.Get("site.mine").Record.Dug.Count, "nothing is dug for you");
             Assert.AreEqual(0, back.Logistics.System.CarryCount);
-            Assert.IsTrue(r.SiteBlockers.Count > 0, "after 8 hours the sites are waiting on the player");
         }
 
         [Test]
@@ -382,21 +385,18 @@ namespace Ravenholm.Tests
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
             g.Logistics.System.DebugUnloadCarry();
 
-            // A routine: the supplier keeps cutting the trees nearest the last one while away; taking over again brings back
-            // what they carried.
-            Assert.IsTrue(g.Sites.StartRoutine("site.forest"));
-            Assert.AreEqual("site.forest", g.Sites.RoutineSiteId);
+            // An older save with the supplier on a woodcutting routine: no AFK gathering (2026-10-15), so loading ends it and
+            // what that routine carried waits on the site.
+            Assert.IsTrue(forest.AimRoutineAtLastChop());
+            forest.AddWorker(new WorkerRecord { Id = SiteSimulator.PlayerId, Name = "You", ToolId = g.Sites.PlayerToolId, PackId = g.Sites.PlayerPackId });
             g.Simulation.Advance(10 * Minute, 10 * Minute);
-            var routine = g.Sites.RoutineWorker;
-            Assert.IsNotNull(routine);
-            Assert.Greater(forest.Record.DepositedTotal + routine.Pack.Count, forest.Config.UnitsPerTree, "the routine keeps cutting while away (more than a tree's logs)");
-            Assert.Greater(forest.Record.DepositedTotal + routine.Pack.Count, 0, "and hauls to staging");
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
             g.Scheduler.SaveNow("test");
             var reloaded = Boot(T0);
-            Assert.AreEqual("site.forest", reloaded.Sites.RoutineSiteId, "a routine survives a restart");
-            Assert.IsTrue(reloaded.Sites.EndRoutine());
-            Assert.IsNull(reloaded.Sites.RoutineSiteId);
+            foreach (var sim in reloaded.Sites.Sites) Assert.AreEqual(0, sim.Record.Workers.Count, $"{sim.Config.SiteId}: the old routine ended");
+            var deposited = reloaded.Sites.Get("site.forest").Record.DepositedTotal;
+            reloaded.Simulation.Advance(10 * Minute, 10 * Minute);
+            Assert.AreEqual(deposited, reloaded.Sites.Get("site.forest").Record.DepositedTotal, "nobody cuts while away");
             CollectionAssert.IsEmpty(reloaded.Logistics.System.Audit());
         }
 

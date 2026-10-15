@@ -18,6 +18,8 @@ namespace Ravenholm.Content
         [Min(1)] [SerializeField] private int maxLevel = 2;
         [Tooltip("Batch time multiplier per level above 1 (GDD 16: ×0.85 at level 2). Applies to the next batch.")]
         [Range(0.3f, 1f)] [SerializeField] private float batchTimePerLevel = 0.85f;
+        [Tooltip("This station's panel offers the supplier's own tools and the site equipment that unlocks them (the Forge).")]
+        [SerializeField] private bool sellsSupplierTools;
 
         public override string IdKind => "station";
         public string OutputPadContainerId => outputPadContainerId;
@@ -25,6 +27,7 @@ namespace Ravenholm.Content
         public int StartingLevel => startingLevel;
         public int MaxLevel => maxLevel;
         public float BatchTimePerLevel => batchTimePerLevel;
+        public bool SellsSupplierTools => sellsSupplierTools;
 
         public override void Validate(List<string> errors)
         {
@@ -34,6 +37,7 @@ namespace Ravenholm.Content
 
 #if UNITY_EDITOR
         public void EditorSetMaxLevel(int max) => maxLevel = max;
+        public void EditorSetSellsSupplierTools(bool sells) => sellsSupplierTools = sells;
 
         public void EditorSetupStation(string pad, int padCapacity, int start, int max)
         {

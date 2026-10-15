@@ -131,16 +131,16 @@ namespace Ravenholm.Tests
             hud.StationPanel.Close();
 
             s.Jobs.State.Progress["quest.roadside_patrol"] = new QuestProgress { Attempts = 2, Successes = 2 };   // test fixture
-            hud.ShowSite("site.mine");
+            // Solo play: the Forge sells the supplier's tools; site equipment unlocks the next one.
+            SandboxSceneController.Current.Inspect(GameObject.Find("Forge").GetComponent<StationInspectable>());
             yield return new WaitForSeconds(0.4f);
-            Assert.IsTrue(hud.SitePanel.BuyUpgrade(s.Catalogue.Get<UpgradeDefinition>("upgrade.mine_equipment_2")), hud.SitePanel.LastMessage);
-            // Solo play: site equipment unlocks the supplier's own next tool.
-            Assert.IsTrue(hud.SitePanel.BuyEquipment(s.Catalogue.Get<WorkerEquipmentDefinition>("equipment.tool_iron")), hud.SitePanel.LastMessage);
+            Assert.IsTrue(hud.StationPanel.BuyUpgrade(s.Catalogue.Get<UpgradeDefinition>("upgrade.mine_equipment_2")), hud.StationPanel.LastMessage);
+            Assert.IsTrue(hud.StationPanel.BuyTool(s.Catalogue.Get<WorkerEquipmentDefinition>("equipment.tool_iron")), hud.StationPanel.LastMessage);
             Assert.AreEqual("equipment.tool_iron", s.Sites.PlayerToolId);
             Assert.Greater(s.Sites.PlayerDamagePerSecond, 10);
             yield return new WaitForSeconds(0.4f);
-            yield return Capture.Take("phase6_site_gear");
-            hud.SitePanel.Close();
+            yield return Capture.Take("phase6_forge_tools");
+            hud.StationPanel.Close();
             Assert.AreEqual(0, s.Sites.Get("site.mine").Record.Workers.Count, "no hired crew");
             CollectionAssert.IsEmpty(s.Logistics.System.Audit());
         }

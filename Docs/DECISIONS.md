@@ -985,3 +985,13 @@ Kevin preferred the 48×48 prototype (commit 2e44f70) to what the real forest be
   - The wooden forest arch is removed. A "Forest" signpost (like the Mine's) stands in its place, carrying the Forest's panel and marker.
   - The Mine's lamp no longer shows ore in the rock near the supplier (`MineSlabView.ShowOreInLamp` = false). The "Tap" prospecting ring still works.
   - The block the main button will dig is highlighted (`BlockHighlight`, `Props/fx_block_highlight`: a warm outline with a faint, gently pulsing tint) in the quarry, on forest rock and on the town outcrops. It sorts with its block, so the supplier in front covers it.
+
+## 2026-10-15: no AFK gathering; routines, signposts and site panels removed
+
+Kevin: the supplier is the only one gathering, by hand; nothing is gathered while away.
+- **Routines removed.** `SitesService.StartRoutine/EndRoutine/RoutineSiteId` are gone, along with the routine figures (`WorkerView`, `WorkerInspectable`) and the motor's hide-and-take-over logic. Loading a save ends any old routine or crew; what they carried stays in the site's staging pile.
+- **Site panels removed.** The Mine and Forest signposts (yellow flags), their markers (`SiteMarkerView`) and the site panel (`SitePanel`, strata/depth diagram, tunnels, routine buttons, gear) are deleted. The "keep digging tunnel" bug (a second figure drawn over the player) went with them.
+- **Staging piles hidden.** `container.mine_staging` and `container.forest_staging` still exist logically (old saves, leftovers). They draw nothing while empty, show no capacity badge and can't be tapped.
+- **Tools moved to the Forge** (Kevin's choice). `StationDefinition.sellsSupplierTools` (on for the Forge) adds a "Your tools" section: each site's next equipment upgrade plus the next tool tier. Packs are no longer offered.
+- **Domain left in place.** Worker simulation in `SiteSimulator` is unused, but kept so old saves still load.
+- **Tests.** The routine tests were replaced by checks that nothing is gathered while away and that an old routine ends on load. Phase 6 now buys the iron tool at the Forge. EditMode 235, PlayMode 46, all passing.
