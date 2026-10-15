@@ -72,7 +72,7 @@ namespace Ravenholm.Content
             FurnitureDisplay.Armor => item.Category == ItemCategory.Armor,
             FurnitureDisplay.Potion => item.Category == ItemCategory.Potion,
             FurnitureDisplay.Small => item.SmallDisplay,
-            FurnitureDisplay.Weapon => item.Category == ItemCategory.Weapon && !item.SmallDisplay,
+            FurnitureDisplay.Weapon => item.Category == ItemCategory.Weapon && !item.SmallDisplay && item.WeaponTag != WeaponTag.Bow && item.WeaponTag != WeaponTag.Staff,
             FurnitureDisplay.Long => item.WeaponTag == WeaponTag.Bow || item.WeaponTag == WeaponTag.Staff,
             FurnitureDisplay.Any => true,
             _ => false,

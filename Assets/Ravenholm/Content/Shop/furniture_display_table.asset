@@ -37,9 +37,19 @@ MonoBehaviour:
         width: 51
         height: 24
     facingB:
-      sprite: {fileID: 0}
-      ground: {x: 0, y: 0}
-      slots: []
+      sprite: {fileID: 21300000, guid: e7a799382807a4b75b718727ea742d4f, type: 3}
+      ground: {x: 256, y: 380}
+      slots:
+      - serializedVersion: 2
+        x: 176
+        y: 277
+        width: 55
+        height: 32
+      - serializedVersion: 2
+        x: 282
+        y: 277
+        width: 55
+        height: 32
     gold: 30
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -65,9 +75,24 @@ MonoBehaviour:
         width: 58
         height: 28
     facingB:
-      sprite: {fileID: 0}
-      ground: {x: 0, y: 0}
-      slots: []
+      sprite: {fileID: 21300000, guid: f63460853750a49f7ba7cc0101e1413d, type: 3}
+      ground: {x: 256, y: 380}
+      slots:
+      - serializedVersion: 2
+        x: 151
+        y: 299
+        width: 55
+        height: 32
+      - serializedVersion: 2
+        x: 229
+        y: 260
+        width: 55
+        height: 32
+      - serializedVersion: 2
+        x: 307
+        y: 221
+        width: 55
+        height: 32
     gold: 70
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -100,9 +125,29 @@ MonoBehaviour:
         width: 66
         height: 31
     facingB:
-      sprite: {fileID: 0}
-      ground: {x: 0, y: 0}
-      slots: []
+      sprite: {fileID: 21300000, guid: b7a67336ff7794910ba6d6ff186f0579, type: 3}
+      ground: {x: 256, y: 380}
+      slots:
+      - serializedVersion: 2
+        x: 123
+        y: 299
+        width: 55
+        height: 32
+      - serializedVersion: 2
+        x: 194
+        y: 269
+        width: 55
+        height: 32
+      - serializedVersion: 2
+        x: 264
+        y: 239
+        width: 55
+        height: 32
+      - serializedVersion: 2
+        x: 335
+        y: 209
+        width: 55
+        height: 32
     gold: 140
     materials:
     - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}

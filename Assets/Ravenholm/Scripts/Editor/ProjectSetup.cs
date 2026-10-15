@@ -836,41 +836,33 @@ namespace Ravenholm.EditorTools
             if (!File.Exists(json)) return;
             var pts = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(json));
 
+            // A level's art: the ground or wall anchor from the pivot (pixels from the top-left), and its slot boxes.
             ShopFurnitureDefinition.Art Astra(string file)
             {
                 var a = pts["assets"][file + ".png"];
                 var slots = new List<Rect>();
                 foreach (var sl in a["slots"]) slots.Add(new Rect((float)sl["x"], (float)sl["y"], (float)sl["w"], (float)sl["h"]));
+                var w = (float)a["canvas"]["w"];
+                var h = (float)a["canvas"]["h"];
                 return new ShopFurnitureDefinition.Art
                 {
-                    sprite = LoadSprite("Furniture/" + file), ground = new Vector2((float)a["ground"]["x"], (float)a["ground"]["y"]), slots = slots,
+                    sprite = LoadSprite("Furniture/" + file),
+                    ground = new Vector2((float)a["pivot"]["x"] * w, (1f - (float)a["pivot"]["y"]) * h),
+                    slots = slots,
                 };
             }
+            bool Has(string file) => pts["assets"][file + ".png"] != null;
 
-            // Placeholder weapon rack (the old rack art) with n slots spread across it.
-            ShopFurnitureDefinition.Art Rack(int n)
+            // Astra's step 2 (2026-10-15): floor pieces are "<key>_<n>" (A) and "<key>_<n>_B"; wall pieces "<key>_<n>_left" (or
+            // the plain name) and "<key>_<n>_right". A rotation-invariant piece (the pedestal) uses one drawing for both.
+            ShopFurnitureDefinition.Level L(string key, int n, Vector2Int fp, int gold, List<ResourceCost> mats)
             {
-                var sprite = LoadSprite("Shop/weapon_rack_placeholder");
-                var w = sprite.rect.width;
-                var slots = new List<Rect>();
-                for (var i = 0; i < n; i++)
-                {
-                    var bw = (w - 28f) / n;
-                    slots.Add(new Rect(14f + i * bw + 2f, 28f, bw - 4f, 66f));
-                }
-                return new ShopFurnitureDefinition.Art { sprite = sprite, ground = new Vector2(w * 0.5f, sprite.rect.height * (1f - 0.1682f)), slots = slots };
+                var a = Has($"{key}_{n}_left") ? Astra($"{key}_{n}_left") : Astra($"{key}_{n}");
+                var bName = Has($"{key}_{n}_B") ? $"{key}_{n}_B" : Has($"{key}_{n}_right") ? $"{key}_{n}_right" : null;
+                var invariant = pts["assets"][$"{key}_{n}.png"]?["rotation_invariant"] is Newtonsoft.Json.Linq.JToken t && (bool)t;
+                var b = bName != null ? Astra(bName) : invariant ? a : new ShopFurnitureDefinition.Art();
+                return new ShopFurnitureDefinition.Level { footprint = fp, facingA = a, facingB = b, gold = gold, materials = mats };
             }
-
-            // Facing B (or the right-hand wall) where Astra has drawn it: "<file>_B" / "<file>_right" in points.json.
-            ShopFurnitureDefinition.Art Second(ShopFurnitureDefinition.Art a)
-            {
-                var name = a.sprite != null ? a.sprite.name : "";
-                foreach (var suffix in new[] { "_B", "_right" })
-                    if (pts["assets"][name + suffix + ".png"] != null) return Astra(name + suffix);
-                return new ShopFurnitureDefinition.Art();
-            }
-            ShopFurnitureDefinition.Level L(Vector2Int fp, ShopFurnitureDefinition.Art a, int gold, List<ResourceCost> mats) =>
-                new ShopFurnitureDefinition.Level { footprint = fp, facingA = a, facingB = Second(a), gold = gold, materials = mats };
 
             ShopFurnitureDefinition Furniture(string key, string name, FurnitureDisplay display, bool wall, float ppu, bool forSale,
                 params ShopFurnitureDefinition.Level[] levels)
@@ -895,25 +887,52 @@ namespace Ravenholm.EditorTools
 
             V2 One = new V2(1, 1);
             var desk = Furniture("desk", "Service Desk", FurnitureDisplay.None, false, 256f, false,
-                L(new V2(2, 1), Astra("desk_1"), 0, M()),
-                L(new V2(2, 1), Astra("desk_2"), 60, M(("cedar_lumber", 10), ("iron_ingot", 4))),
-                L(new V2(2, 1), Astra("desk_3"), 150, M(("maple_lumber", 8), ("steel_ingot", 4), ("copper_ingot", 2))));
+                L("desk", 1, new V2(2, 1), 0, M()),
+                L("desk", 2, new V2(2, 1), 60, M(("cedar_lumber", 10), ("iron_ingot", 4))),
+                L("desk", 3, new V2(2, 1), 150, M(("maple_lumber", 8), ("steel_ingot", 4), ("copper_ingot", 2))));
             var table = Furniture("display_table", "Display Table", FurnitureDisplay.Small, false, 256f, true,
-                L(One, Astra("display_table_1"), 30, M(("cedar_lumber", 4))),
-                L(new V2(1, 2), Astra("display_table_2"), 70, M(("cedar_lumber", 8), ("iron_ingot", 2))),
-                L(new V2(1, 3), Astra("display_table_3"), 140, M(("maple_lumber", 8), ("steel_ingot", 3))));
+                L("display_table", 1, One, 30, M(("cedar_lumber", 4))),
+                L("display_table", 2, new V2(1, 2), 70, M(("cedar_lumber", 8), ("iron_ingot", 2))),
+                L("display_table", 3, new V2(1, 3), 140, M(("maple_lumber", 8), ("steel_ingot", 3))));
             var armor = Furniture("armor_stand", "Armour Stand", FurnitureDisplay.Armor, false, 256f, true,
-                L(One, Astra("armor_stand_1"), 30, M(("cedar_lumber", 3), ("iron_ingot", 2))),
-                L(One, Astra("armor_stand_2"), 60, M(("cedar_lumber", 4), ("iron_ingot", 4))),
-                L(One, Astra("armor_stand_3"), 130, M(("maple_lumber", 4), ("steel_ingot", 3))));
+                L("armor_stand", 1, One, 30, M(("cedar_lumber", 3), ("iron_ingot", 2))),
+                L("armor_stand", 2, One, 60, M(("cedar_lumber", 4), ("iron_ingot", 4))),
+                L("armor_stand", 3, One, 130, M(("maple_lumber", 4), ("steel_ingot", 3))));
             var shelf = Furniture("potion_shelf", "Potion Shelves", FurnitureDisplay.Potion, true, 256f, true,
-                L(One, Astra("potion_shelf_1"), 25, M(("cedar_lumber", 4))),
-                L(One, Astra("potion_shelf_2"), 55, M(("cedar_lumber", 6), ("copper_ingot", 2))),
-                L(One, Astra("potion_shelf_3"), 120, M(("maple_lumber", 6), ("copper_ingot", 3))));
-            var rack = Furniture("weapon_rack", "Weapon Rack", FurnitureDisplay.Weapon, true, 160f, true,
-                L(One, Rack(3), 30, M(("cedar_lumber", 4), ("iron_ingot", 2))),
-                L(One, Rack(4), 60, M(("cedar_lumber", 6), ("iron_ingot", 4))),
-                L(One, Rack(5), 130, M(("maple_lumber", 6), ("steel_ingot", 3))));
+                L("potion_shelf", 1, One, 25, M(("cedar_lumber", 4))),
+                L("potion_shelf", 2, One, 55, M(("cedar_lumber", 6), ("copper_ingot", 2))),
+                L("potion_shelf", 3, One, 120, M(("maple_lumber", 6), ("copper_ingot", 3))));
+            var rack = Furniture("weapon_rack", "Weapon Rack", FurnitureDisplay.Weapon, true, 256f, true,
+                L("weapon_rack", 1, One, 30, M(("cedar_lumber", 4), ("iron_ingot", 2))),
+                L("weapon_rack", 2, One, 60, M(("cedar_lumber", 6), ("iron_ingot", 4))),
+                L("weapon_rack", 3, One, 130, M(("maple_lumber", 6), ("steel_ingot", 3))));
+            // New in step 2 (balance starting points).
+            var longRack = Furniture("long_rack", "Bow and Staff Rack", FurnitureDisplay.Long, true, 256f, true,
+                L("long_rack", 1, One, 30, M(("cedar_lumber", 5))),
+                L("long_rack", 2, One, 60, M(("cedar_lumber", 6), ("maple_lumber", 2))),
+                L("long_rack", 3, One, 130, M(("maple_lumber", 8), ("copper_ingot", 2))));
+            var pedestal = Furniture("pedestal", "Pedestal", FurnitureDisplay.Any, false, 256f, true,
+                L("pedestal", 1, One, 40, M(("cedar_lumber", 4), ("iron_ingot", 2))),
+                L("pedestal", 2, One, 80, M(("iron_ingot", 4), ("copper_ingot", 2))),
+                L("pedestal", 3, One, 160, M(("steel_ingot", 3), ("maple_lumber", 4))));
+
+            // Items on display: Astra's two views of each item (A on left-facing furniture), with their visible bounds.
+            var itemJson = PlaceholderSpriteImporter.ArtRoot + "Items/points.json";
+            if (File.Exists(itemJson))
+            {
+                var ipts = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(itemJson));
+                Rect Bounds(Newtonsoft.Json.Linq.JToken b) => new Rect((float)b["x"], (float)b["y"], (float)b["w"], (float)b["h"]);
+                foreach (var item in catalogue.Items)
+                {
+                    if (item == null) continue;
+                    var key = item.Id.Substring("item.".Length);
+                    var ja = ipts["assets"][$"item_{key}_A.png"];
+                    var jb = ipts["assets"][$"item_{key}_B.png"];
+                    if (ja == null || jb == null) continue;
+                    item.EditorSetDisplay(LoadSprite($"Items/item_{key}_A"), Bounds(ja["bounds"]), LoadSprite($"Items/item_{key}_B"), Bounds(jb["bounds"]));
+                    EditorUtility.SetDirty(item);
+                }
+            }
 
             // 6 x 6 tiles to start (Kevin, 2026-10-15; first 4 x 6), with a 2-tile entrance on the front-right edge.
             ShopDefinition.StartingPiece P(ShopFurnitureDefinition f, int a, int b, bool facingB = false) =>
@@ -953,7 +972,7 @@ namespace Ravenholm.EditorTools
                 shop.EditorBumpVersion();
                 EditorUtility.SetDirty(shop);
             }
-            var furniture = new List<ShopFurnitureDefinition> { desk, table, armor, shelf, rack };
+            var furniture = new List<ShopFurnitureDefinition> { desk, table, armor, shelf, rack, longRack, pedestal };
             if (catalogue.Shop != shop || catalogue.ShopFurniture.Count != furniture.Count)
             {
                 catalogue.EditorSetShop(shop, furniture);
@@ -1218,6 +1237,7 @@ namespace Ravenholm.EditorTools
             if (t.joystickKnob == null) { t.joystickKnob = LoadSprite("UI/ui_joystick_knob"); EditorUtility.SetDirty(t); }
             if (t.treeIcon == null) { t.treeIcon = LoadSprite("Nature/tree_cedar"); EditorUtility.SetDirty(t); }
             if (t.board == null) { t.board = LoadSprite("UI/Icons/ic_board"); EditorUtility.SetDirty(t); }
+            if (t.build == null && File.Exists(PlaceholderSpriteImporter.ArtRoot + "UI/Icons/ic_build.png")) { t.build = LoadSprite("UI/Icons/ic_build"); EditorUtility.SetDirty(t); }
             if (!created && t.panel != null) return t;
             t.panel = LoadSprite("UI/ui_panel");
             t.panelDark = LoadSprite("UI/ui_panel_dark");

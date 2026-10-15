@@ -81,6 +81,12 @@ namespace Ravenholm.Content
         [Min(0.01f)] [SerializeField] private float stackStep = 0.13f;
         [Tooltip("A small piece (daggers, a focus): shown on the Store's display tables rather than its racks.")]
         [SerializeField] private bool smallDisplay;
+        [Tooltip("Shown on shop furniture (Astra, 2026-10-15): view A on left-facing pieces, B on right-facing ones.")]
+        [SerializeField] private Sprite displayA;
+        [SerializeField] private Sprite displayB;
+        [Tooltip("The views' visible bounds in pixels from the top-left (items are fitted by these, bottom-centre).")]
+        [SerializeField] private Rect displayBoundsA;
+        [SerializeField] private Rect displayBoundsB;
 
         public override string IdKind => "item";
         public ItemCategory Category => category;
@@ -132,6 +138,13 @@ namespace Ravenholm.Content
         public float StackStep => stackStep;
         public bool SmallDisplay => smallDisplay;
 
+        /// <summary>The display view for a facing (A for left-facing furniture), with its visible bounds; null if not drawn.</summary>
+        public Sprite DisplaySprite(bool facingB, out Rect visibleBounds)
+        {
+            visibleBounds = facingB ? displayBoundsB : displayBoundsA;
+            return facingB ? displayB : displayA;
+        }
+
         public override void Validate(List<string> errors)
         {
             base.Validate(errors);
@@ -158,6 +171,14 @@ namespace Ravenholm.Content
 #if UNITY_EDITOR
         public void EditorSetPower(int p) => power = p;
         public void EditorSetSmallDisplay(bool small) => smallDisplay = small;
+
+        public void EditorSetDisplay(Sprite a, Rect boundsA, Sprite b, Rect boundsB)
+        {
+            displayA = a;
+            displayBoundsA = boundsA;
+            displayB = b;
+            displayBoundsB = boundsB;
+        }
 
         public void EditorSetCounter(CounterTag tag, int strength)
         {

@@ -31,6 +31,7 @@ MonoBehaviour:
   interact: {fileID: 21300000, guid: 998ccc022595c4cf6a934230b1a73097, type: 3}
   settings: {fileID: 21300000, guid: c17fd5f473cc24fe1b65a20c45f9e304, type: 3}
   board: {fileID: 21300000, guid: 73f2ffa163b1548ffa4b9c7d73a006a4, type: 3}
+  build: {fileID: 21300000, guid: eb99d3fd93189480d92f5ab22f059b5b, type: 3}
   ink: {r: 0.23137255, g: 0.16470589, b: 0.1254902, a: 1}
   inkOnDark: {r: 0.98039216, g: 0.9490196, b: 0.8862745, a: 1}
   accent: {r: 0.27450982, g: 0.53333336, b: 0.59607846, a: 1}

@@ -27,6 +27,8 @@ namespace Ravenholm.Presentation
         [SerializeField] private Sprite tileOk, tileBlocked;
         [Tooltip("Optional variants: a window on some back-left walls; the doorway's low-wall pieces (left and right shapes).")]
         [SerializeField] private Sprite wallWindowLeft, wallWindowRight, entranceLeft, entranceRight;
+        [Tooltip("Optional: the stockroom door (one, on the back-right wall) and the rail wall that furniture hangs on.")]
+        [SerializeField] private Sprite wallDoorLeft, wallDoorRight, wallRailLeft, wallRailRight;
         [SerializeField] private Material material;
         [SerializeField] private int blockerLayer;
 
@@ -78,6 +80,14 @@ namespace Ravenholm.Presentation
             wallWindowRight = windowR;
             entranceLeft = doorL;
             entranceRight = doorR;
+        }
+
+        public void EditorSetupWallKinds(Sprite stockDoorL, Sprite stockDoorR, Sprite railL, Sprite railR)
+        {
+            wallDoorLeft = stockDoorL;
+            wallDoorRight = stockDoorR;
+            wallRailLeft = railL;
+            wallRailRight = railR;
         }
 #endif
 
@@ -147,7 +157,12 @@ namespace Ravenholm.Presentation
             var shop = _root.Services.Shop;
             var grid = shop.Grid;
             Clear(_shell);
-            // Wall edges with furniture hanging on them keep a plain wall (no window behind a shelf).
+            // The stockroom door: the free back-right wall edge furthest along it (nothing hangs there).
+            var stockDoor = new Tile(int.MinValue, 0);
+            foreach (var e in grid.Edges)
+                if (e.Kind == EdgeKind.Tall && e.Side == EdgeSide.BackRight && (stockDoor.A == int.MinValue || e.Tile.B > stockDoor.B))
+                    stockDoor = e.Tile;
+            // Wall edges with furniture hanging on them use the rail wall (no window behind a shelf).
             var hung = new HashSet<(Tile, EdgeSide)>();
             foreach (var p in shop.State.Furniture)
             {
@@ -179,9 +194,17 @@ namespace Ravenholm.Presentation
                 EdgeBlocker(p0, p1, e.Side);
                 var tall = e.Kind == EdgeKind.Tall;
                 var sprite = tall ? (alongA ? wallTallLeft : wallTallRight) : (alongA ? wallLowLeft : wallLowRight);
-                // Every third full wall gets a window (where that art exists), counted along the wall.
-                var window = alongA ? wallWindowLeft : wallWindowRight;
-                if (tall && window != null && (alongA ? e.Tile.A : e.Tile.B) % 3 == 1 && !hung.Contains((e.Tile, e.Side))) sprite = window;
+                if (tall)
+                {
+                    // A wall that furniture hangs on is the rail wall; one stockroom door on the back-right wall; every third
+                    // other full wall a window (where the art exists), counted along the wall.
+                    var along = alongA ? e.Tile.A : e.Tile.B;
+                    var rail = alongA ? wallRailLeft : wallRailRight;
+                    var window = alongA ? wallWindowLeft : wallWindowRight;
+                    if (hung.Contains((e.Tile, e.Side))) { if (rail != null) sprite = rail; }
+                    else if (!alongA && wallDoorRight != null && e.Tile.Equals(stockDoor)) sprite = wallDoorRight;
+                    else if (window != null && along % 3 == 1) sprite = window;
+                }
                 Piece(_shell, tall ? "Wall" : "LowWall", sprite, mid, tall ? WallSortBack : 0f, tall);
             }
 

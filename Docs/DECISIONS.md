@@ -1116,3 +1116,22 @@ Kevin's choices: the shop lends its gear and takes a cut; adventurers arrive wit
 - **Tests.** The original Job Board's tests switch the castle off explicitly; its rules still run for a posting made by hand. New tests:
   - `CastleTests`, including a castle bot that runs a fresh game through the whole campaign: 129 expeditions in 3.6 simulated hours, nobody turned away.
   - `CastlePlayModeTests`.
+
+## 2026-10-15: Astra's modular shop, step 2 in the game
+
+- **Import.** `import_shop_modular.py` brings in her step-2 pack: 149 sprites, at 256 px per unit with her pivots.
+  - **Shell pieces** go to `Shop/`; the placement overlays also go to `Shop/`, and the icons to `UI/Icons/`.
+  - **Furniture** goes to `Furniture/`, with both facings or both walls; `potion_shelf_3` is the shorter redraw.
+  - **Item display views** (A and B for every item) go to `Items/`, with points in `Items/points.json`.
+- **Shell.**
+  - Three floor variants.
+  - A wall that furniture hangs on uses `wall_rail`. One stockroom door sits on the free back-right wall edge furthest along it. Every third other full wall gets a window.
+  - The doorway is two threshold-only pieces, with no post in the middle.
+- **Furniture.** Setup builds each type from her art (`<key>_<n>` / `_B`, or `_left` / `_right`), with anchors from each sprite's pivot and her slot boxes. Two new types (prices are balance starting points):
+  - the bow and staff rack (`long_rack`, a wall piece, `FurnitureDisplay.Long`);
+  - the pedestal (one drawing serves both facings).
+
+  The weapon rack's placeholder is replaced, and it now leaves bows and staffs to the long rack. Facing B is drawn for everything, so nothing is mirrored any more.
+- **Items on display.** `ItemDefinition.DisplaySprite(facingB)`: view A on left-facing pieces, view B on right-facing ones. Each is scaled uniformly by its visible bounds and stands on the slot's bottom centre. All 22 crafted items have views. Items without them fall back to the stack sprite.
+- **HUD.** The Build button shows her `ic_build` icon.
+- **Not yet used.** The grip and carry anchors on the item views (for items held in the hand), the views of materials, and the other build-mode icons.

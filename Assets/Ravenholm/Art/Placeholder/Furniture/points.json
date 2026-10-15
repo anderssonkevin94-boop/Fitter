@@ -47,7 +47,13 @@
      183,
      168
     ]
-   }
+   },
+   "footprint": {
+    "a": 1,
+    "b": 1
+   },
+   "facing": "A",
+   "source_pack": "approved furniture native v2; pixels unchanged"
   },
   "armor_stand_2.png": {
    "file": "Furniture/armor_stand_2.png",
@@ -92,7 +98,13 @@
      183,
      169
     ]
-   }
+   },
+   "footprint": {
+    "a": 1,
+    "b": 1
+   },
+   "facing": "A",
+   "source_pack": "approved furniture native v2; pixels unchanged"
   },
   "armor_stand_3.png": {
    "file": "Furniture/armor_stand_3.png",
@@ -137,17 +149,19 @@
      182,
      169
     ]
-   }
+   },
+   "footprint": {
+    "a": 1,
+    "b": 1
+   },
+   "facing": "A",
+   "source_pack": "approved furniture native v2; pixels unchanged"
   },
   "potion_shelf_1.png": {
    "file": "Furniture/potion_shelf_1.png",
    "canvas": {
     "w": 512,
     "h": 640
-   },
-   "ground": {
-    "x": 256,
-    "y": 570
    },
    "pivot": {
     "x": 0.5,
@@ -203,17 +217,20 @@
      137,
      212
     ]
-   }
+   },
+   "anchor": {
+    "x": 256,
+    "y": 570
+   },
+   "edges": 2,
+   "wall": "left",
+   "source_pack": "approved furniture native v2; pixels unchanged"
   },
   "potion_shelf_2.png": {
    "file": "Furniture/potion_shelf_2.png",
    "canvas": {
     "w": 512,
     "h": 640
-   },
-   "ground": {
-    "x": 256,
-    "y": 570
    },
    "pivot": {
     "x": 0.5,
@@ -283,108 +300,124 @@
      136,
      220
     ]
-   }
+   },
+   "anchor": {
+    "x": 256,
+    "y": 570
+   },
+   "edges": 2,
+   "wall": "left",
+   "source_pack": "approved furniture native v2; pixels unchanged"
   },
   "potion_shelf_3.png": {
    "file": "Furniture/potion_shelf_3.png",
    "canvas": {
-    "w": 512,
-    "h": 640
-   },
-   "ground": {
-    "x": 256,
-    "y": 570
+    "w": 304,
+    "h": 560
    },
    "pivot": {
     "x": 0.5,
-    "y": 0.109375
+    "y": 0.1428571428571429
    },
    "slots": [
     {
-     "x": 205,
-     "y": 234,
+     "x": 101,
+     "y": 198,
      "w": 36,
-     "h": 53,
+     "h": 48,
      "kind": "potion"
     },
     {
-     "x": 253,
-     "y": 212,
+     "x": 149,
+     "y": 174,
      "w": 36,
-     "h": 53,
+     "h": 48,
      "kind": "potion"
     },
     {
-     "x": 300,
-     "y": 191,
+     "x": 201,
+     "y": 150,
      "w": 36,
-     "h": 53,
+     "h": 48,
      "kind": "potion"
     },
     {
-     "x": 205,
-     "y": 319,
+     "x": 101,
+     "y": 257,
      "w": 36,
-     "h": 53,
+     "h": 48,
      "kind": "potion"
     },
     {
-     "x": 253,
-     "y": 298,
+     "x": 149,
+     "y": 233,
      "w": 36,
-     "h": 53,
+     "h": 48,
      "kind": "potion"
     },
     {
-     "x": 300,
-     "y": 276,
+     "x": 201,
+     "y": 210,
      "w": 36,
-     "h": 53,
+     "h": 48,
      "kind": "potion"
     },
     {
-     "x": 205,
-     "y": 403,
+     "x": 101,
+     "y": 317,
      "w": 36,
-     "h": 53,
+     "h": 48,
      "kind": "potion"
     },
     {
-     "x": 253,
-     "y": 382,
+     "x": 149,
+     "y": 293,
      "w": 36,
-     "h": 53,
+     "h": 48,
      "kind": "potion"
     },
     {
-     "x": 300,
-     "y": 361,
+     "x": 201,
+     "y": 269,
      "w": 36,
-     "h": 53,
+     "h": 48,
      "kind": "potion"
     }
    ],
    "bounds": {
-    "x": 136,
-    "y": 153,
-    "w": 240,
-    "h": 360
+    "x": 24,
+    "y": 122,
+    "w": 256,
+    "h": 296
    },
    "mount": "wall",
    "upgrade_level": 3,
    "source_transform": {
-    "uniform_scale": 0.32388663967611336,
+    "source": "source/potion_shelf_3_left.png",
     "source_crop": [
-     261,
-     104,
-     1001,
-     1216
+     303,
+     340,
+     944,
+     1083
+    ],
+    "uniform_scale": 0.3987538940809969,
+    "raster_size": [
+     256,
+     297
     ],
     "translation": [
-     136,
-     153
+     24,
+     121
     ]
-   }
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "edges": 2,
+   "wall": "left",
+   "revision": "Step 2 v2 redraw",
+   "alias_of": "potion_shelf_3_left.png"
   },
   "display_table_1.png": {
    "file": "Furniture/display_table_1.png",
@@ -436,7 +469,13 @@
      153,
      229
     ]
-   }
+   },
+   "footprint": {
+    "a": 1,
+    "b": 1
+   },
+   "facing": "A",
+   "source_pack": "approved furniture native v2; pixels unchanged"
   },
   "display_table_2.png": {
    "file": "Furniture/display_table_2.png",
@@ -495,7 +534,13 @@
      106,
      190
     ]
-   }
+   },
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "A",
+   "source_pack": "approved furniture native v2; pixels unchanged"
   },
   "display_table_3.png": {
    "file": "Furniture/display_table_3.png",
@@ -561,7 +606,13 @@
      50,
      164
     ]
-   }
+   },
+   "footprint": {
+    "a": 1,
+    "b": 3
+   },
+   "facing": "A",
+   "source_pack": "approved furniture native v2; pixels unchanged"
   },
   "desk_1.png": {
    "file": "Furniture/desk_1.png",
@@ -580,25 +631,37 @@
    "slots": [],
    "bounds": {
     "x": 101,
-    "y": 197,
+    "y": 200,
     "w": 320,
-    "h": 291
+    "h": 287
    },
    "mount": "floor",
    "upgrade_level": 1,
    "source_transform": {
-    "uniform_scale": 0.36076662908680945,
+    "source": "source/desk_1.png",
     "source_crop": [
-     235,
-     251,
-     1121,
-     1057
+     206,
+     326,
+     1123,
+     1154
+    ],
+    "uniform_scale": 0.3485838779956427,
+    "raster_size": [
+     320,
+     289
     ],
     "translation": [
      101,
-     197
+     199
     ]
-   }
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "revision": "Step 2 v2 redraw",
+   "chair_in_art": false
   },
   "desk_2.png": {
    "file": "Furniture/desk_2.png",
@@ -616,26 +679,38 @@
    },
    "slots": [],
    "bounds": {
-    "x": 102,
-    "y": 197,
-    "w": 320,
-    "h": 288
+    "x": 104,
+    "y": 198,
+    "w": 316,
+    "h": 286
    },
    "mount": "floor",
    "upgrade_level": 2,
    "source_transform": {
-    "uniform_scale": 0.3579418344519016,
+    "source": "source/desk_2.png",
     "source_crop": [
-     234,
-     247,
-     1127,
-     1051
+     221,
+     336,
+     1089,
+     1125
+    ],
+    "uniform_scale": 0.36455696202531646,
+    "raster_size": [
+     317,
+     288
     ],
     "translation": [
-     102,
+     104,
      197
     ]
-   }
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "revision": "Step 2 v2 redraw",
+   "chair_in_art": false
   },
   "desk_3.png": {
    "file": "Furniture/desk_3.png",
@@ -654,25 +729,37 @@
    "slots": [],
    "bounds": {
     "x": 98,
-    "y": 198,
-    "w": 320,
-    "h": 285
+    "y": 199,
+    "w": 319,
+    "h": 284
    },
    "mount": "floor",
    "upgrade_level": 3,
    "source_transform": {
-    "uniform_scale": 0.3190428713858425,
+    "source": "source/desk_3.png",
     "source_crop": [
-     170,
-     214,
-     1172,
-     1106
+     192,
+     325,
+     1107,
+     1141
+    ],
+    "uniform_scale": 0.3488372093023256,
+    "raster_size": [
+     320,
+     285
     ],
     "translation": [
      98,
      198
     ]
-   }
+   },
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "A",
+   "revision": "Step 2 v2 redraw",
+   "chair_in_art": false
   },
   "desk_1_B.png": {
    "file": "Furniture/desk_1_B.png",
@@ -689,25 +776,26 @@
     "y": 0.1796875
    },
    "bounds": {
-    "x": 106,
+    "x": 113,
     "y": 205,
-    "w": 280,
+    "w": 268,
     "h": 287
    },
    "source_transform": {
+    "source": "source/desk_1_B.png",
     "source_crop": [
-     122,
-     172,
-     1106,
-     1182
+     249,
+     366,
+     1014,
+     1183
     ],
-    "uniform_scale": 0.28426395939086296,
+    "uniform_scale": 0.3508557457212714,
     "raster_size": [
-     280,
+     269,
      287
     ],
     "translation": [
-     106,
+     112,
      205
     ]
    },
@@ -736,7 +824,2028 @@
      "x": 170,
      "y": 336
     }
-   ]
+   ],
+   "revision": "Step 2 v2 redraw",
+   "chair_in_art": false
+  },
+  "armor_stand_1_B.png": {
+   "file": "Furniture/armor_stand_1_B.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1796875
+   },
+   "bounds": {
+    "x": 201,
+    "y": 168,
+    "w": 110,
+    "h": 280
+   },
+   "mount": "floor",
+   "footprint": {
+    "a": 1,
+    "b": 1
+   },
+   "facing": "B",
+   "rotation_invariant": false,
+   "upgrade_level": 1,
+   "slots": [
+    {
+     "x": 197,
+     "y": 186,
+     "w": 118,
+     "h": 150,
+     "kind": "armor"
+    }
+   ],
+   "source_transform": {
+    "source": "source/armor_stand_1_B.png",
+    "source_crop": [
+     158,
+     149,
+     727,
+     1603
+    ],
+    "uniform_scale": 0.19243986254295534,
+    "raster_size": [
+     110,
+     280
+    ],
+    "translation": [
+     201,
+     168
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "armor_stand_2_B.png": {
+   "file": "Furniture/armor_stand_2_B.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1796875
+   },
+   "bounds": {
+    "x": 204,
+    "y": 168,
+    "w": 104,
+    "h": 280
+   },
+   "mount": "floor",
+   "footprint": {
+    "a": 1,
+    "b": 1
+   },
+   "facing": "B",
+   "rotation_invariant": false,
+   "upgrade_level": 2,
+   "slots": [
+    {
+     "x": 197,
+     "y": 186,
+     "w": 118,
+     "h": 150,
+     "kind": "armor"
+    }
+   ],
+   "source_transform": {
+    "source": "source/armor_stand_2_B.png",
+    "source_crop": [
+     283,
+     114,
+     761,
+     1407
+    ],
+    "uniform_scale": 0.21638330757341576,
+    "raster_size": [
+     104,
+     280
+    ],
+    "translation": [
+     204,
+     168
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "armor_stand_3_B.png": {
+   "file": "Furniture/armor_stand_3_B.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1796875
+   },
+   "bounds": {
+    "x": 207,
+    "y": 168,
+    "w": 98,
+    "h": 280
+   },
+   "mount": "floor",
+   "footprint": {
+    "a": 1,
+    "b": 1
+   },
+   "facing": "B",
+   "rotation_invariant": false,
+   "upgrade_level": 3,
+   "slots": [
+    {
+     "x": 197,
+     "y": 186,
+     "w": 118,
+     "h": 150,
+     "kind": "armor"
+    }
+   ],
+   "source_transform": {
+    "source": "source/armor_stand_3_B.png",
+    "source_crop": [
+     184,
+     93,
+     726,
+     1642
+    ],
+    "uniform_scale": 0.18064516129032257,
+    "raster_size": [
+     98,
+     280
+    ],
+    "translation": [
+     207,
+     168
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "desk_2_B.png": {
+   "file": "Furniture/desk_2_B.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1796875
+   },
+   "bounds": {
+    "x": 107,
+    "y": 200,
+    "w": 278,
+    "h": 291
+   },
+   "mount": "floor",
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "B",
+   "rotation_invariant": false,
+   "upgrade_level": 2,
+   "slots": [],
+   "source_transform": {
+    "source": "source/desk_2_B.png",
+    "source_crop": [
+     253,
+     412,
+     985,
+     1180
+    ],
+    "uniform_scale": 0.37971391417425226,
+    "raster_size": [
+     278,
+     292
+    ],
+    "translation": [
+     107,
+     199
+    ]
+   },
+   "revision": "Step 2 v2 redraw",
+   "chair_in_art": false
+  },
+  "desk_3_B.png": {
+   "file": "Furniture/desk_3_B.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1796875
+   },
+   "bounds": {
+    "x": 107,
+    "y": 224,
+    "w": 279,
+    "h": 267
+   },
+   "mount": "floor",
+   "footprint": {
+    "a": 1,
+    "b": 2
+   },
+   "facing": "B",
+   "rotation_invariant": false,
+   "upgrade_level": 3,
+   "slots": [],
+   "source_transform": {
+    "source": "source/desk_3_B.png",
+    "source_crop": [
+     260,
+     516,
+     964,
+     1192
+    ],
+    "uniform_scale": 0.39574468085106385,
+    "raster_size": [
+     279,
+     268
+    ],
+    "translation": [
+     107,
+     224
+    ]
+   },
+   "revision": "Step 2 v2 redraw",
+   "chair_in_art": false
+  },
+  "display_table_1_B.png": {
+   "file": "Furniture/display_table_1_B.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 380
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.2578125
+   },
+   "bounds": {
+    "x": 154,
+    "y": 245,
+    "w": 205,
+    "h": 195
+   },
+   "mount": "floor",
+   "footprint": {
+    "a": 1,
+    "b": 1
+   },
+   "facing": "B",
+   "rotation_invariant": false,
+   "upgrade_level": 1,
+   "slots": [
+    {
+     "x": 176,
+     "y": 277,
+     "w": 55,
+     "h": 32,
+     "kind": "small"
+    },
+    {
+     "x": 282,
+     "y": 277,
+     "w": 55,
+     "h": 32,
+     "kind": "small"
+    }
+   ],
+   "source_transform": {
+    "source": "source/display_table_1_B.png",
+    "source_crop": [
+     149,
+     150,
+     1130,
+     1089
+    ],
+    "uniform_scale": 0.20875763747454176,
+    "raster_size": [
+     205,
+     196
+    ],
+    "translation": [
+     154,
+     244
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "display_table_2_B.png": {
+   "file": "Furniture/display_table_2_B.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 380
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.2578125
+   },
+   "bounds": {
+    "x": 106,
+    "y": 196,
+    "w": 300,
+    "h": 264
+   },
+   "mount": "floor",
+   "footprint": {
+    "a": 2,
+    "b": 1
+   },
+   "facing": "B",
+   "rotation_invariant": false,
+   "upgrade_level": 2,
+   "slots": [
+    {
+     "x": 151,
+     "y": 299,
+     "w": 55,
+     "h": 32,
+     "kind": "small"
+    },
+    {
+     "x": 229,
+     "y": 260,
+     "w": 55,
+     "h": 32,
+     "kind": "small"
+    },
+    {
+     "x": 307,
+     "y": 221,
+     "w": 55,
+     "h": 32,
+     "kind": "small"
+    }
+   ],
+   "source_transform": {
+    "source": "source/display_table_2_B.png",
+    "source_crop": [
+     247,
+     189,
+     1185,
+     1017
+    ],
+    "uniform_scale": 0.3194888178913738,
+    "raster_size": [
+     300,
+     265
+    ],
+    "translation": [
+     106,
+     195
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "display_table_3_B.png": {
+   "file": "Furniture/display_table_3_B.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 380
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.2578125
+   },
+   "bounds": {
+    "x": 53,
+    "y": 177,
+    "w": 408,
+    "h": 305
+   },
+   "mount": "floor",
+   "footprint": {
+    "a": 3,
+    "b": 1
+   },
+   "facing": "B",
+   "rotation_invariant": false,
+   "upgrade_level": 3,
+   "slots": [
+    {
+     "x": 123,
+     "y": 299,
+     "w": 55,
+     "h": 32,
+     "kind": "small"
+    },
+    {
+     "x": 194,
+     "y": 269,
+     "w": 55,
+     "h": 32,
+     "kind": "small"
+    },
+    {
+     "x": 264,
+     "y": 239,
+     "w": 55,
+     "h": 32,
+     "kind": "small"
+    },
+    {
+     "x": 335,
+     "y": 209,
+     "w": 55,
+     "h": 32,
+     "kind": "small"
+    }
+   ],
+   "source_transform": {
+    "source": "source/display_table_3_B.png",
+    "source_crop": [
+     110,
+     93,
+     1342,
+     1012
+    ],
+    "uniform_scale": 0.33171127331711275,
+    "raster_size": [
+     409,
+     305
+    ],
+    "translation": [
+     52,
+     177
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "long_rack_1_left.png": {
+   "file": "Furniture/long_rack_1_left.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 91,
+    "w": 256,
+    "h": 335
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "left",
+   "upgrade_level": 1,
+   "slots": [
+    {
+     "x": 87,
+     "y": 182,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 179,
+     "y": 132,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_transform": {
+    "source": "source/long_rack_1_left.png",
+    "source_crop": [
+     88,
+     197,
+     981,
+     1370
+    ],
+    "uniform_scale": 0.28635346756152125,
+    "raster_size": [
+     256,
+     336
+    ],
+    "translation": [
+     24,
+     90
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "long_rack_1_right.png": {
+   "file": "Furniture/long_rack_1_right.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 98,
+    "w": 256,
+    "h": 311
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "right",
+   "upgrade_level": 1,
+   "slots": [
+    {
+     "x": 74,
+     "y": 110,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 169,
+     "y": 163,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_transform": {
+    "source": "source/long_rack_1_right.png",
+    "source_crop": [
+     126,
+     282,
+     969,
+     1311
+    ],
+    "uniform_scale": 0.3033175355450237,
+    "raster_size": [
+     256,
+     312
+    ],
+    "translation": [
+     24,
+     97
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "long_rack_2_left.png": {
+   "file": "Furniture/long_rack_2_left.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 92,
+    "w": 256,
+    "h": 330
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "left",
+   "upgrade_level": 2,
+   "slots": [
+    {
+     "x": 64,
+     "y": 186,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 125,
+     "y": 156,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 189,
+     "y": 123,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_transform": {
+    "source": "source/long_rack_2_left.png",
+    "source_crop": [
+     69,
+     147,
+     1061,
+     1430
+    ],
+    "uniform_scale": 0.2578046324269889,
+    "raster_size": [
+     256,
+     331
+    ],
+    "translation": [
+     24,
+     91
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "long_rack_2_right.png": {
+   "file": "Furniture/long_rack_2_right.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 97,
+    "w": 256,
+    "h": 307
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "right",
+   "upgrade_level": 2,
+   "slots": [
+    {
+     "x": 67,
+     "y": 104,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 128,
+     "y": 141,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 189,
+     "y": 175,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_transform": {
+    "source": "source/long_rack_2_right.png",
+    "source_crop": [
+     107,
+     290,
+     1027,
+     1392
+    ],
+    "uniform_scale": 0.2779587404994571,
+    "raster_size": [
+     256,
+     307
+    ],
+    "translation": [
+     24,
+     97
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "long_rack_3_left.png": {
+   "file": "Furniture/long_rack_3_left.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 194,
+    "w": 256,
+    "h": 221
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "left",
+   "upgrade_level": 3,
+   "slots": [
+    {
+     "x": 59,
+     "y": 196,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 108,
+     "y": 176,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 156,
+     "y": 159,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 202,
+     "y": 141,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_transform": {
+    "source": "source/long_rack_3_left.png",
+    "source_crop": [
+     73,
+     6,
+     1359,
+     1114
+    ],
+    "uniform_scale": 0.1989121989121989,
+    "raster_size": [
+     256,
+     221
+    ],
+    "translation": [
+     24,
+     194
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "long_rack_3_right.png": {
+   "file": "Furniture/long_rack_3_right.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 171,
+    "w": 256,
+    "h": 227
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "right",
+   "upgrade_level": 3,
+   "slots": [
+    {
+     "x": 56,
+     "y": 108,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 102,
+     "y": 130,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 151,
+     "y": 153,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    },
+    {
+     "x": 200,
+     "y": 178,
+     "w": 48,
+     "h": 190,
+     "kind": "long"
+    }
+   ],
+   "source_transform": {
+    "source": "source/long_rack_3_right.png",
+    "source_crop": [
+     152,
+     155,
+     1210,
+     1098
+    ],
+    "uniform_scale": 0.24173748819641172,
+    "raster_size": [
+     256,
+     228
+    ],
+    "translation": [
+     24,
+     170
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "pedestal_1.png": {
+   "file": "Furniture/pedestal_1.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1796875
+   },
+   "bounds": {
+    "x": 183,
+    "y": 315,
+    "w": 146,
+    "h": 135
+   },
+   "mount": "floor",
+   "footprint": {
+    "a": 1,
+    "b": 1
+   },
+   "facing": "A",
+   "rotation_invariant": true,
+   "upgrade_level": 1,
+   "slots": [
+    {
+     "x": 209,
+     "y": 213,
+     "w": 94,
+     "h": 140,
+     "kind": "any"
+    }
+   ],
+   "source_transform": {
+    "source": "source/pedestal_1.png",
+    "source_crop": [
+     578,
+     170,
+     1197,
+     744
+    ],
+    "uniform_scale": 0.23478260869565218,
+    "raster_size": [
+     146,
+     135
+    ],
+    "translation": [
+     183,
+     315
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "pedestal_2.png": {
+   "file": "Furniture/pedestal_2.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1796875
+   },
+   "bounds": {
+    "x": 174,
+    "y": 240,
+    "w": 165,
+    "h": 210
+   },
+   "mount": "floor",
+   "footprint": {
+    "a": 1,
+    "b": 1
+   },
+   "facing": "A",
+   "rotation_invariant": true,
+   "upgrade_level": 2,
+   "slots": [
+    {
+     "x": 210,
+     "y": 134,
+     "w": 94,
+     "h": 140,
+     "kind": "any"
+    }
+   ],
+   "source_transform": {
+    "source": "source/pedestal_2.png",
+    "source_crop": [
+     360,
+     503,
+     889,
+     1176
+    ],
+    "uniform_scale": 0.3115727002967359,
+    "raster_size": [
+     165,
+     210
+    ],
+    "translation": [
+     174,
+     240
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "pedestal_3.png": {
+   "file": "Furniture/pedestal_3.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1796875
+   },
+   "bounds": {
+    "x": 166,
+    "y": 216,
+    "w": 180,
+    "h": 233
+   },
+   "mount": "floor",
+   "footprint": {
+    "a": 1,
+    "b": 1
+   },
+   "facing": "A",
+   "rotation_invariant": true,
+   "upgrade_level": 3,
+   "slots": [
+    {
+     "x": 209,
+     "y": 220,
+     "w": 94,
+     "h": 115,
+     "kind": "any"
+    }
+   ],
+   "source_transform": {
+    "source": "source/pedestal_3.png",
+    "source_crop": [
+     581,
+     45,
+     1192,
+     840
+    ],
+    "uniform_scale": 0.29411764705882354,
+    "raster_size": [
+     180,
+     234
+    ],
+    "translation": [
+     166,
+     216
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "potion_shelf_1_right.png": {
+   "file": "Furniture/potion_shelf_1_right.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 112,
+    "w": 256,
+    "h": 289
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "right",
+   "upgrade_level": 1,
+   "slots": [
+    {
+     "x": 69,
+     "y": 126,
+     "w": 44,
+     "h": 64,
+     "kind": "potion"
+    },
+    {
+     "x": 158,
+     "y": 164,
+     "w": 44,
+     "h": 64,
+     "kind": "potion"
+    },
+    {
+     "x": 66,
+     "y": 216,
+     "w": 44,
+     "h": 64,
+     "kind": "potion"
+    },
+    {
+     "x": 153,
+     "y": 253,
+     "w": 44,
+     "h": 64,
+     "kind": "potion"
+    }
+   ],
+   "source_transform": {
+    "source": "source/potion_shelf_1_right.png",
+    "source_crop": [
+     543,
+     88,
+     1195,
+     823
+    ],
+    "uniform_scale": 0.39203675344563554,
+    "raster_size": [
+     256,
+     289
+    ],
+    "translation": [
+     24,
+     112
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "potion_shelf_2_right.png": {
+   "file": "Furniture/potion_shelf_2_right.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 104,
+    "w": 256,
+    "h": 349
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "right",
+   "upgrade_level": 2,
+   "slots": [
+    {
+     "x": 65,
+     "y": 141,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    },
+    {
+     "x": 121,
+     "y": 169,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    },
+    {
+     "x": 178,
+     "y": 201,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    },
+    {
+     "x": 62,
+     "y": 254,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    },
+    {
+     "x": 119,
+     "y": 285,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    },
+    {
+     "x": 180,
+     "y": 317,
+     "w": 36,
+     "h": 53,
+     "kind": "potion"
+    }
+   ],
+   "source_transform": {
+    "source": "source/potion_shelf_2_right.png",
+    "source_crop": [
+     276,
+     270,
+     897,
+     1122
+    ],
+    "uniform_scale": 0.4115755627009646,
+    "raster_size": [
+     256,
+     351
+    ],
+    "translation": [
+     24,
+     103
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "potion_shelf_3_left.png": {
+   "file": "Furniture/potion_shelf_3_left.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "slots": [
+    {
+     "x": 101,
+     "y": 198,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 149,
+     "y": 174,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 201,
+     "y": 150,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 101,
+     "y": 257,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 149,
+     "y": 233,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 201,
+     "y": 210,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 101,
+     "y": 317,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 149,
+     "y": 293,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 201,
+     "y": 269,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    }
+   ],
+   "bounds": {
+    "x": 24,
+    "y": 122,
+    "w": 256,
+    "h": 296
+   },
+   "mount": "wall",
+   "upgrade_level": 3,
+   "source_transform": {
+    "source": "source/potion_shelf_3_left.png",
+    "source_crop": [
+     303,
+     340,
+     944,
+     1083
+    ],
+    "uniform_scale": 0.3987538940809969,
+    "raster_size": [
+     256,
+     297
+    ],
+    "translation": [
+     24,
+     121
+    ]
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "edges": 2,
+   "wall": "left",
+   "revision": "Step 2 v2 redraw"
+  },
+  "potion_shelf_3_right.png": {
+   "file": "Furniture/potion_shelf_3_right.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 125,
+    "w": 256,
+    "h": 299
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "right",
+   "upgrade_level": 3,
+   "slots": [
+    {
+     "x": 65,
+     "y": 161,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 114,
+     "y": 188,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 165,
+     "y": 215,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 65,
+     "y": 221,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 114,
+     "y": 247,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 165,
+     "y": 274,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 65,
+     "y": 280,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 114,
+     "y": 307,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    },
+    {
+     "x": 165,
+     "y": 334,
+     "w": 36,
+     "h": 48,
+     "kind": "potion"
+    }
+   ],
+   "source_transform": {
+    "source": "source/potion_shelf_3_right.png",
+    "source_crop": [
+     204,
+     248,
+     1024,
+     1206
+    ],
+    "uniform_scale": 0.3118148599269184,
+    "raster_size": [
+     256,
+     299
+    ],
+    "translation": [
+     24,
+     125
+    ]
+   },
+   "revision": "Step 2 v2 redraw"
+  },
+  "weapon_rack_1_left.png": {
+   "file": "Furniture/weapon_rack_1_left.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 141,
+    "w": 256,
+    "h": 255
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "left",
+   "upgrade_level": 1,
+   "slots": [
+    {
+     "x": 72,
+     "y": 192,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 133,
+     "y": 158,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 195,
+     "y": 125,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_transform": {
+    "source": "source/weapon_rack_1_left.png",
+    "source_crop": [
+     522,
+     73,
+     1261,
+     813
+    ],
+    "uniform_scale": 0.34594594594594597,
+    "raster_size": [
+     256,
+     256
+    ],
+    "translation": [
+     24,
+     140
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "weapon_rack_1_right.png": {
+   "file": "Furniture/weapon_rack_1_right.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 149,
+    "w": 256,
+    "h": 266
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "right",
+   "upgrade_level": 1,
+   "slots": [
+    {
+     "x": 59,
+     "y": 146,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 123,
+     "y": 181,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 187,
+     "y": 215,
+     "w": 48,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_transform": {
+    "source": "source/weapon_rack_1_right.png",
+    "source_crop": [
+     518,
+     61,
+     1255,
+     830
+    ],
+    "uniform_scale": 0.34688346883468835,
+    "raster_size": [
+     256,
+     267
+    ],
+    "translation": [
+     24,
+     149
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "weapon_rack_2_left.png": {
+   "file": "Furniture/weapon_rack_2_left.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 147,
+    "w": 256,
+    "h": 263
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "left",
+   "upgrade_level": 2,
+   "slots": [
+    {
+     "x": 58,
+     "y": 212,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 104,
+     "y": 189,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 153,
+     "y": 162,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 201,
+     "y": 136,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_transform": {
+    "source": "source/weapon_rack_2_left.png",
+    "source_crop": [
+     497,
+     39,
+     1282,
+     848
+    ],
+    "uniform_scale": 0.3256997455470738,
+    "raster_size": [
+     256,
+     264
+    ],
+    "translation": [
+     24,
+     146
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "weapon_rack_2_right.png": {
+   "file": "Furniture/weapon_rack_2_right.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 138,
+    "w": 256,
+    "h": 251
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "right",
+   "upgrade_level": 2,
+   "slots": [
+    {
+     "x": 58,
+     "y": 120,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 104,
+     "y": 145,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 155,
+     "y": 170,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 204,
+     "y": 195,
+     "w": 45,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_transform": {
+    "source": "source/weapon_rack_2_right.png",
+    "source_crop": [
+     455,
+     15,
+     1326,
+     870
+    ],
+    "uniform_scale": 0.29357798165137616,
+    "raster_size": [
+     256,
+     251
+    ],
+    "translation": [
+     24,
+     138
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "weapon_rack_3_left.png": {
+   "file": "Furniture/weapon_rack_3_left.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 157,
+    "w": 256,
+    "h": 214
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "left",
+   "upgrade_level": 3,
+   "slots": [
+    {
+     "x": 52,
+     "y": 186,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 93,
+     "y": 169,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 134,
+     "y": 149,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 178,
+     "y": 132,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 218,
+     "y": 113,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_transform": {
+    "source": "source/weapon_rack_3_left.png",
+    "source_crop": [
+     423,
+     59,
+     1362,
+     843
+    ],
+    "uniform_scale": 0.2723404255319149,
+    "raster_size": [
+     256,
+     214
+    ],
+    "translation": [
+     24,
+     157
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
+  },
+  "weapon_rack_3_right.png": {
+   "file": "Furniture/weapon_rack_3_right.png",
+   "canvas": {
+    "w": 304,
+    "h": 560
+   },
+   "anchor": {
+    "x": 152,
+    "y": 480
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1428571428571429
+   },
+   "bounds": {
+    "x": 24,
+    "y": 151,
+    "w": 256,
+    "h": 224
+   },
+   "mount": "wall",
+   "edges": 2,
+   "wall": "right",
+   "upgrade_level": 3,
+   "slots": [
+    {
+     "x": 52,
+     "y": 119,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 93,
+     "y": 140,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 137,
+     "y": 157,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 180,
+     "y": 178,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    },
+    {
+     "x": 221,
+     "y": 196,
+     "w": 36,
+     "h": 166,
+     "kind": "weapon"
+    }
+   ],
+   "source_transform": {
+    "source": "source/weapon_rack_3_right.png",
+    "source_crop": [
+     411,
+     27,
+     1369,
+     866
+    ],
+    "uniform_scale": 0.2669447340980188,
+    "raster_size": [
+     256,
+     224
+    ],
+    "translation": [
+     24,
+     151
+    ],
+    "operations": [
+     "alpha cleanup",
+     "crop",
+     "uniform resize",
+     "translation",
+     "flat palette"
+    ]
+   }
   }
  }
 }

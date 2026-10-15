@@ -128,10 +128,38 @@ namespace Ravenholm.Presentation
                 _items[i].gameObject.SetActive(on);
                 if (!on) continue;
                 VisibleCount++;
-                _items[i].sprite = stock[i].def.StackSprite;
-                Fit(_items[i], i);
+                // Astra's display view for this facing (A on left-facing pieces), fitted by its visible bounds; else the stack sprite.
+                var view = stock[i].def.DisplaySprite(Facing == Facing.B, out var visible);
+                if (view != null)
+                {
+                    _items[i].sprite = view;
+                    FitVisible(_items[i], i, visible);
+                }
+                else
+                {
+                    _items[i].sprite = stock[i].def.StackSprite;
+                    Fit(_items[i], i);
+                }
                 _badges[i].text = stock[i].count > 1 ? "×" + stock[i].count : "";
             }
+        }
+
+        /// <summary>Scales a display view uniformly so its visible part fits the box, standing on the box's bottom centre.</summary>
+        private void FitVisible(SpriteRenderer sr, int i, Rect visiblePx)
+        {
+            var box = _boxes[i];
+            var ppu = sr.sprite.pixelsPerUnit;
+            var w = Mathf.Max(visiblePx.width, 1f) / ppu;
+            var h = Mathf.Max(visiblePx.height, 1f) / ppu;
+            var scale = Mathf.Min(box.width / w, box.height / h);
+            sr.transform.localScale = Vector3.one * scale;
+            // The visible bottom centre, relative to the sprite's pivot (units, y up).
+            var pivotPx = new Vector2(sr.sprite.pivot.x, sr.sprite.rect.height - sr.sprite.pivot.y);
+            var foot = new Vector2((visiblePx.center.x - pivotPx.x) / ppu, (pivotPx.y - visiblePx.yMax) / ppu);
+            sr.transform.localPosition = new Vector2(box.center.x, box.yMin) - foot * scale;
+            var badge = _badges[i].transform;
+            badge.localScale = Vector3.one / Mathf.Max(scale, 0.001f);
+            badge.position = transform.TransformPoint(new Vector3(box.xMax, box.yMin + 0.04f, 0f));
         }
 
         private void Fit(SpriteRenderer sr, int i)

@@ -47,9 +47,29 @@ MonoBehaviour:
         width: 47
         height: 64
     facingB:
-      sprite: {fileID: 0}
-      ground: {x: 0, y: 0}
-      slots: []
+      sprite: {fileID: 21300000, guid: 4e960151a00c5413bafb9d6bb2ca8ddc, type: 3}
+      ground: {x: 152, y: 480}
+      slots:
+      - serializedVersion: 2
+        x: 69
+        y: 126
+        width: 44
+        height: 64
+      - serializedVersion: 2
+        x: 158
+        y: 164
+        width: 44
+        height: 64
+      - serializedVersion: 2
+        x: 66
+        y: 216
+        width: 44
+        height: 64
+      - serializedVersion: 2
+        x: 153
+        y: 253
+        width: 44
+        height: 64
     gold: 25
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -90,9 +110,39 @@ MonoBehaviour:
         width: 36
         height: 54
     facingB:
-      sprite: {fileID: 0}
-      ground: {x: 0, y: 0}
-      slots: []
+      sprite: {fileID: 21300000, guid: 5787b3d4ffdae4490a24987d726c666f, type: 3}
+      ground: {x: 152, y: 480}
+      slots:
+      - serializedVersion: 2
+        x: 65
+        y: 141
+        width: 36
+        height: 53
+      - serializedVersion: 2
+        x: 121
+        y: 169
+        width: 36
+        height: 53
+      - serializedVersion: 2
+        x: 178
+        y: 201
+        width: 36
+        height: 53
+      - serializedVersion: 2
+        x: 62
+        y: 254
+        width: 36
+        height: 53
+      - serializedVersion: 2
+        x: 119
+        y: 285
+        width: 36
+        height: 53
+      - serializedVersion: 2
+        x: 180
+        y: 317
+        width: 36
+        height: 53
     gold: 55
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -101,58 +151,103 @@ MonoBehaviour:
       quantity: 2
   - footprint: {x: 1, y: 1}
     facingA:
-      sprite: {fileID: 21300000, guid: e7288481504264d258155bc03651f779, type: 3}
-      ground: {x: 256, y: 570}
+      sprite: {fileID: 21300000, guid: 5658e6ccfcbc1463794bc98de5dbc0bf, type: 3}
+      ground: {x: 152, y: 480}
       slots:
       - serializedVersion: 2
-        x: 205
-        y: 234
+        x: 101
+        y: 198
         width: 36
-        height: 53
+        height: 48
       - serializedVersion: 2
-        x: 253
-        y: 212
+        x: 149
+        y: 174
         width: 36
-        height: 53
+        height: 48
       - serializedVersion: 2
-        x: 300
-        y: 191
+        x: 201
+        y: 150
         width: 36
-        height: 53
+        height: 48
       - serializedVersion: 2
-        x: 205
-        y: 319
+        x: 101
+        y: 257
         width: 36
-        height: 53
+        height: 48
       - serializedVersion: 2
-        x: 253
-        y: 298
+        x: 149
+        y: 233
         width: 36
-        height: 53
+        height: 48
       - serializedVersion: 2
-        x: 300
-        y: 276
+        x: 201
+        y: 210
         width: 36
-        height: 53
+        height: 48
       - serializedVersion: 2
-        x: 205
-        y: 403
+        x: 101
+        y: 317
         width: 36
-        height: 53
+        height: 48
       - serializedVersion: 2
-        x: 253
-        y: 382
+        x: 149
+        y: 293
         width: 36
-        height: 53
+        height: 48
       - serializedVersion: 2
-        x: 300
-        y: 361
+        x: 201
+        y: 269
         width: 36
-        height: 53
+        height: 48
     facingB:
-      sprite: {fileID: 0}
-      ground: {x: 0, y: 0}
-      slots: []
+      sprite: {fileID: 21300000, guid: 12b247b1f68f748e7839f435873cd943, type: 3}
+      ground: {x: 152, y: 480}
+      slots:
+      - serializedVersion: 2
+        x: 65
+        y: 161
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 114
+        y: 188
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 165
+        y: 215
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 65
+        y: 221
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 114
+        y: 247
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 165
+        y: 274
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 65
+        y: 280
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 114
+        y: 307
+        width: 36
+        height: 48
+      - serializedVersion: 2
+        x: 165
+        y: 334
+        width: 36
+        height: 48
     gold: 120
     materials:
     - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}

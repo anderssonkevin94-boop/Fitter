@@ -29,6 +29,8 @@ namespace Ravenholm.Presentation
         public Sprite interact;
         public Sprite settings;
         public Sprite board;
+        [Tooltip("The shop's Build button (Astra's ic_build).")]
+        public Sprite build;
 
         [Header("Colours")]
         public Color ink = new Color32(59, 42, 32, 255);

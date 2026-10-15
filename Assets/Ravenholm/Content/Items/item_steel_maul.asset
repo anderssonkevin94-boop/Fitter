@@ -28,3 +28,17 @@ MonoBehaviour:
   stackSprite: {fileID: 21300000, guid: 76f908b2235694ed1b4f8cf9aa398669, type: 3}
   stackStep: 0.13
   smallDisplay: 0
+  displayA: {fileID: 21300000, guid: 9d8a0158ad97e4d2db74432c596f39fe, type: 3}
+  displayB: {fileID: 21300000, guid: 85d35003750634df8a36949232b236a1, type: 3}
+  displayBoundsA:
+    serializedVersion: 2
+    x: 81
+    y: 70
+    width: 94
+    height: 158
+  displayBoundsB:
+    serializedVersion: 2
+    x: 81
+    y: 69
+    width: 94
+    height: 159

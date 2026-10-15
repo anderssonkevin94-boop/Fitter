@@ -32,9 +32,14 @@ MonoBehaviour:
         width: 128
         height: 150
     facingB:
-      sprite: {fileID: 0}
-      ground: {x: 0, y: 0}
-      slots: []
+      sprite: {fileID: 21300000, guid: 8da8084d22f8141c385dc76362b01997, type: 3}
+      ground: {x: 256, y: 420}
+      slots:
+      - serializedVersion: 2
+        x: 197
+        y: 186
+        width: 118
+        height: 150
     gold: 30
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -52,9 +57,14 @@ MonoBehaviour:
         width: 127
         height: 150
     facingB:
-      sprite: {fileID: 0}
-      ground: {x: 0, y: 0}
-      slots: []
+      sprite: {fileID: 21300000, guid: 78c4f03c256d34387bc427f28f03b609, type: 3}
+      ground: {x: 256, y: 420}
+      slots:
+      - serializedVersion: 2
+        x: 197
+        y: 186
+        width: 118
+        height: 150
     gold: 60
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -72,9 +82,14 @@ MonoBehaviour:
         width: 127
         height: 150
     facingB:
-      sprite: {fileID: 0}
-      ground: {x: 0, y: 0}
-      slots: []
+      sprite: {fileID: 21300000, guid: c606a00afa0904ea787294dca814d46f, type: 3}
+      ground: {x: 256, y: 420}
+      slots:
+      - serializedVersion: 2
+        x: 197
+        y: 186
+        width: 118
+        height: 150
     gold: 130
     materials:
     - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}

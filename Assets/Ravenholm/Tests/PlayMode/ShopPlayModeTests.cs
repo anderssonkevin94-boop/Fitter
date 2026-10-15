@@ -76,6 +76,8 @@ namespace Ravenholm.Tests
             Assert.AreEqual(2, Piece("furniture.display_table").VisibleCount, "dagger and stiletto on the level 1 table");
             Assert.AreEqual(1, Piece("furniture.armor_stand").VisibleCount);
             Assert.AreEqual(2, Piece("furniture.potion_shelf").VisibleCount);
+            foreach (var sr in Piece("furniture.weapon_rack").GetComponentsInChildren<SpriteRenderer>().Where(r => r.name == "Slot" && r.gameObject.activeInHierarchy))
+                StringAssert.StartsWith("item_", sr.sprite.name, "items show Astra's display views");
             yield return Capture.Take("shop_start");
 
             // Build mode: the Build button opens the panel; plots appear where the shop can grow.
@@ -109,7 +111,7 @@ namespace Ravenholm.Tests
             Assert.AreEqual(Facing.B, p.Facing);
             yield return new WaitForSeconds(0.3f);
             Assert.AreEqual(2, Piece("furniture.display_table").VisibleCount, "the longer table still shows both small pieces");
-            Assert.IsTrue(Piece("furniture.display_table").Mirrored, "facing B mirrors the art until it is drawn");
+            Assert.IsFalse(Piece("furniture.display_table").Mirrored, "facing B is drawn (Astra, step 2)");
             // The desk turned: Astra drew its facing B, so it shows that art rather than a mirror image.
             var desk = Piece("furniture.desk");
             view.Select(desk.PlacementId);

@@ -276,8 +276,16 @@ namespace Ravenholm.Presentation
             build.type = Image.Type.Simple;
             UiFactory.Place(build.rectTransform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(0, -150f), new Vector2(132f, 132f));   // under the settings button, clear of the chips
             build.gameObject.AddComponent<Button>().onClick.AddListener(ToggleShopBuild);
-            var bl = _ui.Text("Label", build.transform, "Build", _theme.smallSize - 4f, _theme.ink, TextAlignmentOptions.Center, FontStyles.Bold);
-            UiFactory.Stretch(bl.rectTransform, 10f);
+            if (_theme.build != null)
+            {
+                var bi2 = _ui.Icon("Icon", build.transform, _theme.build, 80f);
+                UiFactory.Place(bi2.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 4f), new Vector2(80f, 80f));
+            }
+            else
+            {
+                var bl = _ui.Text("Label", build.transform, "Build", _theme.smallSize - 4f, _theme.ink, TextAlignmentOptions.Center, FontStyles.Bold);
+                UiFactory.Stretch(bl.rectTransform, 10f);
+            }
 
             var gear = _ui.Panel("DebugButton", bar, _theme.roundButton);
             gear.type = Image.Type.Simple;

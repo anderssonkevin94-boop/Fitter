@@ -63,9 +63,28 @@ def main(pack, art):
     assert pts["pixels_per_unit"] == 256
     furn_pts_path = os.path.join(art, "Furniture", "points.json")
     furn_pts = json.load(open(furn_pts_path))
+    items_dir = os.path.join(art, "Items")
+    os.makedirs(items_dir, exist_ok=True)
+    item_pts_path = os.path.join(items_dir, "points.json")
+    item_pts = json.load(open(item_pts_path)) if os.path.exists(item_pts_path) else {"pixels_per_unit": 256, "assets": {}}
     n = 0
     for name, p in sorted(pts["assets"].items()):
         pivot = [round(p["pivot"]["x"], 5), round(p["pivot"]["y"], 5)]
+        # Step 2 (2026-10-15): build-mode UI (placement overlays to Shop/, icons to UI/Icons/) and item display views.
+        if os.path.exists(os.path.join(pack, "UI", name)):
+            sub = "Shop/" if name.startswith("tile_") else "UI/Icons/"
+            shutil.copyfile(os.path.join(pack, "UI", name), os.path.join(art, sub + name))
+            meta["sprites"][sub + name] = {"pivot": pivot, "ppu": 256} if sub == "Shop/" else {"pivot": pivot}
+            n += 1
+            continue
+        if os.path.exists(os.path.join(pack, "Items", name)):
+            shutil.copyfile(os.path.join(pack, "Items", name), os.path.join(items_dir, name))
+            meta["sprites"]["Items/" + name] = {"pivot": pivot, "ppu": 256, "outline": True}
+            entry = dict(p)
+            entry["file"] = "Items/" + name
+            item_pts["assets"][name] = entry
+            n += 1
+            continue
         if os.path.exists(os.path.join(pack, "Shell", name)):
             dst = os.path.join(art, "Shop", name)
             shutil.copyfile(os.path.join(pack, "Shell", name), dst)
@@ -74,8 +93,9 @@ def main(pack, art):
                 h = OLD_CANVAS - CUT
                 pivot = [round(p["anchor"]["x"] / p["canvas"]["w"], 5), round(1 - ay / h, 5)]
             meta["sprites"]["Shop/" + name] = {"pivot": pivot, "ppu": 256}
-        elif os.path.exists(os.path.join(pack, "Furniture", name)):
-            shutil.copyfile(os.path.join(pack, "Furniture", name), os.path.join(art, "Furniture", name))
+        elif os.path.exists(os.path.join(pack, "Furniture", name)) or "alias_of" in p or p.get("file", "").startswith("Furniture/"):
+            src = os.path.join(pack, p.get("file", "Furniture/" + name))
+            shutil.copyfile(src, os.path.join(art, "Furniture", name))
             meta["sprites"]["Furniture/" + name] = {"pivot": pivot, "ppu": 256, "outline": True}
             entry = dict(p)
             entry["file"] = "Furniture/" + name
@@ -84,6 +104,7 @@ def main(pack, art):
             raise SystemExit(f"no file for {name}")
         n += 1
     json.dump(furn_pts, open(furn_pts_path, "w"), indent=1)
+    json.dump(item_pts, open(item_pts_path, "w"), indent=1)
     json.dump(meta, open(meta_path, "w"), indent=1, sort_keys=True)
     print(f"{n} shop pieces imported")
 

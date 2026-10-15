@@ -468,13 +468,15 @@ namespace Ravenholm.EditorTools
             Sprite Art(string astra, string placeholder) => OptionalSprite("Shop/" + astra) ?? (placeholder != null ? ProjectSetup.LoadSprite(placeholder) : null);
             var view = go.AddComponent<ShopView>();
             view.EditorSetup(ShopOrigin,
-                new[] { Art("floor_1", "Painted/Ground/ground_planks") }, Art("floor_plot", "Painted/Ground/ground_dirt_dug"),
+                new[] { Art("floor_1", "Painted/Ground/ground_planks"), Art("floor_2", "Painted/Ground/ground_planks"), Art("floor_3", "Painted/Ground/ground_planks") },
+                Art("floor_plot", "Painted/Ground/ground_dirt_dug"),
                 Art("plot_sign", "Shop/plot_sign"),
                 Art("wall_plain_left", "Shop/wall_tall_left"), Art("wall_plain_right", "Shop/wall_tall_right"),
                 Art("stub_plain_left", "Shop/wall_low_left"), Art("stub_plain_right", "Shop/wall_low_right"),
                 Art("post_tall", "Shop/post_tall_placeholder"), Art("post_low", "Shop/post_low_placeholder"),
                 Art("tile_ok", "Shop/tile_ok"), Art("tile_blocked", "Shop/tile_blocked"), _unlit, ProjectSetup.BlockerLayerIndex);
             view.EditorSetupVariants(Art("wall_window_left", null), Art("wall_window_right", null), Art("stub_entrance_left", null), Art("stub_entrance_right", null));
+            view.EditorSetupWallKinds(Art("wall_door_left", null), Art("wall_door_right", null), Art("wall_rail_left", null), Art("wall_rail_right", null));
             return go.transform;
         }
 
