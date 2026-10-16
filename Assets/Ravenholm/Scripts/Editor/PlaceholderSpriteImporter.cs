@@ -62,13 +62,21 @@ namespace Ravenholm.EditorTools
             if (rel.StartsWith("Painted/Blocks/") || rel.StartsWith("Painted/Ground/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Outline-free nature and buildings (v4): the game's outline is drawn inside the sprite's rectangle.
             if (rel.StartsWith("Painted/Nature/") || rel.StartsWith("Nature/") || rel.StartsWith("Buildings/") || rel.StartsWith("Furniture/")) settings.spriteMeshType = SpriteMeshType.FullRect;
+            // Astra's ox, eight-direction walk V12 (2026-10-16): full 1280 canvases (pivots on each direction's ground
+            // anchor), point filtering as the pack asks; capped at 512 (still above his size on screen) for the phone's memory.
+            if (rel.StartsWith("Ox/"))
+            {
+                ti.maxTextureSize = 512;
+                settings.filterMode = FilterMode.Point;   // (the settings are applied last: set it there)
+                settings.spriteMeshType = SpriteMeshType.FullRect;
+            }
             // Astra's switchback pass (2026-10-16): paintings placed by their anchors, never trimmed. Capped at 2048 and
             // compressed for the phone's memory (distance views under haze); the valley floor repeats.
             if (rel.StartsWith("Pass/"))
             {
                 ti.maxTextureSize = 2048;
                 settings.spriteMeshType = SpriteMeshType.FullRect;
-                if (rel.EndsWith("valley_floor.png")) ti.wrapMode = TextureWrapMode.Repeat;
+                if (rel.EndsWith("valley_floor.png")) settings.wrapMode = TextureWrapMode.Repeat;
             }
             // Astra's walk-in wagon (2026-10-16): seven registered layers on one 1536 x 1024 canvas, never trimmed.
             if (rel.StartsWith("Wagon/WalkIn/"))

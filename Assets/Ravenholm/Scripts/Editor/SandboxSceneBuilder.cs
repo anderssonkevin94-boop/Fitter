@@ -160,7 +160,9 @@ namespace Ravenholm.EditorTools
             signCol.size = new Vector2(1.2f, 1.6f);
             signCol.offset = new Vector2(0f, 0.6f);
             sign.gameObject.AddComponent<MakeCampSpot>();
-            new GameObject("Drive").AddComponent<DriveView>().EditorSetup(ProjectSetup.LoadSprite("Wagon/ox_walk"), _unlit);
+            var drive = new GameObject("Drive").AddComponent<DriveView>();
+            drive.EditorSetup(ProjectSetup.LoadSprite("Wagon/ox_walk"), _unlit);
+            drive.EditorSetupOx(LoadOx());
             // The road's build projects (step 7): a sign at the near side of each gap.
             var road = settings.camp;
             var tilesForProjects = ProjectSetup.EnsureTiles();
@@ -236,6 +238,22 @@ namespace Ravenholm.EditorTools
         /// Astra's approved walk-in wagon (2026-10-16): the seven layers and the pack's own geometry (Wagon/WalkIn/points.json;
         /// never the older wagon's anchors). Empty (the old single sprite stays) if the pack has not been imported.
         /// </summary>
+        /// <summary>Astra's ox, eight-direction walk V12 (Ox/): standing and six walk frames per direction. Empty if not imported.</summary>
+        private static OxArt LoadOx()
+        {
+            var art = new OxArt();
+            if (!File.Exists(PlaceholderSpriteImporter.ArtRoot + "Ox/points.json")) return art;
+            var views = new List<OxArt.View>();
+            foreach (var d in new[] { "N", "NE", "E", "SE", "S", "SW", "W", "NW" })
+            {
+                var walk = new Sprite[6];
+                for (var k = 0; k < 6; k++) walk[k] = ProjectSetup.LoadSprite($"Ox/ox_{d}_walk_{k + 1}");
+                views.Add(new OxArt.View { dir = d, stand = ProjectSetup.LoadSprite($"Ox/ox_{d}_stand"), walk = walk });
+            }
+            art.views = views.ToArray();
+            return art;
+        }
+
         private static WalkInCartArt LoadWalkInCart()
         {
             const string dir = "Wagon/WalkIn/";
@@ -575,6 +593,7 @@ namespace Ravenholm.EditorTools
                 ProjectSetup.LoadSprite($"Wagon/{name}".Replace("#", "3")) };
             view.EditorSetupWagon(Levels("wagon_parked_#"), Levels("carpet_#"), Levels("carpet_edge_#_a"), Levels("carpet_edge_#_b"));
             view.EditorSetupWalkInCart(LoadWalkInCart());
+            view.EditorSetupOx(LoadOx());
             return go.transform;
         }
 

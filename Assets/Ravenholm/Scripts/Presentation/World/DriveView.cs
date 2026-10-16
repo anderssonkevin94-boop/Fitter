@@ -12,6 +12,8 @@ namespace Ravenholm.Presentation
     public sealed class DriveView : MonoBehaviour
     {
         [SerializeField] private Sprite oxSprite;
+        [Tooltip("Astra's ox (V12, 2026-10-16): his eight-direction walk; the single placeholder sprite only if unset.")]
+        [SerializeField] private OxArt oxArt = new OxArt();
         [SerializeField] private float speed = 7f;
         [SerializeField] private Material material;
 
@@ -19,6 +21,8 @@ namespace Ravenholm.Presentation
         public bool Driving { get; private set; }
 
         private GameRoot _root;
+
+        public void EditorSetupOx(OxArt art) => oxArt = art;
 
         public void EditorSetup(Sprite ox, Material mat)
         {
@@ -59,6 +63,9 @@ namespace Ravenholm.Presentation
             if (material != null) sr.sharedMaterial = material;
             return sr;
         }
+
+        /// <summary>Where the ox's ground stands from the shafts' hitch: ahead along the way and down to the ground.</summary>
+        public static Vector2 OxAhead(Vector2 dir) => dir.normalized * 0.55f + new Vector2(0f, -0.42f);
 
         private IEnumerator Drive(int from, int to)
         {
@@ -102,7 +109,14 @@ namespace Ravenholm.Presentation
             }
             wagonT.localScale = Vector3.one * 0.8f;
             var hitch = cart != null ? cart.Hitch - (Vector2)cart.transform.position : Vector2.zero;
-            var ox = Make("Ox", oxSprite, 11);
+            // The ox walks ahead at the hitch (Astra's V12: facing the way the wagon goes, his walk at 5 fps).
+            var oxFigure = oxArt != null && oxArt.Valid ? OxFigure.Create(transform, oxArt, "Overlay", 11, material) : null;
+            var ox = oxFigure != null ? oxFigure.Renderer : Make("Ox", oxSprite, 11);
+            if (oxFigure != null)
+            {
+                oxFigure.transform.localScale = Vector3.one * 0.8f;   // with the wagon on the road
+                oxFigure.Walking = true;
+            }
             var player = SandboxSceneController.Current != null ? SandboxSceneController.Current.Player : null;
             var visual = player != null ? player.Find("Visual") : null;
             if (visual != null) visual.gameObject.SetActive(false);   // riding on the wagon
@@ -122,8 +136,17 @@ namespace Ravenholm.Presentation
                     if (wagon != null) wagon.flipX = left;
                     else wagonT.localScale = new Vector3(left ? -0.8f : 0.8f, 0.8f, 1f);
                     // The ox at the wagon's hitch (the walk-in wagon's own anchor), else just ahead of it.
-                    ox.transform.position = cart != null ? p + new Vector2(left ? -hitch.x : hitch.x, hitch.y) * 0.8f : p + dir * 1.25f;
-                    ox.flipX = dir.x < 0f;
+                    var hitchAt = cart != null ? p + new Vector2(left ? -hitch.x : hitch.x, hitch.y) * 0.8f : p + dir * 1.25f;
+                    if (oxFigure != null)
+                    {
+                        oxFigure.Face(dir);
+                        oxFigure.transform.position = hitchAt + OxAhead(dir) * 0.8f;   // his ground ahead of the hitch
+                    }
+                    else
+                    {
+                        ox.transform.position = hitchAt;
+                        ox.flipX = dir.x < 0f;
+                    }
                     if (player != null) player.position = p;
                     yield return null;
                 }

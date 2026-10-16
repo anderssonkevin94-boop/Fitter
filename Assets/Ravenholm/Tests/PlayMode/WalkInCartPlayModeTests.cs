@@ -79,9 +79,10 @@ namespace Ravenholm.Tests
             Assert.NotNull(cart, "the walk-in wagon replaced the single wagon sprite");
             Assert.AreSame(cart.transform, ShopView.Current.Wagon);
             Assert.IsNull(ShopView.Current.Wagon.GetComponent<SpriteRenderer>(), "no single sprite (and no assembled reference) drawn");
-            var layers = cart.GetComponentsInChildren<SpriteRenderer>().Select(r => r.name).ToList();
+            var cartRenderers = cart.GetComponentsInChildren<SpriteRenderer>().Where(r => r.GetComponentInParent<OxFigure>() == null).ToList();   // the hitched ox is his own
+            var layers = cartRenderers.Select(r => r.name).ToList();
             CollectionAssert.AreEquivalent(new[] { "Outline", "cart_back", "cart_shafts", "wheel_near_left", "wheel_near_right", "cart_steps", "cart_front", "cart_roof" }, layers);
-            foreach (var r in cart.GetComponentsInChildren<SpriteRenderer>())
+            foreach (var r in cartRenderers)
             {
                 Assert.AreEqual(cart.transform.position, r.transform.position, $"{r.name} on the shared pivot");
                 Assert.AreEqual(Vector3.one, r.transform.lossyScale, $"{r.name} unscaled");

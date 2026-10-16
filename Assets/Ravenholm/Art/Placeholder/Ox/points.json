@@ -1,0 +1,1291 @@
+{
+  "canvas": [
+    1280,
+    1280
+  ],
+  "coordinates": "Top-left pixels; x right, y down. All parts use the shared canvas.",
+  "palette": [
+    "#B08A5B",
+    "#806045",
+    "#594237",
+    "#E8D1A3"
+  ],
+  "mirror_pairs": {
+    "E": "W",
+    "NE": "NW",
+    "SE": "SW"
+  },
+  "directions": {
+    "W": {
+      "order": [
+        "leg_hind_far",
+        "leg_front_far",
+        "body",
+        "leg_hind_near",
+        "leg_front_near",
+        "head"
+      ],
+      "backward": [
+        1,
+        0
+      ],
+      "ground": [
+        781,
+        1032
+      ],
+      "parts": {
+        "body": {
+          "file": "Parts/W/body.png",
+          "pivot": [
+            706.52,
+            628.24
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            258,
+            381,
+            1214,
+            908
+          ]
+        },
+        "head": {
+          "file": "Parts/W/head.png",
+          "pivot": [
+            353.72,
+            589.04
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            57,
+            318,
+            496,
+            784
+          ]
+        },
+        "leg_front_near": {
+          "file": "Parts/W/leg_front_near.png",
+          "pivot": [
+            549.72,
+            636.0799999999999
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            421,
+            551,
+            706,
+            1071
+          ],
+          "foot": [
+            581.08,
+            1071.2
+          ],
+          "phase": 0
+        },
+        "leg_front_far": {
+          "file": "Parts/W/leg_front_far.png",
+          "pivot": [
+            475.24,
+            611.5799999999999
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            362,
+            537,
+            610,
+            992
+          ],
+          "foot": [
+            502.68,
+            992.8
+          ],
+          "phase": 0.5
+        },
+        "leg_hind_near": {
+          "file": "Parts/W/leg_hind_near.png",
+          "pivot": [
+            996.6,
+            600.8
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            870,
+            503,
+            1127,
+            1071
+          ],
+          "foot": [
+            1059.32,
+            1071.2
+          ],
+          "phase": 0.75
+        },
+        "leg_hind_far": {
+          "file": "Parts/W/leg_hind_far.png",
+          "pivot": [
+            926.04,
+            581.2
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            815,
+            496,
+            1039,
+            993
+          ],
+          "foot": [
+            980.92,
+            992.8
+          ],
+          "phase": 0.25
+        }
+      },
+      "uniform_scale_revision": 0.98
+    },
+    "NW": {
+      "order": [
+        "leg_front_far",
+        "leg_hind_far",
+        "leg_front_near",
+        "leg_hind_near",
+        "body",
+        "head"
+      ],
+      "backward": [
+        0.78,
+        0.63
+      ],
+      "parts": {
+        "body": {
+          "file": "Parts/NW/body.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            701.4375,
+            619.0875000000001
+          ],
+          "bounds": [
+            326,
+            349,
+            1096,
+            1040
+          ]
+        },
+        "head": {
+          "file": "Parts/NW/head.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            454.1875,
+            431.63750000000005
+          ],
+          "bounds": [
+            163,
+            121,
+            588,
+            519
+          ]
+        },
+        "leg_front_near": {
+          "file": "Parts/NW/leg_front_near.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            439.2375,
+            731.7875
+          ],
+          "bounds": [
+            382,
+            685,
+            501,
+            871
+          ],
+          "foot": [
+            444.9875,
+            868.6375
+          ],
+          "phase": 0
+        },
+        "leg_front_far": {
+          "file": "Parts/NW/leg_front_far.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            565.7375,
+            763.9875
+          ],
+          "bounds": [
+            502,
+            731,
+            626,
+            843
+          ],
+          "foot": [
+            562.2875,
+            842.1875
+          ],
+          "phase": 0.5
+        },
+        "leg_hind_near": {
+          "file": "Parts/NW/leg_hind_near.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            788.8375,
+            1005.4875
+          ],
+          "bounds": [
+            684,
+            940,
+            857,
+            1219
+          ],
+          "foot": [
+            769.2875,
+            1219.3875
+          ],
+          "phase": 0.75
+        },
+        "leg_hind_far": {
+          "file": "Parts/NW/leg_hind_far.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            949.8375,
+            930.7375
+          ],
+          "bounds": [
+            890,
+            882,
+            1026,
+            1076
+          ],
+          "foot": [
+            954.4375,
+            1076.7875
+          ],
+          "phase": 0.25
+        }
+      },
+      "note": "Lower-leg motion; broad upper thighs and chest remain on body to preserve approved master silhouette.",
+      "ground": [
+        682.75,
+        1001.75
+      ],
+      "uniform_scale_revision": 1.15
+    },
+    "N": {
+      "order": [
+        "head",
+        "leg_front_far",
+        "leg_front_near",
+        "leg_hind_far",
+        "leg_hind_near",
+        "body"
+      ],
+      "backward": [
+        0,
+        0.5
+      ],
+      "ground": [
+        639.5,
+        1057.5
+      ],
+      "parts": {
+        "body": {
+          "file": "Parts/N/body.png",
+          "pivot": [
+            640.04,
+            566.64
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            357,
+            283,
+            924,
+            914
+          ]
+        },
+        "head": {
+          "file": "Parts/N/head.png",
+          "pivot": [
+            640.04,
+            401.4
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            426,
+            172,
+            854,
+            589
+          ]
+        },
+        "leg_hind_near": {
+          "file": "Parts/N/leg_hind_near.png",
+          "pivot": [
+            458.6,
+            703.8
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            354,
+            609,
+            564,
+            1124
+          ],
+          "foot": [
+            445.64,
+            1125
+          ],
+          "phase": 0.75
+        },
+        "leg_hind_far": {
+          "file": "Parts/N/leg_hind_far.png",
+          "pivot": [
+            820.4,
+            703.8
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            715,
+            609,
+            925,
+            1124
+          ],
+          "foot": [
+            833.36,
+            1125
+          ],
+          "phase": 0.25
+        },
+        "leg_front_near": {
+          "file": "Parts/N/leg_front_near.png",
+          "pivot": [
+            535.28,
+            635.76
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            448,
+            557,
+            625,
+            989
+          ],
+          "foot": [
+            524.48,
+            990
+          ],
+          "phase": 0
+        },
+        "leg_front_far": {
+          "file": "Parts/N/leg_front_far.png",
+          "pivot": [
+            743.72,
+            635.76
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            654,
+            557,
+            831,
+            989
+          ],
+          "foot": [
+            754.52,
+            990
+          ],
+          "phase": 0.5
+        }
+      },
+      "uniform_scale_revision": 1.08
+    },
+    "S": {
+      "order": [
+        "leg_hind_far",
+        "leg_hind_near",
+        "leg_front_far",
+        "leg_front_near",
+        "body",
+        "head"
+      ],
+      "backward": [
+        0,
+        -0.5
+      ],
+      "parts": {
+        "body": {
+          "file": "Parts/S/body.png",
+          "pivot": [
+            640,
+            625
+          ],
+          "rest_position": [
+            640,
+            625
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            340,
+            300,
+            939,
+            984
+          ]
+        },
+        "head": {
+          "file": "Parts/S/head.png",
+          "pivot": [
+            640,
+            710
+          ],
+          "rest_position": [
+            640,
+            710
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            266,
+            413,
+            1012,
+            899
+          ]
+        },
+        "leg_front_near": {
+          "file": "Parts/S/leg_front_near.png",
+          "pivot": [
+            470,
+            672
+          ],
+          "rest_position": [
+            470,
+            672
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            353,
+            607,
+            629,
+            1168
+          ],
+          "foot": [
+            470,
+            1168
+          ],
+          "phase": 0
+        },
+        "leg_front_far": {
+          "file": "Parts/S/leg_front_far.png",
+          "pivot": [
+            811,
+            672
+          ],
+          "rest_position": [
+            811,
+            672
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            651,
+            607,
+            927,
+            1168
+          ],
+          "foot": [
+            810,
+            1168
+          ],
+          "phase": 0.5
+        },
+        "leg_hind_near": {
+          "file": "Parts/S/leg_hind_near.png",
+          "pivot": [
+            530,
+            456
+          ],
+          "rest_position": [
+            530,
+            456
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            380,
+            389,
+            592,
+            923
+          ],
+          "foot": [
+            470,
+            923
+          ],
+          "phase": 0.75
+        },
+        "leg_hind_far": {
+          "file": "Parts/S/leg_hind_far.png",
+          "pivot": [
+            744,
+            456
+          ],
+          "rest_position": [
+            744,
+            456
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            688,
+            389,
+            900,
+            923
+          ],
+          "foot": [
+            810,
+            923
+          ],
+          "phase": 0.25
+        }
+      },
+      "ground": [
+        640,
+        1045.5
+      ],
+      "uniform_scale_revision": 1
+    },
+    "SW": {
+      "order": [
+        "leg_hind_far",
+        "leg_front_far",
+        "body",
+        "leg_hind_near",
+        "leg_front_near",
+        "head"
+      ],
+      "backward": [
+        1,
+        -0.32
+      ],
+      "ground": [
+        756.25,
+        1078.75
+      ],
+      "parts": {
+        "body": {
+          "file": "Parts/SW/body.png",
+          "pivot": [
+            875,
+            625
+          ],
+          "rest_position": [
+            875,
+            625
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            330,
+            340,
+            1199,
+            948
+          ],
+          "source_scale": [
+            0.7754010695187166,
+            0.9457364341085271
+          ]
+        },
+        "head": {
+          "file": "Parts/SW/head.png",
+          "pivot": [
+            470,
+            747
+          ],
+          "rest_position": [
+            470,
+            747
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            100,
+            395,
+            718,
+            888
+          ],
+          "source_scale": [
+            0.6042884990253411,
+            0.6039119804400978
+          ]
+        },
+        "leg_front_near": {
+          "file": "Parts/SW/leg_front_near.png",
+          "pivot": [
+            699,
+            688
+          ],
+          "rest_position": [
+            699,
+            688
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            521,
+            556,
+            802,
+            1155
+          ],
+          "foot": [
+            665,
+            1155
+          ],
+          "phase": 0,
+          "source_scale": [
+            0.5516569200779727,
+            0.5514705882352942
+          ]
+        },
+        "leg_front_far": {
+          "file": "Parts/SW/leg_front_far.png",
+          "pivot": [
+            422,
+            692
+          ],
+          "rest_position": [
+            422,
+            692
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            314,
+            575,
+            548,
+            1104
+          ],
+          "foot": [
+            440,
+            1104
+          ],
+          "phase": 0.5,
+          "source_scale": [
+            0.49266247379454925,
+            0.49256505576208176
+          ]
+        },
+        "leg_hind_near": {
+          "file": "Parts/SW/leg_hind_near.png",
+          "pivot": [
+            977,
+            624
+          ],
+          "rest_position": [
+            977,
+            624
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            818,
+            422,
+            1125,
+            1052
+          ],
+          "foot": [
+            1050,
+            1052
+          ],
+          "phase": 0.75,
+          "source_scale": [
+            0.5777351247600768,
+            0.5786618444846293
+          ]
+        },
+        "leg_hind_far": {
+          "file": "Parts/SW/leg_hind_far.png",
+          "pivot": [
+            802,
+            622
+          ],
+          "rest_position": [
+            802,
+            622
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            670,
+            440,
+            948,
+            1004
+          ],
+          "foot": [
+            870,
+            1004
+          ],
+          "phase": 0.25,
+          "source_scale": [
+            0.5137795275590551,
+            0.5139765554553652
+          ]
+        }
+      },
+      "approved_source": true,
+      "uniform_scale_revision": 1
+    },
+    "E": {
+      "order": [
+        "leg_hind_far",
+        "leg_front_far",
+        "body",
+        "leg_hind_near",
+        "leg_front_near",
+        "head"
+      ],
+      "backward": [
+        -1,
+        0
+      ],
+      "ground": [
+        498,
+        1032
+      ],
+      "parts": {
+        "body": {
+          "file": "Parts/E/body.png",
+          "pivot": [
+            572.48,
+            628.24
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            65,
+            381,
+            1021,
+            908
+          ]
+        },
+        "head": {
+          "file": "Parts/E/head.png",
+          "pivot": [
+            925.28,
+            589.04
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            783,
+            318,
+            1222,
+            784
+          ]
+        },
+        "leg_front_near": {
+          "file": "Parts/E/leg_front_near.png",
+          "pivot": [
+            729.28,
+            636.0799999999999
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            573,
+            551,
+            858,
+            1071
+          ],
+          "foot": [
+            697.92,
+            1071.2
+          ],
+          "phase": 0
+        },
+        "leg_front_far": {
+          "file": "Parts/E/leg_front_far.png",
+          "pivot": [
+            803.76,
+            611.5799999999999
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            669,
+            537,
+            917,
+            992
+          ],
+          "foot": [
+            776.3199999999999,
+            992.8
+          ],
+          "phase": 0.5
+        },
+        "leg_hind_near": {
+          "file": "Parts/E/leg_hind_near.png",
+          "pivot": [
+            282.4,
+            600.8
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            152,
+            503,
+            409,
+            1071
+          ],
+          "foot": [
+            219.68000000000006,
+            1071.2
+          ],
+          "phase": 0.75
+        },
+        "leg_hind_far": {
+          "file": "Parts/E/leg_hind_far.png",
+          "pivot": [
+            352.96000000000004,
+            581.2
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            240,
+            496,
+            464,
+            993
+          ],
+          "foot": [
+            298.08000000000004,
+            992.8
+          ],
+          "phase": 0.25
+        }
+      },
+      "uniform_scale_revision": 0.98,
+      "mirrored_from": "W"
+    },
+    "NE": {
+      "order": [
+        "leg_front_far",
+        "leg_hind_far",
+        "leg_front_near",
+        "leg_hind_near",
+        "body",
+        "head"
+      ],
+      "backward": [
+        -0.78,
+        0.63
+      ],
+      "parts": {
+        "body": {
+          "file": "Parts/NE/body.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            577.5625,
+            619.0875000000001
+          ],
+          "bounds": [
+            183,
+            349,
+            953,
+            1040
+          ]
+        },
+        "head": {
+          "file": "Parts/NE/head.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            824.8125,
+            431.63750000000005
+          ],
+          "bounds": [
+            691,
+            121,
+            1116,
+            519
+          ]
+        },
+        "leg_front_near": {
+          "file": "Parts/NE/leg_front_near.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            839.7625,
+            731.7875
+          ],
+          "bounds": [
+            778,
+            685,
+            897,
+            871
+          ],
+          "foot": [
+            834.0125,
+            868.6375
+          ],
+          "phase": 0
+        },
+        "leg_front_far": {
+          "file": "Parts/NE/leg_front_far.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            713.2625,
+            763.9875
+          ],
+          "bounds": [
+            653,
+            731,
+            777,
+            843
+          ],
+          "foot": [
+            716.7125,
+            842.1875
+          ],
+          "phase": 0.5
+        },
+        "leg_hind_near": {
+          "file": "Parts/NE/leg_hind_near.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            490.1625,
+            1005.4875
+          ],
+          "bounds": [
+            422,
+            940,
+            595,
+            1219
+          ],
+          "foot": [
+            509.7125,
+            1219.3875
+          ],
+          "phase": 0.75
+        },
+        "leg_hind_far": {
+          "file": "Parts/NE/leg_hind_far.png",
+          "origin": [
+            0,
+            0
+          ],
+          "pivot": [
+            329.1625,
+            930.7375
+          ],
+          "bounds": [
+            253,
+            882,
+            389,
+            1076
+          ],
+          "foot": [
+            324.5625,
+            1076.7875
+          ],
+          "phase": 0.25
+        }
+      },
+      "note": "Lower-leg motion; broad upper thighs and chest remain on body to preserve approved master silhouette.",
+      "ground": [
+        596.25,
+        1001.75
+      ],
+      "uniform_scale_revision": 1.15,
+      "mirrored_from": "NW"
+    },
+    "SE": {
+      "order": [
+        "leg_hind_far",
+        "leg_front_far",
+        "body",
+        "leg_hind_near",
+        "leg_front_near",
+        "head"
+      ],
+      "backward": [
+        -1,
+        -0.32
+      ],
+      "ground": [
+        522.75,
+        1078.75
+      ],
+      "parts": {
+        "body": {
+          "file": "Parts/SE/body.png",
+          "pivot": [
+            404,
+            625
+          ],
+          "rest_position": [
+            875,
+            625
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            80,
+            340,
+            949,
+            948
+          ],
+          "source_scale": [
+            0.7754010695187166,
+            0.9457364341085271
+          ]
+        },
+        "head": {
+          "file": "Parts/SE/head.png",
+          "pivot": [
+            809,
+            747
+          ],
+          "rest_position": [
+            470,
+            747
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            561,
+            395,
+            1179,
+            888
+          ],
+          "source_scale": [
+            0.6042884990253411,
+            0.6039119804400978
+          ]
+        },
+        "leg_front_near": {
+          "file": "Parts/SE/leg_front_near.png",
+          "pivot": [
+            580,
+            688
+          ],
+          "rest_position": [
+            699,
+            688
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            477,
+            556,
+            758,
+            1155
+          ],
+          "foot": [
+            614,
+            1155
+          ],
+          "phase": 0,
+          "source_scale": [
+            0.5516569200779727,
+            0.5514705882352942
+          ]
+        },
+        "leg_front_far": {
+          "file": "Parts/SE/leg_front_far.png",
+          "pivot": [
+            857,
+            692
+          ],
+          "rest_position": [
+            422,
+            692
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            731,
+            575,
+            965,
+            1104
+          ],
+          "foot": [
+            839,
+            1104
+          ],
+          "phase": 0.5,
+          "source_scale": [
+            0.49266247379454925,
+            0.49256505576208176
+          ]
+        },
+        "leg_hind_near": {
+          "file": "Parts/SE/leg_hind_near.png",
+          "pivot": [
+            302,
+            624
+          ],
+          "rest_position": [
+            977,
+            624
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            154,
+            422,
+            461,
+            1052
+          ],
+          "foot": [
+            229,
+            1052
+          ],
+          "phase": 0.75,
+          "source_scale": [
+            0.5777351247600768,
+            0.5786618444846293
+          ]
+        },
+        "leg_hind_far": {
+          "file": "Parts/SE/leg_hind_far.png",
+          "pivot": [
+            477,
+            622
+          ],
+          "rest_position": [
+            802,
+            622
+          ],
+          "origin": [
+            0,
+            0
+          ],
+          "bounds": [
+            331,
+            440,
+            609,
+            1004
+          ],
+          "foot": [
+            409,
+            1004
+          ],
+          "phase": 0.25,
+          "source_scale": [
+            0.5137795275590551,
+            0.5139765554553652
+          ]
+        }
+      },
+      "approved_source": true,
+      "uniform_scale_revision": 1,
+      "mirrored_from": "SW"
+    }
+  }
+}

@@ -1626,3 +1626,19 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - `RoadPlayModeTests.ThePassDropsALegAtEveryTurnAndWalksSmoothly` checks the drops, the tiles drawn at their drop, the mapping both ways, and walking round a turn without a jump.
   - `PassPlayModeTests` checks what is painted from camp 1 and from leg 2, and that the real ground is hidden behind the paintings. It writes wide captures; `world_overview.png` shows the whole pass.
   - The outline test hides the valley while it measures.
+
+## 2026-10-16: Astra's ox, eight-direction walk V12 (Kevin approved)
+
+- **Import** (`Tools/ArtImport/import_ox_v12.py`; `Art/Placeholder/Ox/`):
+  - Each direction's standing pose and six assembled walk frames, on their full 1280 × 1280 canvases.
+  - Every sprite's pivot is its direction's `ground` anchor, so turning never shifts him.
+  - One scale for all directions: 720 px per unit, so his side view is about 1.6 units long and as tall as the supplier. No per-direction scaling (V12 has it baked in).
+  - E, NE and SE are the pack's own mirrors and are never flipped again.
+  - Filtering is point, as the pack asks. Images are capped at 512 px (still above his size on screen) for the phone's memory. The importer now applies filter and wrap through the settings it saves (earlier, a rule's filter or wrap was overwritten).
+- **Animation** (`OxFigure`). The assembled frames play at 5 fps (the 1.2-second loop, the last frame looping to the first); the standing pose shows when idle. The rig's part transforms aren't used, as the pack says not to combine the two. He has the game's outline.
+- **In the game.**
+  - On the drive he pulls the wagon, facing the way it goes (`DriveView`, scaled with the wagon). The old single-sprite ox is only a fallback.
+  - At the parked wagon he stands hitched past the shaft tips facing up the road (NE), with a small blocker so no one walks through him (`ShopView.Ox`).
+  - Open question: he stands past the shafts rather than between them. Real harnessing needs a hitched-pose anchor from Astra.
+- **Tests.** `OxPlayModeTests` checks all eight directions on one ground point and scale, never flipped; the walk advancing and looping in 1.2 s; the parked ox standing and solid; and the ox on the drive. It writes `Captures/ox_eight_directions_ingame.png`.
+- **Kitchen brief.** `Docs/ART_BRIEF_KITCHEN.md`: levels 1 and 2 and the kit, with ground, pad, delivery and chimney points.

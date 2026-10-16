@@ -35,6 +35,8 @@ namespace Ravenholm.Presentation
         [SerializeField] private Sprite[] wagonSprites = Array.Empty<Sprite>();
         [Tooltip("Astra's approved walk-in wagon (2026-10-16): replaces the single wagon sprite when set.")]
         [SerializeField] private WalkInCartArt walkInCart = new WalkInCartArt();
+        [Tooltip("Astra's ox (V12): standing hitched at the parked wagon.")]
+        [SerializeField] private OxArt ox = new OxArt();
         [SerializeField] private Sprite[] carpetSprites = Array.Empty<Sprite>();
         [SerializeField] private Sprite[] carpetEdgeA = Array.Empty<Sprite>();
         [SerializeField] private Sprite[] carpetEdgeB = Array.Empty<Sprite>();
@@ -88,6 +90,10 @@ namespace Ravenholm.Presentation
         }
 
         public void EditorSetupWalkInCart(WalkInCartArt art) => walkInCart = art;
+        public void EditorSetupOx(OxArt art) => ox = art;
+
+        /// <summary>The ox standing hitched at the parked wagon (tests).</summary>
+        public OxFigure Ox { get; private set; }
 
         public void EditorSetupWagon(Sprite[] wagons, Sprite[] carpets, Sprite[] edgesA, Sprite[] edgesB)
         {
@@ -420,6 +426,18 @@ namespace Ravenholm.Presentation
             var bi = bell.AddComponent<BellInspectable>();
             bi.EditorSetup("Store Bell", "", "");
             bi.EditorSetupVisual(bell.transform);
+            // The ox (Astra's V12): standing hitched at the shafts, facing up the road; solid, so no one walks through him.
+            if (ox != null && ox.Valid)
+            {
+                Ox = OxFigure.Create(wagon.transform, ox, "Default", 0, material);
+                Ox.FaceDir("NE");
+                Ox.transform.position = cart.Hitch + DriveView.OxAhead(new Vector2(0.97f, 0.24f));
+                var body = new GameObject("OxBody") { layer = blockerLayer };
+                body.transform.SetParent(Ox.transform, false);
+                var circle = body.AddComponent<CircleCollider2D>();
+                circle.radius = 0.38f;
+                circle.offset = new Vector2(0f, 0.12f);
+            }
             // Customers stand at the counter: the Store's marker is the pack's customer spot.
             if (ReceiverView.TryGet("receiver.store", out var store))
             {
