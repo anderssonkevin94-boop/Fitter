@@ -77,6 +77,10 @@ namespace Ravenholm.Presentation
             foreach (var sr in _pieces)
             {
                 if (_isCopy.Contains(sr)) continue;
+                // Another outliner's copies, and the pieces of an outlined object inside this one (the Trader in the
+                // Trader's stall), are not this one's pieces: outlining them grew copies of copies every frame, without
+                // end (thousands of renderers: the red text and the lag, 2026-10-16).
+                if (IsOutlineCopy(sr, s) || sr.GetComponentInParent<SpriteOutline>(true) != this) continue;
                 var want = sr.enabled && sr.gameObject.activeInHierarchy && sr.sprite != null && (OutlineAll || s.IsOutlined(sr.sprite));
                 _copies.TryGetValue(sr, out var copy);
                 if (!want)
@@ -100,6 +104,9 @@ namespace Ravenholm.Presentation
             }
             ActiveOutlines = active;
         }
+
+        private static bool IsOutlineCopy(SpriteRenderer sr, OutlineSettings s) =>
+            sr.sharedMaterial != null && (sr.sharedMaterial == s.material || sr.sharedMaterial == s.overlapFreeMaterial);
 
         private SpriteRenderer MakeCopy(SpriteRenderer piece, Material material)
         {

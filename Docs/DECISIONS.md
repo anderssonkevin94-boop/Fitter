@@ -1480,3 +1480,8 @@ Built:
 - **Region streaming.** Kevin asked for regions more than one away not to load. I didn't stream them: as one mesh, the ground costs little far away, and unloading tiles would mean re-applying dug holes, built bridges and walkability at each border. Streaming is the fallback if the phone still lags.
 - **Tree highlight.** The tree or stump the button would chop gets a bright line round its silhouette, outside its outline, pulsing like the block highlight (`ForestGridView.UpdateTreeHighlight`). The outline shader gained `_HighlightPx` and `_HighlightColor`; ordinary outlines are unchanged.
 - **Tests.** `CampPlayModeTests` checks the highlight and that the ground draws in Chunk mode.
+- **The red text came back: an outline leak** (found later the same day).
+  - Cause: the Trader, an outlined figure, stands inside the outlined Trader's stall. Each `SpriteOutline` outlined the other's outline copies every frame without end. At load Kevin's save had 2,395 copies of copies, and about 20 more were added each frame, which drove the renderer count back over the limit and cost time every frame.
+  - Fix: an outline now skips outline copies (renderers using the outline materials) and the pieces of a nested outlined object.
+  - Result: Kevin's save loads with 765 active renderers, and the count stays flat (765–1,114) across all six camps and back.
+  - Test: `OutlinePlayModeTests.AnOutlinedObjectInsideAnotherIsNotOutlinedOverAndOver`.

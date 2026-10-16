@@ -99,6 +99,25 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
+        public IEnumerator AnOutlinedObjectInsideAnotherIsNotOutlinedOverAndOver()
+        {
+            // The Trader stands in the Trader's stall, both outlined: each outlined the other's copies, every frame, without
+            // end (thousands of renderers on Kevin's phone: the red text and the lag, 2026-10-16).
+            SceneManager.LoadScene(GameRoot.BootstrapSceneName);
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while ((GameRoot.Instance == null || SandboxSceneController.Current == null || SceneManager.GetActiveScene().name != "DebugSandbox")
+                   && Time.realtimeSinceStartup < deadline)
+                yield return null;
+            yield return new WaitForSeconds(1f);
+            int Renderers() => Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
+            var before = Renderers();
+            for (var i = 0; i < 120; i++) yield return null;
+            Assert.AreEqual(before, Renderers(), "the scene's renderers stay put while nothing changes");
+            foreach (var sr in Object.FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                Assert.IsFalse(sr.name == "Outline" && sr.transform.parent != null && sr.transform.parent.name == "Outline", "an outline of an outline: " + sr.transform.parent.parent?.name);
+        }
+
+        [UnityTest]
         public IEnumerator TheOutlineHasOneThicknessAndOnlyFollowsTheSilhouette()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);
