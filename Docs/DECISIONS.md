@@ -1590,3 +1590,19 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - Pressing into the counter rail let the feet cross the counter's sorting row by a few pixels, drawing the supplier (and a carried pile) in front of the counter and roof. The rail now stops 16 px short of that row (`WalkInCart.RailMarginPx`).
   - While the stick is held, the supplier faces where it points, even when blocked or sliding along a wall (`SupplierAnimator`). Behind the counter they can face the customers.
   - The test holds the stick into the counter and checks they stay behind it and face S/SE/SW.
+
+## 2026-10-16: the switchback pass, step 1: the layout (Astra's pass pack; Kevin: medium legs)
+
+- **The pass.** `RidgeLayout.Switchback` builds the line from straight legs alternating along +x and +y, joined by Astra's quarter-circle turns: road radius 16 cells, left from +x to +y and right from +y to +x. The legs and turns are recorded (`LegSpans`, `TurnSpans`).
+  - The land is 8 cells either side of the line with straight edges, like the paintings (no wobble, no edge noise), plus the camps' clearings.
+  - The first leg runs from 12 behind camp 1's town, through it, and 40 on (`firstLegLength` 69).
+  - The other legs are 40 long (`legLength`, Kevin: "start with medium but we might increase it later"). The last runs 24 further toward the castle (`FinalStretch`).
+  - The road wanders ±1.5 cells.
+- **Camps.** Camps 2–6 sit mid-leg on a ledge, a clearing pushed out over the side facing the next leg (up the screen). The camp's group stands toward that side. Camp 1 keeps its town, the wide plateau at the foot of the pass.
+- **Gates and bands.**
+  - The gates sit at the turns' middles (`CampDefinition.GateAhead`): trees, rock, Bridge, Causeway, the sealed gate. Their authored `ahead` values are unused on the pass.
+  - One band per leg: a turn belongs to the leg after its middle. In-band effort takes three steps across a leg.
+- **Removed on the pass.** The camp bays and coves are off (the legs below replace them).
+- **Content.** Each leg has less forest than before (a leg is about 16 × 40 with the camp ledge in its middle). Leg length is the knob to turn.
+- **Tests.** The width checks use the legs' 16 cells. Gate positions come from `GateAhead`. The bays' drop check applies only off the pass.
+- **Step 2 next.** Each leg's world drawn 2 units lower than the last (eased through the turns), with one cell↔world mapping for everything; Astra's paintings for legs two or more away; the valley floor; the castle.

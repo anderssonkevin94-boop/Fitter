@@ -65,6 +65,17 @@ namespace Ravenholm.Content
         [Tooltip("Flat cells beside a clearing before the hills rise.")]
         [Min(0)] [SerializeField] private int flatMargin = 3;
         [SerializeField] private List<GateSpec> gates = new List<GateSpec>();
+        [Header("The switchback pass (Kevin, 2026-10-16; Astra's pass pack)")]
+        [Tooltip("The road as a switchback pass: legs alternating along the two axes, joined by quarter-circle turns. Camps sit mid-leg, the gates at the turns.")]
+        [SerializeField] private bool switchback;
+        [Tooltip("Cells along each leg after the first (Kevin: medium, 40, maybe longer later).")]
+        [Min(8)] [SerializeField] private int legLength = 40;
+        [Tooltip("The first leg: from behind camp 1's town, through it, and on to the first turn.")]
+        [Min(8)] [SerializeField] private int firstLegLength = 69;
+        [Tooltip("The turns' road radius in cells (the paintings' 16 tiles).")]
+        [Min(4)] [SerializeField] private float turnRadius = 16f;
+        [Tooltip("Where the first leg starts, behind camp 1's clearing centre (cells along -x).")]
+        [Min(0)] [SerializeField] private int behindTown = 12;
         [Header("The camps further on (the journey's stops after this camp)")]
         [SerializeField] private List<StopSpec> stops = new List<StopSpec>();
         [Tooltip("At camp 1, the middle of the camp's group (shop, Trader, applicants): it is set down on each later clearing's centre.")]
@@ -103,6 +114,14 @@ namespace Ravenholm.Content
             if (index <= 0) return layoutAnchor;
             var r = Ridge;
             var st = stops[Mathf.Min(index, stops.Count) - 1];
+            if (switchback)
+            {
+                // Mid-leg, toward the side facing the next leg (up the screen): left of travel on an x leg, right on a y leg.
+                var leg = r.LegSpans[Mathf.Min(index, r.LegSpans.Count - 1)];
+                var side = leg.AlongX ? 1f : -1f;
+                var (sx, sy) = r.PointBeside(r.LegMid(index), side * Mathf.Max(0f, st.radius - anchorInset));
+                return new Vector2((float)sx, (float)sy);
+            }
             // The group stands toward the clearing's right-hand side, the land's edge a few cells beyond it (as at camp 1).
             var (x, y) = r.PointBeside(r.CampS + st.ahead, -Mathf.Max(0f, st.radius - anchorInset));
             return new Vector2((float)x, (float)y);
@@ -111,22 +130,33 @@ namespace Ravenholm.Content
         public float CampRadius(int index) => index <= 0 ? Mathf.Min(clearingRadii.x, clearingRadii.y) : stops[Mathf.Min(index, stops.Count) - 1].radius;
 
         /// <summary>The camp's ahead distance from camp 1 along the road.</summary>
-        public int CampAhead(int index) => index <= 0 ? 0 : stops[Mathf.Min(index, stops.Count) - 1].ahead;
+        public int CampAhead(int index) => index <= 0 ? 0
+            : switchback ? Mathf.RoundToInt((float)(Ridge.LegMid(Mathf.Min(index, stops.Count)) - Ridge.CampS))
+            : stops[Mathf.Min(index, stops.Count) - 1].ahead;
+
+        public bool Switchback => switchback;
+
+        /// <summary>A gate's distance ahead of camp 1: on the pass, the middle of its turn.</summary>
+        public int GateAhead(int index) => switchback && index < Ridge.TurnSpans.Count
+            ? Mathf.RoundToInt((float)(Ridge.TurnSpans[index].Mid - Ridge.CampS)) : gates[index].ahead;
 
         /// <summary>The ground's tint at a distance along the road: each camp's land from halfway to it, blending in.</summary>
         public Color GroundTintAt(double ahead)
         {
             var tint = Color.white;
             var prevAhead = 0;
-            foreach (var st in stops)
+            for (var i = 0; i < stops.Count; i++)
             {
-                var from = (prevAhead + st.ahead) * 0.5f;
+                var st = stops[i];
+                var at = CampAhead(i + 1);
+                // On the pass a region starts at the turn before its camp; elsewhere halfway between camps.
+                var from = switchback && i < Ridge.TurnSpans.Count ? (float)(Ridge.TurnSpans[i].Mid - Ridge.CampS) : (prevAhead + at) * 0.5f;
                 if (ahead >= from)
                 {
                     var c = st.groundTint.a > 0 ? st.groundTint : Color.white;
                     tint = Color.Lerp(tint, c, Mathf.Clamp01((float)(ahead - from) / 20f));
                 }
-                prevAhead = st.ahead;
+                prevAhead = at;
             }
             return tint;
         }
@@ -142,7 +172,17 @@ namespace Ravenholm.Content
                     StartX = start.x, StartY = start.y, HalfWidth = halfWidth, WidthWobble = widthWobble, EdgeNoise = edgeNoise,
                     LineWobble = lineWobble, RoadWobble = roadWobble, BandLength = bandLength, FlatMargin = flatMargin, Seed = seed,
                 };
-                foreach (var st in stretches) r.Stretches.Add(new RidgeLayout.Stretch { AlongX = st.upRight, Length = st.length });
+                if (switchback)
+                {
+                    r.Switchback = true;
+                    r.StartX = clearingCentre.x - behindTown;
+                    r.StartY = clearingCentre.y;
+                    r.Legs = CampCount;
+                    r.LegLength = legLength;
+                    r.FirstLegLength = firstLegLength;
+                    r.TurnRadius = turnRadius;
+                }
+                else foreach (var st in stretches) r.Stretches.Add(new RidgeLayout.Stretch { AlongX = st.upRight, Length = st.length });
                 var campS = r.Locate(Mathf.RoundToInt(clearingCentre.x), Mathf.RoundToInt(clearingCentre.y)).s;
                 r.CampS = campS;
                 r.Clearings.Add(new RidgeLayout.Clearing
@@ -150,14 +190,33 @@ namespace Ravenholm.Content
                     S = campS, HasCentre = true, CX = clearingCentre.x, CY = clearingCentre.y, RX = clearingRadii.x, RY = clearingRadii.y,
                 });
                 if (stops.Count == 0) r.Clearings.Add(new RidgeLayout.Clearing { S = campS + nextCampAhead, RX = nextCampRadius, RY = nextCampRadius });
-                foreach (var st in stops) r.Clearings.Add(new RidgeLayout.Clearing { S = campS + st.ahead, RX = st.radius, RY = st.radius });
-                foreach (var g in gates)
-                    r.Gates.Add(new RidgeLayout.Gate { S = campS + g.ahead, Thickness = g.thickness, Tier = g.tier, Rock = g.rock, Project = !string.IsNullOrEmpty(g.project) });
+                for (var i = 0; i < stops.Count; i++)
+                {
+                    var st = stops[i];
+                    var at = switchback ? r.LegMid(i + 1) : campS + st.ahead;
+                    var clearing = new RidgeLayout.Clearing { S = at, RX = st.radius, RY = st.radius };
+                    if (switchback)
+                    {
+                        // The camp's ledge: a clearing pushed out over the side facing the next leg.
+                        var side = r.LegSpans[Math.Min(i + 1, r.LegSpans.Count - 1)].AlongX ? 1.0 : -1.0;
+                        var (cx, cy) = r.PointBeside(at, side * (st.radius - anchorInset) * 0.5);
+                        clearing.HasCentre = true;
+                        clearing.CX = cx;
+                        clearing.CY = cy;
+                    }
+                    r.Clearings.Add(clearing);
+                }
+                for (var i = 0; i < gates.Count; i++)
+                {
+                    var g = gates[i];
+                    var at = switchback && i < r.TurnSpans.Count ? r.TurnSpans[i].Mid : campS + g.ahead;
+                    r.Gates.Add(new RidgeLayout.Gate { S = at, Thickness = g.thickness, Tier = g.tier, Rock = g.rock, Project = !string.IsNullOrEmpty(g.project) });
+                }
                 _ridge = r;
                 // Each camp at the edge (Kevin, 2026-10-16): a cove in the land's right-hand edge, edgeGap world units right of
                 // where the camp's group stands; the road swings out along the edge toward it (about two cells across the
                 // line per world unit across the screen).
-                if (edgeGap > 0)
+                if (edgeGap > 0 && !switchback)   // the pass shows the legs below instead
                     for (var i = 0; i < CampCount && i < r.Clearings.Count; i++)
                     {
                         var c = r.Clearings[i];
@@ -190,7 +249,7 @@ namespace Ravenholm.Content
         public override void Validate(List<string> errors)
         {
             base.Validate(errors);
-            if (stretches.Count == 0) errors.Add($"{Describe()}: no ridge stretches");
+            if (stretches.Count == 0 && !switchback) errors.Add($"{Describe()}: no ridge stretches");
             if (clearingRadii.x < 4 || clearingRadii.y < 4) errors.Add($"{Describe()}: clearing too small");
         }
 
@@ -214,6 +273,22 @@ namespace Ravenholm.Content
         public void EditorSetGroupSpots(List<Vector2Int> spots)
         {
             groupSpots = spots;
+            _ridge = null;
+        }
+
+        /// <summary>The switchback pass (Kevin, 2026-10-16): its legs and turns, the legs' straight width, the road's wander.</summary>
+        public void EditorSetSwitchback(bool on, int leg, int firstLeg, float turn, int behind, float half, float road)
+        {
+            switchback = on;
+            legLength = leg;
+            firstLegLength = firstLeg;
+            turnRadius = turn;
+            behindTown = behind;
+            halfWidth = half;
+            widthWobble = 0f;
+            edgeNoise = 0f;
+            roadWobble = road;
+            edgeGap = 0f;
             _ridge = null;
         }
 

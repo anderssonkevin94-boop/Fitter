@@ -62,11 +62,11 @@ MonoBehaviour:
     length: 34
   - upRight: 0
     length: 30
-  halfWidth: 20
-  widthWobble: 5
-  edgeNoise: 3
+  halfWidth: 8
+  widthWobble: 0
+  edgeNoise: 0
   lineWobble: 4
-  roadWobble: 4
+  roadWobble: 1.5
   bandLength: 80
   flatMargin: 3
   gates:
@@ -108,6 +108,11 @@ MonoBehaviour:
     rock: 1
     project: 
     projectCost: []
+  switchback: 1
+  legLength: 40
+  firstLegLength: 69
+  turnRadius: 16
+  behindTown: 12
   stops:
   - name: River Bend
     ahead: 95
@@ -130,7 +135,8 @@ MonoBehaviour:
     radius: 14
     groundTint: {r: 1, g: 0.95, b: 0.82, a: 1}
   layoutAnchor: {x: 5, y: 2}
-  edgeGap: 2.5
+  edgeGap: 0
+  bayHeight: 5
   groupSpots:
   - {x: -7, y: -10}
   anchorInset: 6

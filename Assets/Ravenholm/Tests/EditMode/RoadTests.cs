@@ -36,7 +36,7 @@ namespace Ravenholm.Tests
             CollectionAssert.AreEqual(new[] { "Meadow's Edge", "River Bend", "Hollow Wood", "Witchlight Fen", "Crown Highlands", "Castle Approach" },
                 Enumerable.Range(0, 6).Select(road.CampName));
             for (var i = 0; i < 5; i++)
-                Assert.That(road.Gates[i].ahead, Is.InRange(road.CampAhead(i) + 20, road.CampAhead(i + 1) - 20), $"blocker {i + 1} lies between camps {i + 1} and {i + 2}");
+                Assert.That(road.GateAhead(i), Is.InRange(road.CampAhead(i) + 20, road.CampAhead(i + 1) - 20), $"blocker {i + 1} lies between camps {i + 1} and {i + 2}");
             Assert.AreEqual("Bridge", road.Gates[2].project);
             Assert.AreEqual("Causeway", road.Gates[3].project);
             Assert.AreEqual(4, road.Gates[4].tier, "the sealed gate needs the moonsilver tool");

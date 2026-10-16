@@ -37,7 +37,8 @@ namespace Ravenholm.Tests
                 var byBay = false;
                 for (var k = -60; k <= 60 && !byBay; k++)
                     byBay = r.InCove((int)System.Math.Round(px + k * 0.7071), (int)System.Math.Round(py - k * 0.7071));
-                Assert.Greater(across, byBay ? 14 : 30, $"wide {ahead} ahead ({across} cells across)");
+                // The switchback pass (2026-10-16): legs 16 tiles wide (Astra's paintings), wider than the 7-unit view.
+                Assert.Greater(across, byBay || camp.Switchback ? 14 : 30, $"wide {ahead} ahead ({across} cells across)");
                 Assert.Less(across, 85, $"but not endless {ahead} ahead ({across} cells across)");
             }
         }
@@ -76,7 +77,7 @@ namespace Ravenholm.Tests
             }
             Assert.Greater(road, 60, "the old road runs on ahead");
             Assert.AreEqual(5, camp.Gates.Count, "one blocker between each pair of the six camps");
-            var (gx, gy) = r.PointAt(r.CampS + camp.Gates[0].ahead);
+            var (gx, gy) = r.PointAt(r.CampS + camp.GateAhead(0));
             Assert.AreEqual(2, r.GateTierAt((int)gx, (int)gy), "the gate across the road needs the iron tool");
             Assert.IsTrue(r.FixedOpen(42, (int)gx, (int)gy, out var open) && !open, "solid: no gaps in the old trees");
             var (fx, fy) = r.PointAt(r.CampS + 20);

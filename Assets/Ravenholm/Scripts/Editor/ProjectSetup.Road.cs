@@ -35,7 +35,7 @@ namespace Ravenholm.EditorTools
                 EditorUtility.SetDirty(camp);
             }
 
-            if (camp.Stops.Count < 5 || camp.Ridge.Length - camp.Ridge.CampS < camp.CampAhead(camp.CampCount - 1) + 30)
+            if (camp.Stops.Count < 5 || !camp.Switchback && camp.Ridge.Length - camp.Ridge.CampS < camp.CampAhead(camp.CampCount - 1) + 30)
             {
                 CampDefinition.Stretch S(bool upRight, int length) => new CampDefinition.Stretch { upRight = upRight, length = length };
                 CampDefinition.StopSpec Stop(string name, int ahead, float radius, Color tint) =>
@@ -66,6 +66,16 @@ namespace Ravenholm.EditorTools
                         Gate(435, 4, true),                                                            // the sealed gate: the moonsilver tool
                     },
                     80);   // one band of wood and ore per camp
+                EditorUtility.SetDirty(camp);
+            }
+
+            // The switchback pass (Kevin, 2026-10-16; Astra's pass pack): legs of 40 cells (Kevin: medium, maybe longer later),
+            // 16 wide with straight edges like the paintings, joined by her turns (road radius 16). The first leg runs from
+            // 12 behind camp 1's town through it and 40 on. Camps sit mid-leg, the gates at the turns (their authored
+            // "ahead" no longer used); one band per leg.
+            if (!camp.Switchback)
+            {
+                camp.EditorSetSwitchback(true, 40, 12 + 17 + 40, 16f, 12, 8f, 1.5f);
                 EditorUtility.SetDirty(camp);
             }
 

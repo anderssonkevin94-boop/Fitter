@@ -68,10 +68,106 @@ namespace Ravenholm.Domain.Sites
 
         // ------------------------------------------------------------------ the centre line
 
+        // ------------------------------------------------------------------ the switchback pass (Kevin, 2026-10-16)
+
+        /// <summary>
+        /// The road as a switchback pass (Astra's pass pack): straight legs alternating along +x (up-right) and +y (up-left),
+        /// joined by quarter-circle turns of <see cref="TurnRadius"/> cells (the paintings' road radius). The land is the
+        /// legs' fixed width either side of the line (the paintings' 16 tiles), plus the camps' clearings.
+        /// </summary>
+        public bool Switchback;
+        public int Legs = 6;
+        public double LegLength = 40, FirstLegLength = 40, TurnRadius = 16;
+
+        /// <summary>The last leg runs on past its camp to the castle's gate.</summary>
+        public double FinalStretch = 24;
+
+        /// <summary>A leg of the pass: along x or y, from s0 to s1 along the line.</summary>
+        public struct LegSpan { public double S0, S1; public bool AlongX; }
+
+        /// <summary>A turn between legs: its circle's centre (cells), from s0 to s1 along the line; left turns go from +x to +y.</summary>
+        public struct TurnSpan { public double S0, S1, CX, CY; public bool Left; public double Mid => (S0 + S1) * 0.5; }
+
+        public readonly List<LegSpan> LegSpans = new List<LegSpan>();
+        public readonly List<TurnSpan> TurnSpans = new List<TurnSpan>();
+
+        /// <summary>The middle of leg <paramref name="i"/> (0-based) along the line.</summary>
+        public double LegMid(int i)
+        {
+            Build();
+            var l = LegSpans[Math.Max(0, Math.Min(i, LegSpans.Count - 1))];
+            return (l.S0 + l.S1) * 0.5;
+        }
+
+        /// <summary>Which leg (0-based) a distance along the line belongs to: a turn belongs to the leg before its middle.</summary>
+        public int LegIndexAt(double s)
+        {
+            Build();
+            var i = 0;
+            foreach (var t in TurnSpans) if (s >= t.Mid) i++;
+            return i;
+        }
+
+        private void BuildSwitchback()
+        {
+            var raw = new List<(double x, double y)>();
+            double x = StartX, y = StartY;
+            var alongX = true;
+            var legStarts = new List<int>();
+            var legEnds = new List<int>();
+            var turnStarts = new List<int>();
+            var turnEnds = new List<int>();
+            var centres = new List<(double x, double y, bool left)>();
+            for (var leg = 0; leg < Legs; leg++)
+            {
+                var len = leg == 0 ? FirstLegLength : leg == Legs - 1 ? LegLength + FinalStretch : LegLength;
+                legStarts.Add(raw.Count);
+                var n = Math.Max(1, (int)Math.Ceiling(len * 2));
+                for (var k = 0; k < n; k++) raw.Add(alongX ? (x + len * k / n, y) : (x, y + len * k / n));
+                if (alongX) x += len; else y += len;
+                legEnds.Add(raw.Count);
+                if (leg == Legs - 1) break;
+                // A quarter circle: left (from +x to +y) round a centre on the left of travel; right (from +y to +x) likewise.
+                var left = alongX;
+                var cx = left ? x : x + TurnRadius;
+                var cy = left ? y + TurnRadius : y;
+                centres.Add((cx, cy, left));
+                turnStarts.Add(raw.Count);
+                var m = Math.Max(8, (int)Math.Ceiling(Math.PI * TurnRadius));
+                for (var k = 0; k < m; k++)
+                {
+                    var a = Math.PI * 0.5 * k / m;
+                    raw.Add(left ? (cx + TurnRadius * Math.Sin(a), cy - TurnRadius * Math.Cos(a)) : (cx - TurnRadius * Math.Cos(a), cy + TurnRadius * Math.Sin(a)));
+                }
+                x = left ? cx + TurnRadius : cx;
+                y = left ? cy : cy + TurnRadius;
+                turnEnds.Add(raw.Count);
+                alongX = !alongX;
+            }
+            raw.Add((x, y));
+            var s = 0.0;
+            for (var i = 0; i < raw.Count; i++)
+            {
+                if (i > 0) s += Dist(raw[i - 1], raw[i]);
+                _line.Add((raw[i].x, raw[i].y, s));
+            }
+            double SAt(int i) => _line[Math.Min(i, _line.Count - 1)].s;
+            LegSpans.Clear();
+            for (var i = 0; i < legStarts.Count; i++) LegSpans.Add(new LegSpan { S0 = SAt(legStarts[i]), S1 = SAt(legEnds[i]), AlongX = i % 2 == 0 });
+            TurnSpans.Clear();
+            for (var i = 0; i < turnStarts.Count; i++)
+                TurnSpans.Add(new TurnSpan { S0 = SAt(turnStarts[i]), S1 = SAt(turnEnds[i]), CX = centres[i].x, CY = centres[i].y, Left = centres[i].left });
+        }
+
         private void Build()
         {
             if (_built) return;
             _built = true;
+            if (Switchback)
+            {
+                BuildSwitchback();
+                return;
+            }
             // Corners of the authored stretches, smoothed (Chaikin) so the turns are bends, then sampled every cell.
             var corners = new List<(double x, double y)> { (StartX, StartY) };
             double cx = StartX, cy = StartY;
@@ -224,6 +320,7 @@ namespace Ravenholm.Domain.Sites
         public double WidthAt(double s)
         {
             var w = HalfWidth + WidthWobble * (Noise1(s / 30.0, 23) * 2 - 1);
+            if (Switchback) return w;   // the pass keeps the paintings' straight edges; a camp's clearing is its ledge
             foreach (var c in Clearings)
                 w = Math.Max(w, Math.Max(c.RX, c.RY) + 10 - Math.Abs(s - c.S) * 0.4);   // a camp sits in a bay
             return w;
@@ -405,7 +502,8 @@ namespace Ravenholm.Domain.Sites
         }
 
         /// <summary>Forward of camp 1, every <see cref="BandLength"/> cells is the next band (new wood, the Mine's next layer).</summary>
-        public int BandAt(int x, int y) => 1 + (int)Math.Max(0, Math.Floor((Locate(x, y).s - CampS) / Math.Max(1, BandLength)));
+        public int BandAt(int x, int y) => Switchback ? 1 + LegIndexAt(Locate(x, y).s)
+            : 1 + (int)Math.Max(0, Math.Floor((Locate(x, y).s - CampS) / Math.Max(1, BandLength)));
 
         /// <summary>
         /// Extra effort within a band: three steps (0, 1, 2) across its length, so a band's last trees stay easier than
@@ -413,6 +511,15 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public int ContinuationAt(int x, int y)
         {
+            if (Switchback)
+            {
+                // On the pass a band is a leg (from the turn before it to the turn after): three steps across it.
+                var s = Locate(x, y).s;
+                var leg = LegIndexAt(s);
+                var from = leg == 0 ? CampS : TurnSpans[leg - 1].Mid;
+                var to = leg < TurnSpans.Count ? TurnSpans[leg].Mid : Length;
+                return Math.Max(0, Math.Min(2, (int)((s - from) / Math.Max(1, to - from) * 3)));
+            }
             var along = Math.Max(0, Locate(x, y).s - CampS);
             var band = Math.Max(1, BandLength);
             return (int)(along % band * 3 / band);

@@ -79,7 +79,8 @@ namespace Ravenholm.Tests
                 var dropAt = -1f;
                 for (var k = 0.5f; k < 6f && dropAt < 0f; k += 0.25f)
                     if (!ground.HasTile(ground.WorldToCell(mid + new Vector2(k, 0f)))) dropAt = k;
-                Assert.That(dropAt, Is.InRange(1.5f, 3.4f), $"camp {c + 1}: the drop is on screen right of the camp");
+                // The bays (before the switchback pass, which shows the legs below instead): the drop right of the camp.
+                if (!road.Switchback) Assert.That(dropAt, Is.InRange(1.5f, 3.4f), $"camp {c + 1}: the drop is on screen right of the camp");
                 var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
                 motor.Teleport(mid);
                 SandboxSceneController.Current.SnapPlayerToSavedPosition();

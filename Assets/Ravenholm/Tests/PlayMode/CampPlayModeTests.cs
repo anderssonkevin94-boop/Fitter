@@ -141,7 +141,7 @@ namespace Ravenholm.Tests
             Assert.Greater(mine.SurfaceBand(far.x, far.y), mine.SurfaceBand(ahead.x, ahead.y), "deeper ore further forward");
 
             // The gate: old trees across the ridge that the basic tool can't cut.
-            var gateAhead = camp.Gates[0].ahead;
+            var gateAhead = camp.GateAhead(0);
             var gate = TreeAhead(sim, gateAhead - 1, anyTier: true);
             Assert.Greater(r.GateTierAt(gate.x, gate.y), 0, "a gate tree");
             Assert.IsTrue(S.Sites.ToolTooWeak(gate.x, gate.y), "too tough for the basic tool");
