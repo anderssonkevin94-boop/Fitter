@@ -26,6 +26,10 @@ namespace Ravenholm.Presentation
 
         public int ShownCount => _shown.Count;
 
+        /// <summary>The citizen body and animations adventurers are drawn with (tests).</summary>
+        public HoseCharacterDefinition Citizen => citizen;
+        public CharacterAnimationSet Animations => animations;
+
         public void EditorSetup(List<Vector2> spotPositions, List<Sprite> skinSprites)
         {
             spots = spotPositions;
@@ -160,7 +164,21 @@ namespace Ravenholm.Presentation
         {
             var c = _root.Services.Jobs.Board.Contractor(e.ContractorId);
             var from = _shown.TryGetValue(e.ContractorId, out var go) ? (Vector2)go.transform.position : spots.Count > 0 ? Spot(0) : Vector2.zero;
-            StartCoroutine(Depart(Spawn(c, from, false), from));
+            var walker = Spawn(c, from, false);
+            // Kitted out: the helmet from the loadout is worn on the way (the loadout holds the Store's item instances).
+            foreach (var i in e.Items) if (Wear(walker, _root.Services.Logistics.System.DefinitionOfItem(i))) break;
+            StartCoroutine(Depart(walker, from));
+        }
+
+        /// <summary>Puts headwear on a citizen figure if the item is headwear (Astra's handoff: fitted to the SE view).</summary>
+        private bool Wear(GameObject figure, string itemId)
+        {
+            if (figure == null || string.IsNullOrEmpty(itemId) || !_root.Services.Catalogue.TryGet<ItemDefinition>(itemId, out var def)
+                || def.Category != ItemCategory.Helmet) return false;
+            var rig = figure.GetComponentInChildren<HoseRig>();
+            if (rig == null) return false;
+            rig.HeadwearItem = itemId;
+            return true;
         }
 
         private void OnDestroy()
@@ -175,7 +193,9 @@ namespace Ravenholm.Presentation
             var c = _root.Services.Jobs.Board.Contractor(r.ContractorId);
             var to = spots.Count > 0 ? Spot(spots.Count - 1) : Vector2.zero;
             Returning++;
-            StartCoroutine(Walk(Spawn(c, Departure, false), Departure, to, fadeIn: true));
+            var walker = Spawn(c, Departure, false);
+            foreach (var d in r.ReturnedItems) if (Wear(walker, d)) break;   // the helmet comes home on their head
+            StartCoroutine(Walk(walker, Departure, to, fadeIn: true));
         }
 
         /// <summary>Returns walked back so far (tests).</summary>

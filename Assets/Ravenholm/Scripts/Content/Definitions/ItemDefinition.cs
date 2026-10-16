@@ -102,6 +102,10 @@ namespace Ravenholm.Content
         [Tooltip("The views' visible bounds in pixels from the top-left (items are fitted by these, bottom-centre).")]
         [SerializeField] private Rect displayBoundsA;
         [SerializeField] private Rect displayBoundsB;
+        [Tooltip("Astra's equipment handoff (2026-10-16): view A is a layer on the armour stand's own canvas (not fitted into a slot): body armour, headwear or a shield.")]
+        [SerializeField] private StandLayer standLayer;
+        [Tooltip("Body armour: the mannequin's head seated in this armour's collar (drawn above the armour).")]
+        [SerializeField] private Sprite standHeadA;
 
         public override string IdKind => "item";
         public ItemCategory Category => category;
@@ -164,6 +168,10 @@ namespace Ravenholm.Content
         public float StackStep => stackStep;
         public bool SmallDisplay => smallDisplay;
 
+        /// <summary>Which layer of the armour stand view A is (None: a view fitted into the slot like any other).</summary>
+        public StandLayer StandLayer => standLayer;
+        public Sprite StandHeadA => standHeadA;
+
         /// <summary>The display view for a facing (A for left-facing furniture), with its visible bounds; null if not drawn.</summary>
         public Sprite DisplaySprite(bool facingB, out Rect visibleBounds)
         {
@@ -218,6 +226,12 @@ namespace Ravenholm.Content
             displayBoundsB = boundsB;
         }
 
+        public void EditorSetStandLayer(StandLayer layer, Sprite head)
+        {
+            standLayer = layer;
+            standHeadA = head;
+        }
+
         public void EditorSetCounter(CounterTag tag, int strength)
         {
             counterTag = tag;
@@ -249,5 +263,14 @@ namespace Ravenholm.Content
 
         public void EditorSetProtection(int p) => protection = p;
 #endif
+    }
+
+    /// <summary>The layer an item's view A draws on the armour stand (back to front: armour, its collar head, headwear, shield).</summary>
+    public enum StandLayer
+    {
+        None = 0,
+        Armor = 1,
+        Head = 2,
+        Shield = 3,
     }
 }

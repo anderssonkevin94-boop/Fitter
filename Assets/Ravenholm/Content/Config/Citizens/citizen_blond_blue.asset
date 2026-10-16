@@ -25,6 +25,7 @@ MonoBehaviour:
     ankleRight: {x: -0.11176471, y: 0.120588236}
     wristLeft: {x: 0.25882354, y: 0.3382353}
     wristRight: {x: -0.25882354, y: 0.3382353}
+    headwear: []
   - name: SE
     body: {fileID: 21300000, guid: c5f53c9838c6b4aa292e50cdacc24d37, type: 3}
     bootLeft: {fileID: 21300000, guid: 24968fa7952c3456da8266774ae5532a, type: 3}
@@ -37,6 +38,15 @@ MonoBehaviour:
     ankleRight: {x: -0.09411765, y: 0.120588236}
     wristLeft: {x: 0.24705882, y: 0.3382353}
     wristRight: {x: -0.22647059, y: 0.3382353}
+    headwear:
+    - item: item.iron_helm
+      sprite: {fileID: 21300000, guid: fbab33bd8aaa04b9fa9e094942d6fa7b, type: 3}
+    - item: item.leather_cap
+      sprite: {fileID: 21300000, guid: 219b331a8e9f24ff580a225aec8dde32, type: 3}
+    - item: item.moonsilver_circlet
+      sprite: {fileID: 21300000, guid: cb971519b793648e7b06159bdbf8e3b0, type: 3}
+    - item: item.steel_helm
+      sprite: {fileID: 21300000, guid: 36337a710309b40eba267a6d411a4751, type: 3}
   - name: E
     body: {fileID: 21300000, guid: e62eafd8f656245a08cd4c32da0cf580, type: 3}
     bootLeft: {fileID: 21300000, guid: d2473e225b55944eb866e5bcdc6fa775, type: 3}
@@ -49,6 +59,7 @@ MonoBehaviour:
     ankleRight: {x: -0.038235296, y: 0.120588236}
     wristLeft: {x: 0.032352943, y: 0.4117647}
     wristRight: {x: -0.22352941, y: 0.3382353}
+    headwear: []
   - name: NE
     body: {fileID: 21300000, guid: fcdde9b3e3a7f447da5b87943af100d5, type: 3}
     bootLeft: {fileID: 21300000, guid: dc82049dfb4534ef2be924957d67be14, type: 3}
@@ -61,6 +72,7 @@ MonoBehaviour:
     ankleRight: {x: 0.1, y: 0.120588236}
     wristLeft: {x: -0.24117647, y: 0.3382353}
     wristRight: {x: 0.25, y: 0.3382353}
+    headwear: []
   - name: N
     body: {fileID: 21300000, guid: c236df4c174df4b5fb719a936ded717d, type: 3}
     bootLeft: {fileID: 21300000, guid: db223932559484458ad0467e0ad50dc7, type: 3}
@@ -73,6 +85,7 @@ MonoBehaviour:
     ankleRight: {x: 0.11176471, y: 0.120588236}
     wristLeft: {x: -0.25882354, y: 0.3382353}
     wristRight: {x: 0.25882354, y: 0.3382353}
+    headwear: []
   handOpenFront: {fileID: 21300000, guid: 2f2e9f895829b427d8c47048bbdafb05, type: 3}
   handOpenSide: {fileID: 21300000, guid: 635633d49ab9b4747ab64b9cc5685440, type: 3}
   handOpenBack: {fileID: 21300000, guid: 9904df0224d8d476988487d015dbdfa5, type: 3}

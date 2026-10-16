@@ -33,6 +33,8 @@ namespace Ravenholm.Content
             public Vector2 ground;
             [Tooltip("Item-slot boxes in pixels from the sprite's top-left.")]
             public List<Rect> slots = new List<Rect>();
+            [Tooltip("The armour stand: the support alone on the same canvas, drawn under body armour (the mannequin's torso would show at the armour's edges).")]
+            public Sprite armored;
         }
 
         [Serializable]

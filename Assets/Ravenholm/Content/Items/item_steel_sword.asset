@@ -46,3 +46,5 @@ MonoBehaviour:
     y: 64
     width: 35
     height: 164
+  standLayer: 0
+  standHeadA: {fileID: 0}

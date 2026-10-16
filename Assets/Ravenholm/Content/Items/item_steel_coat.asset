@@ -36,13 +36,15 @@ MonoBehaviour:
   displayB: {fileID: 21300000, guid: 6f36cf20bbf03451fb67dc550cac2a0d, type: 3}
   displayBoundsA:
     serializedVersion: 2
-    x: 65
-    y: 112
-    width: 126
-    height: 116
+    x: 165
+    y: 166
+    width: 174
+    height: 183
   displayBoundsB:
     serializedVersion: 2
     x: 65
     y: 113
     width: 126
     height: 115
+  standLayer: 1
+  standHeadA: {fileID: 21300000, guid: 7ea3af33f7c3047b3a46520c30c47948, type: 3}

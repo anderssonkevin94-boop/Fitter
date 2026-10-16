@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Ravenholm.Content::Ravenholm.Content.ShopDefinition
   id: shop.main
   displayName: Your Shop
-  contentVersion: 4
+  contentVersion: 5
   lotBlocks: {x: 5, y: 5}
   startBlocks:
   - {x: 0, y: 0}
@@ -109,11 +109,11 @@ MonoBehaviour:
     facingB: 1
   - furniture: {fileID: 11400000, guid: 57f74e501d4c54c68a8acdc92a501b80, type: 2}
     level: 1
-    tile: {x: 2, y: 0}
+    tile: {x: 2, y: 1}
     facingB: 0
   - furniture: {fileID: 11400000, guid: c2ac8fed2c7f74626904523fe843aa73, type: 2}
     level: 1
-    tile: {x: 2, y: 1}
+    tile: {x: 3, y: 0}
     facingB: 0
   - furniture: {fileID: 11400000, guid: 51abea8335473469faadee80ec53195c, type: 2}
     level: 1

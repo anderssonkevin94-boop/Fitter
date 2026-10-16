@@ -25,6 +25,8 @@ namespace Ravenholm.Presentation
         private readonly List<TextMeshPro> _badges = new List<TextMeshPro>();
         private readonly List<Rect> _boxes = new List<Rect>();
         private string _stockKey = "";
+        private ShopFurnitureDefinition.Art _art;
+        private SpriteRenderer _armorLayer, _headLayer, _headwearLayer, _shieldLayer;
 
         public string PlacementId { get; private set; }
         public int Level { get; private set; }
@@ -70,7 +72,9 @@ namespace Ravenholm.Presentation
             var level = _def.At(p.Level);
             var art = p.Facing == Facing.B && level.facingB.sprite != null ? level.facingB : level.facingA;
             Mirrored = p.Facing == Facing.B && level.facingB.sprite == null;
+            _art = art;
             _visual.sprite = art.sprite;
+            ShowEquipment(null, null, null);
             _visual.flipX = Mirrored;
 
             if (_footprint != null)
@@ -86,7 +90,10 @@ namespace Ravenholm.Presentation
             _boxes.Clear();
             _stockKey = "";
             var ppu = _def.PixelsPerUnit;
-            foreach (var s in art.slots)
+            // The armour stand dressed in layers holds a set (Kevin, 2026-10-16): body armour, a helmet and a shield, each
+            // with its own count; the three share the stand's box.
+            var rects = LayeredStand && art.slots.Count > 0 ? new List<Rect> { art.slots[0], art.slots[0], art.slots[0] } : art.slots;
+            foreach (var s in rects)
             {
                 // Pixels (top-left origin) → local units from the ground point (y up); mirrored with the art.
                 var x = (s.x - art.ground.x) / ppu;
@@ -122,6 +129,12 @@ namespace Ravenholm.Presentation
             if (key.ToString() == _stockKey) return;
             _stockKey = key.ToString();
             VisibleCount = 0;
+            ShowEquipment(null, null, null);
+            if (LayeredStand)
+            {
+                StockSet(stock);
+                return;
+            }
             for (var i = 0; i < _items.Count; i++)
             {
                 var on = i < stock.Count && stock[i].def.StackSprite != null;
@@ -141,6 +154,95 @@ namespace Ravenholm.Presentation
                     Fit(_items[i], i);
                 }
                 _badges[i].text = stock[i].count > 1 ? "×" + stock[i].count : "";
+            }
+        }
+
+        /// <summary>
+        /// Whether this piece shows equipment as layers on its own canvas (the armour stand in facing A, from Astra's
+        /// handoff, 2026-10-16): only facing A was supplied, so facing B keeps its fitted views.
+        /// </summary>
+        public bool LayeredStand => _def != null && _def.Display == FurnitureDisplay.Armor && Facing == Facing.A && !Mirrored && _art?.armored != null;
+
+        /// <summary>The equipment layers drawn now (tests): body armour, its collar head, headwear, shield.</summary>
+        public (Sprite armor, Sprite head, Sprite headwear, Sprite shield) EquipmentShown =>
+            (Shown(_armorLayer), Shown(_headLayer), Shown(_headwearLayer), Shown(_shieldLayer));
+
+        private static Sprite Shown(SpriteRenderer sr) => sr != null && sr.enabled ? sr.sprite : null;
+
+        /// <summary>
+        /// Dresses the armour stand. Every layer shares the stand's 512 x 512 canvas and ground pivot, so each is drawn where
+        /// the stand is, unscaled. Back to front (Astra's README): the support alone (under body armour; the bare
+        /// neckless mannequin otherwise), the armour, the head seated in its collar, headwear, a shield beside it. A
+        /// stand holds one item in the shop today; all three together are supported for when a stand shows a set.
+        /// </summary>
+        public void ShowEquipment(ItemDefinition armor, ItemDefinition headwear, ItemDefinition shield)
+        {
+            if (!LayeredStand) armor = headwear = shield = null;
+            if (_art != null) _visual.sprite = armor != null && _art.armored != null ? _art.armored : _art.sprite;
+            Layer(ref _armorLayer, "Armour", 1, armor != null ? armor.DisplaySprite(false, out _) : null);
+            Layer(ref _headLayer, "Head", 2, armor != null ? armor.StandHeadA : null);
+            Layer(ref _headwearLayer, "Headwear", 3, headwear != null ? headwear.DisplaySprite(false, out _) : null);
+            Layer(ref _shieldLayer, "Shield", 4, shield != null ? shield.DisplaySprite(false, out _) : null);
+        }
+
+        private void Layer(ref SpriteRenderer sr, string name, int order, Sprite sprite)
+        {
+            if (sr == null)
+            {
+                if (sprite == null) return;
+                var go = new GameObject(name);
+                go.transform.SetParent(transform, false);   // the stand's ground point: the layers' shared pivot
+                sr = go.AddComponent<SpriteRenderer>();
+                sr.spriteSortPoint = SpriteSortPoint.Pivot;
+                sr.sharedMaterial = _visual.sharedMaterial;
+                sr.sortingOrder = order;   // the stand itself is 0, the count badge 6
+            }
+            sr.sprite = sprite;
+            sr.enabled = sprite != null;
+        }
+
+        /// <summary>Where each count badge stands on the dressed stand (local units from its ground point): by the chest, the head, the shield.</summary>
+        private static readonly Vector2[] SetBadges = { new Vector2(0.36f, 0.55f), new Vector2(0.22f, 1.18f), new Vector2(-0.5f, 0.1f) };
+
+        /// <summary>
+        /// The dressed stand's stock: the first body armour, helmet and shield in the list (slots 0, 1, 2). Body armour
+        /// without a stand layer yet (the Padded Gambeson, the Leather Jerkin) keeps its fitted view in the box.
+        /// </summary>
+        private void StockSet(IReadOnlyList<(ItemDefinition def, int count)> stock)
+        {
+            var set = new (ItemDefinition def, int count)[3];
+            foreach (var s in stock)
+            {
+                if (s.def == null || s.def.StackSprite == null) continue;
+                var at = s.def.Category == ItemCategory.Helmet ? 1 : s.def.Category == ItemCategory.Shield ? 2 : 0;
+                if (set[at].def == null) set[at] = s;
+            }
+            var armor = set[0].def;
+            var layered = armor != null && armor.StandLayer == StandLayer.Armor;
+            ShowEquipment(layered ? armor : null, set[1].def?.StandLayer == StandLayer.Head ? set[1].def : null,
+                set[2].def?.StandLayer == StandLayer.Shield ? set[2].def : null);
+            for (var i = 0; i < _items.Count; i++)
+            {
+                var on = i < set.Length && set[i].def != null;
+                _items[i].gameObject.SetActive(on);
+                if (!on) continue;
+                VisibleCount++;
+                if (i == 0 && !layered)
+                {
+                    // Not drawn for the stand yet: its own view (or pile) in the box, as before.
+                    var view = armor.DisplaySprite(false, out var visible);
+                    _items[i].sprite = view != null ? view : armor.StackSprite;
+                    if (view != null) FitVisible(_items[i], i, visible); else Fit(_items[i], i);
+                }
+                else
+                {
+                    _items[i].sprite = null;
+                    _items[i].transform.localScale = Vector3.one;
+                    _items[i].transform.localPosition = Vector3.zero;
+                    _badges[i].transform.localScale = Vector3.one;
+                    _badges[i].transform.localPosition = SetBadges[i];
+                }
+                _badges[i].text = set[i].count > 1 ? "×" + set[i].count : "";
             }
         }
 

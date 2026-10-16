@@ -26,10 +26,12 @@ MonoBehaviour:
       sprite: {fileID: 21300000, guid: 5b86904e2acf74373a2ed6cae7f2c633, type: 3}
       ground: {x: 256, y: 420}
       slots: []
+      armored: {fileID: 0}
     facingB:
       sprite: {fileID: 21300000, guid: feb8030b1114d4ba687421eed763258a, type: 3}
       ground: {x: 256, y: 420}
       slots: []
+      armored: {fileID: 0}
     gold: 0
     materials: []
   - footprint: {x: 2, y: 1}
@@ -37,10 +39,12 @@ MonoBehaviour:
       sprite: {fileID: 21300000, guid: feb9a5816fd1045aba916d6923f6827d, type: 3}
       ground: {x: 256, y: 420}
       slots: []
+      armored: {fileID: 0}
     facingB:
       sprite: {fileID: 21300000, guid: 87c70d1166f144df79ef0bf0edd7ead3, type: 3}
       ground: {x: 256, y: 420}
       slots: []
+      armored: {fileID: 0}
     gold: 60
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -52,10 +56,12 @@ MonoBehaviour:
       sprite: {fileID: 21300000, guid: 66eb2844e1ddb41e7b74e6985366166b, type: 3}
       ground: {x: 256, y: 420}
       slots: []
+      armored: {fileID: 0}
     facingB:
       sprite: {fileID: 21300000, guid: ecccb148c55804f4781b2b183ea243fe, type: 3}
       ground: {x: 256, y: 420}
       slots: []
+      armored: {fileID: 0}
     gold: 150
     materials:
     - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}

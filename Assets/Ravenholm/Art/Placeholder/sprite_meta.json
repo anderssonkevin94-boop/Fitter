@@ -1673,7 +1673,7 @@
    "outline": true,
    "pivot": [
     0.5,
-    0.10938
+    0.17969
    ],
    "ppu": 256
   },
@@ -1929,7 +1929,7 @@
    "outline": true,
    "pivot": [
     0.5,
-    0.10938
+    0.17969
    ],
    "ppu": 256
   },
@@ -1993,7 +1993,7 @@
    "outline": true,
    "pivot": [
     0.5,
-    0.10938
+    0.17969
    ],
    "ppu": 256
   },
@@ -2025,7 +2025,7 @@
    "outline": true,
    "pivot": [
     0.5,
-    0.10938
+    0.17969
    ],
    "ppu": 256
   },
@@ -4127,6 +4127,158 @@
    "pivot": [
     0.5,
     0.57566
+   ],
+   "ppu": 256
+  },
+  "Furniture/armor_stand_base_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Furniture/armor_stand_base_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Furniture/armor_stand_base_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/stand_head_riveted_coat.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/stand_head_fur_brigandine.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/stand_head_steel_coat.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/stand_head_moonsilver_mail.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/stand_head.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/item_leather_cap_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Characters/Citizens/citizen_blond_blue/headwear_leather_cap_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Items/item_iron_helm_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Characters/Citizens/citizen_blond_blue/headwear_iron_helm_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Items/item_steel_helm_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Characters/Citizens/citizen_blond_blue/headwear_steel_helm_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Items/item_moonsilver_circlet_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Characters/Citizens/citizen_blond_blue/headwear_moonsilver_circlet_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Items/item_wooden_shield_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_shield_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_kite_shield_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
    ],
    "ppu": 256
   }

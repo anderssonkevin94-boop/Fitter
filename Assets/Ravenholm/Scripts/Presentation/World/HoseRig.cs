@@ -52,7 +52,16 @@ namespace Ravenholm.Presentation
         public Vector2 RightFoot { get; private set; }
 
         private Transform _rig;
-        private SpriteRenderer _body, _bootL, _bootR, _handL, _handR, _tool;
+        private SpriteRenderer _body, _bootL, _bootR, _handL, _handR, _tool, _headwear;
+
+        /// <summary>
+        /// The item worn on the head (Astra's equipment handoff, 2026-10-16): drawn over the body in the views it was fitted
+        /// to (the blond citizen's SE, and its SW mirror); none in the others until they are painted.
+        /// </summary>
+        public string HeadwearItem { get; set; }
+
+        /// <summary>Whether headwear is drawn now (tests).</summary>
+        public bool HeadwearShown => _headwear != null && _headwear.enabled;
         private Transform _toolPivot;
         private Vector2 _handLp, _handLv, _handRp, _handRv;
         private float _squash = 1f, _footRollL, _footRollR, _turn, _handScaleL = 1f, _handScaleR = 1f;
@@ -345,6 +354,19 @@ namespace Ravenholm.Presentation
 
             // --- place the painted parts
             _body.sprite = v.body;
+            // Headwear rides on the body (its lean, sway and squash; mirrored with the rig), on the body's own canvas.
+            var hat = definition.HeadwearFor(ViewName, HeadwearItem);
+            if (hat != null && _headwear == null)
+            {
+                _headwear = new GameObject("Headwear").AddComponent<SpriteRenderer>();
+                _headwear.transform.SetParent(_body.transform, false);
+                _headwear.sharedMaterial = _body.sharedMaterial;
+            }
+            if (_headwear != null)
+            {
+                _headwear.sprite = hat;
+                _headwear.enabled = hat != null;
+            }
             // Lean about his hips (side views; head-on a lean would point at the camera).
             var hipsAt = (v.hipLeft + v.hipRight) * 0.5f;
             var leanRot = Quaternion.Euler(0f, 0f, _lean);
@@ -468,6 +490,7 @@ namespace Ravenholm.Presentation
                 Order(_armR, 7); _handR.sortingOrder = 9;
             }
             _body.sortingOrder = 6;
+            if (_headwear != null) _headwear.sortingOrder = 7;   // over the head; the hands (8, 9) still pass in front
             _tool.sortingOrder = 8;
             Order(_sleeveL, _armL.Fill.sortingOrder + 1);
             Order(_sleeveR, _armR.Fill.sortingOrder + 1);

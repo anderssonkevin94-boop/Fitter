@@ -1236,58 +1236,31 @@
   "item_fur_brigandine_A.png": {
    "file": "Items/item_fur_brigandine_A.png",
    "canvas": {
-    "w": 256,
-    "h": 256
+    "w": 512,
+    "h": 512
    },
    "anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "carry_anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "display_anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "grip": {
-    "x": 128,
-    "y": 199
+    "x": 256,
+    "y": 420
    },
    "pivot": {
     "x": 0.5,
-    "y": 0.109375
+    "y": 0.17969
    },
    "bounds": {
-    "x": 65,
-    "y": 112,
-    "w": 126,
-    "h": 116
+    "x": 169,
+    "y": 155,
+    "w": 166,
+    "h": 195
    },
    "item_id": "fur_brigandine",
    "facing": "A",
    "slot_kind": "armor",
    "pixels_per_unit": 256,
    "painted_outline": false,
-   "source_transform": {
-    "source": "source/item_fur_brigandine_A.png",
-    "source_crop": [
-     504,
-     67,
-     1344,
-     842
-    ],
-    "uniform_scale": 0.14982164090368608,
-    "raster_size": [
-     126,
-     116
-    ],
-    "translation": [
-     65,
-     112
-    ]
-   }
+   "stand_layer": "armor",
+   "source": "ravenholm-claude-handoff 2026-10-16",
+   "stand_head": "Items/stand_head_fur_brigandine.png"
   },
   "item_fur_brigandine_B.png": {
    "file": "Items/item_fur_brigandine_B.png",
@@ -3028,58 +3001,31 @@
   "item_moonsilver_mail_A.png": {
    "file": "Items/item_moonsilver_mail_A.png",
    "canvas": {
-    "w": 256,
-    "h": 256
+    "w": 512,
+    "h": 512
    },
    "anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "carry_anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "display_anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "grip": {
-    "x": 128,
-    "y": 200
+    "x": 256,
+    "y": 420
    },
    "pivot": {
     "x": 0.5,
-    "y": 0.109375
+    "y": 0.17969
    },
    "bounds": {
-    "x": 65,
-    "y": 117,
-    "w": 126,
-    "h": 111
+    "x": 168,
+    "y": 166,
+    "w": 166,
+    "h": 190
    },
    "item_id": "moonsilver_mail",
    "facing": "A",
    "slot_kind": "armor",
    "pixels_per_unit": 256,
    "painted_outline": false,
-   "source_transform": {
-    "source": "source/item_moonsilver_mail_A.png",
-    "source_crop": [
-     453,
-     66,
-     1329,
-     838
-    ],
-    "uniform_scale": 0.14367160775370583,
-    "raster_size": [
-     126,
-     111
-    ],
-    "translation": [
-     65,
-     117
-    ]
-   }
+   "stand_layer": "armor",
+   "source": "ravenholm-claude-handoff 2026-10-16",
+   "stand_head": "Items/stand_head_moonsilver_mail.png"
   },
   "item_moonsilver_mail_B.png": {
    "file": "Items/item_moonsilver_mail_B.png",
@@ -3476,58 +3422,31 @@
   "item_riveted_coat_A.png": {
    "file": "Items/item_riveted_coat_A.png",
    "canvas": {
-    "w": 256,
-    "h": 256
+    "w": 512,
+    "h": 512
    },
    "anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "carry_anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "display_anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "grip": {
-    "x": 128,
-    "y": 194
+    "x": 256,
+    "y": 420
    },
    "pivot": {
     "x": 0.5,
-    "y": 0.109375
+    "y": 0.17969
    },
    "bounds": {
-    "x": 65,
-    "y": 93,
-    "w": 126,
-    "h": 135
+    "x": 169,
+    "y": 152,
+    "w": 166,
+    "h": 198
    },
    "item_id": "riveted_coat",
    "facing": "A",
    "slot_kind": "armor",
    "pixels_per_unit": 256,
    "painted_outline": false,
-   "source_transform": {
-    "source": "source/item_riveted_coat_A.png",
-    "source_crop": [
-     515,
-     44,
-     1258,
-     842
-    ],
-    "uniform_scale": 0.1693548387096774,
-    "raster_size": [
-     126,
-     135
-    ],
-    "translation": [
-     65,
-     93
-    ]
-   }
+   "stand_layer": "armor",
+   "source": "ravenholm-claude-handoff 2026-10-16",
+   "stand_head": "Items/stand_head_riveted_coat.png"
   },
   "item_riveted_coat_B.png": {
    "file": "Items/item_riveted_coat_B.png",
@@ -3700,58 +3619,31 @@
   "item_steel_coat_A.png": {
    "file": "Items/item_steel_coat_A.png",
    "canvas": {
-    "w": 256,
-    "h": 256
+    "w": 512,
+    "h": 512
    },
    "anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "carry_anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "display_anchor": {
-    "x": 128,
-    "y": 228
-   },
-   "grip": {
-    "x": 128,
-    "y": 199
+    "x": 256,
+    "y": 420
    },
    "pivot": {
     "x": 0.5,
-    "y": 0.109375
+    "y": 0.17969
    },
    "bounds": {
-    "x": 65,
-    "y": 112,
-    "w": 126,
-    "h": 116
+    "x": 165,
+    "y": 166,
+    "w": 174,
+    "h": 183
    },
    "item_id": "steel_coat",
    "facing": "A",
    "slot_kind": "armor",
    "pixels_per_unit": 256,
    "painted_outline": false,
-   "source_transform": {
-    "source": "source/item_steel_coat_A.png",
-    "source_crop": [
-     269,
-     125,
-     1181,
-     968
-    ],
-    "uniform_scale": 0.1380065717415115,
-    "raster_size": [
-     126,
-     116
-    ],
-    "translation": [
-     65,
-     112
-    ]
-   }
+   "stand_layer": "armor",
+   "source": "ravenholm-claude-handoff 2026-10-16",
+   "stand_head": "Items/stand_head_steel_coat.png"
   },
   "item_steel_coat_B.png": {
    "file": "Items/item_steel_coat_B.png",
@@ -4592,6 +4484,202 @@
      131
     ]
    }
+  },
+  "item_leather_cap_A.png": {
+   "file": "Items/item_leather_cap_A.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "anchor": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.17969
+   },
+   "bounds": {
+    "x": 183,
+    "y": 65,
+    "w": 128,
+    "h": 111
+   },
+   "item_id": "leather_cap",
+   "facing": "A",
+   "slot_kind": "armor",
+   "pixels_per_unit": 256,
+   "painted_outline": false,
+   "stand_layer": "head",
+   "source": "ravenholm-claude-handoff 2026-10-16"
+  },
+  "item_iron_helm_A.png": {
+   "file": "Items/item_iron_helm_A.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "anchor": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.17969
+   },
+   "bounds": {
+    "x": 183,
+    "y": 70,
+    "w": 128,
+    "h": 102
+   },
+   "item_id": "iron_helm",
+   "facing": "A",
+   "slot_kind": "armor",
+   "pixels_per_unit": 256,
+   "painted_outline": false,
+   "stand_layer": "head",
+   "source": "ravenholm-claude-handoff 2026-10-16"
+  },
+  "item_steel_helm_A.png": {
+   "file": "Items/item_steel_helm_A.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "anchor": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.17969
+   },
+   "bounds": {
+    "x": 183,
+    "y": 65,
+    "w": 131,
+    "h": 123
+   },
+   "item_id": "steel_helm",
+   "facing": "A",
+   "slot_kind": "armor",
+   "pixels_per_unit": 256,
+   "painted_outline": false,
+   "stand_layer": "head",
+   "source": "ravenholm-claude-handoff 2026-10-16"
+  },
+  "item_moonsilver_circlet_A.png": {
+   "file": "Items/item_moonsilver_circlet_A.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "anchor": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.17969
+   },
+   "bounds": {
+    "x": 189,
+    "y": 109,
+    "w": 111,
+    "h": 27
+   },
+   "item_id": "moonsilver_circlet",
+   "facing": "A",
+   "slot_kind": "armor",
+   "pixels_per_unit": 256,
+   "painted_outline": false,
+   "stand_layer": "head",
+   "source": "ravenholm-claude-handoff 2026-10-16"
+  },
+  "item_wooden_shield_A.png": {
+   "file": "Items/item_wooden_shield_A.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "anchor": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.17969
+   },
+   "bounds": {
+    "x": 100,
+    "y": 205,
+    "w": 110,
+    "h": 165
+   },
+   "item_id": "wooden_shield",
+   "facing": "A",
+   "slot_kind": "armor",
+   "pixels_per_unit": 256,
+   "painted_outline": false,
+   "stand_layer": "shield",
+   "source": "ravenholm-claude-handoff 2026-10-16"
+  },
+  "item_iron_shield_A.png": {
+   "file": "Items/item_iron_shield_A.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "anchor": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.17969
+   },
+   "bounds": {
+    "x": 90,
+    "y": 205,
+    "w": 120,
+    "h": 175
+   },
+   "item_id": "iron_shield",
+   "facing": "A",
+   "slot_kind": "armor",
+   "pixels_per_unit": 256,
+   "painted_outline": false,
+   "stand_layer": "shield",
+   "source": "ravenholm-claude-handoff 2026-10-16"
+  },
+  "item_steel_kite_shield_A.png": {
+   "file": "Items/item_steel_kite_shield_A.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "anchor": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.17969
+   },
+   "bounds": {
+    "x": 113,
+    "y": 205,
+    "w": 97,
+    "h": 195
+   },
+   "item_id": "steel_kite_shield",
+   "facing": "A",
+   "slot_kind": "armor",
+   "pixels_per_unit": 256,
+   "painted_outline": false,
+   "stand_layer": "shield",
+   "source": "ravenholm-claude-handoff 2026-10-16"
   }
  }
 }

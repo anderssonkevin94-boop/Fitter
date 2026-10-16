@@ -192,7 +192,7 @@ namespace Ravenholm.Tests
             Grant(g);
             var shop = g.Shop;
             var table = shop.State.Furniture.First(p => p.FurnitureId == "furniture.display_table");
-            Assert.IsNull(shop.Place(table.Id, 1, 0, Facing.A), "anywhere on the carpet, front edge included");
+            Assert.IsNull(shop.Place(table.Id, 1, 1, Facing.A), "anywhere free on the carpet");
             var gold = g.Jobs.State.Gold;
             Assert.IsNull(shop.Upgrade(table.Id));
             Assert.AreEqual(2, table.Level);
@@ -206,7 +206,7 @@ namespace Ravenholm.Tests
             Assert.AreEqual("Needs a full wall", shop.CanPlace(new Placement { FurnitureId = "furniture.potion_shelf", Level = 1 }, 0, 0, Facing.A));
             Assert.IsNotNull(shop.Place(stand.Id, 2, 2, Facing.A), "it would shut the potion stand and the counter off");
             Assert.IsNull(shop.Store(table.Id));
-            Assert.IsNull(shop.Place(stand.Id, 1, 0, Facing.A));
+            Assert.IsNull(shop.Place(stand.Id, 1, 1, Facing.A));   // the front row stays open to the armour stand (3, 0)
             g.Scheduler.SaveNow("test");
 
             var back = Boot();

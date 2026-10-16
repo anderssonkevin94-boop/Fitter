@@ -1,0 +1,572 @@
+{
+  "main_design_count": 12,
+  "item_mapping": {
+    "item_riveted_coat": {
+      "display_A": "armor/item_riveted_coat_A.png",
+      "head_layer": "stand/head-for-riveted_coat.png"
+    },
+    "item_fur_brigandine": {
+      "display_A": "armor/item_fur_brigandine_A.png",
+      "head_layer": "stand/head-for-fur_brigandine.png"
+    },
+    "item_steel_coat": {
+      "display_A": "armor/item_steel_coat_A.png",
+      "head_layer": "stand/head-for-steel_coat.png"
+    },
+    "item_moonsilver_mail": {
+      "display_A": "armor/item_moonsilver_mail_A.png",
+      "head_layer": "stand/head-for-moonsilver_mail.png"
+    },
+    "item_leather_cap": {
+      "display_A": "headwear/stand/leather-cap.png",
+      "character_SE": "headwear/character-SE/leather-cap.png"
+    },
+    "item_iron_helm": {
+      "display_A": "headwear/stand/iron-helm.png",
+      "character_SE": "headwear/character-SE/iron-helm.png"
+    },
+    "item_steel_helm": {
+      "display_A": "headwear/stand/steel-helm.png",
+      "character_SE": "headwear/character-SE/steel-helm.png"
+    },
+    "item_moonsilver_circlet": {
+      "display_A": "headwear/stand/moonsilver-circlet.png",
+      "character_SE": "headwear/character-SE/moonsilver-circlet.png"
+    },
+    "item_wooden_shield": {
+      "sprite": "shields/wooden-shield.png",
+      "display_A": "shields/wooden-shield-stand-overlay.png"
+    },
+    "item_iron_shield": {
+      "sprite": "shields/iron-bound-shield.png",
+      "display_A": "shields/iron-bound-shield-stand-overlay.png"
+    },
+    "item_steel_kite_shield": {
+      "sprite": "shields/steel-kite-shield.png",
+      "display_A": "shields/steel-kite-shield-stand-overlay.png"
+    }
+  },
+  "stand": "stand/armor_stand_neckless_A.png",
+  "runtime_integrated": false,
+  "views_supplied": [
+    "shop A",
+    "blond citizen SE headwear only"
+  ],
+  "files": [
+    {
+      "path": "CLAUDE_PROMPT.txt",
+      "bytes": 1987,
+      "sha256": "a9b361bb7d3baa50b55f92015b3581b2c6078e4b54f821314347df9033ff0277"
+    },
+    {
+      "path": "README.txt",
+      "bytes": 3106,
+      "sha256": "a2774a29f1b14bebec000a27c6cea06df85076273aa55bca66ad1ef802f297bb"
+    },
+    {
+      "path": "headwear/stand/iron-helm.png",
+      "bytes": 16959,
+      "sha256": "d2c46bdfd0bb1d67c929862198be5ad9ba64da989e2bde1832af8a0950867caf",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "headwear/stand/leather-cap.png",
+      "bytes": 20068,
+      "sha256": "92442adcae0007d75b1e872c272f178bbe75be3fc9c0d16794c85fa73c198c86",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "headwear/stand/moonsilver-circlet.png",
+      "bytes": 6831,
+      "sha256": "20c34afc175d67ff2180d5a194ec91371b25dca53bf34cb2a297ddd5eebd5289",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "headwear/stand/steel-helm.png",
+      "bytes": 22905,
+      "sha256": "bb3547b63c450f2fb93c743a627f343af910708f24f3586a82733aa8a6f183f6",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "headwear/character-SE/iron-helm.png",
+      "bytes": 23135,
+      "sha256": "b15a24c0803b6af36876636e976b2d1e4159a22f2a1ef7567392134aeb3beeda",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "headwear/character-SE/leather-cap.png",
+      "bytes": 26991,
+      "sha256": "9d1588ae0e7a6899cbb1b58d97d3b0a0fb7e940fdbcf13984a1f699c42eec905",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "headwear/character-SE/moonsilver-circlet.png",
+      "bytes": 9019,
+      "sha256": "544589d5e593e5e95568107749e7e43f098a0a3ca9d2779c17fe36fa7f310bb8",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "headwear/character-SE/steel-helm.png",
+      "bytes": 31745,
+      "sha256": "4921220c1bae10896769dc31b9c7f177fca6797f91b154278809f6321a3bdf8e",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "shields/iron-bound-shield-stand-overlay.png",
+      "bytes": 33291,
+      "sha256": "55166fa276b4325f0329e6277ac77fda7ae38ffff69aaca6d518919222f4ba2d",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "shields/iron-bound-shield.png",
+      "bytes": 150534,
+      "sha256": "8099f90c1c7d8625917466349eab43486abb6b3744c497a83f18f96bdcdb32f5",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "shields/steel-kite-shield-stand-overlay.png",
+      "bytes": 31002,
+      "sha256": "4c572242dc321bb7283c36e71f743466fdac636668c32748a5eb000e7f0b31ae",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "shields/steel-kite-shield.png",
+      "bytes": 114563,
+      "sha256": "6fbe7159804305a6672467850af915ad979b581f3d723cd5b8b1ddf95a95ebc8",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "shields/wooden-shield-stand-overlay.png",
+      "bytes": 28272,
+      "sha256": "93011703a8443bd66461292d40cedd1b6290e654932ba21263e499e37cc9de05",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "shields/wooden-shield.png",
+      "bytes": 139976,
+      "sha256": "4591c28e5e2250da4bc52a9a654e00a9ae02927e708f247f1379470bd4547f67",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "armor/item_fur_brigandine_A.png",
+      "bytes": 53869,
+      "sha256": "7e887886df4e80c6ed8d5a72678d3b480401e830fbf0d8fc56a568f074befe0f",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "armor/item_moonsilver_mail_A.png",
+      "bytes": 36239,
+      "sha256": "1aea114949a8623065ba01536d90b14bf5a8373d9f146f23bc522c9d016be381",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "armor/item_riveted_coat_A.png",
+      "bytes": 46333,
+      "sha256": "3f102c0794f79cca5165987ee6640ad42e92b650ac6d350579a5d5bd5a3f596d",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "armor/item_steel_coat_A.png",
+      "bytes": 48704,
+      "sha256": "b97d30561f58269490ea65f103b3df9b64aa02a291e70e58269c07c276fade3d",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "stand/armor_stand_neckless_A.png",
+      "bytes": 61326,
+      "sha256": "8de4020661332b0dc6f687644d85f7db554add1db0b2a3b50614f4c56cef0b7c",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "stand/base-only.png",
+      "bytes": 2352,
+      "sha256": "b3fff37ee4afca654b957ee01b02ccb2df18cd3230dbfc43107a206b74162a62",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "stand/head-for-fur_brigandine.png",
+      "bytes": 13518,
+      "sha256": "abd27c5a745a2cac3e0e43f5d012710b1f2b35c3d77813e825907d37505abb2f",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "stand/head-for-moonsilver_mail.png",
+      "bytes": 13520,
+      "sha256": "9bc1e2dec7accc5fe67213172b88100136db30707eb7ae1ec50923976ce829e0",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "stand/head-for-riveted_coat.png",
+      "bytes": 13520,
+      "sha256": "9bc1e2dec7accc5fe67213172b88100136db30707eb7ae1ec50923976ce829e0",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "stand/head-for-steel_coat.png",
+      "bytes": 13519,
+      "sha256": "08090be12db164e2dc3e010f78fc8e9bce4d809839a761f19895f581c5626176",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "stand/head-overlay.png",
+      "bytes": 13518,
+      "sha256": "abd27c5a745a2cac3e0e43f5d012710b1f2b35c3d77813e825907d37505abb2f",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "stand/torso-and-base.png",
+      "bytes": 6920,
+      "sha256": "08d3f1d9fc9a013129a568a48339aadf77e806787ef9484a7c05592c24da9aa1",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/fur-brigandine.png",
+      "bytes": 761026,
+      "sha256": "a7323d22e219bd285e992ac8795ff0606fae8d77131acf8bdcac07f729cee495",
+      "size": [
+        1200,
+        1310
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/iron-bound-shield.png",
+      "bytes": 656620,
+      "sha256": "7d01c287851450e3569adf337f81f00ff9869d5275ddee5677bd788309e4adf6",
+      "size": [
+        1163,
+        1353
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/iron-helm.png",
+      "bytes": 418525,
+      "sha256": "8df239ea2f052f5bbab77f16a535faf361a54d66bef079abc6b01b7fb3ca190e",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/leather-cap.png",
+      "bytes": 410634,
+      "sha256": "8ad0301a3846d082e73e31414a28e9586c7b7af60135a4a4e55813b425d25c95",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/moonsilver-circlet.png",
+      "bytes": 194976,
+      "sha256": "9b61176844272d4937fb4fdd59805a1581a84b94ef0f7e88e46782125fdb58b3",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/moonsilver-mail.png",
+      "bytes": 507509,
+      "sha256": "b8d4c302fcffbeb6f325f2f6d25dd2374f1b9a133b739cf1e1ab592c98999ac7",
+      "size": [
+        1200,
+        1310
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/neckless-head.png",
+      "bytes": 337436,
+      "sha256": "a9fabc89a4b0bf8f103ed50c3934aae44be8e00f8c83147702c279a52f62b8ff",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/neckless-stand.png",
+      "bytes": 298874,
+      "sha256": "5c1e96a9a4f25b909f2cb2893c1900566b7b9fa59096e8dfcc16f948650fe137",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/riveted-coat.png",
+      "bytes": 641651,
+      "sha256": "25ca0b3344263144ba47580ad3c58a39d13e74275adcf24072e1627b160f4d3c",
+      "size": [
+        1200,
+        1310
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/steel-coat.png",
+      "bytes": 709107,
+      "sha256": "6e0ba10c1e64d1ae14f9056a58c78c40790c17885ec43af8230408a2d729ceea",
+      "size": [
+        1200,
+        1310
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/steel-helm.png",
+      "bytes": 525673,
+      "sha256": "c629de9e768179a61457a455567897960d8b9ff20a1a9f05363ee6c1f6e4171d",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/steel-kite-shield.png",
+      "bytes": 501939,
+      "sha256": "a2cf3123b4877203a1f8e94cd21d3cf5b10cec07ed63553d1865d7f557662d9e",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "sources/wooden-shield.png",
+      "bytes": 491040,
+      "sha256": "e3adf85b09c21237e2c60ca584ba40309047fca9d61818f0956537185433d291",
+      "size": [
+        1245,
+        1263
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "previews/approved-neckless-steel-display.png",
+      "bytes": 422955,
+      "sha256": "50bf8484d5c50798189fb2a4758d8d5be25df59177e752eb050fb868f39c576d",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "previews/approved-shields-and-display.png",
+      "bytes": 454999,
+      "sha256": "734ad3439af6a39c377d0dd25a6a09b52e4731fdf184be64e99c2ad92095316f",
+      "size": [
+        1200,
+        890
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "previews/character-headwear-fit.png",
+      "bytes": 297912,
+      "sha256": "4826a24094582eb7fc3f80111fe3030e9f205b7bdaf05ac1184a3d21cc5d9208",
+      "size": [
+        1760,
+        520
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "previews/export-assembly-check.png",
+      "bytes": 353264,
+      "sha256": "ce3b75959442092a181881f28f975c4dced035de21266b3b69111f62bedfbabb",
+      "size": [
+        1200,
+        580
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "previews/fur_brigandine-assembled.png",
+      "bytes": 71395,
+      "sha256": "90aafaf99d8c5f078e0e8d3717ea1b336bb56ba49c8063781a6e009abeddd063",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "previews/moonsilver_mail-assembled.png",
+      "bytes": 50208,
+      "sha256": "b72b79591444834bf140e3ea7a1a563119cc987f25fefa72795b7229f01cb218",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "previews/riveted_coat-assembled.png",
+      "bytes": 65918,
+      "sha256": "3d5a454b6431a814a899d19d98705d960856d54345199fec440129ad63d4e33f",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "previews/steel_coat-assembled.png",
+      "bytes": 71888,
+      "sha256": "64440b5f79f53ca95a6d63da254ba262006d8e5a29c444144d04ee81f6ce909e",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "metadata/fur-brigandine-original-fit.json",
+      "bytes": 783,
+      "sha256": "c6d0fdb9d34dfc60cc6d11bf3bb620a7bf076e773a94a77b8819801ffbd9bddb"
+    },
+    {
+      "path": "metadata/headwear-generation.json",
+      "bytes": 5625,
+      "sha256": "31a3e6f954681f2ff624e330c8ac91a5a49b6e01ba9ff5f1df65fcd0a3aee4a7"
+    },
+    {
+      "path": "metadata/moonsilver-mail-original-fit.json",
+      "bytes": 505,
+      "sha256": "87fd4f3b4e4ff14d02a10d0a0985e7975277a4fb4ccb2ccdda210ea0afe6881e"
+    },
+    {
+      "path": "metadata/riveted-coat-original-fit.json",
+      "bytes": 505,
+      "sha256": "403980b259c1ee98061877449b16c2cf92b4fc9565a7960e455fef839d10c758"
+    },
+    {
+      "path": "metadata/shield-generation.json",
+      "bytes": 4477,
+      "sha256": "5611249e0f89a38e42f92ef75542cceb047c6ac659df2d86d081e80e3d6e0575"
+    },
+    {
+      "path": "metadata/stand-generation.json",
+      "bytes": 1493,
+      "sha256": "3f2fd4c189a5e8815fe8a02704d2c96505ba917bcde8da85aa1bafa2007bd0f2"
+    },
+    {
+      "path": "metadata/steel-coat-original-fit.json",
+      "bytes": 505,
+      "sha256": "8a861d990dfd5275bce698242aa8276d208777bfd81b4d87e388770cbf3ab184"
+    }
+  ]
+}

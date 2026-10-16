@@ -36,6 +36,7 @@ MonoBehaviour:
         y: 132
         width: 48
         height: 190
+      armored: {fileID: 0}
     facingB:
       sprite: {fileID: 21300000, guid: c5522ae4a1c9144148fdf7dd4b793fe6, type: 3}
       ground: {x: 152, y: 480}
@@ -50,6 +51,7 @@ MonoBehaviour:
         y: 163
         width: 48
         height: 190
+      armored: {fileID: 0}
     gold: 30
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -74,6 +76,7 @@ MonoBehaviour:
         y: 123
         width: 48
         height: 190
+      armored: {fileID: 0}
     facingB:
       sprite: {fileID: 21300000, guid: 4aea18fb2c4c24958906f6c495f5407d, type: 3}
       ground: {x: 152, y: 480}
@@ -93,6 +96,7 @@ MonoBehaviour:
         y: 175
         width: 48
         height: 190
+      armored: {fileID: 0}
     gold: 60
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -124,6 +128,7 @@ MonoBehaviour:
         y: 141
         width: 48
         height: 190
+      armored: {fileID: 0}
     facingB:
       sprite: {fileID: 21300000, guid: 21597358eb13f47ef94d259fd93637ef, type: 3}
       ground: {x: 152, y: 480}
@@ -148,6 +153,7 @@ MonoBehaviour:
         y: 178
         width: 48
         height: 190
+      armored: {fileID: 0}
     gold: 130
     materials:
     - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}

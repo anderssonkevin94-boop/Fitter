@@ -1503,3 +1503,35 @@ Kevin loved a screenshot taken by the ridge's drop-off, with the castle in the d
   - `CampTests` allows narrower land beside a bay: 14 cells or more, still wider than the view.
   - Tree-finding tests skip trees the tool can't cut.
   - The forest toughness test compares against band 1's base. Late band-1 trees were always tougher than early band-2 ones (in-band steps ×1.18 and ×1.42, against a band step of 45/40), so I changed the test, not the balance.
+
+## 2026-10-16: Astra's equipment pack: the neckless mannequin, armour, headwear and shields
+
+- **Import.** `Tools/ArtImport/import_armour_handoff.py` is repeatable and uses the pack in `ravenholm-claude-handoff`.
+  - Every layer stays on the stand's own 512 × 512 canvas, with the existing stand import: 256 PPU, ground pivot (0.5, 0.17969). The pack's torso layer matches `armor_stand_1.png` exactly.
+  - Nothing was redrawn, trimmed or rescaled.
+  - Overwritten in place, so their GUIDs are kept: `item_<armour>_A.png`, `armor_stand_1..3.png` and the three shield icons.
+  - New files: `stand_head_<armour>.png`, `item_<helm|shield>_A.png`, `armor_stand_base_<n>.png`, and the citizen's `headwear_<key>_SE.png`.
+- **Cleanups.**
+  - The bare mannequin's faint stray pixels (alpha ≤ 40, more than 2 px from the shape) were cleared, because the outline drew them as specks.
+  - Levels 2 and 3 use the cream neckless mannequin on their own iron- and gold-capped bases. A short wooden pole shows above the darker base.
+- **The stand, facing A.** `FurnitureView.ShowEquipment` and `ItemDefinition.StandLayer`/`StandHeadA` draw the layers back to front:
+  1. the support alone under body armour (the torso hidden), or the bare mannequin otherwise;
+  2. the armour;
+  3. the head in that armour's collar;
+  4. headwear;
+  5. a shield beside the mannequin.
+
+  All layers are unscaled at the stand's ground point, inside one SortingGroup with one outline.
+- **Sets on one stand** (Kevin). A dressed stand shows one body armour, one helmet and one shield, each with its own count badge. `ShopView.Restock` fills it with the next of each kind, tracking items per furniture kind as before.
+  - Armour without stand art (Padded Gambeson, Leather Jerkin) keeps its fitted view.
+  - Facing B keeps the old views: only view A was supplied.
+- **Citizens.** `HoseCharacterDefinition.View.headwear` and `HoseRig.HeadwearItem` add an overlay on the body.
+  - It follows the body's lean, sway and squash, at order 7.
+  - It shows only in the SE view and its SW mirror; other views show none.
+  - Adventurers wear the helmet from their loadout when they set off, and wear it home if it came back.
+- **Starting layout.** The armour stand moves to the carpet's front-right corner (3, 0), with the table at (2, 1), because the weapon stand hid the mannequin and its shield. The shop's content version is now 5 (it only marks new shops). Existing saves keep their layout.
+- **Tests.**
+  - `ArmourStandPlayModeTests`: every stand state, sets, facing B, layout, and the citizen headwear by view while walking. It writes `Captures/armour_stand_contact_sheet.png` and `citizen_headwear_contact_sheet.png`.
+  - `ShopTests` places its bought stand at (1, 1).
+  - `KitchenTests` searches further along the road.
+- **Brief for Astra.** `Docs/ART_BRIEF_EQUIPMENT_VIEWS.md` asks for facing B, the citizen's S/E/NE/N views, and the stand's level 2 and 3 finishes.

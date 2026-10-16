@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using UnityEngine;
 
@@ -18,6 +19,25 @@ namespace Ravenholm.Presentation
             public string name;   // S, SE, E, NE, N (SW, W, NW are mirrors)
             public Sprite body, bootLeft, bootRight;
             public Vector2 shoulderLeft, shoulderRight, hipLeft, hipRight, ankleLeft, ankleRight, wristLeft, wristRight;
+            [Tooltip("Headwear fitted to this view's body (same canvas and pivot), by item id. Views without one show none.")]
+            public List<Headwear> headwear = new List<Headwear>();
+        }
+
+        [Serializable]
+        public sealed class Headwear
+        {
+            public string item;
+            public Sprite sprite;
+        }
+
+        /// <summary>The headwear drawn over a view's body for an item (null: not fitted to this view).</summary>
+        public Sprite HeadwearFor(string view, string itemId)
+        {
+            if (string.IsNullOrEmpty(itemId)) return null;
+            foreach (var v in views)
+                if (v != null && v.name == view && v.headwear != null)
+                    foreach (var h in v.headwear) if (h != null && h.item == itemId) return h.sprite;
+            return null;
         }
 
         public View[] views = new View[0];

@@ -470,17 +470,28 @@ namespace Ravenholm.Presentation
             if (key == _stockKey) return;
             _stockKey = key;
             var lists = new Dictionary<FurnitureDisplay, List<(ItemDefinition def, int count, string newest)>>();
-            var used = new Dictionary<FurnitureDisplay, int>();
             var ordered = new List<FurnitureView>(_views.Values);
             ordered.Sort((x, y) => string.CompareOrdinal(x.PlacementId, y.PlacementId));
+            var shown = new Dictionary<FurnitureDisplay, HashSet<string>>();   // per kind, as before: one item may show on two kinds
             foreach (var v in ordered)
             {
                 var kind = v.Definition.Display;
                 if (!lists.TryGetValue(kind, out var list)) lists[kind] = list = Representative(_root, v.Definition.Shows);
-                used.TryGetValue(kind, out var from);
+                if (!shown.TryGetValue(kind, out var taken)) shown[kind] = taken = new HashSet<string>();
                 var slice = new List<(ItemDefinition, int)>();
-                for (var i = from; i < Mathf.Min(list.Count, from + v.SlotCount); i++) slice.Add((list[i].def, list[i].count));
-                used[kind] = from + v.SlotCount;
+                if (v.LayeredStand)
+                {
+                    // A dressed armour stand shows a set (Kevin, 2026-10-16): the next body armour, helmet and shield.
+                    foreach (var cat in new[] { ItemCategory.Armor, ItemCategory.Helmet, ItemCategory.Shield })
+                        foreach (var e in list)
+                            if (e.def.Category == cat && taken.Add(e.def.Id)) { slice.Add((e.def, e.count)); break; }
+                }
+                else
+                    foreach (var e in list)
+                    {
+                        if (slice.Count >= v.SlotCount) break;
+                        if (taken.Add(e.def.Id)) slice.Add((e.def, e.count));
+                    }
                 v.SetStock(slice);
             }
         }

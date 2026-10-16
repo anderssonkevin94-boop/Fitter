@@ -83,10 +83,10 @@ namespace Ravenholm.Tests
             var ridge = forest.Config.Grove.Ridge;
             g.Sites.SpeedMultiplier = 50f;
             int felled = 0, cleared = 0;
-            for (var s = 18; s < 50 && cleared < 40; s++)
+            for (var s = 18; s < 140 && cleared < 40; s++)   // on up the road past the gate if need be (the world seed varies)
             {
                 var (px, py) = ridge.PointAt(ridge.CampS + s);
-                for (var k = -18; k <= 18 && cleared < 40; k++)
+                for (var k = -26; k <= 26 && cleared < 40; k++)   // the whole width (camp 1's bay narrows the land ahead)
                 {
                     var (x, y) = ((int)px + k, (int)py - k);
                     if (!forest.CanChop(x, y) || g.Sites.ToolTooWeak(x, y)) continue;

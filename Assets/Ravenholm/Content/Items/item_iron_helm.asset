@@ -25,22 +25,26 @@ MonoBehaviour:
   counterStrength: 3
   twoHanded: 0
   block: 0
+  foodSurvival: 0
+  foodReadiness: 0
   traderBuyValue: 3
   icon: {fileID: 21300000, guid: 256688123ff7145fa9f75590cdcecfe5, type: 3}
   stackSprite: {fileID: 21300000, guid: a6d51e0b10cb748c0afe9fb9abdb15ba, type: 3}
   stackStep: 0.13
   smallDisplay: 0
-  displayA: {fileID: 0}
+  displayA: {fileID: 21300000, guid: 7865db34c488c4c27bdf3decc1288d97, type: 3}
   displayB: {fileID: 0}
   displayBoundsA:
     serializedVersion: 2
-    x: 0
-    y: 0
-    width: 0
-    height: 0
+    x: 183
+    y: 70
+    width: 128
+    height: 102
   displayBoundsB:
     serializedVersion: 2
     x: 0
     y: 0
     width: 0
     height: 0
+  standLayer: 2
+  standHeadA: {fileID: 0}

@@ -918,6 +918,8 @@ namespace Ravenholm.EditorTools
                 var bName = Has($"{key}_{n}_B") ? $"{key}_{n}_B" : Has($"{key}_{n}_right") ? $"{key}_{n}_right" : null;
                 var invariant = pts["assets"][$"{key}_{n}.png"]?["rotation_invariant"] is Newtonsoft.Json.Linq.JToken t && (bool)t;
                 var b = bName != null ? Astra(bName) : invariant ? a : new ShopFurnitureDefinition.Art();
+                // The armour stand's support alone (under body armour; Astra's equipment handoff, facing A only).
+                if (File.Exists(PlaceholderSpriteImporter.ArtRoot + $"Furniture/{key}_base_{n}.png")) a.armored = LoadSprite($"Furniture/{key}_base_{n}");
                 return new ShopFurnitureDefinition.Level { footprint = fp, facingA = a, facingB = b, gold = gold, materials = mats };
             }
 
@@ -1010,8 +1012,15 @@ namespace Ravenholm.EditorTools
                     var key = item.Id.Substring("item.".Length);
                     var ja = ipts["assets"][$"item_{key}_A.png"];
                     var jb = ipts["assets"][$"item_{key}_B.png"];
-                    if (ja == null || jb == null) continue;
-                    item.EditorSetDisplay(LoadSprite($"Items/item_{key}_A"), Bounds(ja["bounds"]), LoadSprite($"Items/item_{key}_B"), Bounds(jb["bounds"]));
+                    // Astra's equipment handoff (2026-10-16): view A of armour, headwear and shields is a layer on the armour
+                    // stand's canvas ("stand_layer"); only view A was supplied for headwear and shields.
+                    var layerName = (string)ja?["stand_layer"];
+                    if (ja == null || jb == null && layerName == null) continue;
+                    item.EditorSetDisplay(LoadSprite($"Items/item_{key}_A"), Bounds(ja["bounds"]),
+                        jb != null ? LoadSprite($"Items/item_{key}_B") : null, jb != null ? Bounds(jb["bounds"]) : default);
+                    var layer = layerName == "armor" ? StandLayer.Armor : layerName == "head" ? StandLayer.Head : layerName == "shield" ? StandLayer.Shield : StandLayer.None;
+                    var head = (string)ja["stand_head"];
+                    item.EditorSetStandLayer(layer, head != null ? LoadSprite(Path.ChangeExtension(head, null)) : null);
                     EditorUtility.SetDirty(item);
                 }
             }
@@ -1059,7 +1068,7 @@ namespace Ravenholm.EditorTools
                 shop.EditorSetCargo(new List<int> { 60, 100, 160, 240 });   // units carried between camps, per wagon level
                 EditorUtility.SetDirty(shop);
             }
-            if (!shop.EditorHasWagon || shop.ContentVersion < 4)
+            if (!shop.EditorHasWagon || shop.ContentVersion < 5)
             {
                 // The wagon: carpets of 4 x 4, 6 x 4, 6 x 6 and 8 x 6 tiles (the outline); prices are balance starting points.
                 ShopDefinition.Cost WC(int gold, List<ResourceCost> m) => new ShopDefinition.Cost { gold = gold, materials = m };
@@ -1072,10 +1081,11 @@ namespace Ravenholm.EditorTools
                     },
                     new List<ShopDefinition.StartingPiece>
                     {
-                        // The back row along the counter stays open for customers.
-                        P(weaponStand, 0, 0, facingB: true), P(table, 2, 0), P(armor, 2, 1), P(potionStand, 3, 1, facingB: true),
+                        // The back row along the counter stays open for customers. The armour stand takes the front-right
+                        // corner, nothing tall in front of it (2026-10-16, Kevin: the weapon stand hid the mannequin and its shield).
+                        P(weaponStand, 0, 0, facingB: true), P(table, 2, 1), P(armor, 3, 0), P(potionStand, 3, 1, facingB: true),
                     });
-                while (shop.ContentVersion < 4) shop.EditorBumpVersion();
+                while (shop.ContentVersion < 5) shop.EditorBumpVersion();
                 EditorUtility.SetDirty(shop);
             }
             var furniture = new List<ShopFurnitureDefinition> { desk, table, armor, shelf, rack, longRack, pedestal, weaponStand, longStand, potionStand };
@@ -1220,6 +1230,7 @@ namespace Ravenholm.EditorTools
                     hipLeft = U(b["hip_left"]), hipRight = U(b["hip_right"]),
                     ankleLeft = U(p["boot_" + name + "_left"]["ankle"]), ankleRight = U(p["boot_" + name + "_right"]["ankle"]),
                     wristLeft = U(wrists["left"]), wristRight = U(wrists["right"]),
+                    headwear = CitizenHeadwear(dir, name),
                 });
             }
             def.views = views.ToArray();
@@ -1230,6 +1241,24 @@ namespace Ravenholm.EditorTools
             def.pickaxe = def.axe = null; // no tools
             EditorUtility.SetDirty(def);
             return def;
+        }
+
+        /// <summary>
+        /// Headwear fitted to a citizen's view (Astra's equipment handoff, 2026-10-16): "headwear_&lt;item key&gt;_&lt;view&gt;.png"
+        /// beside the body, on its canvas. Only the blond citizen's SE view was supplied.
+        /// </summary>
+        private static List<HoseCharacterDefinition.Headwear> CitizenHeadwear(string dir, string view)
+        {
+            var list = new List<HoseCharacterDefinition.Headwear>();
+            var folder = PlaceholderSpriteImporter.ArtRoot + dir;
+            if (!Directory.Exists(folder)) return list;
+            foreach (var file in Directory.GetFiles(folder, $"headwear_*_{view}.png"))
+            {
+                var name = Path.GetFileNameWithoutExtension(file);
+                var key = name.Substring("headwear_".Length, name.Length - "headwear_".Length - view.Length - 1);
+                list.Add(new HoseCharacterDefinition.Headwear { item = "item." + key, sprite = LoadSprite(dir + name) });
+            }
+            return list;
         }
 
         public const string OutlineSettingsPath = ConfigDir + "OutlineSettings.asset";
