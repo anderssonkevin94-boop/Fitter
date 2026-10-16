@@ -130,10 +130,17 @@ namespace Ravenholm.Tests
             Assert.LessOrEqual(q.x, GameRoot.Instance.Config.SandboxSettings.WorldBounds.xMax);
 
             // Sliding: pushing diagonally into a wall still makes progress along it.
-            var s = new Vector2(-1.5f, 5.0f);
+            // (the walk-in wagon's back wall, 2026-10-16: from behind it, pushing into it at an angle).
+            var cart = WalkInCart.Current;
+            var wa = (Vector2)cart.transform.position + cart.Footprint[0];
+            var wb = (Vector2)cart.transform.position + cart.Footprint[1];
+            var along = (wb - wa).normalized;
+            var outward = new Vector2(-along.y, along.x);   // the back wall's far side (up the screen)
+            if (outward.y < 0f) outward = -outward;
+            var s = Vector2.Lerp(wa, wb, 0.3f) + outward * (radius * 2.5f);
             var s0 = s;
-            for (var i = 0; i < 40; i++) s = PlayerMotor.Slide(s, new Vector2(1f, -1f).normalized * 0.06f, radius, mask);
-            Assert.Greater(s.x - s0.x, 0.5f, "slides along the Store's back wall");
+            for (var i = 0; i < 40; i++) s = PlayerMotor.Slide(s, (along - outward).normalized * 0.06f, radius, mask);
+            Assert.Greater(Vector2.Dot(s - s0, along), 0.5f, "slides along the wagon's back wall");
         }
 
         [UnityTest]

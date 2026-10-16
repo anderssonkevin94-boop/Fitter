@@ -18,6 +18,10 @@ namespace Ravenholm.Presentation
         [Tooltip("Where the steps stand on the ground (ground-foot polygon).")]
         public Vector2[] stairsGroundPx = Array.Empty<Vector2>();
         public Vector2 stepsBottomPx, stepsTopGroundPx, serveGroundPx, customerGroundPx, hitchPx, counterStartPx, counterEndPx;
+        [Tooltip("The ground under the shafts (ground-foot polygon), walled so no one walks through them.")]
+        public Vector2[] shaftsGroundPx = Array.Empty<Vector2>();
+        [Tooltip("Left of this canvas column, a figure in the doorway or on the steps draws in front of the door frame.")]
+        public float frameFrontPx = 494f;
         [Tooltip("The doorway on the footprint's left end (ground-foot points).")]
         public Vector2 doorGroundA, doorGroundB;
 
@@ -31,14 +35,11 @@ namespace Ravenholm.Presentation
     /// sorts at its own depth on the town's height-on-screen order, so a figure inside falls between the back and the
     /// counter: back and shafts at the far wall; the near wheels with the counter; the steps just above the stair top; the counter and the roof
     /// just in front of where a figure inside may stand and just behind where customers stand. On the lower steps the
-    /// figure stays in front of the door frame (the pack's 80 % switch). One outline goes round the whole wagon.
+    /// figure stays in front of the door frame (on the steps and in the doorway: Kevin, 2026-10-16). One outline goes round the whole wagon.
     /// </summary>
     public sealed class WalkInCart : MonoBehaviour
     {
         public static WalkInCart Current { get; private set; }
-
-        /// <summary>Up the steps, the share of the climb at which the figure goes behind the door frame (the pack's preview).</summary>
-        public const float BehindFrameAt = 0.8f;
 
         private WalkInCartArt _art;
         private readonly List<Vector2> _floor = new List<Vector2>();
@@ -137,50 +138,64 @@ namespace Ravenholm.Presentation
         // ------------------------------------------------------------------ walls
 
         /// <summary>
-        /// Where a figure's feet may stand inside: the floor, kept just behind the counter's sorting row (so a figure inside
-        /// always draws behind the counter and customers in front of it). The walls stand one footprint radius outside
-        /// it (so the feet can reach the serving spot), the doorway left open, and run down both sides of the steps.
+        /// Solid on every side but the doorway (Kevin, 2026-10-16: "only enter and leave through the doors"). The walls
+        /// stand a footprint radius outside the wagon's whole body, so no one stands in it from outside, with the left
+        /// end's doorway open (its posts a radius back, so it is as wide for the feet as it is drawn). Inside, a rail just
+        /// behind the counter's sorting row keeps the feet where a figure draws behind the counter. Both sides of the
+        /// steps, and the ground under the shafts, are walled too.
         /// </summary>
         private void BuildWalls(int blockerLayer, float radius)
         {
             var clipY = RowY(FrontRow - 1f);
             _walk.Clear();
-            _walk.AddRange(ClipBelow(_floor, clipY));   // y up: keep points at or above the counter row
+            _walk.AddRange(ClipBelow(_floor, clipY));   // y up: where the feet may stand inside
             if (_walk.Count < 3) return;
-            var ccw = SignedArea(_walk) > 0f;
+            var ccw = SignedArea(_floor) > 0f;
             _walkSlack.Clear();
             for (var i = 0; i < _walk.Count; i++)
-                _walkSlack.Add(OffsetCorner(_walk[(i - 1 + _walk.Count) % _walk.Count], _walk[i], _walk[(i + 1) % _walk.Count], 0.06f, ccw));
+                _walkSlack.Add(OffsetCorner(_walk[(i - 1 + _walk.Count) % _walk.Count], _walk[i], _walk[(i + 1) % _walk.Count], 0.06f, SignedArea(_walk) > 0f));
+
+            // The body: round the whole footprint but the doorway.
+            var n = _floor.Count;
             var doorA = L(_art.doorGroundA);
             var doorB = L(_art.doorGroundB);
-            // The edge holding the doorway, and which of its ends the door touches.
             var doorEdge = 0;
             var best = float.MaxValue;
-            for (var i = 0; i < _walk.Count; i++)
+            for (var i = 0; i < n; i++)
             {
-                var a = _walk[i];
-                var b = _walk[(i + 1) % _walk.Count];
-                var d = DistanceToSegment(doorA, a, b) + DistanceToSegment(doorB, a, b);
+                var d = DistanceToSegment(doorA, _floor[i], _floor[(i + 1) % n]) + DistanceToSegment(doorB, _floor[i], _floor[(i + 1) % n]);
                 if (d < best) { best = d; doorEdge = i; }
             }
-            var n = _walk.Count;
             var offset = new Vector2[n];
-            for (var i = 0; i < n; i++) offset[i] = OffsetCorner(_walk[(i - 1 + n) % n], _walk[i], _walk[(i + 1) % n], radius, ccw);
-            // The doorway's two points along its edge: the one nearer the edge's start, and the far one.
-            var start = _walk[doorEdge];
+            for (var i = 0; i < n; i++) offset[i] = OffsetCorner(_floor[(i - 1 + n) % n], _floor[i], _floor[(i + 1) % n], radius, ccw);
+            var start = _floor[doorEdge];
+            var end = _floor[(doorEdge + 1) % n];
             var nearStart = Vector2.Distance(doorA, start) <= Vector2.Distance(doorB, start) ? doorA : doorB;
             var farDoor = nearStart == doorA ? doorB : doorA;
-            var normal = Outward(start, _walk[(doorEdge + 1) % n], ccw);
-            var along = (_walk[(doorEdge + 1) % n] - start).normalized;
-            // The walls stand a footprint radius out, so the posts also step a radius back along the wall: the doorway
-            // stays as wide for the feet as it is drawn.
+            var normal = Outward(start, end, ccw);
+            var along = (end - start).normalized;
             var postNear = nearStart - along * radius + normal * radius;
             var postFar = farDoor + along * radius + normal * radius;
-            // One wall all the way round from the far door post to the near one: everything but the doorway.
             var wall = new List<Vector2> { postFar };
             for (var k = 1; k <= n; k++) wall.Add(offset[(doorEdge + k) % n]);
             wall.Add(postNear);
             Edge(blockerLayer, "Walls", wall);
+            DoorPostNear = postNear;
+            DoorPostFar = postFar;
+
+            // Inside: the rail behind the counter, along the cut of the floor, a radius in, running into the walls at both ends.
+            var railA = new Vector2(float.MaxValue, clipY);
+            var railB = new Vector2(float.MinValue, clipY);
+            foreach (var q in _walk)
+                if (Mathf.Abs(q.y - clipY) < 1e-4f) { if (q.x < railA.x) railA = q; if (q.x > railB.x) railB = q; }
+            if (railA.x < railB.x)
+            {
+                var dir = (railB - railA).normalized;
+                Edge(blockerLayer, "CounterRail", new List<Vector2>
+                {
+                    railA - dir * radius * 2f - new Vector2(0f, radius), railB + dir * radius * 2f - new Vector2(0f, radius),
+                });
+            }
 
             // Both sides of the steps, out from their middle, each running on to the nearer door post.
             var centre = (_stairs[0] + _stairs[1] + _stairs[2] + _stairs[3]) * 0.25f;
@@ -190,7 +205,26 @@ namespace Ravenholm.Presentation
             var lowerPost = upperPost == postNear ? postFar : postNear;
             Edge(blockerLayer, "StepsUpperSide", new List<Vector2> { upper.a, upper.b, upperPost });
             Edge(blockerLayer, "StepsLowerSide", new List<Vector2> { lower.a, lower.b, lowerPost });
+
+            // The ground under the shafts, all round.
+            if (_art.shaftsGroundPx != null && _art.shaftsGroundPx.Length >= 3)
+            {
+                var sh = new List<Vector2>();
+                foreach (var p in _art.shaftsGroundPx) sh.Add(L(p));
+                var sccw = SignedArea(sh) > 0f;
+                var loop = new List<Vector2>();
+                for (var i = 0; i < sh.Count; i++) loop.Add(OffsetCorner(sh[(i - 1 + sh.Count) % sh.Count], sh[i], sh[(i + 1) % sh.Count], radius, sccw));
+                loop.Add(loop[0]);
+                Edge(blockerLayer, "Shafts", loop);
+            }
         }
+
+        /// <summary>The doorway's posts (local), for tests.</summary>
+        public Vector2 DoorPostNear { get; private set; }
+        public Vector2 DoorPostFar { get; private set; }
+
+        /// <summary>The wagon body's footprint (local units), for tests.</summary>
+        public IReadOnlyList<Vector2> Footprint => _floor;
 
         private static Vector2 Closest(Vector2 to, Vector2 a, Vector2 b) => (to - a).sqrMagnitude <= (to - b).sqrMagnitude ? a : b;
 
@@ -275,29 +309,32 @@ namespace Ravenholm.Presentation
 
         /// <summary>
         /// Where feet on the ground at <paramref name="world"/> stand on the wagon: how high the drawn figure rises
-        /// (0 off it, ramping up the steps, the floor's height inside) and whether it is on the lower steps (drawn in front
-        /// of the door frame). False off the wagon.
+        /// (0 off it, ramping up the steps, the floor's height inside) and whether it is on the steps or in the doorway
+        /// (drawn in front of the door frame). False off the wagon.
         /// </summary>
-        public bool Sample(Vector2 world, out float elevation, out bool lowerSteps)
+        public bool Sample(Vector2 world, out float elevation, out bool frontOfFrame)
         {
             elevation = 0f;
-            lowerSteps = false;
+            frontOfFrame = false;
             if (_art == null) return false;
             var p = world - (Vector2)transform.position;
             if (Contains(_floor, p) || DistanceToPolygon(_floor, p) < 0.06f && Contains(_walkSlack, p))   // the walls' edge counts as floor
             {
                 elevation = FloorHeight;
+                // In the doorway (left of the near corner post) nothing of the wagon is in front of them: drawn over the
+                // frame (Kevin, 2026-10-16: the post cut through them there).
+                frontOfFrame = p.x < (_art.frameFrontPx - _art.originPx.x) / _art.ppu;
                 return true;
             }
             if (!Contains(_stairs, p) && DistanceToPolygon(_stairs, p) > 0.08f) return false;
             var ramp = _stairTop - _stairBottom;
             var t = Mathf.Clamp01(Vector2.Dot(p - _stairBottom, ramp) / Mathf.Max(ramp.sqrMagnitude, 1e-6f));
             elevation = FloorHeight * t;
-            lowerSteps = t < BehindFrameAt;
+            frontOfFrame = true;   // on the steps, in front of the frame all the way up (the pack switched behind it at 80 %)
             return true;
         }
 
-        private static float DistanceToPolygon(IReadOnlyList<Vector2> poly, Vector2 p)
+        public static float DistanceToPolygon(IReadOnlyList<Vector2> poly, Vector2 p)
         {
             var best = float.MaxValue;
             for (var i = 0; i < poly.Count; i++) best = Mathf.Min(best, DistanceToSegment(p, poly[i], poly[(i + 1) % poly.Count]));

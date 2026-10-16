@@ -263,6 +263,10 @@ namespace Ravenholm.EditorTools
                 hitchPx = V(p["hitch"]),
                 counterStartPx = V(p["counter_top_line"][0]),
                 counterEndPx = V(p["counter_top_line"][1]),
+                // Not in the pack: the ground under the shafts (their drawing lifted ~130 px to the ground), walled (2026-10-16).
+                shaftsGroundPx = new[] { new Vector2(1110f, 705f), new Vector2(1335f, 655f), new Vector2(1420f, 700f), new Vector2(1420f, 760f), new Vector2(1120f, 860f) },
+                // Left of the near corner post (the doorway's right side), a figure draws in front of the frame.
+                frameFrontPx = V(p["door_gap"][1]).x + 10f,
                 doorGroundA = Ground(p["door_gap"][0]),
                 doorGroundB = Ground(p["door_gap"][1]),
             };

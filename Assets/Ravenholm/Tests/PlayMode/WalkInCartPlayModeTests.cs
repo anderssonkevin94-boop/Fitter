@@ -110,11 +110,11 @@ namespace Ravenholm.Tests
             var halfway = Vector2.Lerp(cart.StepsBottom, cart.DoorGround, 0.45f);
             yield return WalkTo(halfway);
             Assert.That(Motor.CartElevation, Is.InRange(0.15f, 0.45f), "half way up the steps, half way up");
-            Assert.AreEqual(1, sorting.sortingOrder, "in front of the door frame on the lower steps");
+            Assert.AreEqual(1, sorting.sortingOrder, "in front of the door frame on the steps");
             yield return Capture.Take("cart_02_climbing");
             yield return WalkTo(cart.DoorGround);
             Assert.Less(Vector2.Distance(Motor.transform.position, cart.DoorGround), 0.2f, "through the doorway");
-            Assert.AreEqual(0, sorting.sortingOrder, "behind the frame at the top");
+            Assert.AreEqual(1, sorting.sortingOrder, "in front of the frame in the doorway (Kevin, 2026-10-16: the post cut through them)");
             yield return Capture.Take("cart_03_doorway");
 
             // Inside, along behind the counter to the serving spot.
@@ -161,6 +161,54 @@ namespace Ravenholm.Tests
             Assert.IsFalse(cart.Sample(Motor.transform.position, out _, out _), "the counter is not a way in");
             Assert.Less(Motor.transform.position.y, front, "still in front of the counter");
             yield return Capture.Take("cart_07_customer_side");
+            // Solid all round (Kevin, 2026-10-16: only in and out through the door): walked at from every side, the shafts
+            // included, no one ends up standing in the wagon's body or under its shafts.
+            var centre = Vector2.zero;
+            foreach (var q in cart.Footprint) centre += q;
+            centre = (Vector2)cart.transform.position + centre / cart.Footprint.Count;
+            var shaftsMid = cart.transform.position + new Vector3(2.2f, 0.4f, 0f);
+            var probes = 0;
+            for (var k = 0; k < 16; k++)
+            {
+                var ang = k * Mathf.PI / 8f;
+                var dir = new Vector2(Mathf.Cos(ang), Mathf.Sin(ang) * 0.5f);
+                foreach (var aim in new[] { centre, (Vector2)shaftsMid })
+                {
+                    var from = aim + dir * 2.6f;
+                    var fromLocal = (Vector2)cart.transform.InverseTransformPoint(from);
+                    if (!MineSlabView.Current.SurfaceWalkable(from) || Vector2.Distance(from, cart.StepsBottom) < 0.9f
+                        || WalkInCart.Contains(cart.Footprint, fromLocal) || cart.Sample(from, out _, out _)
+                        || WalkInCart.DistanceToPolygon(cart.Footprint, fromLocal) < root.Config.Balance.playerFootprintRadius * 2.2f) continue;   // start outside its walls
+                    Motor.Teleport(from);
+                    SandboxSceneController.Current.SnapPlayerToSavedPosition();
+                    yield return null;
+                    if (Vector2.Distance(Motor.transform.position, from) > 0.05f) continue;   // not somewhere the supplier may stand
+                    probes++;
+                    // Walk at it, noting whether the way went up the steps and through the door (the one way in).
+                    var viaDoor = false;
+                    var until = Time.realtimeSinceStartup + 1.6f;
+                    var trail = new System.Text.StringBuilder();
+                    var last = (Vector2)Motor.transform.position;
+                    while (Time.realtimeSinceStartup < until)
+                    {
+                        var now = (Vector2)Motor.transform.position;
+                        var lp = (Vector2)cart.transform.InverseTransformPoint(now);
+                        if (trail.Length < 1500) trail.Append(lp.ToString("F2")).Append(Vector2.Distance(now, last) > 0.2f ? "JUMP " : " ");
+                        last = now;
+                        var d = aim - (Vector2)Motor.transform.position;
+                        var stick = new Vector2(d.x, d.y * 2f);
+                        GameRoot.Instance.InputRouter.ScriptedMove = stick.normalized;
+                        if (cart.Sample(Motor.transform.position, out _, out var atDoor) && atDoor) viaDoor = true;
+                        yield return null;
+                    }
+                    GameRoot.Instance.InputRouter.ScriptedMove = null;
+                    var local = (Vector2)cart.transform.InverseTransformPoint(Motor.transform.position);
+                    Assert.IsFalse(!viaDoor && WalkInCart.Contains(cart.Footprint, local), $"walked into the wagon's body from {from - aim:F2} (at {local:F2}) without the door: {trail}");
+                    Assert.Greater(Vector2.Distance(Motor.transform.position, shaftsMid), 0.25f, $"walked through the shafts from {from - aim:F2}");
+                }
+            }
+            Assert.Greater(probes, 8, "probed from most sides");
+            yield return Capture.Take("cart_08_solid");
             CollectionAssert.IsEmpty(root.Services.Logistics.System.Audit());
             Assert.AreEqual(ground0.z, Motor.transform.position.z);
         }

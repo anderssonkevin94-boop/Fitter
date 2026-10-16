@@ -1578,3 +1578,11 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - Only the current and next leg are real ground. Further legs are Astra's distance strips, and a valley floor replaces the flat green.
   - Brief: `Docs/ART_BRIEF_SWITCHBACK_PASS.md`. The layout work starts when her art arrives.
 - The camp bays (shipped earlier today) stay until then.
+- **Playtest fixes** (Kevin, 2026-10-16).
+  - The wagon is solid on every side but the door. The walls follow its whole footprint, plus the player's radius, open only at the doorway.
+  - Inside, a rail just behind the counter's sorting row keeps the feet behind the counter.
+  - The ground under the shafts is walled: the pack has no outline for it, so it is approximated from the shafts' drawing lowered to the ground.
+  - On the steps and in the doorway (left of the near corner post), the supplier draws in front of the door frame, because the post cut through them there. This replaces the pack's 80% switch.
+  - Tests:
+    - the wagon test now probes from 16 directions, shafts included, so no way in but the door;
+    - Phase 1's slide check pushes along the wagon's back wall.
