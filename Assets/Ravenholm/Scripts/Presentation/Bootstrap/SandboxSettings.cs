@@ -27,7 +27,7 @@ namespace Ravenholm.Presentation
         public Content.CampDefinition camp;
 
         /// <summary>World position of a cell's centre on the town grid (cell size 1 × 0.5, isometric).</summary>
-        public static Vector2 CellCentre(int x, int y) => new Vector2((x - y) * 0.5f, (x + y) * 0.25f + 0.25f);
+        public static Vector2 CellCentre(int x, int y) => IsoMap.World(x, y);   // with the pass's drop (2026-10-16)
 
         /// <summary>Walkable world, as a bounding rectangle: the town plot plus the frontier (tiles decide the exact shape).</summary>
         public Rect WorldBounds
@@ -37,11 +37,14 @@ namespace Ravenholm.Presentation
                 if (camp != null)
                 {
                     var cb = camp.Bounds;
-                    var a = CellCentre(cb.xMin, cb.yMin);
-                    var r = CellCentre(cb.xMax - 1, cb.yMin);
-                    var l = CellCentre(cb.xMin, cb.yMax - 1);
-                    var top = CellCentre(cb.xMax - 1, cb.yMax - 1);
-                    return Rect.MinMaxRect(l.x - 0.5f, a.y - 0.5f, r.x + 0.5f, top.y + 0.5f);
+                    Vector2 Iso(int x, int y) => new Vector2((x - y) * 0.5f, (x + y) * 0.25f + 0.25f);   // the grid, before the drop
+                    var a = Iso(cb.xMin, cb.yMin);
+                    var r = Iso(cb.xMax - 1, cb.yMin);
+                    var l = Iso(cb.xMin, cb.yMax - 1);
+                    var top = Iso(cb.xMax - 1, cb.yMax - 1);
+                    var ridge = camp.Ridge;
+                    var lowest = (float)ridge.DropAt(ridge.Length);   // the pass's last leg lies lowest
+                    return Rect.MinMaxRect(l.x - 0.5f, a.y - 0.5f - lowest, r.x + 0.5f, top.y + 0.5f);
                 }
                 var t = townCells;
                 var fy0 = t.yMax;

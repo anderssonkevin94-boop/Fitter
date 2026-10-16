@@ -99,6 +99,80 @@ namespace Ravenholm.Domain.Sites
             return (l.S0 + l.S1) * 0.5;
         }
 
+        /// <summary>
+        /// How far below the first leg each leg is drawn, world units (Astra's 512 px cliff): the pass looks lower leg by leg
+        /// while the ground stays one flat plane to walk on (Kevin, 2026-10-16).
+        /// </summary>
+        public double DropStep = 2.0;
+
+        /// <summary>
+        /// How far down a distance along the line is drawn: <see cref="DropStep"/> per leg passed, easing through each turn as
+        /// Astra's turns are painted (3t² - 2t³ across the turn). 0 off the pass.
+        /// </summary>
+        public double DropAt(double s)
+        {
+            if (!Switchback) return 0;
+            Build();
+            var d = 0.0;
+            foreach (var t in TurnSpans)
+            {
+                // Eased across the turn and a little into the legs either side: on the inside of a turn the cells are packed
+                // tight along the road, and a steeper drop would draw neighbouring cells over each other (the mapping must
+                // stay one to one). The camps' ledges, mid-leg, stay flat.
+                var from = t.S0 - DropRampIntoLegs;
+                var to = t.S1 + DropRampIntoLegs;
+                if (s >= to) d += DropStep;
+                else if (s > from)
+                {
+                    var u = (s - from) / Math.Max(1e-6, to - from);
+                    d += DropStep * u * u * (3 - 2 * u);
+                }
+            }
+            return d;
+        }
+
+        /// <summary>Cells of each leg either side of a turn over which its drop also eases.</summary>
+        public double DropRampIntoLegs = 7;
+
+        /// <summary>How far down a cell is drawn (its nearest point of the line).</summary>
+        public double DropAtCell(double cx, double cy) => Switchback ? DropAt(Locate((int)Math.Round(cx), (int)Math.Round(cy)).s) : 0;
+
+        /// <summary>
+        /// Where a cell (fractional cells allowed) stands in the world: the isometric grid (x right-up, y left-up; a cell's
+        /// centre at ((x - y) / 2, (x + y) / 4 + 1/4)), lowered by its leg's drop.
+        /// </summary>
+        public (double x, double y) CellToWorld(double cx, double cy) => ((cx - cy) * 0.5, (cx + cy) * 0.25 + 0.25 - DropAtCell(cx, cy));
+
+        /// <summary>
+        /// The cell (fractional; floor it for the cell index) at a world point: the grid's inverse, undoing the drop of the
+        /// leg the point is drawn on (found by a few rounds of refinement: the legs never overlap on screen).
+        /// </summary>
+        public (double cx, double cy) WorldToCell(double wx, double wy)
+        {
+            (double cx, double cy) Undrop(double drop) => (wx + 2 * (wy + drop) - 0.5, 2 * (wy + drop) - wx - 0.5);
+            if (!Switchback) return Undrop(0);
+            Build();
+            // Which leg's level the point is drawn at: the one whose drop the cell found there agrees with...
+            var d = 0.0;
+            var best = double.MaxValue;
+            for (var k = 0; k <= TurnSpans.Count; k++)
+            {
+                var c0 = Undrop(k * DropStep);
+                var err = Math.Abs(DropAtCell(c0.cx, c0.cy) - k * DropStep);
+                if (err < best) { best = err; d = k * DropStep; }
+            }
+            // ...then settled on the drop of the very cell (through a turn the drop changes from cell to cell).
+            var c = Undrop(d);
+            for (var i = 0; i < 12; i++)
+            {
+                var nd = DropAtCell(c.cx, c.cy);
+                if (Math.Abs(nd - d) < 1e-5) break;
+                d = nd;
+                c = Undrop(d);
+            }
+            return c;
+        }
+
         /// <summary>Which leg (0-based) a distance along the line belongs to: a turn belongs to the leg before its middle.</summary>
         public int LegIndexAt(double s)
         {

@@ -90,7 +90,7 @@ namespace Ravenholm.Presentation
         {
             var cx = x + (cells.x - 1) * 0.5f;
             var cy = y + (cells.y - 1) * 0.5f;
-            return new Vector2((cx - cy) * 0.5f, (cx + cy) * 0.25f + 0.25f);
+            return IsoMap.World(cx, cy);
         }
 
         private void Apply()

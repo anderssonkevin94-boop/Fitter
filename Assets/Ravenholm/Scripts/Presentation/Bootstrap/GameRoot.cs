@@ -64,6 +64,7 @@ namespace Ravenholm.Presentation
             var saveDir = SaveDirectoryOverride ?? Path.Combine(SaveRootDirectory, ActiveProfile);
             Services = new GameServices(ClockOverride ?? new SystemClock(), config.Catalogue, config.Balance, saveDir, ActiveProfile,
                 UnityEngine.Application.version, settings.autosaveDebounceSeconds);
+            IsoMap.Ridge = config.Catalogue != null && config.Catalogue.CurrentCamp != null ? config.Catalogue.CurrentCamp.Ridge : null;   // one mapping (the pass)
 
             if (Services.ContentReport.IsValid) Debug.Log("[GameRoot] " + Services.ContentReport);
             else Debug.LogError("[GameRoot] " + Services.ContentReport);

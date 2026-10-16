@@ -4337,6 +4337,188 @@
     0.193359375
    ],
    "ppu": 256
+  },
+  "Pass/distant_meadows_edge_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_meadows_edge_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_meadows_edge_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_meadows_edge_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_river_bend_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_river_bend_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_river_bend_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_river_bend_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_hollow_wood_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_hollow_wood_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_hollow_wood_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_hollow_wood_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_witchlight_fen_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_witchlight_fen_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_witchlight_fen_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_witchlight_fen_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_crown_highlands_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_crown_highlands_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_crown_highlands_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_crown_highlands_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_castle_approach_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_castle_approach_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_castle_approach_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_castle_approach_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/valley_floor.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_castle.png": {
+   "pivot": [
+    0.3448275862068966,
+    0.10430839002267578
+   ],
+   "ppu": 256
   }
  }
 }

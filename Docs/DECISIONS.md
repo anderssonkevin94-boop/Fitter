@@ -1606,3 +1606,23 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
 - **Content.** Each leg has less forest than before (a leg is about 16 × 40 with the camp ledge in its middle). Leg length is the knob to turn.
 - **Tests.** The width checks use the legs' 16 cells. Gate positions come from `GateAhead`. The bays' drop check applies only off the pass.
 - **Step 2 next.** Each leg's world drawn 2 units lower than the last (eased through the turns), with one cell↔world mapping for everything; Astra's paintings for legs two or more away; the valley floor; the castle.
+
+## 2026-10-16: the switchback pass, step 2: the look (Astra's pass pack)
+
+- **Each leg drawn lower.** Each leg's whole world lies 2 units lower than the leg before (Astra's 512 px cliff).
+  - The drop eases (3t² − 2t³) across each turn and 7 cells into the legs either side (`RidgeLayout.DropAt`, `DropRampIntoLegs`). On a turn's inside the cells are packed tight, and the steeper ramp of the paintings alone drew neighbouring cells over each other, so the mapping wasn't one to one. The camps' ledges, mid-leg, stay flat.
+  - The ground stays one plane to walk on: the drop is simply part of where a cell lies.
+- **One mapping.** `RidgeLayout.CellToWorld`/`WorldToCell` and the presentation's `IsoMap` serve everything that draws or walks: the ground tiles (each tile's transform matrix lowered by its drop), trees, hills, cliffs, stations and their build marks, camps (`CampService.CentreOf`), the drive's path, and world bounds (extended by the lowest leg's drop).
+  - `WorldToCell` finds which leg's level a point is drawn at, then settles on its cell.
+  - The camera follows the supplier as before.
+- **Paintings** (`PassView`, art in `Art/Placeholder/Pass/`, imported by `Tools/ArtImport/import_switchback_pass.py`).
+  - The leg the supplier is on and the next are real ground. From the turn after the next leg, the pass is Astra's paintings: 8-cell strips by their start anchors, turns by their entry anchors, hazed toward the valley by distance. The real tiles, trees and cliffs there are hidden.
+  - This moves on whenever the supplier enters another leg.
+  - At the normal view, the legs two or more ahead mostly sit off screen (18+ units up); they show zoomed out and in the overview.
+  - The paintings are capped at 2048 px and compressed (the README suggested no lossy compression at first), because the phone's memory couldn't hold them full size uncompressed.
+- **The valley floor** (`valley_floor.png`, repeating) fills the view behind everything, drifting at 60% of the land's speed. It replaces the flat green past every edge, and the camera's background takes the valley colour.
+- **The castle** stands with its gate on the road's end.
+- **Tests.**
+  - `RoadPlayModeTests.ThePassDropsALegAtEveryTurnAndWalksSmoothly` checks the drops, the tiles drawn at their drop, the mapping both ways, and walking round a turn without a jump.
+  - `PassPlayModeTests` checks what is painted from camp 1 and from leg 2, and that the real ground is hidden behind the paintings. It writes wide captures; `world_overview.png` shows the whole pass.
+  - The outline test hides the valley while it measures.

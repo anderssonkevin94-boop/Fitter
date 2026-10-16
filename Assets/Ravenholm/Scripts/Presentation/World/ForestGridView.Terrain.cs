@@ -186,7 +186,7 @@ namespace Ravenholm.Presentation
         public int PlayerFeet => _feet;
         public float PlayerDrawFeet => _drawFeet;
 
-        private Vector3Int CellAt(Vector2 plane) => grid.WorldToCell(plane);
+        private Vector3Int CellAt(Vector2 plane) => IsoMap.Cell(plane);
 
         /// <summary>
         /// Whether the supplier can go from one point to another on the ground's blocks: the body (two blocks) must be

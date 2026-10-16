@@ -64,6 +64,7 @@ namespace Ravenholm.EditorTools
             _unlit = AssetDatabase.LoadAssetAtPath<Material>(UnlitMaterialPath);
             _catalogue = AssetDatabase.LoadAssetAtPath<ContentCatalogue>(ContentValidationMenu.CataloguePath);
             var settings = AssetDatabase.LoadAssetAtPath<SandboxSettings>(settingsPath);
+            IsoMap.Ridge = settings.camp != null ? settings.camp.Ridge : null;   // one mapping for everything placed (the pass's drop)
             if (settings == null) throw new System.IO.FileNotFoundException("SandboxSettings not found", settingsPath);
             var tiles = ProjectSetup.EnsureTiles();
 
@@ -124,6 +125,7 @@ namespace Ravenholm.EditorTools
             // The valley view beyond the north cliff, with the castle on the far ridge (Astra, 2026-10-15). The placeholder
             // castle at the road's end is gone; adventurers come and go by the cliff path.
             var pathTop = Horizon(world, settings);
+            BuildPass(world, settings);
             // Phase 7: the Beacon trophy, hidden until the campaign finale succeeds.
             Prop(props, "Beacon Trophy", "Props/prop_beacon_trophy", new Vector2(-3.2f, 2.3f),
                 "The castle's banner, given to your company for its last great job.", "").gameObject.AddComponent<TrophyView>();
@@ -357,9 +359,12 @@ namespace Ravenholm.EditorTools
         private static void Tint(Tilemap tm, Vector3Int cell, CampDefinition camp, Ravenholm.Domain.Sites.RidgeLayout ridge, int x, int y)
         {
             var tint = camp.GroundTintAt(ridge.Locate(x, y).s - ridge.CampS);
-            if (tint == Color.white) return;
+            // The switchback pass (2026-10-16): each leg's ground drawn lower, as everything on it is (IsoMap).
+            var drop = (float)ridge.DropAtCell(x, y);
+            if (tint == Color.white && drop == 0f) return;
             tm.SetTileFlags(cell, TileFlags.None);
-            tm.SetColor(cell, tint);
+            if (tint != Color.white) tm.SetColor(cell, tint);
+            if (drop != 0f) tm.SetTransformMatrix(cell, Matrix4x4.Translate(new Vector3(0f, -drop, 0f)));
         }
 
         /// <summary>Invisible wall around the town plot (the motor also clamps).</summary>
@@ -778,6 +783,25 @@ namespace Ravenholm.EditorTools
         /// its edge; the castle needn't be in view all the time). Returns where adventurers come from and go to:
         /// a little way up the old road ahead, toward the castle.
         /// </summary>
+        /// <summary>
+        /// The switchback pass seen from the road (Astra's pass pack, 2026-10-16): each region's legs and turns as paintings
+        /// for the legs two on and further, the repeating valley floor, the castle at the road's end.
+        /// </summary>
+        private static void BuildPass(Transform world, SandboxSettings settings)
+        {
+            if (settings.camp == null || !settings.camp.Switchback || !File.Exists(PlaceholderSpriteImporter.ArtRoot + "Pass/points.json")) return;
+            var regions = new List<PassView.Region>();
+            foreach (var key in new[] { "meadows_edge", "river_bend", "hollow_wood", "witchlight_fen", "crown_highlands", "castle_approach" })
+            {
+                Sprite S(string kind) => ProjectSetup.LoadSprite($"Pass/distant_{key}_{kind}");
+                regions.Add(new PassView.Region { key = key, legUpRight = S("leg_upright"), legUpLeft = S("leg_upleft"), turnLeft = S("turn_left"), turnRight = S("turn_right") });
+            }
+            var go = new GameObject("Pass");
+            go.transform.SetParent(world, false);
+            go.AddComponent<PassView>().EditorSetup(regions, ProjectSetup.LoadSprite("Pass/valley_floor"), ProjectSetup.LoadSprite("Pass/distant_castle"),
+                _groundMap, _unlit, Valley);
+        }
+
         private static Vector2 Horizon(Transform world, SandboxSettings settings)
         {
             var par = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(PlaceholderSpriteImporter.ArtRoot + "View/parallax.json"));

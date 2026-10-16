@@ -97,18 +97,16 @@ namespace Ravenholm.Presentation
         public Vector3 Top(float x, float u, float row)
         {
             float cx = origin.x + x, cy = origin.y + u;
-            return new Vector3((cx - cy) * 0.5f, (cx + cy) * 0.25f + 0.25f - row * RowHeight, 0f);
+            return (Vector3)IsoMap.World(cx, cy) - new Vector3(0f, row * RowHeight, 0f);
         }
 
-        private static Vector3 TopOfCell(Vector3Int cell, int row) =>
-            new Vector3((cell.x - cell.y) * 0.5f, (cell.x + cell.y) * 0.25f + 0.25f - row * RowHeight, 0f);
+        private static Vector3 TopOfCell(Vector3Int cell, int row) => (Vector3)IsoMap.World(cell) - new Vector3(0f, row * RowHeight, 0f);
 
         /// <summary>Slab coordinates (x, u) of a point on the town's plane (continuous).</summary>
         public Vector2 SlabCoords(Vector2 plane)
         {
-            var sum = (plane.y - 0.25f) * 4f;   // cell x + y
-            var diff = plane.x * 2f;            // cell x − y
-            return new Vector2((sum + diff) * 0.5f - origin.x, (sum - diff) * 0.5f - origin.y);
+            var c = IsoMap.CellF(plane);   // the drop undone
+            return new Vector2(c.x - origin.x, c.y - origin.y);
         }
 
         public bool InSlabColumn(int x, int u) => Slab != null && Slab.InSlab(x, u, 0);
@@ -144,7 +142,7 @@ namespace Ravenholm.Presentation
             (row > 0 ? !SolidCell(cell, row - 1) : ground == null || !ground.HasTile(cell));
 
         /// <summary>There is ground at all under this point (town, frontier or the Mine's undug top), as opposed to air.</summary>
-        public bool OnGround(Vector2 plane) => ground == null || ground.HasTile(grid.WorldToCell(plane)) || TryHole(plane);
+        public bool OnGround(Vector2 plane) => ground == null || ground.HasTile(IsoMap.Cell(plane)) || TryHole(plane);
 
         private bool TryHole(Vector2 plane)
         {
@@ -156,7 +154,7 @@ namespace Ravenholm.Presentation
         public bool SurfaceWalkable(Vector2 plane)
         {
             if (ground == null) return true;
-            var c = grid.WorldToCell(plane);
+            var c = IsoMap.Cell(plane);
             if (!ground.HasTile(c)) return false;
             return ForestGridView.Current == null || !ForestGridView.Current.HasStandingTree(c);
         }
@@ -294,7 +292,7 @@ namespace Ravenholm.Presentation
             var cam = (Vector2)_camera.transform.position;
             var halfH = _camera.orthographicSize + 1.5f;
             var halfW = halfH * _camera.aspect + 1f;
-            var key = $"{Mathf.Round(cam.x)}|{Mathf.Round(cam.y)}|{sim.Record.Dug.Count}|{sim.Record.Revealed.Count}";
+            var key = $"{(PassView.Current != null ? PassView.Current.CurrentLeg : -1)}|{Mathf.Round(cam.x)}|{Mathf.Round(cam.y)}|{sim.Record.Dug.Count}|{sim.Record.Revealed.Count}";
             if (key == _drawKey) return;
             _drawKey = key;
             var keep = new HashSet<Vector3Int>();
@@ -302,6 +300,7 @@ namespace Ravenholm.Presentation
             {
                 var top = TopOfCell(cell, 0);
                 if (Mathf.Abs(top.x - cam.x) > halfW) return;
+                if (PassView.Painted(cell)) return;   // the pass two legs on: Astra's painting shows its cliffs
                 // Rows whose block faces fall inside the view.
                 var first = Mathf.Max(0, Mathf.FloorToInt((top.y - (cam.y + halfH)) / RowHeight));
                 var last = Mathf.CeilToInt((top.y - (cam.y - halfH)) / RowHeight);
@@ -558,7 +557,7 @@ namespace Ravenholm.Presentation
         private int Column => Mathf.RoundToInt(_u);
 
         /// <summary>Walking onto a hole in the ground (dug row 0) drops the supplier into the Mine.</summary>
-        public bool SameCell(Vector2 a, Vector2 b) => grid == null || grid.WorldToCell(a) == grid.WorldToCell(b);
+        public bool SameCell(Vector2 a, Vector2 b) => grid == null || IsoMap.Cell(a) == IsoMap.Cell(b);
 
         /// <summary>Whether stepping onto this point would go down into the quarry (an open hole in the ground).</summary>
         public bool CanEnterAt(Vector2 plane)

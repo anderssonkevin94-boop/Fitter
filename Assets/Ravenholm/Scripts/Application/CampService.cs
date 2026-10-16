@@ -56,10 +56,18 @@ namespace Ravenholm.Services
         public string NextName => HasNext ? Road.CampName(Index + 1) : "";
 
         /// <summary>World position of a map cell's centre (cells: x right-up, y left-up).</summary>
-        public static Vector2 CellCentre(Vector2 cell) => new Vector2((cell.x - cell.y) * 0.5f, (cell.x + cell.y) * 0.25f + 0.25f);
+        public static Vector2 CellCentre(Vector2 cell) => CellCentre(cell, null);
+
+        /// <summary>World position of a map cell's centre on a land (with the switchback pass's drop; plain grid without one).</summary>
+        public static Vector2 CellCentre(Vector2 cell, Domain.Sites.RidgeLayout ridge)
+        {
+            if (ridge == null) return new Vector2((cell.x - cell.y) * 0.5f, (cell.x + cell.y) * 0.25f + 0.25f);
+            var (x, y) = ridge.CellToWorld(cell.x, cell.y);
+            return new Vector2((float)x, (float)y);
+        }
 
         /// <summary>The camp's centre in the world.</summary>
-        public Vector2 CentreOf(int index) => Road != null ? CellCentre(Road.CampCentre(index)) : Vector2.zero;
+        public Vector2 CentreOf(int index) => Road != null ? CellCentre(Road.CampCentre(index), Road.Ridge) : Vector2.zero;
 
         /// <summary>How far the camp's group stands from where it was laid out at camp 1 (world units).</summary>
         public Vector2 Offset => OffsetOf(Index);
@@ -149,8 +157,9 @@ namespace Ravenholm.Services
         {
             if (!HasNext) return false;
             var centre = Road.CampCentre(Index + 1);
-            var cx = world.x + 2f * (world.y - 0.25f);
-            var cy = 2f * (world.y - 0.25f) - world.x;
+            var (fx, fy) = Road.Ridge.WorldToCell(world.x, world.y);   // the drop undone
+            var cx = (float)fx;
+            var cy = (float)fy;
             return Vector2.Distance(new Vector2(cx, cy), centre) <= Road.CampRadius(Index + 1) + 0.5f;
         }
 

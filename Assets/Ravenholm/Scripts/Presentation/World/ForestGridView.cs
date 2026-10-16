@@ -92,7 +92,7 @@ namespace Ravenholm.Presentation
 
         // ------------------------------------------------------------------ geometry
 
-        private Vector3 Centre(Vector3Int c) => grid.GetCellCenterWorld(c);
+        private Vector3 Centre(Vector3Int c) => IsoMap.World(c);
 
 
         private void Build()
@@ -254,7 +254,7 @@ namespace Ravenholm.Presentation
             UpdateSupplier();
             UpdateHighlight();
             var dug = Mine != null ? Mine.Record.SurfaceBroken.Count : 0;
-            var key = $"{Mathf.Round(cam.x * 2f)}|{Mathf.Round(cam.y * 2f)}|{s.Depth}|{s.K}|{s.SectionDepths.Count}|{felled}|{s.Trees.Count}|{sim.FelledVersion}|{s.Revealed.Count}|{dug}";
+            var key = $"{(PassView.Current != null ? PassView.Current.CurrentLeg : -1)}|{Mathf.Round(cam.x * 2f)}|{Mathf.Round(cam.y * 2f)}|{s.Depth}|{s.K}|{s.SectionDepths.Count}|{felled}|{s.Trees.Count}|{sim.FelledVersion}|{s.Revealed.Count}|{dug}";
             if (key == _key) return;
             _key = key;
             Redraw(sim, cam);
@@ -271,6 +271,7 @@ namespace Ravenholm.Presentation
                 {
                     var p = Centre(c);
                     if (Mathf.Abs(p.y - cam.y) > halfH + 4f || Mathf.Abs(p.x - cam.x) > halfW) continue;
+                    if (PassView.Painted(c)) continue;   // shown as Astra's painting (the pass, two legs on and further)
                     cells.Add(c);
                     var state = State(a, slot, out var tree);
                     if (state == TreeState.None) continue;
@@ -399,7 +400,7 @@ namespace Ravenholm.Presentation
             var found = false;   // (area, slot) are cell coordinates in a camp's ring: they can be negative
             var sim = Sim;
             if (sim == null) return false;
-            var at = grid.WorldToCell(me);
+            var at = IsoMap.Cell(me);
             var best = reach;
             for (var dx = -3; dx <= 3; dx++)
             for (var dy = -3; dy <= 3; dy++)
@@ -427,7 +428,7 @@ namespace Ravenholm.Presentation
             area = slot = -1;
             cell = default;
             var found = false;
-            var at = grid.WorldToCell(me);
+            var at = IsoMap.Cell(me);
             var best = reach;
             for (var dx = -3; dx <= 3; dx++)
             for (var dy = -3; dy <= 3; dy++)

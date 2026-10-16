@@ -78,7 +78,14 @@ namespace Ravenholm.Presentation
         {
             var built = _root.Services.Camp.IsBuilt(gate);
             if (built && ground != null && fill != null)
-                foreach (var c in _gap) ground.SetTile(c, fill);
+                foreach (var c in _gap)
+                {
+                    ground.SetTile(c, fill);
+                    var drop = IsoMap.Drop(c);   // the pass: drawn as low as the ground around it
+                    if (drop == 0f) continue;
+                    ground.SetTileFlags(c, TileFlags.None);
+                    ground.SetTransformMatrix(c, Matrix4x4.Translate(new Vector3(0f, -drop, 0f)));
+                }
             if (_sign != null) _sign.enabled = !built;
             if (_collider != null) _collider.enabled = !built;
         }

@@ -79,9 +79,8 @@ namespace Ravenholm.Presentation
         /// <summary>The map cell under a world point (cell centres at ((x - y) / 2, (x + y) / 4 + 0.25)).</summary>
         public static Vector2Int CellAt(Vector2 world)
         {
-            var cx = world.x + 2f * (world.y - 0.25f);
-            var cy = 2f * (world.y - 0.25f) - world.x;
-            return new Vector2Int(Mathf.RoundToInt(cx), Mathf.RoundToInt(cy));
+            var c = IsoMap.Cell(world);
+            return new Vector2Int(c.x, c.y);
         }
 
         // ------------------------------------------------------------------ the footprint outline
@@ -109,7 +108,7 @@ namespace Ravenholm.Presentation
             {
                 var m = Mark(i++);
                 m.enabled = true;
-                m.transform.position = new Vector3((cx - cy) * 0.5f, (cx + cy) * 0.25f + 0.25f, 0f);
+                m.transform.position = IsoMap.World(cx, cy);
                 var free = root.Services.Stations.GroundProblem(cx, cy) == null;
                 m.color = ok || free ? new Color(0.45f, 0.9f, 0.45f, 0.55f) : new Color(0.95f, 0.35f, 0.3f, 0.6f);
             }

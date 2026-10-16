@@ -76,7 +76,7 @@ namespace Ravenholm.Presentation
             for (var s = road.CampAhead(from) + 14; s < road.CampAhead(to) - 8; s += 3)
             {
                 var (x, y) = ridge.PointAt(ridge.CampS + s);
-                path.Add(new Vector2(((float)x - (float)y) * 0.5f, ((float)x + (float)y) * 0.25f + 0.25f));
+                path.Add(IsoMap.World((float)x, (float)y));
             }
             path.Add(end);
 
