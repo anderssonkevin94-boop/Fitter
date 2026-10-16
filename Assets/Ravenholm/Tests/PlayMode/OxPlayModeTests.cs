@@ -64,6 +64,7 @@ namespace Ravenholm.Tests
             var art = parked;   // the same art the game uses
             var ox = Object.Instantiate(parked.gameObject).GetComponent<OxFigure>();
             Object.Destroy(ox.transform.Find("OxBody")?.gameObject);
+            Object.DestroyImmediate(ox.GetComponent<OxWander>());   // held in place for the pictures
             ox.transform.position = at;
             ox.transform.localScale = Vector3.one;
             Vector2? size = null;
@@ -106,6 +107,41 @@ namespace Ravenholm.Tests
             Assert.NotNull(walking, "the ox pulls the wagon");
             Assert.IsTrue(walking.Walking);
             yield return Capture.Take("ox_drive");
+        }
+
+        [UnityTest]
+        public IEnumerator TheParkedOxAmblesAboutNearTheWagon()
+        {
+            yield return Boot();
+            var ox = ShopView.Current.Ox;
+            var wander = ox.GetComponent<OxWander>();
+            Assert.NotNull(wander, "the parked ox wanders");
+            var home = wander.Home;
+            var blockers = LayerMask.GetMask(PlayerMotor.BlockerLayerName);
+            var body = ox.GetComponentInChildren<Collider2D>();
+            var moved = 0f;
+            var walked = false;
+            for (var round = 0; round < 4; round++)
+            {
+                wander.WalkNow();
+                var deadline = Time.time + 8f;
+                yield return null;
+                yield return null;
+                while (wander.Walking && Time.time < deadline)
+                {
+                    walked |= ox.Walking;
+                    yield return null;
+                }
+                var at = (Vector2)ox.transform.position;
+                moved = Mathf.Max(moved, Vector2.Distance(at, home));
+                var off = at - home;
+                Assert.LessOrEqual(Mathf.Pow(off.x / (wander.RadiusX + 0.05f), 2) + Mathf.Pow(off.y / (wander.RadiusY + 0.05f), 2), 1f, "he stays near the wagon");
+                Assert.IsFalse(ox.Walking, "standing between walks");
+                Assert.AreEqual(body.transform.position, ox.transform.position, "his blocker goes with him");
+                if (round == 1) yield return Capture.Take("ox_wander");
+            }
+            Assert.IsTrue(walked, "his walk plays while he moves");
+            Assert.Greater(moved, 0.4f, "he moved about");
         }
     }
 }

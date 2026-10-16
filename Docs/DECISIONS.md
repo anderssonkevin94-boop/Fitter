@@ -1654,3 +1654,9 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - Retired: Astra's painted far legs and turns, the tiled valley floor and the castle at the road's end (they floated over the view). The art stays in the project, unused.
 - **Unchanged:** the road's layout, the 40-cell legs (the 24-cell experiment was dropped: camp 3's stalls fell off its ledge), camps, gates and gameplay.
 - **Tests.** `PassPlayModeTests` checks what is hidden at camp 1, near the first hairpin, along leg 2 and at camp 3, with captures `pass_view_camp1`, `pass_view_hairpin` and `pass_view_camp3`.
+
+## 2026-10-16: the parked ox ambles about (Kevin)
+
+- `OxWander`: he rests 3 to 8 seconds, then walks to a free spot within 1.8 × 0.9 units of his place at the shafts (one time in three, back to it), at 0.45 units a second with his walk playing.
+- He keeps to walkable ground, skips spots with a stall, wall or the supplier in the way, and stops if the supplier steps in front of him. His blocker moves with him. He stands still during the drive.
+- Test: `OxPlayModeTests.TheParkedOxAmblesAboutNearTheWagon` (capture `ox_wander`).
