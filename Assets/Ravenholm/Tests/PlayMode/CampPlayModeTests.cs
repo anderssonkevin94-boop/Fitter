@@ -297,7 +297,8 @@ namespace Ravenholm.Tests
 
             // Further forward costs more: the next band (beyond the gate) more again.
             var t1 = TreeAhead(sim, 100);
-            Assert.Greater(sim.TreeDurabilityMicro(t1.x, t1.y), sim.TreeDurabilityMicro(ax, ay));
+            Assert.Greater(sim.TreeDurabilityMicro(t1.x, t1.y), Ravenholm.Domain.Sites.SiteMath.Durability(sim.Config, 1, 0) * 1000,
+                "band 2's trees are tougher than band 1's first");
             Motor.Teleport(first);   // on the stump, among the standing trees
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
             yield return new WaitForSeconds(1.5f);

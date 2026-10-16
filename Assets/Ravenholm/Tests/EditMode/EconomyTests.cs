@@ -381,11 +381,18 @@ namespace Ravenholm.Tests
             var forest = g.Sites.Get("site.forest");
             Assert.IsTrue(forest.GroveMode);
             var (tx, ty) = (0, 0);
-            for (var s = 18.0; !forest.CanChop(tx, ty); s += 1)
+            var found = false;
+            for (var s = 18.0; !found && s < 200; s += 1)
             {
                 var (px, py) = forest.Grove.Ridge.PointAt(forest.Grove.Ridge.CampS + s);   // the first tree ahead of camp
-                (tx, ty) = ((int)px, (int)py);
+                for (var k = 0; k <= 12 && !found; k++)
+                foreach (var side in new[] { k, -k })
+                {
+                    (tx, ty) = ((int)px + side, (int)py - side);
+                    if (forest.CanChop(tx, ty) && !g.Sites.ToolTooWeak(tx, ty)) { found = true; break; }
+                }
             }
+            Assert.IsTrue(found, "a tree ahead of camp the starting axe can cut");
             for (var i = 0; i < 2000 && !forest.IsFelled(tx, ty); i++) g.Sites.PlayerChopCell("site.forest", tx, ty, 0.1f);
             Assert.IsTrue(forest.IsFelled(tx, ty));
             Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 4, "a tree's four logs (herbs are a bonus roll)");

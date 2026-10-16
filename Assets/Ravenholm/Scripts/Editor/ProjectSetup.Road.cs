@@ -27,6 +27,14 @@ namespace Ravenholm.EditorTools
             }
 
             // Rewritten while missing or when the smoothed land ends short of Castle Approach (+30 past it).
+            // The camp's group sets the Trader's pad down below and right of its middle (world (3.0, -2.1) at camp 1, the
+            // anchor at cell (5, 2)): the land's edge stays clear of it at every camp (2026-10-16).
+            if (camp.GroupSpotCount == 0)
+            {
+                camp.EditorSetGroupSpots(new List<Vector2Int> { new Vector2Int(-7, -10) });
+                EditorUtility.SetDirty(camp);
+            }
+
             if (camp.Stops.Count < 5 || camp.Ridge.Length - camp.Ridge.CampS < camp.CampAhead(camp.CampCount - 1) + 30)
             {
                 CampDefinition.Stretch S(bool upRight, int length) => new CampDefinition.Stretch { upRight = upRight, length = length };

@@ -40,6 +40,55 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
+        public IEnumerator EachCampStandsByTheDropWithItsGroupOnLand()
+        {
+            // Kevin, 2026-10-16: each camp looks over the drop to the castle (the land's edge a little right of the group).
+            SceneManager.LoadScene(GameRoot.BootstrapSceneName);
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while ((GameRoot.Instance == null || SandboxSceneController.Current == null || SceneManager.GetActiveScene().name != "DebugSandbox")
+                   && Time.realtimeSinceStartup < deadline)
+                yield return null;
+            for (var i = 0; i < 3; i++) yield return null;
+            var root = GameRoot.Instance;
+            root.Hud.Tips.HideAll();
+            var s = root.Services;
+            var ground = GameObject.Find("Grid").transform.Find("Ground").GetComponent<UnityEngine.Tilemaps.Tilemap>();
+            var road = s.Catalogue.CurrentCamp;
+            for (var c = 0; c < road.CampCount; c++)
+            {
+                if (c > 0)
+                {
+                    s.Camp.DebugJumpTo(c);
+                    yield return null;
+                    deadline = Time.realtimeSinceStartup + 60f;
+                    while (DriveView.Current.Driving && Time.realtimeSinceStartup < deadline) yield return null;
+                    yield return new WaitForSeconds(0.5f);
+                }
+                // Everything the camp brings stands on land: the wagon shop, the Trader's pad, the staging piles.
+                var group = Object.FindObjectsByType<CampAnchored>(FindObjectsSortMode.None).Select(a => a.transform).ToList();
+                group.Add(ShopView.Current.transform);
+                foreach (var t in group)
+                foreach (var sr in t.GetComponentsInChildren<SpriteRenderer>())
+                {
+                    if (!sr.enabled || sr.sortingLayerName == "Overlay") continue;
+                    var cell = ground.WorldToCell(sr.transform.position);
+                    Assert.IsTrue(ground.HasTile(cell), $"camp {c + 1}: {sr.transform.parent?.name}/{sr.name} stands over the drop at {cell}");
+                }
+                // The drop is in view, a little right of the camp's middle.
+                var mid = (Vector2)ground.GetCellCenterWorld(Vector3Int.RoundToInt((Vector3)road.CampCentre(c)));
+                var dropAt = -1f;
+                for (var k = 0.5f; k < 6f && dropAt < 0f; k += 0.25f)
+                    if (!ground.HasTile(ground.WorldToCell(mid + new Vector2(k, 0f)))) dropAt = k;
+                Assert.That(dropAt, Is.InRange(1.5f, 3.4f), $"camp {c + 1}: the drop is on screen right of the camp");
+                var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
+                motor.Teleport(mid);
+                SandboxSceneController.Current.SnapPlayerToSavedPosition();
+                yield return new WaitForSeconds(0.6f);
+                yield return Capture.Take($"edge_camp{c + 1}");
+            }
+        }
+
+        [UnityTest]
         public IEnumerator TheBridgeIsBuiltAndWalkedAcross()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);

@@ -1485,3 +1485,21 @@ Built:
   - Fix: an outline now skips outline copies (renderers using the outline materials) and the pieces of a nested outlined object.
   - Result: Kevin's save loads with 765 active renderers, and the count stays flat (765–1,114) across all six camps and back.
   - Test: `OutlinePlayModeTests.AnOutlinedObjectInsideAnotherIsNotOutlinedOverAndOver`.
+
+## 2026-10-16: each camp looks over the drop to the castle (Kevin)
+
+Kevin loved a screenshot taken by the ridge's drop-off, with the castle in the distance. He asked for the road to swing out to the edge near camps, and for the first camp to sit close to the edge.
+
+- **A bay at every camp** (`RidgeLayout.InCove`/`BayEdge`; `CampDefinition.edgeGap` 2.5, `bayHeight` 5):
+  - The land ends 2.5 world units right of where the camp's group stands. The default view is 7 wide, so the drop is on screen.
+  - Above the group the cliff runs up and left for 5 units, then turns back. That opens the top of the view, where the horizon, the valley and the castle show. A cove beside the camp alone showed only the valley green.
+  - Below the group the cliff falls away down and right. What stands there keeps its ground: camp 1's Trader and Workshop, and the Trader's pad at every camp (`groupSpots`, set by `EnsureRoad`).
+  - The bay cuts through camp 1's town clearing, so camp 1 sits right at the edge.
+- **The road.** It swings out along the right-hand edge into and out of each camp (`EdgePull`, `RoadOffsetAt`) and never runs through a bay. The project signs stand on the road where it actually runs. The bridge sign beats a tree within about a unit (priority 2).
+- **The groups at camps 2–6** stand toward the right of their clearing (`anchorInset` 6 cells inside its edge). Camp 1's group sits on the right of its town too.
+- **Edges near camps** are less ragged, so the drop stays where it was set.
+- **Tests.**
+  - `RoadPlayModeTests.EachCampStandsByTheDropWithItsGroupOnLand`: at all six camps everything the camp brings stands on land, and the drop is 1.5–3.4 units right of the camp. It writes the captures `edge_camp1..6`.
+  - `CampTests` allows narrower land beside a bay: 14 cells or more, still wider than the view.
+  - Tree-finding tests skip trees the tool can't cut.
+  - The forest toughness test compares against band 1's base. Late band-1 trees were always tougher than early band-2 ones (in-band steps ×1.18 and ×1.42, against a band step of 45/40), so I changed the test, not the balance.

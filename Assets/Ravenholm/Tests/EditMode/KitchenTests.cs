@@ -86,7 +86,7 @@ namespace Ravenholm.Tests
             for (var s = 18; s < 50 && cleared < 40; s++)
             {
                 var (px, py) = ridge.PointAt(ridge.CampS + s);
-                for (var k = -12; k <= 12 && cleared < 40; k++)
+                for (var k = -18; k <= 18 && cleared < 40; k++)
                 {
                     var (x, y) = ((int)px + k, (int)py - k);
                     if (!forest.CanChop(x, y) || g.Sites.ToolTooWeak(x, y)) continue;

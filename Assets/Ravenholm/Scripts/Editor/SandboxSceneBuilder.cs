@@ -164,7 +164,8 @@ namespace Ravenholm.EditorTools
             for (var g = 0; g < road.Gates.Count; g++)
             {
                 if (string.IsNullOrEmpty(road.Gates[g].project)) continue;
-                var (px, py) = road.Ridge.PointAt(road.Ridge.Gates[g].S - 5);
+                var signS = road.Ridge.Gates[g].S - 5;
+                var (px, py) = road.Ridge.PointBeside(signS, road.Ridge.RoadOffsetAt(signS));   // on the road, where it runs
                 var at = SandboxSettings.CellCentre(Mathf.RoundToInt((float)px), Mathf.RoundToInt((float)py));
                 var projectSign = Sprite(world, road.Gates[g].project + " Sign", "Wagon/camp_sign", at);
                 projectSign.gameObject.AddComponent<SpriteOutline>();

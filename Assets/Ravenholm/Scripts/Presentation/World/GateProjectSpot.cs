@@ -28,7 +28,7 @@ namespace Ravenholm.Presentation
         public override string ContextVerb => $"Build {_root?.Services.Camp.ProjectName(gate).ToLowerInvariant()}";
         public override bool OpensOwnPanel => true;
         public override bool IsContextAvailable => Available;
-        public override float ContextPriority => 1.5f;   // the road's way on: ahead of the rocks around it
+        public override float ContextPriority => 2f;   // the road's way on: ahead of the trees and rocks within a step of it
 
         public void EditorSetup(int gateIndex, Tilemap groundMap, TileBase fillTile)
         {

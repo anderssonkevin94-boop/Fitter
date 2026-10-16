@@ -25,6 +25,18 @@ namespace Ravenholm.Domain.Sites
             public double S;
             public bool HasCentre;   // authored centre (camp 1's, round its town) rather than the line's point at S
             public double CX, CY, RX, RY;
+            /// <summary>
+            /// The land's right-hand edge (screen right, the side the camp's group stands on) near this camp: cells to the
+            /// right of the line (0: no edge pull). The camp looks over the drop to the castle (Kevin, 2026-10-16).
+            /// </summary>
+            public double EdgeRight;
+            /// <summary>
+            /// Where the camp's group stands (cells) and how far right of it on screen the drop comes in (world units; 0:
+            /// none): a cove in the land's edge, its cliff falling away along the diagonals above and below the group.
+            /// </summary>
+            public double AX, AY, CoveGap;
+            /// <summary>World units above the group the bay's cliff keeps running up and left (opening the top of the view).</summary>
+            public double BayHeight;
         }
 
         /// <summary>A band across the whole ridge that needs a better tool (old trees: the axe; a rock wall: the pickaxe).</summary>
@@ -161,6 +173,21 @@ namespace Ravenholm.Domain.Sites
             return (a.x + (b.x - a.x) * k, a.y + (b.y - a.y) * k);
         }
 
+        /// <summary>A point beside the centre line: <paramref name="off"/> cells to the left of travel (negative: to the right).</summary>
+        public (double x, double y) PointBeside(double s, double off)
+        {
+            var (x, y) = PointAt(s);
+            var (ax, ay) = PointAt(Math.Max(0, s - 1));
+            var (bx, by) = PointAt(Math.Min(Length, s + 1));
+            var tx = bx - ax;
+            var ty = by - ay;
+            var tl = Math.Sqrt(tx * tx + ty * ty);
+            if (tl < 1e-9) return (x, y);
+            tx /= tl;
+            ty /= tl;
+            return (x - ty * off, y + tx * off);
+        }
+
         /// <summary>
         /// Where a cell lies against the centre line: how far along (<c>s</c>), its signed sideways offset (positive to
         /// the left of travel), and its distance from the line (rounded at both ends).
@@ -202,11 +229,86 @@ namespace Ravenholm.Domain.Sites
             return w;
         }
 
+        /// <summary>
+        /// How strongly a camp's edge pull holds at <paramref name="s"/> (1 beside the camp, fading to 0 further along), and the
+        /// camp's right-hand edge: near a camp the land ends a few cells past where its group stands, and the road swings
+        /// out to that edge (Kevin, 2026-10-16: the camps look over the drop to the castle).
+        /// </summary>
+        public (double pull, double edge) EdgePull(double s)
+        {
+            Build();
+            double best = 0, edge = 0;
+            foreach (var c in Clearings)
+            {
+                if (c.EdgeRight <= 0) continue;
+                var full = Math.Max(c.RX, c.RY) + 6;
+                var d = Math.Abs(s - c.S);
+                var p = d <= full ? 1 : d >= full + EdgeFade ? 0 : Smooth(1 - (d - full) / EdgeFade);
+                if (p > best) { best = p; edge = c.EdgeRight; }
+            }
+            return (best, edge);
+        }
+
+        /// <summary>
+        /// The drop right of a camp's group (Kevin, 2026-10-16: each camp looks over the drop to the castle), even through
+        /// its clearing: on screen, CoveGap world units right of the group at its level, the cliff falling away along the
+        /// diagonals above and below (so what stands below and right of the group, camp 1's Trader and Workshop, keeps
+        /// its ground).
+        /// </summary>
+        public bool InCove(int x, int y)
+        {
+            Build();
+            foreach (var c in Clearings)
+            {
+                if (c.CoveGap <= 0) continue;
+                var dx = ((x - y) - (c.AX - c.AY)) * 0.5;      // world units across the screen
+                var dy = ((x + y) - (c.AX + c.AY)) * 0.25;     // and up it
+                var wobble = 0.4 * (Noise2(x / 3.0, y / 3.0, 61) * 2 - 1);
+                if (dx > BayEdge(c, dy) + wobble) return true;
+            }
+            return false;
+        }
+
+        /// <summary>Flat world units above the group before the bay's cliff turns up and left (room for the shop).</summary>
+        public const double BayFlat = 2;
+
+        /// <summary>
+        /// Where the bay's cliff is across the screen (world units right of the group) at a height above it: below the group
+        /// it falls away down and right (what stands there keeps its ground); beside it, CoveGap; above it, it runs up and
+        /// left for BayHeight, opening the top of the view (the castle and the valley, as in Kevin's screenshot), then turns
+        /// back up and right to the land's edge.
+        /// </summary>
+        public static double BayEdge(Clearing c, double dy)
+        {
+            if (dy <= 0) return c.CoveGap - 2 * dy;
+            if (dy <= BayFlat) return c.CoveGap;
+            var top = BayFlat + c.BayHeight;
+            if (dy <= top) return c.CoveGap - (dy - BayFlat);
+            return c.CoveGap - c.BayHeight + 2 * (dy - top);
+        }
+
+        /// <summary>Cells along the road over which a camp's edge pull fades out.</summary>
+        public double EdgeFade = 24;
+
+        private static double Smooth(double t) => t * t * (3 - 2 * t);
+
+        /// <summary>How far the land reaches on a side: to the left of travel (<paramref name="right"/> false), or to the right.</summary>
+        public double SideWidthAt(double s, bool right)
+        {
+            var w = WidthAt(s);
+            if (!right) return w;
+            var (p, edge) = EdgePull(s);
+            return p <= 0 ? w : w + (edge - w) * p;
+        }
+
         public bool InLand(int x, int y)
         {
+            var (s, off, d) = Locate(x, y);
+            var noise = EdgeNoise * (Noise2(x / 5.0, y / 5.0, 31) * 2 - 1);
+            if (InCove(x, y)) return false;
+            if (off < 0) noise *= 1 - 0.7 * EdgePull(s).pull;   // the edge is less ragged beside a camp
             if (InClearing(x, y)) return true;
-            var (s, _, d) = Locate(x, y);
-            return d < WidthAt(s) + EdgeNoise * (Noise2(x / 5.0, y / 5.0, 31) * 2 - 1);
+            return d < SideWidthAt(s, off < 0) + noise;
         }
 
         private (double x, double y) CentreOf(Clearing c) => c.HasCentre ? (c.CX, c.CY) : PointAt(c.S);
@@ -255,8 +357,37 @@ namespace Ravenholm.Domain.Sites
         private double RoadDistance(int x, int y)
         {
             var (s, off, _) = Locate(x, y);
-            return Math.Abs(off - RoadWobble * (Noise1(s / 18.0, 53) * 2 - 1));
+            return Math.Abs(off - RoadOffsetAt(s));
         }
+
+        /// <summary>The road's offset from the centre line (left of travel): it wanders, and near a camp swings out along the edge.</summary>
+        public double RoadOffsetAt(double s)
+        {
+            var key = (int)Math.Round(s * 4);
+            if (_roadOffsets.TryGetValue(key, out var known)) return known;
+            var wander = RoadWobble * (Noise1(s / 18.0, 53) * 2 - 1);
+            var (p, edge) = EdgePull(s);
+            var off = p <= 0 ? wander : wander + (-(edge - RoadEdgeInset) - wander) * p;
+            // Never through a camp's bay: the road keeps a few cells of land between it and the drop.
+            for (var guard = 0; guard < 40 && NearCove(s, off); guard++) off += 1;
+            _roadOffsets[key] = off;
+            return off;
+        }
+
+        private readonly Dictionary<int, double> _roadOffsets = new Dictionary<int, double>();
+
+        private bool NearCove(double s, double off)
+        {
+            for (var k = 0; k <= (int)RoadEdgeInset; k++)
+            {
+                var (x, y) = PointBeside(s, off - k);
+                if (InCove((int)Math.Round(x), (int)Math.Round(y))) return true;
+            }
+            return false;
+        }
+
+        /// <summary>Cells between the road and the land's edge where it runs along the drop near a camp.</summary>
+        public double RoadEdgeInset = 4;
 
         /// <summary>The tool tier a gate needs here (0 = none).</summary>
         public int GateTierAt(int x, int y)

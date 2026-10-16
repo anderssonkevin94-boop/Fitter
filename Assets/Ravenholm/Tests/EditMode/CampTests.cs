@@ -33,7 +33,11 @@ namespace Ravenholm.Tests
                 var across = 0;
                 for (var k = -60; k <= 60; k++)
                     if (r.InLand((int)System.Math.Round(px + k * 0.7071), (int)System.Math.Round(py - k * 0.7071))) across++;
-                Assert.Greater(across, 30, $"wide {ahead} ahead ({across} cells across)");
+                // Beside a camp's bay (the drop it looks over, 2026-10-16) the land is narrower, still wider than the view.
+                var byBay = false;
+                for (var k = -60; k <= 60 && !byBay; k++)
+                    byBay = r.InCove((int)System.Math.Round(px + k * 0.7071), (int)System.Math.Round(py - k * 0.7071));
+                Assert.Greater(across, byBay ? 14 : 30, $"wide {ahead} ahead ({across} cells across)");
                 Assert.Less(across, 85, $"but not endless {ahead} ahead ({across} cells across)");
             }
         }
@@ -65,8 +69,8 @@ namespace Ravenholm.Tests
             {
                 var (px, py) = r.PointAt(r.CampS + ahead);
                 var found = false;
-                for (var dx = -8; dx <= 8 && !found; dx++)
-                for (var dy = -8; dy <= 8 && !found; dy++)
+                for (var dx = -14; dx <= 14 && !found; dx++)   // it swings out to the edge near a camp
+                for (var dy = -14; dy <= 14 && !found; dy++)
                     found = r.OnRoad((int)px + dx, (int)py + dy);
                 if (found) road++;
             }

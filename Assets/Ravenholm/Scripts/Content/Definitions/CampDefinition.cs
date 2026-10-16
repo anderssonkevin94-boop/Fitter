@@ -69,6 +69,15 @@ namespace Ravenholm.Content
         [SerializeField] private List<StopSpec> stops = new List<StopSpec>();
         [Tooltip("At camp 1, the middle of the camp's group (shop, Trader, applicants): it is set down on each later clearing's centre.")]
         [SerializeField] private Vector2Int layoutAnchor = new Vector2Int(5, 2);
+        [Header("Each camp at the edge (Kevin, 2026-10-16: the camps look over the drop to the castle)")]
+        [Tooltip("World units on screen from where a camp's group stands to the land's edge on its right (the drop, the castle beyond); the view is 7 wide.")]
+        [Min(0)] [SerializeField] private float edgeGap = 2.5f;
+        [Tooltip("World units above a camp's group the bay's cliff runs up and left, opening the top of the view to the castle.")]
+        [Min(0)] [SerializeField] private float bayHeight = 5f;
+        [Tooltip("Cells (from the layout anchor) where the camp's group has things standing (the Trader's pad): the land's edge stays clear of them at every camp.")]
+        [SerializeField] private List<Vector2Int> groupSpots = new List<Vector2Int>();
+        [Tooltip("At the later camps, how far inside its clearing's right-hand edge the group stands (cells).")]
+        [Min(0)] [SerializeField] private float anchorInset = 6f;
         [Min(10)] [SerializeField] private int nextCampAhead = 95;   // (older assets: the first stop, before stops existed)
         [Min(4)] [SerializeField] private float nextCampRadius = 9f;
         [SerializeField] private int seed = 1;
@@ -93,7 +102,9 @@ namespace Ravenholm.Content
         {
             if (index <= 0) return layoutAnchor;
             var r = Ridge;
-            var (x, y) = r.PointAt(r.CampS + stops[Mathf.Min(index, stops.Count) - 1].ahead);
+            var st = stops[Mathf.Min(index, stops.Count) - 1];
+            // The group stands toward the clearing's right-hand side, the land's edge a few cells beyond it (as at camp 1).
+            var (x, y) = r.PointBeside(r.CampS + st.ahead, -Mathf.Max(0f, st.radius - anchorInset));
             return new Vector2((float)x, (float)y);
         }
 
@@ -142,7 +153,25 @@ namespace Ravenholm.Content
                 foreach (var st in stops) r.Clearings.Add(new RidgeLayout.Clearing { S = campS + st.ahead, RX = st.radius, RY = st.radius });
                 foreach (var g in gates)
                     r.Gates.Add(new RidgeLayout.Gate { S = campS + g.ahead, Thickness = g.thickness, Tier = g.tier, Rock = g.rock, Project = !string.IsNullOrEmpty(g.project) });
-                return _ridge = r;
+                _ridge = r;
+                // Each camp at the edge (Kevin, 2026-10-16): a cove in the land's right-hand edge, edgeGap world units right of
+                // where the camp's group stands; the road swings out along the edge toward it (about two cells across the
+                // line per world unit across the screen).
+                if (edgeGap > 0)
+                    for (var i = 0; i < CampCount && i < r.Clearings.Count; i++)
+                    {
+                        var c = r.Clearings[i];
+                        var a = CampCentre(i);
+                        c.AX = a.x;
+                        c.AY = a.y;
+                        c.CoveGap = edgeGap;
+                        c.BayHeight = bayHeight;
+                        var edge = -r.Locate(Mathf.RoundToInt(a.x), Mathf.RoundToInt(a.y)).off + 2 * edgeGap + 2;
+                        foreach (var g in groupSpots)   // and clear of what the group sets down (with room round it)
+                            edge = Math.Max(edge, -r.Locate(Mathf.RoundToInt(a.x) + g.x, Mathf.RoundToInt(a.y) + g.y).off + 5);
+                        c.EdgeRight = edge;
+                    }
+                return r;
             }
         }
 
@@ -177,6 +206,14 @@ namespace Ravenholm.Content
             gates = gateList;
             nextCampAhead = nextAhead;
             nextCampRadius = nextRadius;
+            _ridge = null;
+        }
+
+        public int GroupSpotCount => groupSpots.Count;
+
+        public void EditorSetGroupSpots(List<Vector2Int> spots)
+        {
+            groupSpots = spots;
             _ridge = null;
         }
 

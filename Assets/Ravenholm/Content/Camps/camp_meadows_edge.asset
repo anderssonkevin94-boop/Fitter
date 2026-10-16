@@ -130,6 +130,10 @@ MonoBehaviour:
     radius: 14
     groundTint: {r: 1, g: 0.95, b: 0.82, a: 1}
   layoutAnchor: {x: 5, y: 2}
+  edgeGap: 2.5
+  groupSpots:
+  - {x: -7, y: -10}
+  anchorInset: 6
   nextCampAhead: 95
   nextCampRadius: 9
   seed: 1
