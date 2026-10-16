@@ -29,7 +29,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _HighlightPx: 0
     - _StencilComp: 6
-    m_Colors: []
+    m_Colors:
+    - _HighlightColor: {r: 1, g: 1, b: 1, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -277,9 +277,54 @@ namespace Ravenholm.Presentation
         /// <summary>Whether the rock block about to be dug is highlighted now (for tests).</summary>
         public bool HighlightShown => _highlight != null && _highlight.enabled;
 
+        private SpriteRenderer _treeHighlight;
+
+        /// <summary>Whether a tree (or stump) about to be chopped is highlighted now (for tests).</summary>
+        public bool TreeHighlightShown => _treeHighlight != null && _treeHighlight.enabled;
+
+        /// <summary>
+        /// The tree (or stump) the main button would chop is highlighted as a block is (2026-10-16, Kevin): a bright line
+        /// round its silhouette, outside its outline, pulsing like the block highlight.
+        /// </summary>
+        private void UpdateTreeHighlight()
+        {
+            var c = SandboxSceneController.Current;
+            var spot = c != null ? c.ContextTarget as ForestChopSpot : null;
+            SpriteRenderer tree = null;
+            if (spot != null && spot.Available) _shown.TryGetValue(spot.Cell, out tree);
+            if (tree == null || !tree.enabled || tree.sprite == null)
+            {
+                if (_treeHighlight != null) _treeHighlight.enabled = false;
+                return;
+            }
+            if (_treeHighlight == null)
+            {
+                var outlines = GameRoot.Instance != null ? GameRoot.Instance.Config.SandboxSettings.outlines : null;
+                if (outlines == null || outlines.material == null) return;
+                var mat = new Material(outlines.material) { name = "TreeHighlight" };
+                mat.SetFloat("_HighlightPx", 3f);
+                mat.SetColor("_HighlightColor", Color.white);
+                var go = new GameObject("TreeHighlight");
+                go.transform.SetParent(transform, false);
+                _treeHighlight = go.AddComponent<SpriteRenderer>();
+                _treeHighlight.sharedMaterial = mat;
+            }
+            _treeHighlight.enabled = true;
+            _treeHighlight.sprite = tree.sprite;
+            _treeHighlight.flipX = tree.flipX;
+            _treeHighlight.transform.position = tree.transform.position;
+            _treeHighlight.transform.rotation = tree.transform.rotation;
+            _treeHighlight.transform.localScale = tree.transform.lossyScale;
+            _treeHighlight.sortingLayerID = tree.sortingLayerID;
+            _treeHighlight.sortingOrder = tree.sortingOrder - 2;   // behind the tree and its own outline
+            _treeHighlight.spriteSortPoint = tree.spriteSortPoint;
+            _treeHighlight.color = BlockHighlight.Tint(false) * new Color(1f, 1f, 1f, tree.color.a);
+        }
+
         /// <summary>The rock block the main button would dig is highlighted while the rock spot is the button's target.</summary>
         private void UpdateHighlight()
         {
+            UpdateTreeHighlight();
             if (highlightSprite == null) return;
             if (_highlight == null)
             {

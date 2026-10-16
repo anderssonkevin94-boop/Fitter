@@ -1472,3 +1472,11 @@ Built:
 - **Not yet:** Art for each camp, the bridge and the causeway (all placeholders), plus Astra's walk-in cart.
 
 - **Debug camp jump** (Kevin, 2026-10-16). Developer tools has "Jump to next camp" (`CampService.DebugJumpTo`). It answers the summons on the way, builds the projects behind and drives up one camp. At the last camp it jumps back to camp 1 with no drive.
+
+## 2026-10-16: the red text and lag on the phone; the tree highlight (Kevin's playtest)
+
+- **Cause.** The ground tilemap drew in Individual mode, so each of its 26,000 tiles (six camps of road) was sorted separately. That is far over Unity's limit of 4,095 renderers and sorting groups. Unity then switched off the sorting groups (the red text), and sorting every tile each frame caused the lag. A probe that loaded Kevin's phone save found only 799 active sprites, all camera-windowed.
+- **Fix.** The ground now draws in Chunk mode: one chunk for the whole road (1024×1024), drawn top-right first. Its tile art is packed into one atlas (`Tiles/GroundTiles.spriteatlasv2`, `ProjectSetup.EnsureGroundAtlas`), which isometric chunk sorting needs.
+- **Region streaming.** Kevin asked for regions more than one away not to load. I didn't stream them: as one mesh, the ground costs little far away, and unloading tiles would mean re-applying dug holes, built bridges and walkability at each border. Streaming is the fallback if the phone still lags.
+- **Tree highlight.** The tree or stump the button would chop gets a bright line round its silhouette, outside its outline, pulsing like the block highlight (`ForestGridView.UpdateTreeHighlight`). The outline shader gained `_HighlightPx` and `_HighlightColor`; ordinary outlines are unchanged.
+- **Tests.** `CampPlayModeTests` checks the highlight and that the ground draws in Chunk mode.

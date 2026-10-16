@@ -112,6 +112,7 @@ namespace Ravenholm.EditorTools
                 EditorUtility.SetDirty(boot);
             }
             EnsureTiles();
+            EnsureGroundAtlas();
             AssetDatabase.SaveAssets();
 
             if (rebuildScenes || !File.Exists(BootstrapScene)) SandboxSceneBuilder.BuildBootstrap(ConfigDir + "BootConfig.asset", BootstrapScene);

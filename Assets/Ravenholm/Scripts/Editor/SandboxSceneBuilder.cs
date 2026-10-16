@@ -243,7 +243,13 @@ namespace Ravenholm.EditorTools
             var tm = tmGo.AddComponent<Tilemap>();
             _groundMap = tm;
             var tr = tmGo.AddComponent<TilemapRenderer>();
-            tr.mode = TilemapRenderer.Mode.Individual;
+            // Chunk mode, one chunk for the whole road: one mesh instead of one sorted item per tile (26,000 tiles were far
+            // over Unity's 4,095 sorting limit: the red text and the lag, 2026-10-16). Back to front (top-right first), the
+            // tiles' lips overlap as before; their art shares one atlas (ProjectSetup.EnsureGroundAtlas).
+            tr.mode = TilemapRenderer.Mode.Chunk;
+            tr.sortOrder = TilemapRenderer.SortOrder.TopRight;
+            tr.chunkSize = new Vector3Int(1024, 1024, 1);
+            tr.detectChunkCullingBounds = TilemapRenderer.DetectChunkCullingBounds.Auto;
             tr.sortingLayerName = "Ground";
             if (_unlit != null) tr.sharedMaterial = _unlit;
 

@@ -308,6 +308,16 @@ namespace Ravenholm.Tests
                 Assert.Greater(tree.sortingOrder, ForestGridView.TerrainBase - 2000);
             }
             yield return Capture.Take("forest_ring");
+
+            // The tree about to be chopped is highlighted as a block is (2026-10-16, Kevin).
+            var chop = SandboxSceneController.Current.ContextTarget as ForestChopSpot;
+            Assert.NotNull(chop, "a tree in reach is the button's target");
+            Assert.IsTrue(forest.TreeHighlightShown, "and it is highlighted");
+            yield return Capture.Take("forest_tree_highlight");
+
+            // The ground draws as one batched chunk, not one sorted item per tile (Unity's 4,095 limit: the red text).
+            var groundRenderer = Map("Ground").GetComponent<UnityEngine.Tilemaps.TilemapRenderer>();
+            Assert.AreEqual(UnityEngine.Tilemaps.TilemapRenderer.Mode.Chunk, groundRenderer.mode);
         }
     }
 }
