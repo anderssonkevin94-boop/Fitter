@@ -1642,3 +1642,14 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - Open question: he stands past the shafts rather than between them. Real harnessing needs a hitched-pose anchor from Astra.
 - **Tests.** `OxPlayModeTests` checks all eight directions on one ground point and scale, never flipped; the walk advancing and looping in 1.2 s; the parked ox standing and solid; and the ox on the drive. It writes `Captures/ox_eight_directions_ingame.png`.
 - **Kitchen brief.** `Docs/ART_BRIEF_KITCHEN.md`: levels 1 and 2 and the kit, with ground, pad, delivery and chimney points.
+
+## 2026-10-16: the view from the pass (Kevin: "a nice view")
+
+- **What went wrong.** From a camp, the next leg's real ground (only 2 units lower and further up the screen) stood behind the camp as a tan cliff block in front of the valley. Kevin's point all along: the descending cliffs are scenery, not layout.
+- **Now.**
+  - Only the road the supplier is on is real ground. The stretch past the next hairpin (ground, trees, cliffs) is hidden until the supplier is within 10 cells of the hairpin, then shown to walk onto (`PassView`).
+  - Astra's layered valley view (`ParallaxBackdrop`) fills the screen behind the land: all five layers including `view_front`, each extended down by its bottom-edge fill, softened sideways so it doesn't streak. About 1950 of its 4096 composition pixels span the phone's width (no taller on wider screens).
+  - The castle is on the far ridge at the pack's own scale, 8 % bigger per camp (was 1.45× and 25 % per camp).
+  - Retired: Astra's painted far legs and turns, the tiled valley floor and the castle at the road's end (they floated over the view). The art stays in the project, unused.
+- **Unchanged:** the road's layout, the 40-cell legs (the 24-cell experiment was dropped: camp 3's stalls fell off its ledge), camps, gates and gameplay.
+- **Tests.** `PassPlayModeTests` checks what is hidden at camp 1, near the first hairpin, along leg 2 and at camp 3, with captures `pass_view_camp1`, `pass_view_hairpin` and `pass_view_camp3`.

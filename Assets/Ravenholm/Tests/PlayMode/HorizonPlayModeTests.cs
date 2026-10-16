@@ -53,7 +53,7 @@ namespace Ravenholm.Tests
             var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
             yield return new WaitForSeconds(1.5f);
             // (Batch mode's own screen has another shape than the phone's, so positions are checked in the world, not the viewport.)
-            Assert.Greater(view.Castle.position.y, cam.transform.position.y, "the castle stands on the horizon, up the screen");
+            Assert.Greater(view.Castle.position.y, cam.transform.position.y, "the castle stands on the far ridge, up the screen");
             Assert.AreEqual(cam.transform.position.x, view.Castle.position.x, 1.5f, "straight ahead");
             Assert.Less(view.Castle.GetComponent<SpriteRenderer>().sortingOrder, ForestGridView.TerrainBase - 10000, "behind the land: it shows only where the ridge ends");
             Assert.Greater(cam.transform.position.y, motor.transform.position.y + 1.5f, "the supplier sits low, with the road ahead on screen");

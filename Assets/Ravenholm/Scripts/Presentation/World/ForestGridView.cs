@@ -254,7 +254,7 @@ namespace Ravenholm.Presentation
             UpdateSupplier();
             UpdateHighlight();
             var dug = Mine != null ? Mine.Record.SurfaceBroken.Count : 0;
-            var key = $"{(PassView.Current != null ? PassView.Current.CurrentLeg : -1)}|{Mathf.Round(cam.x * 2f)}|{Mathf.Round(cam.y * 2f)}|{s.Depth}|{s.K}|{s.SectionDepths.Count}|{felled}|{s.Trees.Count}|{sim.FelledVersion}|{s.Revealed.Count}|{dug}";
+            var key = $"{PassView.StateKey}|{Mathf.Round(cam.x * 2f)}|{Mathf.Round(cam.y * 2f)}|{s.Depth}|{s.K}|{s.SectionDepths.Count}|{felled}|{s.Trees.Count}|{sim.FelledVersion}|{s.Revealed.Count}|{dug}";
             if (key == _key) return;
             _key = key;
             Redraw(sim, cam);
@@ -271,7 +271,7 @@ namespace Ravenholm.Presentation
                 {
                     var p = Centre(c);
                     if (Mathf.Abs(p.y - cam.y) > halfH + 4f || Mathf.Abs(p.x - cam.x) > halfW) continue;
-                    if (PassView.Painted(c)) continue;   // shown as Astra's painting (the pass, two legs on and further)
+                    if (PassView.Painted(c)) continue;   // the pass past the next hairpin: hidden, the valley view shows
                     cells.Add(c);
                     var state = State(a, slot, out var tree);
                     if (state == TreeState.None) continue;

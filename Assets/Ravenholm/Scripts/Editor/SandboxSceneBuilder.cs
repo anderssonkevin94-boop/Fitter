@@ -803,22 +803,15 @@ namespace Ravenholm.EditorTools
         /// a little way up the old road ahead, toward the castle.
         /// </summary>
         /// <summary>
-        /// The switchback pass seen from the road (Astra's pass pack, 2026-10-16): each region's legs and turns as paintings
-        /// for the legs two on and further, the repeating valley floor, the castle at the road's end.
+        /// The switchback pass seen from the road (Kevin, 2026-10-16): the stretch past the next hairpin hidden until the
+        /// supplier nears it, so the valley view shows there.
         /// </summary>
         private static void BuildPass(Transform world, SandboxSettings settings)
         {
-            if (settings.camp == null || !settings.camp.Switchback || !File.Exists(PlaceholderSpriteImporter.ArtRoot + "Pass/points.json")) return;
-            var regions = new List<PassView.Region>();
-            foreach (var key in new[] { "meadows_edge", "river_bend", "hollow_wood", "witchlight_fen", "crown_highlands", "castle_approach" })
-            {
-                Sprite S(string kind) => ProjectSetup.LoadSprite($"Pass/distant_{key}_{kind}");
-                regions.Add(new PassView.Region { key = key, legUpRight = S("leg_upright"), legUpLeft = S("leg_upleft"), turnLeft = S("turn_left"), turnRight = S("turn_right") });
-            }
+            if (settings.camp == null || !settings.camp.Switchback) return;
             var go = new GameObject("Pass");
             go.transform.SetParent(world, false);
-            go.AddComponent<PassView>().EditorSetup(regions, ProjectSetup.LoadSprite("Pass/valley_floor"), ProjectSetup.LoadSprite("Pass/distant_castle"),
-                _groundMap, _unlit, Valley);
+            go.AddComponent<PassView>().EditorSetup(_groundMap);
         }
 
         private static Vector2 Horizon(Transform world, SandboxSettings settings)
@@ -829,12 +822,12 @@ namespace Ravenholm.EditorTools
             foreach (var l in par["layers"])
             {
                 var file = ((string)l["file"]).Replace(".png", "");
-                if (file == "view_front") continue;   // the dark treetops framed the old cliff
                 index[file] = layers.Count;
                 layers.Add(new ParallaxBackdrop.Layer
                 {
                     sprite = ProjectSetup.LoadSprite("View/" + file),
                     top = (int)l["order"] == 0 ? ProjectSetup.LoadSprite("View/" + file + "_top") : null,
+                    fill = (bool?)l["extend_bottom_edge"] == true ? ProjectSetup.LoadSprite("View/" + file + "_fill") : null,
                     originPx = new Vector2((float)l["origin_px"][0], (float)l["origin_px"][1]),
                     factor = (float)l["parallax_factor"],
                     order = ParallaxBackdrop.BaseOrder + (int)l["order"] * 5,
@@ -842,10 +835,12 @@ namespace Ravenholm.EditorTools
             }
             var backdrop = new GameObject("Horizon").AddComponent<ParallaxBackdrop>();
             backdrop.transform.SetParent(world, false);
-            backdrop.EditorSetup(layers, 0.45f, Valley, _unlit);
+            // Kevin, 2026-10-16: the whole view behind the land, layered ledges down into the valley, the castle on top;
+            // about 1950 of the composition's 4096 pixels across the screen.
+            backdrop.EditorSetup(layers, 0.45f, Valley, _unlit, 1950f);
             var c = par["castle"];
             backdrop.EditorSetupCastle(ProjectSetup.LoadSprite("View/castle"), index[((string)c["parent"])],
-                new Vector2((float)c["ground_in_parent_px"][0], (float)c["ground_in_parent_px"][1]), (float)c["scale"] * 1.45f);   // the goal: bigger
+                new Vector2((float)c["ground_in_parent_px"][0], (float)c["ground_in_parent_px"][1]), (float)c["scale"]);   // as the pack composed it (Kevin's view, 2026-10-16)
             var w = par["walker"];
             var road = new List<Vector2>();
             foreach (var p in w["road_path_px"]) road.Add(new Vector2((float)p[0], (float)p[1]));

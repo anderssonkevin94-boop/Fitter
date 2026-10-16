@@ -11,9 +11,9 @@ using Object = UnityEngine.Object;
 namespace Ravenholm.Tests
 {
     /// <summary>
-    /// The switchback pass seen from the road (Astra's pass pack, 2026-10-16): the leg the supplier is on and the next are
-    /// real ground; from the turn after the next leg the pass is painted (the real ground there hidden), and that moves on
-    /// as the supplier goes round the turns. The valley floor fills what lies beyond the edges; the castle ends the road.
+    /// The switchback pass seen from the road (Kevin, 2026-10-16: "a nice view"): only the road the supplier is on is real
+    /// ground; the stretch past the next hairpin is hidden (the layered valley shows there) until the supplier nears the
+    /// hairpin, and that moves on round the turns. The valley view fills the screen behind the land, the castle on top.
     /// </summary>
     public sealed class PassPlayModeTests
     {
@@ -37,20 +37,14 @@ namespace Ravenholm.Tests
             try { Directory.Delete(_dir, true); } catch { /* best effort */ }
         }
 
-        private static IEnumerator Wide(string name, float ortho)
+        private static Vector3Int CellAt(Ravenholm.Domain.Sites.RidgeLayout ridge, double s)
         {
-            var cam = SandboxSceneController.Current.WorldCamera;
-            var follow = cam.GetComponent<FollowCamera>();
-            if (follow != null) follow.enabled = false;
-            var size = cam.orthographicSize;
-            cam.orthographicSize = ortho;
-            yield return Capture.Take(name);
-            cam.orthographicSize = size;
-            if (follow != null) follow.enabled = true;
+            var (x, y) = ridge.PointAt(s);
+            return new Vector3Int(Mathf.RoundToInt((float)x), Mathf.RoundToInt((float)y), 0);
         }
 
         [UnityTest]
-        public IEnumerator TheFarLegsArePaintedAndMoveOnRoundTheTurns()
+        public IEnumerator ThePassPastTheNextHairpinIsHiddenUntilYouNearIt()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);
             var deadline = Time.realtimeSinceStartup + 10f;
@@ -61,39 +55,58 @@ namespace Ravenholm.Tests
             GameRoot.Instance.Hud.Tips.HideAll();
             var pass = PassView.Current;
             Assert.NotNull(pass, "the pass is drawn");
+            var view = ParallaxBackdrop.Current;
+            Assert.NotNull(view, "the valley view is behind the land");
             var ridge = GameRoot.Instance.Services.Catalogue.CurrentCamp.Ridge;
             var ground = GameObject.Find("Grid").transform.Find("Ground").GetComponent<UnityEngine.Tilemaps.Tilemap>();
             var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
             yield return null;
+
+            // At camp 1: the next leg (past the first hairpin) hidden, this one shown.
             Assert.AreEqual(0, pass.CurrentLeg, "at camp 1, on the first leg");
-            Assert.AreEqual(ridge.TurnSpans[1].S0, pass.PaintedFrom, 1e-6, "painted from the turn after the next leg");
-            Assert.Greater(pass.ModulesShown, 10, "the legs further on as paintings");
+            Assert.AreEqual(ridge.TurnSpans[0].S0, pass.HiddenFrom, 1e-6, "hidden from the first hairpin");
+            var next = CellAt(ridge, ridge.LegMid(1));
+            Assert.IsTrue(ground.HasTile(next));
+            Assert.Less(ground.GetColor(next).a, 0.5f, "leg 2's ground hidden");
+            Assert.IsTrue(PassView.Painted(next));
+            var here = CellAt(ridge, ridge.LegMid(0));
+            Assert.Greater(ground.GetColor(here).a, 0.5f, "this leg is real ground");
+            Assert.IsFalse(PassView.Painted(here));
+            yield return Capture.Take("pass_view_camp1");
 
-            // The real ground there is hidden (the painting shows); before it, shown.
-            var (fx, fy) = ridge.PointAt(ridge.LegMid(3));
-            var far = new Vector3Int(Mathf.RoundToInt((float)fx), Mathf.RoundToInt((float)fy), 0);
-            Assert.IsTrue(ground.HasTile(far));
-            Assert.Less(ground.GetColor(far).a, 0.5f, "leg 4's real ground hidden behind its painting");
-            Assert.IsTrue(PassView.Painted(far));
-            var (nx, ny) = ridge.PointAt(ridge.LegMid(1));
-            var near = new Vector3Int(Mathf.RoundToInt((float)nx), Mathf.RoundToInt((float)ny), 0);
-            Assert.Greater(ground.GetColor(near).a, 0.5f, "the next leg is real ground");
-            Assert.IsFalse(PassView.Painted(near));
-            yield return Wide("pass_from_camp1_wide", 16f);
+            // Near the hairpin: the next leg appears to walk onto; the one after stays hidden.
+            var t0 = ridge.TurnSpans[0];
+            motor.Teleport(IsoMap.World(CellAt(ridge, t0.S0 - 4)));
+            SandboxSceneController.Current.SnapPlayerToSavedPosition();
+            yield return new WaitForSeconds(0.5f);
+            Assert.AreEqual(ridge.TurnSpans[1].S0, pass.HiddenFrom, 1e-6, "near the hairpin: hidden from the next one");
+            Assert.Greater(ground.GetColor(next).a, 0.5f, "leg 2 shown, ready to walk onto");
+            Assert.IsTrue(PassView.Painted(CellAt(ridge, ridge.LegMid(2))), "leg 3 still hidden");
+            yield return Capture.Take("pass_view_hairpin");
 
-            // On round the first turn and along leg 2: the paintings move on a leg.
-            var (mx, my) = ridge.PointAt(ridge.LegMid(1));
-            motor.Teleport(IsoMap.World((float)mx, (float)my));
+            // Along leg 2: it moves on a leg.
+            motor.Teleport(IsoMap.World(CellAt(ridge, ridge.LegMid(1))));
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
             yield return new WaitForSeconds(0.5f);
             Assert.AreEqual(1, pass.CurrentLeg);
-            Assert.AreEqual(ridge.TurnSpans[2].S0, pass.PaintedFrom, 1e-6);
-            Assert.IsTrue(PassView.Painted(far), "from leg 2, leg 4 is still two on: painted");
-            var (tx, ty) = ridge.PointAt(ridge.LegMid(2));
-            var next = new Vector3Int(Mathf.RoundToInt((float)tx), Mathf.RoundToInt((float)ty), 0);
-            Assert.Greater(ground.GetColor(next).a, 0.5f, "leg 3, now the next leg, is real ground again");
-            yield return Capture.Take("pass_leg2");
-            yield return Wide("pass_leg2_wide", 16f);
+            Assert.AreEqual(ridge.TurnSpans[1].S0, pass.HiddenFrom, 1e-6);
+            Assert.IsFalse(PassView.Painted(next));
+
+            // Camp 3 (Kevin's view): the valley behind the land, nothing floating in front of it.
+            var s = GameRoot.Instance.Services;
+            s.Camp.DebugJumpTo(2);
+            yield return null;
+            deadline = Time.realtimeSinceStartup + 60f;
+            while (DriveView.Current.Driving && Time.realtimeSinceStartup < deadline) yield return null;
+            yield return new WaitForSeconds(1f);
+            var c3 = IsoMap.Cell(motor.transform.position);
+            var leg3 = ridge.LegIndexAt(ridge.Locate(c3.x, c3.y).s);
+            Assert.AreEqual(2, leg3, "camp 3 sits on leg 3");
+            Assert.AreEqual(2, pass.CurrentLeg);
+            Assert.IsTrue(PassView.Painted(CellAt(ridge, ridge.LegMid(3))), "from camp 3, leg 4 hidden");
+            yield return Capture.Take("pass_view_camp3");
+            s.Camp.DebugJumpTo(0);
+            yield return null;
         }
     }
 }

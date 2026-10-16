@@ -292,7 +292,7 @@ namespace Ravenholm.Presentation
             var cam = (Vector2)_camera.transform.position;
             var halfH = _camera.orthographicSize + 1.5f;
             var halfW = halfH * _camera.aspect + 1f;
-            var key = $"{(PassView.Current != null ? PassView.Current.CurrentLeg : -1)}|{Mathf.Round(cam.x)}|{Mathf.Round(cam.y)}|{sim.Record.Dug.Count}|{sim.Record.Revealed.Count}";
+            var key = $"{PassView.StateKey}|{Mathf.Round(cam.x)}|{Mathf.Round(cam.y)}|{sim.Record.Dug.Count}|{sim.Record.Revealed.Count}";
             if (key == _drawKey) return;
             _drawKey = key;
             var keep = new HashSet<Vector3Int>();
@@ -300,7 +300,7 @@ namespace Ravenholm.Presentation
             {
                 var top = TopOfCell(cell, 0);
                 if (Mathf.Abs(top.x - cam.x) > halfW) return;
-                if (PassView.Painted(cell)) return;   // the pass two legs on: Astra's painting shows its cliffs
+                if (PassView.Painted(cell)) return;   // the pass past the next hairpin: hidden, the valley view shows
                 // Rows whose block faces fall inside the view.
                 var first = Mathf.Max(0, Mathf.FloorToInt((top.y - (cam.y + halfH)) / RowHeight));
                 var last = Mathf.CeilToInt((top.y - (cam.y - halfH)) / RowHeight);

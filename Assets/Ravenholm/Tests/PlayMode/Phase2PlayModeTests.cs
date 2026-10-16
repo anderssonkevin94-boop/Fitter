@@ -95,8 +95,8 @@ namespace Ravenholm.Tests
             var tree = CampPlayModeTests.TreeAhead(forest, 20, withNeighbour: true);
             Assert.IsTrue(view.CellOf(tree.x, tree.y, out var edge));
             SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(view.WorkSpotOf(edge));
-            yield return null;
-            yield return null;
+            // The tree may lie past the first hairpin: the pass shows it once the supplier is near, then the forest redraws.
+            yield return new WaitForSeconds(0.3f);
             var target = SandboxSceneController.Current.ContextTarget as ForestChopSpot;
             Assert.NotNull(target, "the context button targets the nearest tree");
             Assert.AreEqual("Chop", target.ContextVerb);
