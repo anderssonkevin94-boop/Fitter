@@ -1688,3 +1688,7 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - Ignored until steps 2 and 3, each with the reason written on it: `MovingOnTests`/`MovingOnPlayModeTests` (moving on), `RoadTests` six camps and bridge, `RoadPlayModeTests`, `PassPlayModeTests`, `SiteTests.DeeperRevealPersistsThroughReload` (band 2 is level 2's). The ox's drive check is skipped.
   - `world_overview.png` hides the HUD.
 - **Later the same day (Kevin): an organic outline, no triangle at the north.** The level's outline is drawn on screen. At the front and sides it is an ellipse (40 % × 20 % of the size), swelling and dipping in three broad lobes. Toward the castle it squares off into a broad, gently bowed rim. The edge is a little ragged. The camp's clearing sits toward the front. The road runs straight up the screen to 2 cells short of the rim, and the gate is a band 7 cells either side of the road where it meets the rim.
+
+## 2026-10-17: faster walking (Kevin)
+
+- The supplier's walk is 40 % faster: 2.86 ground units a second (was the spec's 2.04), stepping 4.4 times a second (was 3.7), so the feet keep up. The townsfolk share the walk, so they're faster too. `StoreOwner.asset` and `citizen_blond_blue.asset`.
