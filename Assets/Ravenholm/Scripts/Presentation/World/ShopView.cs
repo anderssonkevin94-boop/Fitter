@@ -46,6 +46,9 @@ namespace Ravenholm.Presentation
 
         public Transform Wagon { get; private set; }
 
+        /// <summary>The ox standing hitched at the parked wagon (tests).</summary>
+        public OxFigure Ox { get; private set; }
+
         /// <summary>Full walls sort this far behind their edge, so furniture hanging on them and anyone inside draw in front.</summary>
         private const float WallSortBack = 0.2f;
 
@@ -92,8 +95,6 @@ namespace Ravenholm.Presentation
         public void EditorSetupWalkInCart(WalkInCartArt art) => walkInCart = art;
         public void EditorSetupOx(OxArt art) => ox = art;
 
-        /// <summary>The ox standing hitched at the parked wagon (tests).</summary>
-        public OxFigure Ox { get; private set; }
 
         public void EditorSetupWagon(Sprite[] wagons, Sprite[] carpets, Sprite[] edgesA, Sprite[] edgesB)
         {
