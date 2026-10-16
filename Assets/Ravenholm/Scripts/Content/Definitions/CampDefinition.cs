@@ -98,6 +98,7 @@ namespace Ravenholm.Content
         [SerializeField] private int seed = 1;
 
         [NonSerialized] private RidgeLayout _ridge;
+        [NonSerialized] private readonly Dictionary<int, RidgeLayout> _levels = new Dictionary<int, RidgeLayout>();
 
         public override string IdKind => "camp";
         public int Order => order;
@@ -143,7 +144,7 @@ namespace Ravenholm.Content
         public int LevelSize => levelSize;
 
         /// <summary>A gate's distance ahead of camp 1: on the pass, the middle of its turn.</summary>
-        public int GateAhead(int index) => plateau && index == 0 ? Mathf.RoundToInt((float)(Ridge.Gates[0].S - Ridge.CampS))
+        public int GateAhead(int index) => plateau ? Mathf.RoundToInt((float)(RidgeFor(index).Gates[Mathf.Min(index, gates.Count - 1)].S - RidgeFor(index).CampS))
             : switchback && index < Ridge.TurnSpans.Count
             ? Mathf.RoundToInt((float)(Ridge.TurnSpans[index].Mid - Ridge.CampS)) : gates[index].ahead;
 
@@ -170,11 +171,19 @@ namespace Ravenholm.Content
         }
 
         /// <summary>The camp's land (built once from these settings; derived data, the asset is never changed).</summary>
-        public RidgeLayout Ridge
+        public RidgeLayout Ridge => RidgeFor(0);
+
+        /// <summary>
+        /// The land of a level (gated levels, 2026-10-16): each camp's own plateau, its outline and woods its own (a seed
+        /// per level), its camp in the same place at its front and its own gate on the north rim. Without levels, the
+        /// one road (any level gives it). Derived data, built once per level; the asset is never changed.
+        /// </summary>
+        public RidgeLayout RidgeFor(int level)
         {
-            get
+            if (!plateau) level = 0;
+            if (level == 0 && _ridge != null) return _ridge;
+            if (level > 0 && _levels.TryGetValue(level, out var known)) return known;
             {
-                if (_ridge != null) return _ridge;
                 var r = new RidgeLayout
                 {
                     StartX = start.x, StartY = start.y, HalfWidth = halfWidth, WidthWobble = widthWobble, EdgeNoise = edgeNoise,
@@ -184,6 +193,8 @@ namespace Ravenholm.Content
                 {
                     r.Plateau = true;
                     r.LevelSize = levelSize;
+                    r.Level = level;
+                    r.Seed = seed + 977 * level;
                     r.SetLevelAround(clearingCentre.x, clearingCentre.y);
                     r.StartX = clearingCentre.x;
                     r.StartY = clearingCentre.y;
@@ -226,11 +237,12 @@ namespace Ravenholm.Content
                 {
                     var g = gates[i];
                     // A level's own gate stands across its far corner; the other levels' gates are elsewhere (never met here).
-                    var at = plateau ? (i == 0 ? r.Length - 4 : r.Length + 1000 + 100 * i)
+                    var at = plateau ? (i == level ? r.Length - 4 : r.Length + 1000 + 100 * i)
                         : switchback && i < r.TurnSpans.Count ? r.TurnSpans[i].Mid : campS + g.ahead;
                     r.Gates.Add(new RidgeLayout.Gate { S = at, Thickness = g.thickness, Tier = g.tier, Rock = g.rock, Project = !string.IsNullOrEmpty(g.project) });
                 }
-                _ridge = r;
+                if (level == 0) _ridge = r;
+                else _levels[level] = r;
                 // Each camp at the edge (Kevin, 2026-10-16): a cove in the land's right-hand edge, edgeGap world units right of
                 // where the camp's group stands; the road swings out along the edge toward it (about two cells across the
                 // line per world unit across the screen).
@@ -262,7 +274,11 @@ namespace Ravenholm.Content
             }
         }
 
-        private void OnValidate() => _ridge = null;
+        private void OnValidate()
+        {
+            _ridge = null;
+            _levels.Clear();
+        }
 
         public override void Validate(List<string> errors)
         {
@@ -284,6 +300,7 @@ namespace Ravenholm.Content
             nextCampAhead = nextAhead;
             nextCampRadius = nextRadius;
             _ridge = null;
+            _levels.Clear();
         }
 
         public int GroupSpotCount => groupSpots.Count;
@@ -292,6 +309,7 @@ namespace Ravenholm.Content
         {
             groupSpots = spots;
             _ridge = null;
+            _levels.Clear();
         }
 
         /// <summary>The switchback pass (Kevin, 2026-10-16): its legs and turns, the legs' straight width, the road's wander.</summary>
@@ -303,6 +321,7 @@ namespace Ravenholm.Content
             if (on) switchback = false;
             edgeGap = 0f;
             _ridge = null;
+            _levels.Clear();
         }
 
         public void EditorSetSwitchback(bool on, int leg, int firstLeg, float turn, int behind, float half, float road)
@@ -318,6 +337,7 @@ namespace Ravenholm.Content
             roadWobble = road;
             edgeGap = 0f;
             _ridge = null;
+            _levels.Clear();
         }
 
         public void EditorSetStops(List<StopSpec> list, List<Stretch> line, List<GateSpec> gateList, int bands)
@@ -327,6 +347,7 @@ namespace Ravenholm.Content
             gates = gateList;
             bandLength = bands;
             _ridge = null;
+            _levels.Clear();
         }
 #endif
     }

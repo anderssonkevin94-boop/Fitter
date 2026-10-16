@@ -183,6 +183,16 @@ namespace Ravenholm.Presentation
             SyncGroundTiles();
         }
 
+        /// <summary>The ground was laid anew (another level, gated levels 2026-10-16): its cliffs and walkable ground again.</summary>
+        public void RefreshGround()
+        {
+            if (!enabled) return;
+            _oreCache.Clear();
+            _drawKey = "";
+            CollectEdges();
+            SyncGroundTiles();
+        }
+
         /// <summary>Columns that can show a cliff: ground cells with open ground in front (the slab is added on top).</summary>
         private void CollectEdges()
         {

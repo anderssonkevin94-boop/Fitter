@@ -1692,3 +1692,24 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
 ## 2026-10-17: faster walking (Kevin)
 
 - The supplier's walk is 40 % faster: 2.86 ground units a second (was the spec's 2.04), stepping 4.4 times a second (was 3.7), so the feet keep up. The townsfolk share the walk, so they're faster too. `StoreOwner.asset` and `citizen_blond_blue.asset`.
+
+## 2026-10-17: gated levels, step 2: through the gate (Kevin)
+
+- **The way on.**
+  - A sign at the road's end, just past the level's gate on the north rim, offers "Through the gate to River Bend".
+  - The moving-on panel keeps today's rules: the summons answered, the pads empty, the wagon's load. It says there is no way back.
+- **The levels.**
+  - `CampDefinition.RidgeFor(level)` gives each camp its own plateau: a seed per level for its outline, woods and hills; the camp in the same place at its front; that level's own gate (`gates[level]`) on its rim. Its band is the level's: level 2 is band 2.
+  - `CampService.Ridge` is the company's level. `Levels`, `ExitWorld` and `AtNext` mean being within 2.2 units of the exit.
+- **One way.**
+  - On arrival, `SitesService.ApplyLevel` puts the Forest and the hills on the new level and forgets the last level's cut trees and broken rock.
+  - The earned goods, the revealed layers and the stations (in their kits) come along.
+  - Sites save their `level`. A load fixes up the level only after every section has read (`SaveScheduler.Loaded`).
+- **Ground.** The scene keeps level 1's ground. `LevelView` lays another level's ground when the company gets there or a save loads there (the town kept as built), then rebuilds the Forest's trees and the Mine's cliffs (`ForestGridView.Rebuild`, `MineSlabView.RefreshGround`). `GroundKeys` holds the ground choice, shared with the scene builder.
+- **The drive.** The wagon and ox come up over the new level's front edge, straight below the camp, and drive in.
+- **The faster walk's fixes.**
+  - Steps are 5.2 a second, so the feet stay planted.
+  - The motor backs the supplier out of a wall he already touches before moving (a fast step could end in the counter rail's contact margin and then walk through it, drawing him in front of the counter). That push isn't counted as walking.
+  - Let go of the stick and he keeps the facing he had.
+- **Tests.** `MovingOnTests` covers the gate, one way, and level 2 remembered with its own cut tree; and each level its own land. `MovingOnPlayModeTests` covers the sign, the panel, level 2's ground cell for cell, the drive and arrival (captures `gate_*`). The ox's drive check is back. Still ignored until step 3: `RoadTests` six camps and bridge, `RoadPlayModeTests`, `PassPlayModeTests`, `SiteTests.DeeperRevealPersistsThroughReload`.
+- **Open for step 3.** Levels 3 and 4's gates are build projects (the bridge, the causeway) and don't have their signs or gap fill on a level yet. Levels 1 and 2 play through.

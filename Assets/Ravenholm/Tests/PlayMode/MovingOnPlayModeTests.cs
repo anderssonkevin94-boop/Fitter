@@ -40,8 +40,7 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
-        [Ignore("Gated levels, step 2 (2026-10-16): moving on goes through the level's gate; rewritten then")]
-        public IEnumerator TheCompanyMakesCampUpTheRoad()
+        public IEnumerator TheCompanyGoesThroughTheGateToTheNextLevel()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);
             var deadline = Time.realtimeSinceStartup + 10f;
@@ -53,67 +52,64 @@ namespace Ravenholm.Tests
             var root = GameRoot.Instance;
             root.Hud.Tips.HideAll();
             var s = root.Services;
+            Assert.IsTrue(s.Camp.Levels, "gated levels (2026-10-16)");
             var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
             var trader = GameObject.Find("Trader Pad");
             var traderFrom = trader.transform.position;
+            var ground = GameObject.Find("Grid").transform.Find("Ground").GetComponent<UnityEngine.Tilemaps.Tilemap>();
+            Assert.NotNull(LevelView.Current, "the level painter is in the scene");
 
             // The castle's summons answered (the journey, step 5).
             s.Jobs.Board.DebugRecordSuccess("quest.roadside_patrol");
             s.Jobs.Board.DebugRecordSuccess("quest.old_shrine");
-            // In River Bend's clearing (the way there leads through the old trees; here the supplier is simply put there).
-            var there = s.Camp.CentreOf(1);
-            motor.Teleport(there + new Vector2(0.8f, -0.4f));
+            // At the gate (the way there is through the old trees; here the supplier is simply put there).
+            var gate = s.Camp.ExitWorld;
+            motor.Teleport(gate);
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
             yield return new WaitForSeconds(0.6f);
-            Assert.IsInstanceOf<MakeCampSpot>(SandboxSceneController.Current.ContextTarget, "the sign offers Make camp");
-            yield return Capture.Take("moveon_sign");
+            Assert.IsInstanceOf<MakeCampSpot>(SandboxSceneController.Current.ContextTarget, "the sign offers the way on");
+            yield return Capture.Take("gate_sign");
             root.Hud.ShowMoveOn();
             yield return null;
             Assert.IsTrue(root.Hud.MoveOn.IsOpen);
-            StringAssert.Contains("River Bend", root.Hud.MoveOn.InfoText);
-            yield return Capture.Take("moveon_panel");
-            Assert.IsTrue(root.Hud.MoveOn.Press("Make camp here"), root.Hud.MoveOn.Message);
+            yield return Capture.Take("gate_panel");
+            Assert.IsTrue(root.Hud.MoveOn.Press("Go through the gate"), root.Hud.MoveOn.Message);
             Assert.AreEqual(1, s.Camp.Index);
 
-            // The drive.
-            yield return new WaitForSeconds(1.5f);
-            Assert.IsTrue(DriveView.Current.Driving, "the ox pulls the wagon up the road");
-            yield return Capture.Take("moveon_drive");
+            // Level 2's ground is laid; the drive comes up from its front edge.
+            yield return null;
+            Assert.AreEqual(1, LevelView.Current.Painted, "level 2's ground");
+            var r2 = s.Camp.Ridge;
+            var e = r2.Extent;
+            var only2 = 0;
+            var wrong = 0;
+            for (var x = e.minX; x <= e.maxX; x++)
+            for (var y = e.minY; y <= e.maxY; y++)
+            {
+                var land = r2.InLand(x, y) && !r2.InProjectGap(x, y);
+                if (land != ground.HasTile(new Vector3Int(x, y, 0))) wrong++;
+                if (land && !s.Catalogue.CurrentCamp.RidgeFor(0).InLand(x, y)) only2++;
+            }
+            Assert.AreEqual(0, wrong, "the ground is level 2's land, cell for cell");
+            Assert.Greater(only2, 20, "land that level 1 didn't have");
+            yield return new WaitForSeconds(0.5f);
+            Assert.IsTrue(DriveView.Current.Driving, "the ox pulls the wagon in");
+            yield return Capture.Take("gate_drive");
             deadline = Time.realtimeSinceStartup + 40f;
             while (DriveView.Current.Driving && Time.realtimeSinceStartup < deadline) yield return null;
             Assert.IsFalse(DriveView.Current.Driving, "arrived");
             yield return new WaitForSeconds(1f);
 
-            // The new camp: the shop, its counter's marker and the Trader moved with the camp; the stations are in kits.
-            var offset = s.Camp.Offset;
-            Assert.Less(Vector2.Distance(ShopView.Current.Wagon.position, there), 9f, "the wagon shop stands at River Bend");
-            Assert.AreEqual((Vector2)traderFrom + offset, (Vector2)trader.transform.position, "the Trader came along");
-            var store = s.Logistics.System.State.Receivers["receiver.store"];
-            Assert.Less(Vector2.Distance(new Vector2(store.X, store.Y), there), 9f, "the Store's marker is at the new counter");
+            // The new level: the camp in the same place, the stations in kits, the Forest level 2's.
+            Assert.AreEqual((Vector2)traderFrom, (Vector2)trader.transform.position, "the Trader came along, to the same place");
             foreach (var v in StationSiteView.All.Values) Assert.IsFalse(v.gameObject.activeSelf, $"{v.StationId} packed");
-            yield return Capture.Take("moveon_arrived");
-
-            // Set the Forge up from its kit in the new clearing.
-            root.Hud.ToggleShopBuild();
-            yield return null;
-            StationBuild.Select("station.forge");
-            var site = s.Stations.Site("station.forge");
-            var placed = false;
-            for (var r = 3; r < 12 && !placed; r++)
-            for (var k = -r; k <= r && !placed; k++)
-            {
-                var c = s.Camp.CentreOf(1);
-                var cell = StationBuild.CellAt(c) + new Vector2Int(k, -r);
-                if (s.Stations.CanPlace("station.forge", cell.x, cell.y) != null) continue;
-                Assert.IsTrue(ShopView.Current.HandleTap(StationSiteView.CentreOf(cell.x, cell.y, StationSiteView.All["station.forge"].Footprint)));
-                placed = site.Mode == StationSiteMode.Placed;
-            }
-            Assert.IsTrue(placed, "a spot for the Forge in River Bend's clearing");
-            yield return null;
-            Assert.IsTrue(StationSiteView.All["station.forge"].gameObject.activeSelf);
-            root.Hud.CloseShopBuild();
-            yield return new WaitForSeconds(0.5f);
-            yield return Capture.Take("moveon_forge");
+            var forest = Object.FindAnyObjectByType<ForestGridView>();
+            var sim = s.Sites.Get("site.forest");
+            Assert.AreSame(r2, sim.Config.Grove.Ridge);
+            var tree = CampPlayModeTests.TreeAhead(sim, 10);
+            Assert.AreEqual(2, sim.BandOf(tree.x, tree.y), "level 2's wood");
+            Assert.IsTrue(forest.CellOf(tree.x, tree.y, out _), "its trees drawn");
+            yield return Capture.Take("gate_arrived");
             CollectionAssert.IsEmpty(s.Logistics.System.Audit());
         }
     }

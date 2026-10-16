@@ -97,16 +97,18 @@ namespace Ravenholm.Presentation
             var pos = _rootTransform.position;
             var delta = (Vector2)(pos - _lastPos);
             _lastPos = pos;
+            if (_motor != null) delta -= _motor.TakePushed();   // backed off a wall: not a step
             // Moving: a little hysteresis so a stop of one frame does not flicker to idle.
+            // The supplier faces where the stick points while it is held, even pushing into (or sliding along) a wall or
+            // the wagon's counter: they can stand facing out over the counter (Kevin, 2026-10-16). Let go, they keep that
+            // facing: the coast to a stop (sliding along the counter at the faster walk, 2026-10-17) doesn't turn them.
+            var stick = _motor != null && _root != null ? _root.InputRouter.MoveVector : Vector2.zero;
             if (dt > 0f && delta.magnitude / dt > 0.08f)
             {
                 _moving = 0.12f;
-                _heading = delta;
+                if (_motor == null || stick.sqrMagnitude > 0.04f) _heading = delta;
             }
             else _moving = Mathf.Max(0f, _moving - dt);
-            // The supplier faces where the stick points while it is held, even pushing into (or sliding along) a wall or
-            // the wagon's counter: they can stand facing out over the counter (Kevin, 2026-10-16).
-            var stick = _motor != null && _root != null ? _root.InputRouter.MoveVector : Vector2.zero;
             if (stick.sqrMagnitude > 0.04f) _heading = new Vector2(stick.x, stick.y * 0.5f);   // the stick on screen, as walked
             // Smoothed ground speed (the walk's playback rate follows it).
             if (dt > 0f) _speed = Mathf.Lerp(_speed, delta.magnitude / dt, Mathf.Clamp01(dt * 12f));

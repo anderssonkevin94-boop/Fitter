@@ -58,7 +58,7 @@ namespace Ravenholm.Tests
             board.DebugRecordSuccess("quest.roadside_patrol");   // opens the Old Shrine
             Assert.AreEqual("quest.old_shrine", board.CastleCandidates()[0], "the castle sends for the summons first");
 
-            var there = g.Camp.CentreOf(1);
+            var there = g.Camp.Levels ? g.Camp.ExitWorld : g.Camp.CentreOf(1);   // gated levels: at the gate
             StringAssert.Contains("summons", g.Camp.MoveOnBlockedReason(there));
             board.DebugRecordSuccess("quest.old_shrine");
             Assert.IsTrue(board.SummonsAnswered(1));

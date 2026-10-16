@@ -66,9 +66,12 @@ namespace Ravenholm.Presentation
         private void Update()
         {
             var camp = _root.Services.Camp;
-            _info.text = $"Break camp and move up the road to {camp.NextName}: your stations pack into their kits, the shop folds onto " +
-                         $"the wagon and the ox pulls it there. What you cleared stays behind.\nThe wagon's load: {camp.CargoLoad} of {camp.CargoCapacity} " +
-                         "(Store goods and materials).";
+            _info.text = (camp.Levels
+                             ? $"Break camp and go on through the gate to {camp.NextName}: your stations pack into their kits, the shop folds onto " +
+                               "the wagon and the ox pulls it there. There is no way back: what you cleared here stays behind."
+                             : $"Break camp and move up the road to {camp.NextName}: your stations pack into their kits, the shop folds onto " +
+                               "the wagon and the ox pulls it there. What you cleared stays behind.") +
+                         $"\nThe wagon's load: {camp.CargoLoad} of {camp.CargoCapacity} (Store goods and materials).";
             foreach (var b in _live)
             {
                 b.label.text = b.text();
@@ -84,8 +87,8 @@ namespace Ravenholm.Presentation
             var camp = _root.Services.Camp;
             for (var i = _buttons.childCount - 1; i >= 0; i--) Destroy(_buttons.GetChild(i).gameObject);
             _live.Clear();
-            _title.text = $"Make camp at {camp.NextName}";
-            Button(() => "Make camp here", () =>
+            _title.text = camp.Levels ? $"Through the gate to {camp.NextName}" : $"Make camp at {camp.NextName}";
+            Button(() => camp.Levels ? "Go through the gate" : "Make camp here", () =>
             {
                 var why = camp.MoveOn(Player);
                 if (why == null) Close();

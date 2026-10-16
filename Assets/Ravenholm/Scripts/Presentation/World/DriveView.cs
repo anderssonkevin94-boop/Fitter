@@ -64,6 +64,19 @@ namespace Ravenholm.Presentation
             return sr;
         }
 
+        /// <summary>The level's front edge straight down the screen from a point (a little past it: the wagon comes up over it).</summary>
+        public static Vector2 ArrivalEdge(Ravenholm.Domain.Sites.RidgeLayout ridge, Vector2 from)
+        {
+            var c = IsoMap.CellF(from);
+            for (var k = 0; k < 120; k++)
+            {
+                var x = Mathf.RoundToInt(c.x - k);
+                var y = Mathf.RoundToInt(c.y - k);
+                if (!ridge.InLand(x, y)) return IsoMap.World(c.x - k - 2f, c.y - k - 2f);
+            }
+            return from;
+        }
+
         /// <summary>Where the ox's ground stands from the shafts' hitch: ahead along the way and down to the ground.</summary>
         public static Vector2 OxAhead(Vector2 dir) => dir.normalized * 0.55f + new Vector2(0f, -0.42f);
 
@@ -79,11 +92,21 @@ namespace Ravenholm.Presentation
             // Along the old road, from the camp left behind to the new one.
             var path = new List<Vector2> { start };
             if (to < from) path.Clear();   // a debug jump back down the road: no drive, just there
-            var ridge = road.Ridge;
-            for (var s = road.CampAhead(from) + 14; s < road.CampAhead(to) - 8; s += 3)
+            if (camp.Levels)
             {
-                var (x, y) = ridge.PointAt(ridge.CampS + s);
-                path.Add(IsoMap.World((float)x, (float)y));
+                // Gated levels (Kevin, 2026-10-16): through the gate, the wagon comes up onto the new level from its front
+                // edge (straight down the screen from the camp) and drives in to camp.
+                path.Clear();
+                if (to > from) path.Add(ArrivalEdge(camp.Ridge, end));
+            }
+            else
+            {
+                var ridge = road.Ridge;
+                for (var s = road.CampAhead(from) + 14; s < road.CampAhead(to) - 8; s += 3)
+                {
+                    var (x, y) = ridge.PointAt(ridge.CampS + s);
+                    path.Add(IsoMap.World((float)x, (float)y));
+                }
             }
             path.Add(end);
 

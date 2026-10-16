@@ -39,6 +39,9 @@ namespace Ravenholm.Services
         /// <summary>Raised after every load or save attempt (state may have changed).</summary>
         public event Action Committed;
 
+        /// <summary>Raised after every section has read a load (cross-section fix-ups go here, never mid-load).</summary>
+        public event Action Loaded;
+
         public void Register(ISaveSection section) => _sections.Add(section);
 
         public void LoadAll()
@@ -46,6 +49,7 @@ namespace Ravenholm.Services
             var envelope = _saves.Load();
             foreach (var s in _sections) s.Read(envelope);
             _dirty = false;
+            Loaded?.Invoke();
             Committed?.Invoke();
         }
 

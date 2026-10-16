@@ -99,8 +99,7 @@ namespace Ravenholm.Tests
             Assert.AreSame(start, ox.Renderer.sprite, "back to the first frame after 1.2 seconds");
             Object.Destroy(ox.gameObject);
 
-            // Pulling the wagon on the drive (gated levels: the drive comes back through the gate in step 2).
-            if (GameRoot.Instance.Services.Catalogue.CurrentCamp.Plateau) yield break;
+            // Pulling the wagon on the drive (gated levels: into the next level from its front edge).
             GameRoot.Instance.Services.Camp.DebugJumpTo(1);
             yield return new WaitForSeconds(1.2f);
             Assert.IsTrue(DriveView.Current.Driving);

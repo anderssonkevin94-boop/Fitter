@@ -146,7 +146,7 @@ namespace Ravenholm.Presentation
         /// </summary>
         private void BuildWalls(int blockerLayer, float radius)
         {
-            // 16 px short of the counter's sorting row: pressing into the rail (the physics' contact margin) never carries
+            // RailMarginPx short of the counter's sorting row: pressing into the rail (the physics' contact margin) never carries
             // the feet over it, where the figure would draw in front of the counter (Kevin's playtest, 2026-10-16).
             var clipY = RowY(FrontRow - RailMarginPx);
             _walk.Clear();

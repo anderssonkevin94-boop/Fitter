@@ -55,6 +55,27 @@ namespace Ravenholm.Services
         public bool HasNext => Road != null && Index + 1 < Road.CampCount;
         public string NextName => HasNext ? Road.CampName(Index + 1) : "";
 
+        /// <summary>Gated levels (Kevin, 2026-10-16): each camp is its own level, left through its gate.</summary>
+        public bool Levels => Road != null && Road.Plateau;
+
+        /// <summary>The land the company is on: this camp's level (the one road without levels).</summary>
+        public Domain.Sites.RidgeLayout Ridge => Road != null ? Road.RidgeFor(Index) : null;
+
+        /// <summary>Where the level is left: the road's end on the north rim, just past the gate (world).</summary>
+        public Vector2 ExitWorld
+        {
+            get
+            {
+                var r = Ridge;
+                if (r == null) return Vector2.zero;
+                var (x, y) = r.PointAt(r.Length);
+                return CellCentre(new Vector2((float)x, (float)y), r);
+            }
+        }
+
+        /// <summary>How near the road's end the supplier must be to go through the gate (world units).</summary>
+        public const float ExitReach = 2.2f;
+
         /// <summary>World position of a map cell's centre (cells: x right-up, y left-up).</summary>
         public static Vector2 CellCentre(Vector2 cell) => CellCentre(cell, null);
 
@@ -156,6 +177,7 @@ namespace Ravenholm.Services
         public bool AtNext(Vector2 world)
         {
             if (!HasNext) return false;
+            if (Levels) return Vector2.Distance(world, ExitWorld) <= ExitReach;   // at the gate, through it
             var centre = Road.CampCentre(Index + 1);
             var (fx, fy) = Road.Ridge.WorldToCell(world.x, world.y);   // the drop undone
             var cx = (float)fx;
@@ -167,7 +189,7 @@ namespace Ravenholm.Services
         public string MoveOnBlockedReason(Vector2 world)
         {
             if (!HasNext) return "This is the last camp on the road";
-            if (!AtNext(world)) return $"Make camp from {NextName}'s clearing";
+            if (!AtNext(world)) return Levels ? $"Go through the gate to {NextName}" : $"Make camp from {NextName}'s clearing";
             // The castle's summons for this camp must be answered first (the journey, step 5).
             if (!_jobs.Board.SummonsAnswered(Index + 1)) return $"Answer the castle's summons first: {_jobs.Board.SummonsFor(Index + 1).Name}";
             var full = new List<string>();

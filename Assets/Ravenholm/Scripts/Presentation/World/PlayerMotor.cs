@@ -15,6 +15,16 @@ namespace Ravenholm.Presentation
         public const string BlockerLayerName = "Blocker";
         private const float Skin = 0.01f;
 
+        private Vector2 _pushed;
+
+        /// <summary>How far the supplier was backed off walls since last asked (the animator doesn't count it as walking).</summary>
+        public Vector2 TakePushed()
+        {
+            var p = _pushed;
+            _pushed = Vector2.zero;
+            return p;
+        }
+
         [Tooltip("Child holding the sprites; bobs and flips without moving the sort pivot.")]
         [SerializeField] private Transform visual;
 
@@ -160,7 +170,8 @@ namespace Ravenholm.Presentation
             var rate = target.sqrMagnitude >= _walkVel.sqrMagnitude ? WalkAcceleration : WalkAcceleration * 0.7f;
             _walkVel = Vector2.MoveTowards(_walkVel, target, rate * Time.deltaTime);
             var delta = _walkVel * Time.deltaTime;
-            var p = Slide(old, delta, balance.playerFootprintRadius, _blockerMask);
+            var p = Slide(old, delta, balance.playerFootprintRadius, _blockerMask, out var push);
+            _pushed += push;
             var b = _root.Config.SandboxSettings.WorldBounds;
             p.x = Mathf.Clamp(p.x, b.xMin + 0.4f, b.xMax - 0.4f);
             p.y = Mathf.Clamp(p.y, b.yMin + 0.4f, b.yMax - 0.4f);
@@ -276,14 +287,31 @@ namespace Ravenholm.Presentation
         /// Moves a circle by <paramref name="delta"/>, sliding along anything it hits (up to 3 contacts).
         /// Casts ignore colliders the circle already overlaps, so a bad spawn can always walk out.
         /// </summary>
-        public static Vector2 Slide(Vector2 position, Vector2 delta, float radius, int mask)
+        public static Vector2 Slide(Vector2 position, Vector2 delta, float radius, int mask) => Slide(position, delta, radius, mask, out _);
+
+        /// <summary>The same, telling how far the circle was backed out of walls it already touched (not a step taken).</summary>
+        public static Vector2 Slide(Vector2 position, Vector2 delta, float radius, int mask, out Vector2 pushed)
         {
+            pushed = Vector2.zero;
             var startIn = Physics2D.queriesStartInColliders;
             var hitTriggers = Physics2D.queriesHitTriggers;
             Physics2D.queriesStartInColliders = false;
             Physics2D.queriesHitTriggers = false;
             try
             {
+                // Touching a wall already (a fast step can end just inside one's contact margin, 2026-10-17): back out to
+                // its surface first, or the casts below, which ignore what the circle overlaps, would walk through it.
+                // A centre inside a solid (a bad spawn) is left alone, so it can always walk out.
+                foreach (var c in Physics2D.OverlapCircleAll(position, radius, mask))
+                {
+                    var cp = c.ClosestPoint(position);
+                    var away = position - cp;
+                    var gap = away.magnitude;
+                    if (gap < 1e-5f || gap >= radius) continue;
+                    var out1 = away / gap * (radius - gap + Skin);
+                    position += out1;
+                    pushed += out1;
+                }
                 for (var i = 0; i < 3 && delta.sqrMagnitude > 1e-10f; i++)
                 {
                     var dist = delta.magnitude;

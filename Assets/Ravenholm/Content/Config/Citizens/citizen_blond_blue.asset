@@ -121,7 +121,7 @@ MonoBehaviour:
   duty: 0.5
   maxLegStretch: 1.3
   walkSpeed: 2.86
-  cadence: 4.4
+  cadence: 5.2
   maxFootReach: 0.16
   walkCrouch: 0.025
   sway: 0.02

@@ -350,16 +350,8 @@ namespace Ravenholm.EditorTools
                 var inTown = ridge.InClearing(x, y) && x >= town.xMin && x < town.xMax && y >= town.yMin && y < town.yMax;
                 if (!inTown)
                 {
-                    string ground;
-                    if (ridge.InClearing(x, y)) ground = GrassKey(x, y);   // the next camp's clearing
-                    else if (ridge.OnRoad(x, y))
-                    {
-                        // The old cobble road, mostly overgrown: stretches of cobble, then worn earth, then forest floor.
-                        var r = Hash01(x + 313, y + 17) * 0.5f + SmoothNoise(x + 40, y, 4f) * 0.5f;
-                        ground = r < 0.38f ? "plaza" : r < 0.6f ? PathKey(x, y) : "forest_floor_b";
-                    }
-                    else ground = Hash01(x + 911, y) < 0.12f ? "forest_floor_b" : "forest_floor";   // trees and hills: ForestGridView
-                    tm.SetTile(cell, tiles[ground]);
+                    // A clearing's grass; the old cobble road, mostly overgrown; forest floor (trees and hills: ForestGridView).
+                    tm.SetTile(cell, tiles[GroundKeys.Outside(ridge, x, y)]);
                     Tint(tm, cell, camp, ridge, x, y);
                     continue;
                 }
@@ -372,6 +364,8 @@ namespace Ravenholm.EditorTools
                 tm.SetTile(cell, tiles[key]);
                 Tint(tm, cell, camp, ridge, x, y);
             }
+            // Gated levels (2026-10-16): the other levels' ground is laid when the company gets there.
+            if (camp.Plateau) gridGo.AddComponent<LevelView>().EditorSetup(tm, tiles, town);
         }
 
         /// <summary>Each camp's land has its own tint (the journey, step 7): a darker wood, a misty fen, grey uplands.</summary>
@@ -404,43 +398,13 @@ namespace Ravenholm.EditorTools
         /// Grass broken up so the tile never repeats in a grid: mostly plain, tufts scattered on their own, and flowers
         /// in loose patches (smooth noise), so a meadow reads as a meadow.
         /// </summary>
-        private static string GrassKey(int x, int y)
-        {
-            var patch = SmoothNoise(x, y, 5f);
-            var r = Hash01(x, y);
-            if (patch > 0.74f && r < 0.4f) return "grass_b";    // a small flower patch
-            if (r < 0.14f) return "grass_c";                   // tufts
-            if (r > 0.99f) return "grass_b";                   // a stray flower
-            return "grass_a";
-        }
+        private static string GrassKey(int x, int y) => GroundKeys.Grass(x, y);
 
-        /// <summary>Paths mostly plain, with pebbles and the odd set of footprints.</summary>
-        private static string PathKey(int x, int y)
-        {
-            var r = Hash01(x + 4057, y + 77);
-            return r < 0.18f ? "path_b" : r < 0.26f ? "path_c" : "path";
-        }
+        private static string PathKey(int x, int y) => GroundKeys.Path(x, y);
 
-        /// <summary>Value noise in 0..1 on a grid of <paramref name="scale"/> cells, smoothly interpolated.</summary>
-        private static float SmoothNoise(int x, int y, float scale)
-        {
-            float fx = x / scale, fy = y / scale;
-            int x0 = Mathf.FloorToInt(fx), y0 = Mathf.FloorToInt(fy);
-            float tx = Mathf.SmoothStep(0f, 1f, fx - x0), ty = Mathf.SmoothStep(0f, 1f, fy - y0);
-            float a = Hash01(x0 * 31 + 7, y0 * 17 + 3), b = Hash01((x0 + 1) * 31 + 7, y0 * 17 + 3);
-            float c = Hash01(x0 * 31 + 7, (y0 + 1) * 17 + 3), d = Hash01((x0 + 1) * 31 + 7, (y0 + 1) * 17 + 3);
-            return Mathf.Lerp(Mathf.Lerp(a, b, tx), Mathf.Lerp(c, d, tx), ty);
-        }
+        private static float SmoothNoise(int x, int y, float scale) => GroundKeys.SmoothNoise(x, y, scale);
 
-        private static float Hash01(int x, int y)
-        {
-            unchecked
-            {
-                var h = (uint)(x * 374761393 + y * 668265263);
-                h = (h ^ (h >> 13)) * 1274126177u;
-                return ((h ^ (h >> 16)) & 0xFFFF) / 65535f;
-            }
-        }
+        private static float Hash01(int x, int y) => GroundKeys.Hash01(x, y);
 
         private static bool NearAnyPath(Vector2 p, (Vector2 a, Vector2 b)[] segments, float halfWidth)
         {

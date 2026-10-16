@@ -14,7 +14,7 @@ namespace Ravenholm.Presentation
 
         public bool Available { get; private set; }
 
-        public override string ContextVerb => "Make camp";
+        public override string ContextVerb => _root != null && _root.Services.Camp.Levels ? "Through the gate" : "Make camp";
         public override bool OpensOwnPanel => true;
         public override bool IsContextAvailable => Available;
         public override float ContextPriority => 0.8f;
@@ -33,9 +33,16 @@ namespace Ravenholm.Presentation
         {
             if (this == null) return;
             var camp = _root.Services.Camp;
-            var has = camp.HasNext && !_root.Services.Catalogue.CurrentCamp.Plateau;   // levels: the gate leads on (step 2)
+            var has = camp.HasNext;
             if (_sign != null) _sign.enabled = has;
             if (!has) return;
+            if (camp.Levels)
+            {
+                // Gated levels (Kevin, 2026-10-16): the way on is through the level's gate, where the road meets the rim.
+                transform.position = camp.ExitWorld;
+                EditorSetup($"to {camp.NextName}", "Break camp and go on through the gate: the stations pack into their kits, the shop folds onto the wagon, and the ox brings it to the next level. There is no way back.", "");
+                return;
+            }
             transform.position = camp.CentreOf(camp.Index + 1);
             EditorSetup($"Make camp at {camp.NextName}", "Break camp and move here: the stations pack into their kits, the shop folds onto the wagon, and the ox brings it up the road.", "");
         }
@@ -43,7 +50,7 @@ namespace Ravenholm.Presentation
         private void Update()
         {
             var player = SandboxSceneController.Current != null ? SandboxSceneController.Current.Player : null;
-            var on = _root.Services.Camp.HasNext && !_root.Services.Catalogue.CurrentCamp.Plateau;
+            var on = _root.Services.Camp.HasNext;
             Available = on && player != null && _root.Services.Camp.AtNext(player.position);
             if (_collider != null) _collider.enabled = on;
         }

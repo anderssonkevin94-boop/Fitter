@@ -155,6 +155,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("cleared")] public List<int> Cleared;
         /// <summary>The camp whose map the cells above belong to (2026-10-15; null = the old town and frontier).</summary>
         [JsonProperty("camp")] public string Camp;
+        /// <summary>Gated levels (2026-10-16): the level the site's cut and dug cells belong to (absent: 0).</summary>
+        [JsonProperty("level")] public int Level;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

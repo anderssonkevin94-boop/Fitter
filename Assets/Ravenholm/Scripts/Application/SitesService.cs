@@ -70,6 +70,28 @@ namespace Ravenholm.Services
 
         public SiteSimulator Get(string siteId) => _sims.Find(s => s.Config.SiteId == siteId);
 
+        /// <summary>The level the sites' cut and dug cells belong to (gated levels, 2026-10-16).</summary>
+        public int Level { get; private set; }
+
+        /// <summary>
+        /// The company is on a level (gated levels, Kevin 2026-10-16): the Forest and the hills are that level's land. Going
+        /// on to another level leaves the last one's cut trees and broken rock behind (one way); what was earned, the
+        /// layers revealed and the bands are kept.
+        /// </summary>
+        public void ApplyLevel(Domain.Sites.RidgeLayout ridge, int level)
+        {
+            if (ridge == null) return;
+            var fresh = level != Level;
+            Level = level;
+            foreach (var sim in _sims)
+            {
+                if (sim.Config.Grove != null) sim.Config.Grove.Ridge = ridge;
+                if (sim.Config.Kind == SiteKind.Mine) sim.SurfaceBandAt = (x, y) => ridge.BandAt(x, y);
+                if (fresh) LeaveMap(sim.Record);
+            }
+            if (fresh) Reloaded?.Invoke();
+        }
+
         public void Tick(float deltaSeconds)
         {
             if (_sims.Count == 0 || deltaSeconds <= 0) return;
@@ -503,6 +525,7 @@ namespace Ravenholm.Services
         void ISaveSection.Read(SaveEnvelope env)
         {
             _sims.Clear();
+            Level = 0;
             _msRemainder = 0;
             if (_catalogue == null) return;
             PlayerToolId = env?.PlayerGear?.ToolId ?? StartingGear(EquipmentSlot.Tool);
@@ -513,6 +536,7 @@ namespace Ravenholm.Services
                 var saved = env?.Sites?.Find(x => x.SiteId == def.Id);
                 if (saved != null)
                 {
+                    Level = saved.Level;
                     var record = FromSave(saved);
                     // A different map (the old town and frontier, or another camp): its cut trees and broken rock stay there.
                     if (_catalogue.CurrentCamp != null && saved.Camp != _catalogue.CurrentCamp.Id) LeaveMap(record);
@@ -548,6 +572,7 @@ namespace Ravenholm.Services
                 if (sim.Config.Kind == SiteKind.Mine) d.Layout = MineLayout;
                 if (sim.Config.Kind == SiteKind.Forest) d.Layout = ForestLayout;
                 d.Camp = _catalogue.CurrentCamp?.Id;
+                d.Level = Level;
                 env.Sites.Add(d);
             }
         }

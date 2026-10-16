@@ -95,6 +95,15 @@ namespace Ravenholm.Presentation
         private Vector3 Centre(Vector3Int c) => IsoMap.World(c);
 
 
+        /// <summary>The ground was laid anew (another level, gated levels 2026-10-16): the trees' cells from it again.</summary>
+        public void Rebuild()
+        {
+            _built = false;
+            _slotOf.Clear();
+            _key = "";
+            Build();
+        }
+
         private void Build()
         {
             if (_built || grid == null || ground == null) return;

@@ -34,6 +34,9 @@ namespace Ravenholm.Services
             Camp = new CampService(Scheduler, catalogue, Stations, Shop, Logistics, Jobs);
             // The castle posts the jobs of the company's camp and earlier ones (the journey, step 5).
             Camp.Moved += (_, __) => PlaceTheCompany();
+            // Gated levels (2026-10-16): the sites are on the company's level (a new level leaves the last one's cuts behind).
+            Camp.Moved += (_, __) => PlaceTheSites();
+            Scheduler.Loaded += PlaceTheSites;
             Jobs.Reloaded += PlaceTheCompany;
             Camp.Reloaded += PlaceTheCompany;
             Tutorial = new TutorialService(Scheduler, catalogue, Logistics, Sites, Production, Jobs, Economy);
@@ -73,6 +76,12 @@ namespace Ravenholm.Services
             if (report != null && report.ElapsedMs >= SimulationService.ReportThresholdMs) Simulation.PendingReport = report;
             Sandbox.CountSession();
             Scheduler.SaveNow(report != null && report.ElapsedMs > 0 ? "session start (offline catch-up)" : "session start");
+        }
+
+        /// <summary>Puts the sites on the company's level (gated levels): its Forest and hills.</summary>
+        private void PlaceTheSites()
+        {
+            if (Camp.Levels) Sites.ApplyLevel(Camp.Ridge, Camp.Index);
         }
 
         /// <summary>Tells the castle where the company is on the road.</summary>
