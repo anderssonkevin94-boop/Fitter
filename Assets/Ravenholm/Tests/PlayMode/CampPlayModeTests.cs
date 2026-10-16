@@ -134,11 +134,12 @@ namespace Ravenholm.Tests
 
             // Further forward: tougher trees, and the hills hold deeper layers.
             var mine = S.Sites.Get("site.mine");
-            var far = TreeAhead(sim, 100);
+            // Gated levels (2026-10-16): one band per level, tougher toward its gate; the next band is the next level's.
+            var far = TreeAhead(sim, camp.Plateau ? camp.GateAhead(0) - 8 : 100);
             Assert.AreEqual(1, sim.BandOf(ahead.x, ahead.y));
-            Assert.Greater(sim.BandOf(far.x, far.y), 1, "a later band further forward");
+            if (!camp.Plateau) Assert.Greater(sim.BandOf(far.x, far.y), 1, "a later band further forward");
             Assert.Greater(sim.TreeDurabilityMicro(far.x, far.y), sim.TreeDurabilityMicro(ahead.x, ahead.y));
-            Assert.Greater(mine.SurfaceBand(far.x, far.y), mine.SurfaceBand(ahead.x, ahead.y), "deeper ore further forward");
+            if (!camp.Plateau) Assert.Greater(mine.SurfaceBand(far.x, far.y), mine.SurfaceBand(ahead.x, ahead.y), "deeper ore further forward");
 
             // The gate: old trees across the ridge that the basic tool can't cut.
             var gateAhead = camp.GateAhead(0);
@@ -242,7 +243,7 @@ namespace Ravenholm.Tests
             yield return new WaitForSeconds(0.3f);
             Assert.GreaterOrEqual(forest.HeightAt(behind) - forest.PlayerFeet, 2, "a wall");
             Assert.IsFalse(forest.CanEnter(ground.GetCellCenterWorld(wall), ground.GetCellCenterWorld(behind)), "too high to step onto");
-            Assert.Greater(forest.ShadowsDrawn, 0, "taller blocks cast shadows on the ground beside them");
+            yield return Until(() => forest.ShadowsDrawn > 0, 2f, () => "taller blocks cast shadows on the ground beside them");
             var feet = forest.PlayerFeet;
             var spot = Object.FindAnyObjectByType<ForestRockSpot>();
             // Walking into the wall stops the feet short of it: the wide body does not sink into the rock.
@@ -296,9 +297,10 @@ namespace Ravenholm.Tests
             Assert.IsTrue(slab.SurfaceWalkable(first));
 
             // Further forward costs more: the next band (beyond the gate) more again.
-            var t1 = TreeAhead(sim, 100);
+            var road = GameRoot.Instance.Services.Catalogue.CurrentCamp;
+            var t1 = TreeAhead(sim, road.Plateau ? road.GateAhead(0) - 8 : 100);
             Assert.Greater(sim.TreeDurabilityMicro(t1.x, t1.y), Ravenholm.Domain.Sites.SiteMath.Durability(sim.Config, 1, 0) * 1000,
-                "band 2's trees are tougher than band 1's first");
+                road.Plateau ? "toward the gate, tougher than the first" : "band 2's trees are tougher than band 1's first");
             Motor.Teleport(first);   // on the stump, among the standing trees
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
             yield return new WaitForSeconds(1.5f);

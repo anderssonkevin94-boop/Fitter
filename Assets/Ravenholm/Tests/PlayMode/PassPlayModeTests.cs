@@ -44,6 +44,7 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
+        [Ignore("Gated levels (2026-10-16): the switchback pass is retired; removed in step 3")]
         public IEnumerator ThePassPastTheNextHairpinIsHiddenUntilYouNearIt()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);

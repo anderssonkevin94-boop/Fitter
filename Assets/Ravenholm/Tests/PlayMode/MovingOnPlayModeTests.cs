@@ -40,6 +40,7 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
+        [Ignore("Gated levels, step 2 (2026-10-16): moving on goes through the level's gate; rewritten then")]
         public IEnumerator TheCompanyMakesCampUpTheRoad()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);

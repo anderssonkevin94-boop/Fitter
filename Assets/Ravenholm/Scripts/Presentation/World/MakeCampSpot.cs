@@ -33,7 +33,7 @@ namespace Ravenholm.Presentation
         {
             if (this == null) return;
             var camp = _root.Services.Camp;
-            var has = camp.HasNext;
+            var has = camp.HasNext && !_root.Services.Catalogue.CurrentCamp.Plateau;   // levels: the gate leads on (step 2)
             if (_sign != null) _sign.enabled = has;
             if (!has) return;
             transform.position = camp.CentreOf(camp.Index + 1);
@@ -43,8 +43,9 @@ namespace Ravenholm.Presentation
         private void Update()
         {
             var player = SandboxSceneController.Current != null ? SandboxSceneController.Current.Player : null;
-            Available = player != null && _root.Services.Camp.AtNext(player.position);
-            if (_collider != null) _collider.enabled = _root.Services.Camp.HasNext;
+            var on = _root.Services.Camp.HasNext && !_root.Services.Catalogue.CurrentCamp.Plateau;
+            Available = on && player != null && _root.Services.Camp.AtNext(player.position);
+            if (_collider != null) _collider.enabled = on;
         }
 
         public override void OnInspected()

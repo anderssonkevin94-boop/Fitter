@@ -65,6 +65,12 @@ namespace Ravenholm.Content
         [Tooltip("Flat cells beside a clearing before the hills rise.")]
         [Min(0)] [SerializeField] private int flatMargin = 3;
         [SerializeField] private List<GateSpec> gates = new List<GateSpec>();
+        [Header("Gated levels (Kevin, 2026-10-16)")]
+        [Tooltip("Each camp is its own square level: a plateau with the camp at the front, forest and hills, the gate at the far corner.")]
+        [SerializeField] private bool plateau;
+        [Min(20)] [SerializeField] private int levelSize = 60;
+        [Tooltip("The level's nearest corner cell (the camp's town stands just inside it).")]
+        [SerializeField] private Vector2Int levelOrigin = new Vector2Int(-24, -21);
         [Header("The switchback pass (Kevin, 2026-10-16; Astra's pass pack)")]
         [Tooltip("The road as a switchback pass: legs alternating along the two axes, joined by quarter-circle turns. Camps sit mid-leg, the gates at the turns.")]
         [SerializeField] private bool switchback;
@@ -111,7 +117,7 @@ namespace Ravenholm.Content
         /// <summary>A camp's centre cell: camp 1's layout anchor (where its group stands), else the stop's clearing centre.</summary>
         public Vector2 CampCentre(int index)
         {
-            if (index <= 0) return layoutAnchor;
+            if (index <= 0 || plateau) return layoutAnchor;   // every level's camp stands at its front, in the same place
             var r = Ridge;
             var st = stops[Mathf.Min(index, stops.Count) - 1];
             if (switchback)
@@ -130,20 +136,24 @@ namespace Ravenholm.Content
         public float CampRadius(int index) => index <= 0 ? Mathf.Min(clearingRadii.x, clearingRadii.y) : stops[Mathf.Min(index, stops.Count) - 1].radius;
 
         /// <summary>The camp's ahead distance from camp 1 along the road.</summary>
-        public int CampAhead(int index) => index <= 0 ? 0
+        public int CampAhead(int index) => index <= 0 || plateau ? 0
             : switchback ? Mathf.RoundToInt((float)(Ridge.LegMid(Mathf.Min(index, stops.Count)) - Ridge.CampS))
             : stops[Mathf.Min(index, stops.Count) - 1].ahead;
 
         public bool Switchback => switchback;
+        public bool Plateau => plateau;
+        public int LevelSize => levelSize;
 
         /// <summary>A gate's distance ahead of camp 1: on the pass, the middle of its turn.</summary>
-        public int GateAhead(int index) => switchback && index < Ridge.TurnSpans.Count
+        public int GateAhead(int index) => plateau && index == 0 ? Mathf.RoundToInt((float)(Ridge.Gates[0].S - Ridge.CampS))
+            : switchback && index < Ridge.TurnSpans.Count
             ? Mathf.RoundToInt((float)(Ridge.TurnSpans[index].Mid - Ridge.CampS)) : gates[index].ahead;
 
         /// <summary>The ground's tint at a distance along the road: each camp's land from halfway to it, blending in.</summary>
         public Color GroundTintAt(double ahead)
         {
             var tint = Color.white;
+            if (plateau) return tint;   // level 1 (each level's own ground comes with step 3)
             var prevAhead = 0;
             for (var i = 0; i < stops.Count; i++)
             {
@@ -172,7 +182,16 @@ namespace Ravenholm.Content
                     StartX = start.x, StartY = start.y, HalfWidth = halfWidth, WidthWobble = widthWobble, EdgeNoise = edgeNoise,
                     LineWobble = lineWobble, RoadWobble = roadWobble, BandLength = bandLength, FlatMargin = flatMargin, Seed = seed,
                 };
-                if (switchback)
+                if (plateau)
+                {
+                    r.Plateau = true;
+                    r.LevelX0 = levelOrigin.x;
+                    r.LevelY0 = levelOrigin.y;
+                    r.LevelSize = levelSize;
+                    r.StartX = clearingCentre.x;
+                    r.StartY = clearingCentre.y;
+                }
+                else if (switchback)
                 {
                     r.Switchback = true;
                     r.StartX = clearingCentre.x - behindTown;
@@ -189,8 +208,8 @@ namespace Ravenholm.Content
                 {
                     S = campS, HasCentre = true, CX = clearingCentre.x, CY = clearingCentre.y, RX = clearingRadii.x, RY = clearingRadii.y,
                 });
-                if (stops.Count == 0) r.Clearings.Add(new RidgeLayout.Clearing { S = campS + nextCampAhead, RX = nextCampRadius, RY = nextCampRadius });
-                for (var i = 0; i < stops.Count; i++)
+                if (stops.Count == 0 && !plateau) r.Clearings.Add(new RidgeLayout.Clearing { S = campS + nextCampAhead, RX = nextCampRadius, RY = nextCampRadius });
+                for (var i = 0; i < stops.Count && !plateau; i++)   // a level has only its own camp
                 {
                     var st = stops[i];
                     var at = switchback ? r.LegMid(i + 1) : campS + st.ahead;
@@ -209,14 +228,16 @@ namespace Ravenholm.Content
                 for (var i = 0; i < gates.Count; i++)
                 {
                     var g = gates[i];
-                    var at = switchback && i < r.TurnSpans.Count ? r.TurnSpans[i].Mid : campS + g.ahead;
+                    // A level's own gate stands across its far corner; the other levels' gates are elsewhere (never met here).
+                    var at = plateau ? (i == 0 ? r.Length - 4 : r.Length + 1000 + 100 * i)
+                        : switchback && i < r.TurnSpans.Count ? r.TurnSpans[i].Mid : campS + g.ahead;
                     r.Gates.Add(new RidgeLayout.Gate { S = at, Thickness = g.thickness, Tier = g.tier, Rock = g.rock, Project = !string.IsNullOrEmpty(g.project) });
                 }
                 _ridge = r;
                 // Each camp at the edge (Kevin, 2026-10-16): a cove in the land's right-hand edge, edgeGap world units right of
                 // where the camp's group stands; the road swings out along the edge toward it (about two cells across the
                 // line per world unit across the screen).
-                if (edgeGap > 0 && !switchback)   // the pass shows the legs below instead
+                if (edgeGap > 0 && !switchback && !plateau)   // the pass shows the legs below instead
                     for (var i = 0; i < CampCount && i < r.Clearings.Count; i++)
                     {
                         var c = r.Clearings[i];
@@ -249,7 +270,7 @@ namespace Ravenholm.Content
         public override void Validate(List<string> errors)
         {
             base.Validate(errors);
-            if (stretches.Count == 0 && !switchback) errors.Add($"{Describe()}: no ridge stretches");
+            if (stretches.Count == 0 && !switchback && !plateau) errors.Add($"{Describe()}: no ridge stretches");
             if (clearingRadii.x < 4 || clearingRadii.y < 4) errors.Add($"{Describe()}: clearing too small");
         }
 
@@ -277,6 +298,17 @@ namespace Ravenholm.Content
         }
 
         /// <summary>The switchback pass (Kevin, 2026-10-16): its legs and turns, the legs' straight width, the road's wander.</summary>
+        /// <summary>Gated levels (Kevin, 2026-10-16): each camp its own square plateau; the switchback off.</summary>
+        public void EditorSetPlateau(bool on, int size, Vector2Int origin)
+        {
+            plateau = on;
+            levelSize = size;
+            levelOrigin = origin;
+            if (on) switchback = false;
+            edgeGap = 0f;
+            _ridge = null;
+        }
+
         public void EditorSetSwitchback(bool on, int leg, int firstLeg, float turn, int behind, float half, float road)
         {
             switchback = on;

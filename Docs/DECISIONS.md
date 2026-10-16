@@ -1660,3 +1660,30 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
 - `OxWander`: he rests 3 to 8 seconds, then walks to a free spot within 1.8 × 0.9 units of his place at the shafts (one time in three, back to it), at 0.45 units a second with his walk playing.
 - He keeps to walkable ground, skips spots with a stall, wall or the supplier in the way, and stops if the supplier steps in front of him. His blocker moves with him. He stands still during the drive.
 - Test: `OxPlayModeTests.TheParkedOxAmblesAboutNearTheWagon` (capture `ox_wander`).
+
+## 2026-10-16: gated levels, step 1: level 1 is a plateau (Kevin)
+
+- **Kevin's direction.** The parallax view doesn't work with the long road. Each region becomes its own level; when you get far enough you pass through a gate and the next level loads. That makes room for bigger, wider forest and mine areas, with no need to join them up.
+- **Kevin's choices:**
+  - 60 × 60 tiles per level;
+  - the gate is a build project;
+  - one way only;
+  - the whole camp packs up and comes along;
+  - a cliff with the valley view past the edges;
+  - through the gate, the wagon drive.
+- **The plan.**
+  1. Level 1 as a plateau.
+  2. Through the gate: drive, next level, saves.
+  3. All six levels, each with its own ground, toughness and gate project; the castle at the end; the old road code and tests removed.
+- **Step 1 (now).**
+  - `RidgeLayout.Plateau`: one square plateau from `levelOrigin` (-24, -21), 60 cells, edges ragged by ±1.2 cells, cliffs all round.
+  - The road runs straight from camp 1's clearing (the town, unchanged) to 3 cells short of the far corner. The level's gate stands across the far corner, 4 short of the road's end.
+  - Left of the road (screen left) is flat forest. Right of it are the hills (the Mine's ground).
+  - One band per level, toughening in three steps toward the gate. The other levels' gates and camps aren't laid out.
+  - `CampDefinition.plateau`/`levelSize`/`levelOrigin`, set by `ProjectSetup.Road` (the switchback is off). `CampCentre(i)` is the same front spot on every level.
+  - Until step 2, the "make camp" sign is hidden.
+- **Open for step 3.** Today only gates 3 and 4 are build projects (the bridge, the causeway). Gates 1, 2 and 5 still need a better tool (old trees, a rockslide, the sealed gate). Kevin chose build projects for gates: decide each level's project and its cost then.
+- **Tests.**
+  - New level checks are in `CampTests` (square, camp at the front, gate at the far corner, one band, tougher toward the gate). `CampPlayModeTests` was updated, and the berry test fells up to 80 trees.
+  - Ignored until steps 2 and 3, each with the reason written on it: `MovingOnTests`/`MovingOnPlayModeTests` (moving on), `RoadTests` six camps and bridge, `RoadPlayModeTests`, `PassPlayModeTests`, `SiteTests.DeeperRevealPersistsThroughReload` (band 2 is level 2's). The ox's drive check is skipped.
+  - `world_overview.png` hides the HUD.

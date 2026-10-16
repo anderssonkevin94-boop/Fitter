@@ -360,6 +360,7 @@ namespace Ravenholm.Tests
         }
 
         [Test]
+        [Ignore("Gated levels, step 2 (2026-10-16): the second band is level 2's; rewritten then")]
         public void DeeperRevealPersistsThroughReload()
         {
             var a = Boot();

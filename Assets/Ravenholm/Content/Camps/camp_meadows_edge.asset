@@ -108,7 +108,10 @@ MonoBehaviour:
     rock: 1
     project: 
     projectCost: []
-  switchback: 1
+  plateau: 1
+  levelSize: 60
+  levelOrigin: {x: -24, y: -21}
+  switchback: 0
   legLength: 40
   firstLegLength: 69
   turnRadius: 16

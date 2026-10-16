@@ -29,6 +29,7 @@ namespace Ravenholm.Tests
         }
 
         [Test]
+        [Ignore("Gated levels, steps 2-3 (2026-10-16): six levels behind gates; rewritten then")]
         public void SixCampsUpTheRoadWithABlockerBeforeEach()
         {
             var road = Cat.CurrentCamp;
@@ -53,6 +54,7 @@ namespace Ravenholm.Tests
         }
 
         [Test]
+        [Ignore("Gated levels, step 3 (2026-10-16): each level's gate project; rewritten then")]
         public void ABridgeIsBuiltFromStockAndRemembered()
         {
             var g = Boot();

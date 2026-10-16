@@ -68,6 +68,41 @@ namespace Ravenholm.Domain.Sites
 
         // ------------------------------------------------------------------ the centre line
 
+        // ------------------------------------------------------------------ a level (Kevin, 2026-10-16: gated levels)
+
+        /// <summary>
+        /// A level: one square plateau of <see cref="LevelSize"/> cells from (<see cref="LevelX0"/>, <see cref="LevelY0"/>),
+        /// its edges a little ragged, cliffs all round (the valley view beyond). The camp stands at its front (down the
+        /// screen); the road runs from it straight across to the gate at the far corner (up the screen, toward the castle).
+        /// Left of the road (screen left) is flat forest; right of it, the hills, the Mine's ground.
+        /// </summary>
+        public bool Plateau;
+        public int LevelX0, LevelY0, LevelSize = 60;
+
+        /// <summary>Which level this is (0-based): its band of wood and ore.</summary>
+        public int Level;
+
+        /// <summary>The cells the road ends short of the far corner.</summary>
+        public const int PlateauRoadInset = 3;
+
+        /// <summary>How ragged a level's edge is (cells either way).</summary>
+        public double PlateauEdgeNoise = 1.2;
+
+        private void BuildPlateau()
+        {
+            double ex = LevelX0 + LevelSize - 1 - PlateauRoadInset, ey = LevelY0 + LevelSize - 1 - PlateauRoadInset;
+            var len = Math.Sqrt((ex - StartX) * (ex - StartX) + (ey - StartY) * (ey - StartY));
+            var n = Math.Max(1, (int)Math.Ceiling(len));
+            for (var k = 0; k <= n; k++)
+                _line.Add((StartX + (ex - StartX) * k / n, StartY + (ey - StartY) * k / n, len * k / n));
+        }
+
+        private bool InPlateau(int x, int y)
+        {
+            var inside = Math.Min(Math.Min(x - LevelX0, LevelX0 + LevelSize - 1 - x), Math.Min(y - LevelY0, LevelY0 + LevelSize - 1 - y));
+            return inside + PlateauEdgeNoise * (Noise2(x / 4.0, y / 4.0, 31) * 2 - 1) >= 0;
+        }
+
         // ------------------------------------------------------------------ the switchback pass (Kevin, 2026-10-16)
 
         /// <summary>
@@ -237,6 +272,11 @@ namespace Ravenholm.Domain.Sites
         {
             if (_built) return;
             _built = true;
+            if (Plateau)
+            {
+                BuildPlateau();
+                return;
+            }
             if (Switchback)
             {
                 BuildSwitchback();
@@ -295,6 +335,11 @@ namespace Ravenholm.Domain.Sites
             get
             {
                 Build();
+                if (Plateau)
+                {
+                    var m = (int)Math.Ceiling(PlateauEdgeNoise) + 1;
+                    return (LevelX0 - m, LevelY0 - m, LevelX0 + LevelSize - 1 + m, LevelY0 + LevelSize - 1 + m);
+                }
                 var pad = HalfWidth + WidthWobble + EdgeNoise + 4;
                 foreach (var c in Clearings) pad = Math.Max(pad, Math.Max(c.RX, c.RY) + 14);
                 int minX = int.MaxValue, minY = int.MaxValue, maxX = int.MinValue, maxY = int.MinValue;
@@ -474,6 +519,7 @@ namespace Ravenholm.Domain.Sites
 
         public bool InLand(int x, int y)
         {
+            if (Plateau) return InPlateau(x, y) || InClearing(x, y);
             var (s, off, d) = Locate(x, y);
             var noise = EdgeNoise * (Noise2(x / 5.0, y / 5.0, 31) * 2 - 1);
             if (InCove(x, y)) return false;
@@ -576,7 +622,7 @@ namespace Ravenholm.Domain.Sites
         }
 
         /// <summary>Forward of camp 1, every <see cref="BandLength"/> cells is the next band (new wood, the Mine's next layer).</summary>
-        public int BandAt(int x, int y) => Switchback ? 1 + LegIndexAt(Locate(x, y).s)
+        public int BandAt(int x, int y) => Plateau ? 1 + Level : Switchback ? 1 + LegIndexAt(Locate(x, y).s)
             : 1 + (int)Math.Max(0, Math.Floor((Locate(x, y).s - CampS) / Math.Max(1, BandLength)));
 
         /// <summary>
@@ -585,6 +631,12 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public int ContinuationAt(int x, int y)
         {
+            if (Plateau)
+            {
+                // Three steps from the camp to the gate.
+                var s = Locate(x, y).s;
+                return Math.Max(0, Math.Min(2, (int)((s - CampS) / Math.Max(1, Length - CampS) * 3)));
+            }
             if (Switchback)
             {
                 // On the pass a band is a leg (from the turn before it to the turn after): three steps across it.
@@ -620,6 +672,7 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public int HeightCap(int x, int y)
         {
+            if (Plateau && Locate(x, y).off > 0) return 0;   // a level's forest side is flat
             var fromClearing = ClearingDistance(x, y) - FlatMargin;
             var fromRoad = RoadDistance(x, y) - RoadHalfWidth - 1;
             return Math.Max(0, (int)Math.Floor(Math.Min(fromClearing, fromRoad) * 2));

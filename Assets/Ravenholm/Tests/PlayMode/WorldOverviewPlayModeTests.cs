@@ -46,6 +46,7 @@ namespace Ravenholm.Tests
             cam.transform.position = new Vector3(b.center.x, b.center.y, cam.transform.position.z);
             const int w = 2400, h = 2400;
             cam.orthographicSize = Mathf.Max(b.height, b.width) * 0.5f + 1f;
+            foreach (var canvas in Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None)) canvas.enabled = false;   // the land, not the HUD
             var rt = new RenderTexture(w, h, 24);
             cam.targetTexture = rt;
             for (var i = 0; i < 4; i++) yield return null;

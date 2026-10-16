@@ -24,6 +24,30 @@ namespace Ravenholm.Tests
             var cx = (int)camp.ClearingCentre.x;
             var cy = (int)camp.ClearingCentre.y;
             Assert.IsTrue(r.InClearing(cx, cy), "the camp's clearing");
+            if (camp.Plateau)
+            {
+                // Gated levels (Kevin, 2026-10-16): a square plateau of 60 cells, the camp at its front, the road on to the
+                // gate across the far corner; nothing past its edges.
+                Assert.AreEqual(60, camp.LevelSize);
+                int land = 0, outside = 0;
+                for (var x = r.LevelX0 - 6; x < r.LevelX0 + 66; x++)
+                for (var y = r.LevelY0 - 6; y < r.LevelY0 + 66; y++)
+                {
+                    var inside = x >= r.LevelX0 + 2 && x < r.LevelX0 + 58 && y >= r.LevelY0 + 2 && y < r.LevelY0 + 58;
+                    var off = x < r.LevelX0 - 2 || x > r.LevelX0 + 61 || y < r.LevelY0 - 2 || y > r.LevelY0 + 61;
+                    if (inside) Assert.IsTrue(r.InLand(x, y), $"land at ({x}, {y})");
+                    if (off) Assert.IsFalse(r.InLand(x, y), $"nothing past the edge at ({x}, {y})");
+                    if (r.InLand(x, y)) land++; else outside++;
+                }
+                Assert.Greater(land, 3200);
+                Assert.Less(land, 4000);
+                Assert.Greater(r.Length - r.CampS, 40, "the road crosses the level to the gate");
+                var (gx, gy) = r.PointAt(r.Gates[0].S);
+                Assert.Greater(gx + gy, r.LevelX0 + r.LevelY0 + 100, "the gate is at the far corner (up the screen)");
+                Assert.Less(cx + cy, r.LevelX0 + r.LevelY0 + 50, "the camp at the front");
+                for (var g = 1; g < r.Gates.Count; g++) Assert.Greater(r.Gates[g].S, r.Length, "only this level's gate");
+                return;
+            }
             Assert.Greater(r.Length - r.CampS, 120, "the land runs well forward of the camp");
             Assert.Less(r.CampS, 40, "and only a little way behind it");
             // Across the ridge at points ahead: wide (2-4 screens), never a corridor, never a plain.
@@ -89,9 +113,19 @@ namespace Ravenholm.Tests
         {
             var r = Camp().Ridge;
             var (ax, ay) = r.PointAt(r.CampS + 20);
-            var (bx, by) = r.PointAt(r.CampS + 100);
             Assert.AreEqual(1, r.BandAt((int)ax, (int)ay));
-            Assert.Greater(r.BandAt((int)bx, (int)by), 1, "the next band forward");
+            if (Camp().Plateau)
+            {
+                // A level is one band; within it, tougher toward the gate.
+                var (gx, gy) = r.PointAt(r.Length - 6);
+                Assert.AreEqual(1, r.BandAt((int)gx, (int)gy), "one band across the level");
+                Assert.Less(r.ContinuationAt((int)ax, (int)ay), r.ContinuationAt((int)gx, (int)gy), "tougher toward the gate");
+            }
+            else
+            {
+                var (bx, by) = r.PointAt(r.CampS + 100);
+                Assert.Greater(r.BandAt((int)bx, (int)by), 1, "the next band forward");
+            }
             var cat = AssetDatabase.LoadAssetAtPath<ContentCatalogue>(ContentValidationMenu.CataloguePath);
             var mine = SitesService.BuildConfig(cat.Get<SiteDefinition>("site.mine"), cat.CurrentCamp);
             Assert.AreEqual(0, mine.Dig.Length, "no quarry plot: the hills are the Mine");

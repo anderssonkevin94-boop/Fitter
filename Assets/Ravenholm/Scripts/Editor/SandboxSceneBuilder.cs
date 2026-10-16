@@ -169,6 +169,7 @@ namespace Ravenholm.EditorTools
             for (var g = 0; g < road.Gates.Count; g++)
             {
                 if (string.IsNullOrEmpty(road.Gates[g].project)) continue;
+                if (road.Ridge.Gates[g].S > road.Ridge.Length) continue;   // another level's gate
                 var signS = road.Ridge.Gates[g].S - 5;
                 var (px, py) = road.Ridge.PointBeside(signS, road.Ridge.RoadOffsetAt(signS));   // on the road, where it runs
                 var at = SandboxSettings.CellCentre(Mathf.RoundToInt((float)px), Mathf.RoundToInt((float)py));
