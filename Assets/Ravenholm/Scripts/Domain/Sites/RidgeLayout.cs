@@ -71,37 +71,70 @@ namespace Ravenholm.Domain.Sites
         // ------------------------------------------------------------------ a level (Kevin, 2026-10-16: gated levels)
 
         /// <summary>
-        /// A level: one square plateau of <see cref="LevelSize"/> cells from (<see cref="LevelX0"/>, <see cref="LevelY0"/>),
-        /// its edges a little ragged, cliffs all round (the valley view beyond). The camp stands at its front (down the
-        /// screen); the road runs from it straight across to the gate at the far corner (up the screen, toward the castle).
-        /// Left of the road (screen left) is flat forest; right of it, the hills, the Mine's ground.
+        /// A level: one organic plateau of about <see cref="LevelSize"/>² cells, cliffs all round (the valley view beyond).
+        /// Its outline is drawn on screen: rounded and lobed at the front and sides; toward the castle (north, up the
+        /// screen) a broad, gently bowed rim rather than a corner (Kevin, 2026-10-16). The camp stands toward the front;
+        /// the road runs straight up the screen from it to the rim, where the level's gate is. Left of the road (screen
+        /// left) is flat forest; right of it, the hills, the Mine's ground.
         /// </summary>
         public bool Plateau;
-        public int LevelX0, LevelY0, LevelSize = 60;
+        public int LevelSize = 60;
+
+        /// <summary>The outline's centre and half-sizes on screen (world units).</summary>
+        public double LevelCX, LevelCY, LevelRX, LevelRY;
 
         /// <summary>Which level this is (0-based): its band of wood and ore.</summary>
         public int Level;
 
-        /// <summary>The cells the road ends short of the far corner.</summary>
-        public const int PlateauRoadInset = 3;
+        /// <summary>The cells the road ends short of the rim.</summary>
+        public const int PlateauRoadInset = 2;
 
-        /// <summary>How ragged a level's edge is (cells either way).</summary>
-        public double PlateauEdgeNoise = 1.2;
+        /// <summary>A gate on a level: how far either side of the road its band reaches (cells).</summary>
+        public const double PlateauGateHalfWidth = 7;
+
+        /// <summary>The outline's sizes from <see cref="LevelSize"/> and where the camp stands (its clearing toward the front).</summary>
+        public void SetLevelAround(double campCellX, double campCellY)
+        {
+            var (wx, wy) = (( campCellX - campCellY) * 0.5, (campCellX + campCellY) * 0.25 + 0.25);
+            LevelRX = LevelSize * 0.4;
+            LevelRY = LevelSize * 0.2;
+            LevelCX = wx + 1;
+            LevelCY = wy + LevelRY * 0.45;
+        }
 
         private void BuildPlateau()
         {
-            double ex = LevelX0 + LevelSize - 1 - PlateauRoadInset, ey = LevelY0 + LevelSize - 1 - PlateauRoadInset;
+            // Straight up the screen (+x and +y together) from the camp to the rim.
+            double ex = StartX, ey = StartY;
+            while (InPlateau((int)Math.Round(ex + 1), (int)Math.Round(ey + 1))) { ex += 1; ey += 1; }
+            ex -= PlateauRoadInset;
+            ey -= PlateauRoadInset;
             var len = Math.Sqrt((ex - StartX) * (ex - StartX) + (ey - StartY) * (ey - StartY));
             var n = Math.Max(1, (int)Math.Ceiling(len));
             for (var k = 0; k <= n; k++)
                 _line.Add((StartX + (ex - StartX) * k / n, StartY + (ey - StartY) * k / n, len * k / n));
         }
 
+        /// <summary>
+        /// Inside the level's outline: an ellipse on screen at the front, a squarer (superellipse) top toward the castle; its
+        /// radius swells and dips in a few broad lobes (fewer along the top), and the very edge is a little ragged.
+        /// </summary>
         private bool InPlateau(int x, int y)
         {
-            var inside = Math.Min(Math.Min(x - LevelX0, LevelX0 + LevelSize - 1 - x), Math.Min(y - LevelY0, LevelY0 + LevelSize - 1 - y));
-            return inside + PlateauEdgeNoise * (Noise2(x / 4.0, y / 4.0, 31) * 2 - 1) >= 0;
+            var wx = (x - y) * 0.5;
+            var wy = (x + y) * 0.25 + 0.25;
+            var dx = (wx - LevelCX) / LevelRX;
+            var dy = (wy - LevelCY) / LevelRY;
+            var a = Math.Atan2(dy, dx);
+            var top = Math.Max(0, Math.Sin(a));   // 1 straight up the screen, 0 at the sides and below
+            var p = 2 + 2.5 * top;
+            var m = Math.Pow(Math.Pow(Math.Abs(dx), p) + Math.Pow(Math.Abs(dy), p), 1 / p);
+            var lobes = 0.11 * Math.Sin(2 * a + Phase(1)) + 0.08 * Math.Sin(3 * a + Phase(2)) + 0.05 * Math.Sin(5 * a + Phase(3));
+            var r = 1 + lobes * (1 - 0.7 * top) + 0.035 * (Noise2(x / 3.0, y / 3.0, 31) * 2 - 1);
+            return m <= r;
         }
+
+        private double Phase(int k) => Hash01(k, 77, Seed) * Math.PI * 2;
 
         // ------------------------------------------------------------------ the switchback pass (Kevin, 2026-10-16)
 
@@ -337,8 +370,11 @@ namespace Ravenholm.Domain.Sites
                 Build();
                 if (Plateau)
                 {
-                    var m = (int)Math.Ceiling(PlateauEdgeNoise) + 1;
-                    return (LevelX0 - m, LevelY0 - m, LevelX0 + LevelSize - 1 + m, LevelY0 + LevelSize - 1 + m);
+                    // The outline's screen box (with room for its lobes), back in cells.
+                    double l = LevelCX - LevelRX * 1.3, rgt = LevelCX + LevelRX * 1.3, b = LevelCY - LevelRY * 1.3, t = LevelCY + LevelRY * 1.3;
+                    int Cx(double wx, double wy) => (int)Math.Floor(wx + 2 * (wy - 0.25));
+                    int Cy(double wx, double wy) => (int)Math.Floor(2 * (wy - 0.25) - wx);
+                    return (Cx(l, b) - 1, Cy(rgt, b) - 1, Cx(rgt, t) + 1, Cy(l, t) + 1);
                 }
                 var pad = HalfWidth + WidthWobble + EdgeNoise + 4;
                 foreach (var c in Clearings) pad = Math.Max(pad, Math.Max(c.RX, c.RY) + 14);
@@ -563,7 +599,8 @@ namespace Ravenholm.Domain.Sites
         /// <summary>The index of the gate a cell lies in (-1: none).</summary>
         public int GateIndexAt(int x, int y)
         {
-            var s = Locate(x, y).s;
+            var (s, off, _) = Locate(x, y);
+            if (Plateau && Math.Abs(off) > PlateauGateHalfWidth) return -1;
             for (var i = 0; i < Gates.Count; i++) if (Math.Abs(s - Gates[i].S) < Gates[i].Thickness * 0.5) return i;
             return -1;
         }
@@ -609,14 +646,16 @@ namespace Ravenholm.Domain.Sites
         /// <summary>The tool tier a gate needs here (0 = none).</summary>
         public int GateTierAt(int x, int y)
         {
-            var s = Locate(x, y).s;
+            var (s, off, _) = Locate(x, y);
+            if (Plateau && Math.Abs(off) > PlateauGateHalfWidth) return 0;
             foreach (var g in Gates) if (Math.Abs(s - g.S) < g.Thickness * 0.5) return g.Project ? 0 : g.Tier;
             return 0;
         }
 
         public Gate GateAt(int x, int y)
         {
-            var s = Locate(x, y).s;
+            var (s, off, _) = Locate(x, y);
+            if (Plateau && Math.Abs(off) > PlateauGateHalfWidth) return null;
             foreach (var g in Gates) if (Math.Abs(s - g.S) < g.Thickness * 0.5) return g;
             return null;
         }

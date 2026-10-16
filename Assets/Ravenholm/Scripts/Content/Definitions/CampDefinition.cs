@@ -69,8 +69,6 @@ namespace Ravenholm.Content
         [Tooltip("Each camp is its own square level: a plateau with the camp at the front, forest and hills, the gate at the far corner.")]
         [SerializeField] private bool plateau;
         [Min(20)] [SerializeField] private int levelSize = 60;
-        [Tooltip("The level's nearest corner cell (the camp's town stands just inside it).")]
-        [SerializeField] private Vector2Int levelOrigin = new Vector2Int(-24, -21);
         [Header("The switchback pass (Kevin, 2026-10-16; Astra's pass pack)")]
         [Tooltip("The road as a switchback pass: legs alternating along the two axes, joined by quarter-circle turns. Camps sit mid-leg, the gates at the turns.")]
         [SerializeField] private bool switchback;
@@ -185,9 +183,8 @@ namespace Ravenholm.Content
                 if (plateau)
                 {
                     r.Plateau = true;
-                    r.LevelX0 = levelOrigin.x;
-                    r.LevelY0 = levelOrigin.y;
                     r.LevelSize = levelSize;
+                    r.SetLevelAround(clearingCentre.x, clearingCentre.y);
                     r.StartX = clearingCentre.x;
                     r.StartY = clearingCentre.y;
                 }
@@ -299,11 +296,10 @@ namespace Ravenholm.Content
 
         /// <summary>The switchback pass (Kevin, 2026-10-16): its legs and turns, the legs' straight width, the road's wander.</summary>
         /// <summary>Gated levels (Kevin, 2026-10-16): each camp its own square plateau; the switchback off.</summary>
-        public void EditorSetPlateau(bool on, int size, Vector2Int origin)
+        public void EditorSetPlateau(bool on, int size)
         {
             plateau = on;
             levelSize = size;
-            levelOrigin = origin;
             if (on) switchback = false;
             edgeGap = 0f;
             _ridge = null;

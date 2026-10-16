@@ -73,11 +73,11 @@ namespace Ravenholm.EditorTools
             // 16 wide with straight edges like the paintings, joined by her turns (road radius 16). The first leg runs from
             // 12 behind camp 1's town through it and 40 on. Camps sit mid-leg, the gates at the turns (their authored
             // "ahead" no longer used); one band per leg.
-            // Gated levels (Kevin, 2026-10-16): the pass gives way to one 60 x 60 plateau per camp, the camp at its front, the
-            // gate across its far corner. Step 1: level 1 only.
+            // Gated levels (Kevin, 2026-10-16): the pass gives way to one organic plateau of about 60 x 60 per camp, the camp
+            // toward its front, the gate on its north rim (toward the castle). Step 1: level 1 only.
             if (!camp.Plateau)
             {
-                camp.EditorSetPlateau(true, 60, new Vector2Int(-24, -21));
+                camp.EditorSetPlateau(true, 60);
                 EditorUtility.SetDirty(camp);
             }
 

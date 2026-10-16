@@ -29,22 +29,27 @@ namespace Ravenholm.Tests
                 // Gated levels (Kevin, 2026-10-16): a square plateau of 60 cells, the camp at its front, the road on to the
                 // gate across the far corner; nothing past its edges.
                 Assert.AreEqual(60, camp.LevelSize);
-                int land = 0, outside = 0;
-                for (var x = r.LevelX0 - 6; x < r.LevelX0 + 66; x++)
-                for (var y = r.LevelY0 - 6; y < r.LevelY0 + 66; y++)
+                var e = r.Extent;
+                int land = 0;
+                for (var x = e.minX - 4; x <= e.maxX + 4; x++)
+                for (var y = e.minY - 4; y <= e.maxY + 4; y++)
                 {
-                    var inside = x >= r.LevelX0 + 2 && x < r.LevelX0 + 58 && y >= r.LevelY0 + 2 && y < r.LevelY0 + 58;
-                    var off = x < r.LevelX0 - 2 || x > r.LevelX0 + 61 || y < r.LevelY0 - 2 || y > r.LevelY0 + 61;
-                    if (inside) Assert.IsTrue(r.InLand(x, y), $"land at ({x}, {y})");
-                    if (off) Assert.IsFalse(r.InLand(x, y), $"nothing past the edge at ({x}, {y})");
-                    if (r.InLand(x, y)) land++; else outside++;
+                    var outside = x < e.minX || x > e.maxX || y < e.minY || y > e.maxY;
+                    if (outside) Assert.IsFalse(r.InLand(x, y), $"nothing past the level at ({x}, {y})");
+                    else if (r.InLand(x, y)) land++;
                 }
-                Assert.Greater(land, 3200);
-                Assert.Less(land, 4000);
-                Assert.Greater(r.Length - r.CampS, 40, "the road crosses the level to the gate");
+                Assert.Greater(land, 3200, "about 60 x 60");
+                Assert.Less(land, 4800, "about 60 x 60");
+                // The rim toward the castle (north) is broad, not a corner: land right across, some way either side of the road.
+                var (ex, ey) = r.PointAt(r.Length);
+                var across = 0;
+                for (var k = -30; k <= 30; k++) if (r.InLand((int)ex + k - 2, (int)ey - k - 2)) across++;
+                Assert.Greater(across, 30, $"a broad north rim ({across} cells across near the top)");
+                Assert.Greater(r.Length - r.CampS, 20, "the road crosses the level to the gate");
                 var (gx, gy) = r.PointAt(r.Gates[0].S);
-                Assert.Greater(gx + gy, r.LevelX0 + r.LevelY0 + 100, "the gate is at the far corner (up the screen)");
-                Assert.Less(cx + cy, r.LevelX0 + r.LevelY0 + 50, "the camp at the front");
+                Assert.Greater(gx + gy, cx + cy + 30, "the gate is up the screen from the camp (north, toward the castle)");
+                Assert.IsTrue(r.GateAt((int)gx, (int)gy) != null, "the gate on the road");
+                Assert.IsNull(r.GateAt((int)gx + 12, (int)gy - 12), "only by the road");
                 for (var g = 1; g < r.Gates.Count; g++) Assert.Greater(r.Gates[g].S, r.Length, "only this level's gate");
                 return;
             }
