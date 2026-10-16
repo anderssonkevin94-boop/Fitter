@@ -785,8 +785,10 @@ namespace Ravenholm.Presentation
             }
             else
             {
+                // In town, by height on screen; on the walk-in wagon's lower steps, in front of its door frame (the pack's
+                // 80 % switch); up there and inside, height on screen puts them between its back and its counter.
                 _playerSorting.sortingLayerName = "Default";
-                _playerSorting.sortingOrder = 0;
+                _playerSorting.sortingOrder = WalkInCart.Current != null && WalkInCart.Current.Sample(_player.position, out _, out var lower) && lower ? 1 : 0;
             }
         }
 

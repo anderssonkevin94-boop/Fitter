@@ -1535,3 +1535,32 @@ Kevin loved a screenshot taken by the ridge's drop-off, with the castle in the d
   - `ShopTests` places its bought stand at (1, 1).
   - `KitchenTests` searches further along the road.
 - **Brief for Astra.** `Docs/ART_BRIEF_EQUIPMENT_VIEWS.md` asks for facing B, the citizen's S/E/NE/N views, and the stand's level 2 and 3 finishes.
+
+## 2026-10-16: Astra's walk-in wagon (approved v5, parked view)
+
+- **Import** (`Tools/ArtImport/import_walkin_cart.py`, from the `wagon-walk-in` pack):
+  - The seven layers go to `Art/Placeholder/Wagon/WalkIn/` unchanged, with the pack's points, assembly and README.
+  - All share one 1536 × 1024 canvas, the pivot (779, 826) and 256 PPU, imported full-rect.
+  - `cart_assembled.png` is not imported.
+  - `cart_silhouette.png` is derived: the union of the layers' alpha, so the outline is drawn once round the whole wagon. An outline per layer would draw seams at the cuts.
+- **Drawing** (`WalkInCart`). Each layer sorts at its own depth on the town's height-on-screen order, in a SortingGroup whose position is that depth, with the art drawn back at the shared pivot:
+  - the back and shafts at the far wall (floor top − 8 px), with the outline behind them;
+  - the steps just above the stair top;
+  - the near wheels, the counter/front and the roof just in front of where a figure inside may stand, and just behind the customer spot (customer y − 4 px).
+
+  A figure inside therefore falls between the back and the counter. The near wheels draw with the counter (the pack put them behind the figure): the floor's far corner reaches over the right wheel, where the counter doesn't hide the feet.
+- **The stairs.** On the lower steps (below 80% of the climb) the supplier draws in front of the door frame (player SortingGroup order 1). Above that, and outside, ordinary sorting applies (order 0).
+- **Walking in.**
+  - The physics root stays on the ground. `PlayerMotor.CartElevation` raises only the visual rig: it ramps from 0 to 150 px (0.586 units) up the steps and holds that on the floor. Ground feet = visual feet + 150 px.
+  - The walls (EdgeCollider2D on the blocker layer) stand one footprint radius outside where the feet may stand:
+    - the floor, kept just behind the counter's sorting row, so a figure inside always draws behind the counter and customers in front;
+    - both sides of the steps.
+  - The doorway on the left end stays open. Its posts step a radius back so it is as wide for the feet as it is drawn.
+- **Parking.** The customer spot sits at the carpet's back-row middle, moved back until no wall or step is on the carpet. The approved perspective isn't the carpet's 2:1 grid, so the counter is not parallel to the carpet's edge.
+- **Anchors.**
+  - The Store's marker is at `customer_spot`.
+  - The counter's tap area covers `counter_top_line`.
+  - The bell is at its right end. It isn't painted on the new wagon, so it is a tap area only.
+  - The ox rides at `hitch` on the drive. The drive moves a copy of the whole look (parked layers hidden, mirrored when heading left; the wheels don't turn).
+- **Wagon levels.** There is one look at every level. Upgrades still grow the carpet and the cargo, as before.
+- **Test.** `WalkInCartPlayModeTests` walks the supplier with the stick: up the steps, through the door, to the serving spot, to the far end, against the counter, back out, and the customer side can't get in. It checks the lift, sorting, walls, anchors and that nothing is on the carpet, and writes `Captures/walk_in_cart_contact_sheet.png`.

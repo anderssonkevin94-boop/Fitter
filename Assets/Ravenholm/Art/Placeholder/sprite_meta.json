@@ -4281,6 +4281,62 @@
     0.17969
    ],
    "ppu": 256
+  },
+  "Wagon/WalkIn/cart_back.png": {
+   "pivot": [
+    0.5071614583333334,
+    0.193359375
+   ],
+   "ppu": 256
+  },
+  "Wagon/WalkIn/cart_shafts.png": {
+   "pivot": [
+    0.5071614583333334,
+    0.193359375
+   ],
+   "ppu": 256
+  },
+  "Wagon/WalkIn/cart_steps.png": {
+   "pivot": [
+    0.5071614583333334,
+    0.193359375
+   ],
+   "ppu": 256
+  },
+  "Wagon/WalkIn/wheel_near_left.png": {
+   "pivot": [
+    0.5071614583333334,
+    0.193359375
+   ],
+   "ppu": 256
+  },
+  "Wagon/WalkIn/wheel_near_right.png": {
+   "pivot": [
+    0.5071614583333334,
+    0.193359375
+   ],
+   "ppu": 256
+  },
+  "Wagon/WalkIn/cart_front.png": {
+   "pivot": [
+    0.5071614583333334,
+    0.193359375
+   ],
+   "ppu": 256
+  },
+  "Wagon/WalkIn/cart_roof.png": {
+   "pivot": [
+    0.5071614583333334,
+    0.193359375
+   ],
+   "ppu": 256
+  },
+  "Wagon/WalkIn/cart_silhouette.png": {
+   "pivot": [
+    0.5071614583333334,
+    0.193359375
+   ],
+   "ppu": 256
   }
  }
 }

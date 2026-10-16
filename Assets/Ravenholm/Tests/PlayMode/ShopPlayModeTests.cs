@@ -70,7 +70,7 @@ namespace Ravenholm.Tests
             Assert.NotNull(view.Wagon.GetComponent<StationInspectable>(), "its counter opens the Store");
             Assert.NotNull(view.Wagon.GetComponentInChildren<BellInspectable>(), "and has the bell");
             var store = s.Logistics.System.State.Receivers["receiver.store"];
-            Assert.Less(Vector2.Distance(new Vector2(store.X, store.Y), view.Vertex(2f, 3.5f)), 0.1f, "the Store's marker is at the counter");
+            Assert.Less(Vector2.Distance(new Vector2(store.X, store.Y), WalkInCart.Current.CustomerGround), 0.1f, "the Store's marker is at the walk-in wagon's customer spot");
             foreach (var id in new[] { "item.iron_sword", "item.steel_maul", "item.steel_coat", "item.iron_dagger", "item.steel_stiletto", "item.antidote", "item.strong_tonic" })
                 s.Logistics.System.CreateStoreItem(id, "test stock");
             SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(view.TileCentre(1, -1));
@@ -109,7 +109,7 @@ namespace Ravenholm.Tests
             yield return new WaitForSeconds(0.3f);
             Assert.AreNotEqual(wagonBefore, view.Wagon.position, "the wagon parks behind the bigger carpet");
             store = s.Logistics.System.State.Receivers["receiver.store"];
-            Assert.Less(Vector2.Distance(new Vector2(store.X, store.Y), view.Vertex(3f, 3.5f)), 0.1f, "the marker stays at the counter");
+            Assert.Less(Vector2.Distance(new Vector2(store.X, store.Y), WalkInCart.Current.CustomerGround), 0.1f, "the marker stays at the customer spot");
             yield return Capture.Take("wagon_shop_upgraded");
             hud.CloseShopBuild();
             yield return null;

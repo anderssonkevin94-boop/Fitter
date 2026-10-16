@@ -99,7 +99,7 @@ namespace Ravenholm.Presentation
                     lean = Mathf.Sin(Time.time * 12f) * 12f * facing;   // a pick or axe swing while the button is held
                 }
             }
-            visual.localPosition = _visualBase + new Vector3(0f, bob, 0f);
+            visual.localPosition = _visualBase + new Vector3(0f, bob + Elevation, 0f);
             visual.localRotation = Quaternion.Euler(0f, 0f, lean);
             // Underground the supplier is drawn a little smaller, so two blocks of tunnel fit them, head and all.
             _size = Mathf.MoveTowards(_size, Underground ? UndergroundScale : 1f, Time.deltaTime * 2f);
@@ -107,7 +107,14 @@ namespace Ravenholm.Presentation
         }
 
         /// <summary>How high the supplier stands on the Forest's blocks (drawn up there; the walking plane stays the ground).</summary>
-        public float Elevation => !Underground && ForestGridView.Current != null ? ForestGridView.Current.PlayerDrawFeet * MineSlabView.RowHeight : 0f;
+        public float Elevation => Underground ? 0f
+            : (ForestGridView.Current != null ? ForestGridView.Current.PlayerDrawFeet * MineSlabView.RowHeight : 0f) + CartElevation;
+
+        /// <summary>
+        /// How high the drawn supplier stands on the walk-in wagon (up its steps, on its floor; 2026-10-16). Only the
+        /// figure rises: the body that walks and collides stays on the ground.
+        /// </summary>
+        public float CartElevation => WalkInCart.Current != null && WalkInCart.Current.Sample(transform.position, out var e, out _) ? e : 0f;
 
         /// <summary>The way the supplier last moved (stick direction on screen), for facing.</summary>
         public Vector2 LastMove { get; private set; } = new Vector2(-1f, -0.5f);

@@ -62,6 +62,12 @@ namespace Ravenholm.EditorTools
             if (rel.StartsWith("Painted/Blocks/") || rel.StartsWith("Painted/Ground/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Outline-free nature and buildings (v4): the game's outline is drawn inside the sprite's rectangle.
             if (rel.StartsWith("Painted/Nature/") || rel.StartsWith("Nature/") || rel.StartsWith("Buildings/") || rel.StartsWith("Furniture/")) settings.spriteMeshType = SpriteMeshType.FullRect;
+            // Astra's walk-in wagon (2026-10-16): seven registered layers on one 1536 x 1024 canvas, never trimmed.
+            if (rel.StartsWith("Wagon/WalkIn/"))
+            {
+                ti.maxTextureSize = 2048;
+                settings.spriteMeshType = SpriteMeshType.FullRect;
+            }
             // Astra's valley view (2026-10-15): 4096-px repeating layers, kept sharp on the phone; full-rect so they tile.
             if (rel.StartsWith("View/"))
             {

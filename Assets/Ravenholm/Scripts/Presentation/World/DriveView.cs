@@ -82,14 +82,32 @@ namespace Ravenholm.Presentation
 
             var wagonSprite = shop != null && shop.Wagon != null ? shop.Wagon.GetComponent<SpriteRenderer>() : null;
             if (wagonSprite != null) wagonSprite.enabled = false;
-            var wagon = Make("DrivingWagon", wagonSprite != null ? wagonSprite.sprite : null, 10);
-            wagon.transform.localScale = Vector3.one * 0.8f;
+            // The walk-in wagon (2026-10-16): its parked layers hide, and a copy of its whole look makes the drive.
+            var cart = shop != null && shop.Wagon != null ? shop.Wagon.GetComponent<WalkInCart>() : null;
+            var parked = new List<SpriteRenderer>();
+            if (cart != null)
+                foreach (var r in cart.GetComponentsInChildren<SpriteRenderer>())
+                    if (r.enabled) { r.enabled = false; parked.Add(r); }
+            Transform wagonT;
+            SpriteRenderer wagon = null;
+            if (cart != null)
+            {
+                var outlines = _root.Config.SandboxSettings.outlines;
+                wagonT = cart.MakeDrivingCopy(transform, "Overlay", 10, material, outlines != null ? outlines.material : null);
+            }
+            else
+            {
+                wagon = Make("DrivingWagon", wagonSprite != null ? wagonSprite.sprite : null, 10);
+                wagonT = wagon.transform;
+            }
+            wagonT.localScale = Vector3.one * 0.8f;
+            var hitch = cart != null ? cart.Hitch - (Vector2)cart.transform.position : Vector2.zero;
             var ox = Make("Ox", oxSprite, 11);
             var player = SandboxSceneController.Current != null ? SandboxSceneController.Current.Player : null;
             var visual = player != null ? player.Find("Visual") : null;
             if (visual != null) visual.gameObject.SetActive(false);   // riding on the wagon
             var cam = SandboxSceneController.Current != null ? SandboxSceneController.Current.WorldCamera.GetComponent<FollowCamera>() : null;
-            if (cam != null) cam.Override = wagon.transform;
+            if (cam != null) cam.Override = wagonT;
 
             for (var i = 0; i + 1 < path.Count; i++)
             {
@@ -99,16 +117,20 @@ namespace Ravenholm.Presentation
                 for (var t = 0f; t < 1f; t += Time.deltaTime * speed / Mathf.Max(0.01f, Vector2.Distance(a, b)))
                 {
                     var p = Vector2.Lerp(a, b, t);
-                    wagon.transform.position = p;
-                    wagon.flipX = dir.x < 0f;
-                    ox.transform.position = p + dir * 1.25f;
+                    wagonT.position = p;
+                    var left = dir.x < 0f;
+                    if (wagon != null) wagon.flipX = left;
+                    else wagonT.localScale = new Vector3(left ? -0.8f : 0.8f, 0.8f, 1f);
+                    // The ox at the wagon's hitch (the walk-in wagon's own anchor), else just ahead of it.
+                    ox.transform.position = cart != null ? p + new Vector2(left ? -hitch.x : hitch.x, hitch.y) * 0.8f : p + dir * 1.25f;
                     ox.flipX = dir.x < 0f;
                     if (player != null) player.position = p;
                     yield return null;
                 }
             }
 
-            Destroy(wagon.gameObject);
+            Destroy(wagonT.gameObject);
+            foreach (var r in parked) if (r != null) r.enabled = true;
             Destroy(ox.gameObject);
             if (wagonSprite != null) wagonSprite.enabled = true;
             if (visual != null) visual.gameObject.SetActive(true);

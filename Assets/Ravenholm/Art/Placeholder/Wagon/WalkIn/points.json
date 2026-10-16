@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "canvas": [
+    1536,
+    1024
+  ],
+  "origin": "top-left",
+  "units": "pixels",
+  "pixels_per_unit": 256,
+  "ground_origin": [
+    779,
+    826
+  ],
+  "footprint": [
+    [
+      442,
+      788
+    ],
+    [
+      991,
+      698
+    ],
+    [
+      1115,
+      863
+    ],
+    [
+      566,
+      953
+    ]
+  ],
+  "floor_polygon": [
+    [
+      442,
+      638
+    ],
+    [
+      991,
+      548
+    ],
+    [
+      1115,
+      713
+    ],
+    [
+      566,
+      803
+    ]
+  ],
+  "floor_height_px": 150,
+  "steps_bottom": [
+    330,
+    918
+  ],
+  "steps_top": [
+    460,
+    662
+  ],
+  "door": [
+    460,
+    662
+  ],
+  "serve_spot": [
+    840,
+    710
+  ],
+  "customer_spot": [
+    960,
+    880
+  ],
+  "counter_top_line": [
+    [
+      635,
+      680
+    ],
+    [
+      1136,
+      603
+    ]
+  ],
+  "hitch": [
+    1382,
+    579
+  ],
+  "wheel_near_left": [
+    730,
+    845
+  ],
+  "wheel_near_right": [
+    1132,
+    782
+  ],
+  "door_gap": [
+    [
+      442,
+      638
+    ],
+    [
+      484,
+      694
+    ]
+  ],
+  "floor_obstacles": [],
+  "walk_path_visual": [
+    [
+      300,
+      966
+    ],
+    [
+      330,
+      918
+    ],
+    [
+      395,
+      790
+    ],
+    [
+      460,
+      662
+    ],
+    [
+      600,
+      690
+    ],
+    [
+      720,
+      710
+    ],
+    [
+      840,
+      710
+    ]
+  ],
+  "walk_path_ground": [
+    [
+      300,
+      966
+    ],
+    [
+      330,
+      918
+    ],
+    [
+      395,
+      865
+    ],
+    [
+      460,
+      812
+    ],
+    [
+      600,
+      840
+    ],
+    [
+      720,
+      860
+    ],
+    [
+      840,
+      860
+    ]
+  ],
+  "sorting": {
+    "cart_back": 0,
+    "cart_shafts": 1,
+    "cart_steps": 2,
+    "wheel_near_left": 3,
+    "wheel_near_right": 3,
+    "actor_inside": 10,
+    "cart_front": 20,
+    "cart_roof": 50,
+    "customer_outside": 40,
+    "actor_on_lower_steps": 40
+  },
+  "notes": [
+    "Coordinates are newly authored for this master; do not reuse v1 anchors.",
+    "Floor coordinates are raised visual-foot positions. Ground coordinates add floor_height_px to y.",
+    "Artwork preserves the approved perspective; it is not an exact 2:1 diamond projection. Do not force a rectangular tile collider onto it.",
+    "Wheel layers are parked-view cutouts, not perspective-correct rotating wheel sprites.",
+    "No characters are baked into any wagon sprite. Preview character is separate and not shipped in Sprites."
+  ]
+}

@@ -33,6 +33,8 @@ namespace Ravenholm.Presentation
         [SerializeField] private int blockerLayer;
         [Header("The wagon shop (the journey, step 3): per art level 1-3")]
         [SerializeField] private Sprite[] wagonSprites = Array.Empty<Sprite>();
+        [Tooltip("Astra's approved walk-in wagon (2026-10-16): replaces the single wagon sprite when set.")]
+        [SerializeField] private WalkInCartArt walkInCart = new WalkInCartArt();
         [SerializeField] private Sprite[] carpetSprites = Array.Empty<Sprite>();
         [SerializeField] private Sprite[] carpetEdgeA = Array.Empty<Sprite>();
         [SerializeField] private Sprite[] carpetEdgeB = Array.Empty<Sprite>();
@@ -84,6 +86,8 @@ namespace Ravenholm.Presentation
             material = mat;
             blockerLayer = blocker;
         }
+
+        public void EditorSetupWalkInCart(WalkInCartArt art) => walkInCart = art;
 
         public void EditorSetupWagon(Sprite[] wagons, Sprite[] carpets, Sprite[] edgesA, Sprite[] edgesB)
         {
@@ -305,6 +309,11 @@ namespace Ravenholm.Presentation
             }
 
             var size = shop.CarpetSize;
+            if (walkInCart != null && walkInCart.Valid)
+            {
+                RebuildWalkInCart(size);
+                return;
+            }
             var ground = Vertex(size.x * 0.5f, size.y + WagonDepth * 0.5f);
             var wagon = new GameObject("Wagon");
             wagon.transform.SetParent(_shell, false);
@@ -351,6 +360,80 @@ namespace Ravenholm.Presentation
                 store.Reregister(true);
             }
             Physics2D.SyncTransforms();
+        }
+
+        /// <summary>
+        /// Astra's walk-in wagon (2026-10-16): parked behind the carpet with its customer spot at the carpet's back-row
+        /// middle, moved back just far enough that its walls and steps stay off the carpet (the approved perspective is not
+        /// the carpet's 2:1 grid, so its counter is not parallel to the carpet's edge). The counter opens the Store, the
+        /// bell sits at the counter's right end, and the Store's marker is at the customer spot. One look at every
+        /// wagon level (the carpet and the cargo still grow).
+        /// </summary>
+        private void RebuildWalkInCart(Vector2Int size)
+        {
+            var art = walkInCart;
+            var wagon = new GameObject("Wagon");
+            wagon.transform.SetParent(_shell, false);
+            Wagon = wagon.transform;
+            Vector2 Local(Vector2 px) => new Vector2((px.x - art.originPx.x) / art.ppu, (art.originPx.y - px.y) / art.ppu);
+            // Customers at the back row's middle; then back (up the carpet's b axis) until nothing of the wagon is on it.
+            var origin = Vertex(size.x * 0.5f, size.y - 0.5f) - Local(art.customerGroundPx);
+            var radius = _root.Config.Balance.playerFootprintRadius;
+            wagon.transform.position = origin;
+            var cart = wagon.AddComponent<WalkInCart>();
+            var outlines = _root.Config.SandboxSettings.outlines;
+            cart.Build(art, material, outlines != null ? outlines.material : null, blockerLayer, radius);
+            // Back until no wall (nor the steps) stands on the carpet, with a footprint's room to walk past its back row.
+            var critical = new List<Vector2>();
+            foreach (var e in wagon.GetComponentsInChildren<EdgeCollider2D>())
+                foreach (var p in e.points) critical.Add(p);
+            foreach (var p in art.stairsGroundPx) critical.Add(Local(p));
+            for (var step = 0; step < 80; step++)
+            {
+                var clear = true;
+                foreach (var c in critical)
+                {
+                    var (a, b) = CarpetCoords(origin + c);
+                    if (a > -0.3f && a < size.x + 0.3f && b < size.y + 0.05f) { clear = false; break; }
+                }
+                if (clear) break;
+                origin += FurnitureView.AxisB.normalized * 0.05f;
+            }
+            wagon.transform.position = origin;
+
+            // The counter does the desk's job: tap it for the Store (from the carpet or from behind it); ring its bell.
+            var col = wagon.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+            var counterMid = (Local(art.counterStartPx) + Local(art.counterEndPx)) * 0.5f;
+            col.size = new Vector2(Mathf.Abs(Local(art.counterEndPx).x - Local(art.counterStartPx).x), 0.9f);
+            col.offset = counterMid - new Vector2(0f, 0.2f);
+            var counter = wagon.AddComponent<StationInspectable>();
+            counter.EditorSetup("Wagon counter", "Where customers do business. Open the Store's inventory here; in build mode, upgrade the wagon.", "");
+            counter.EditorSetupStation("", true, Domain.Logistics.ReceiverKind.Store);
+            var bell = new GameObject("Store Bell");
+            bell.transform.SetParent(wagon.transform, false);
+            bell.transform.position = origin - new Vector2(0f, 0.01f);   // just in front of the wagon's origin, so its tap wins
+            var bc = bell.AddComponent<BoxCollider2D>();
+            bc.isTrigger = true;
+            bc.size = new Vector2(0.45f, 0.45f);
+            bc.offset = Local(art.counterEndPx) + new Vector2(0f, 0.01f);   // at the counter's right end
+            var bi = bell.AddComponent<BellInspectable>();
+            bi.EditorSetup("Store Bell", "", "");
+            bi.EditorSetupVisual(bell.transform);
+            // Customers stand at the counter: the Store's marker is the pack's customer spot.
+            if (ReceiverView.TryGet("receiver.store", out var store))
+            {
+                store.transform.position = cart.CustomerGround;
+                store.Reregister(true);
+            }
+            Physics2D.SyncTransforms();
+        }
+
+        /// <summary>Carpet coordinates (tiles along a and b from the front corner) of a world point: <see cref="TileAt"/> unrounded.</summary>
+        public (float a, float b) CarpetCoords(Vector2 world)
+        {
+            var d = world - origin;   // d = AxisA * a + AxisB * b
+            return (d.x + 2f * d.y, 2f * d.y - d.x);
         }
 
         private void SyncFurniture()

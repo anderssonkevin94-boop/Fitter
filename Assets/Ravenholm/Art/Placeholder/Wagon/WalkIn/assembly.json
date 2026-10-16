@@ -1,0 +1,26 @@
+{
+  "canvas": [
+    1536,
+    1024
+  ],
+  "shared_pivot_pixels": [
+    779,
+    826
+  ],
+  "draw_order": [
+    "cart_back",
+    "cart_shafts",
+    "cart_steps",
+    "wheel_near_left",
+    "wheel_near_right",
+    "cart_front",
+    "cart_roof"
+  ],
+  "actor_between": [
+    "cart_back",
+    "cart_front"
+  ],
+  "scale": 1,
+  "character_preview_height_px": 274,
+  "wheel_rotation_supported": false
+}

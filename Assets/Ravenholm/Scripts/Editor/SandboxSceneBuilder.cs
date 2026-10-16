@@ -1,3 +1,4 @@
+using System.IO;
 using System.Collections.Generic;
 using Ravenholm.Content;
 using Ravenholm.Domain.Logistics;
@@ -227,6 +228,44 @@ namespace Ravenholm.EditorTools
             controller.EditorSetup(cam, player);
 
             EditorSceneManager.SaveScene(scene, path);
+        }
+
+        /// <summary>
+        /// Astra's approved walk-in wagon (2026-10-16): the seven layers and the pack's own geometry (Wagon/WalkIn/points.json;
+        /// never the older wagon's anchors). Empty (the old single sprite stays) if the pack has not been imported.
+        /// </summary>
+        private static WalkInCartArt LoadWalkInCart()
+        {
+            const string dir = "Wagon/WalkIn/";
+            var json = PlaceholderSpriteImporter.ArtRoot + dir + "points.json";
+            if (!File.Exists(json)) return new WalkInCartArt();
+            var p = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(json));
+            Vector2 V(Newtonsoft.Json.Linq.JToken t) => new Vector2((float)t[0], (float)t[1]);
+            var floorH = (float)p["floor_height_px"];
+            Vector2 Ground(Newtonsoft.Json.Linq.JToken visual) => V(visual) + new Vector2(0f, floorH);   // raised visual feet -> ground feet
+            var floor = new List<Vector2>();
+            foreach (var t in p["footprint"]) floor.Add(V(t));
+            Sprite S(string name) => ProjectSetup.LoadSprite(dir + name);
+            return new WalkInCartArt
+            {
+                back = S("cart_back"), shafts = S("cart_shafts"), steps = S("cart_steps"), wheelLeft = S("wheel_near_left"),
+                wheelRight = S("wheel_near_right"), front = S("cart_front"), roof = S("cart_roof"), silhouette = S("cart_silhouette"),
+                originPx = V(p["ground_origin"]),
+                ppu = (float)p["pixels_per_unit"],
+                floorHeightPx = floorH,
+                floorGroundPx = floor.ToArray(),
+                // The steps' ground polygon (the pack's Unity helper): from the bottom step up to the doorway.
+                stairsGroundPx = new[] { new Vector2(304f, 886f), new Vector2(434f, 780f), new Vector2(486f, 844f), new Vector2(356f, 950f) },
+                stepsBottomPx = V(p["steps_bottom"]),
+                stepsTopGroundPx = Ground(p["steps_top"]),
+                serveGroundPx = Ground(p["serve_spot"]),
+                customerGroundPx = V(p["customer_spot"]),
+                hitchPx = V(p["hitch"]),
+                counterStartPx = V(p["counter_top_line"][0]),
+                counterEndPx = V(p["counter_top_line"][1]),
+                doorGroundA = Ground(p["door_gap"][0]),
+                doorGroundB = Ground(p["door_gap"][1]),
+            };
         }
 
         // ------------------------------------------------------------------ ground and boundary
@@ -526,6 +565,7 @@ namespace Ravenholm.EditorTools
             Sprite[] Levels(string name) => new[] { ProjectSetup.LoadSprite($"Wagon/{name}".Replace("#", "1")), ProjectSetup.LoadSprite($"Wagon/{name}".Replace("#", "2")),
                 ProjectSetup.LoadSprite($"Wagon/{name}".Replace("#", "3")) };
             view.EditorSetupWagon(Levels("wagon_parked_#"), Levels("carpet_#"), Levels("carpet_edge_#_a"), Levels("carpet_edge_#_b"));
+            view.EditorSetupWalkInCart(LoadWalkInCart());
             return go.transform;
         }
 
