@@ -1564,3 +1564,17 @@ Kevin loved a screenshot taken by the ridge's drop-off, with the castle in the d
   - The ox rides at `hitch` on the drive. The drive moves a copy of the whole look (parked layers hidden, mirrored when heading left; the wheels don't turn).
 - **Wagon levels.** There is one look at every level. Upgrades still grow the carpet and the cargo, as before.
 - **Test.** `WalkInCartPlayModeTests` walks the supplier with the stick: up the steps, through the door, to the serving spot, to the far end, against the counter, back out, and the customer side can't get in. It checks the lift, sorting, walls, anchors and that nothing is on the carpet, and writes `Captures/walk_in_cart_contact_sheet.png`.
+
+## 2026-10-16: the road becomes a switchback pass (Kevin; waiting on Astra's art)
+
+Kevin's playtest of the camp bays: the flat valley green past the edge makes the land read as floating, and the perspective breaks. His sketch is a switchback mountain pass: long legs zigzag across the screen toward the castle, each leg looking lower than the last, though the playable ground stays flat.
+
+- **Kevin's choices:**
+  - The player walks round the hairpins; the drop between legs is eased visually.
+  - Camps sit mid-leg at the outer edge, and the hairpins are the gates between camps.
+  - The distant regions wait for Astra's painted art (no game-art placeholders first).
+- **The plan.**
+  - Each leg is drawn 4 block rows (2 units) lower than the one before; the shift is visual only and physics stays flat.
+  - Only the current and next leg are real ground. Further legs are Astra's distance strips, and a valley floor replaces the flat green.
+  - Brief: `Docs/ART_BRIEF_SWITCHBACK_PASS.md`. The layout work starts when her art arrives.
+- The camp bays (shipped earlier today) stay until then.
