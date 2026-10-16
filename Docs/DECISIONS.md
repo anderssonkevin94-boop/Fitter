@@ -1586,3 +1586,7 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - Tests:
     - the wagon test now probes from 16 directions, shafts included, so no way in but the door;
     - Phase 1's slide check pushes along the wagon's back wall.
+- **Second wagon playtest** (Kevin, 2026-10-16).
+  - Pressing into the counter rail let the feet cross the counter's sorting row by a few pixels, drawing the supplier (and a carried pile) in front of the counter and roof. The rail now stops 16 px short of that row (`WalkInCart.RailMarginPx`).
+  - While the stick is held, the supplier faces where it points, even when blocked or sliding along a wall (`SupplierAnimator`). Behind the counter they can face the customers.
+  - The test holds the stick into the counter and checks they stay behind it and face S/SE/SW.

@@ -104,6 +104,10 @@ namespace Ravenholm.Presentation
                 _heading = delta;
             }
             else _moving = Mathf.Max(0f, _moving - dt);
+            // The supplier faces where the stick points while it is held, even pushing into (or sliding along) a wall or
+            // the wagon's counter: they can stand facing out over the counter (Kevin, 2026-10-16).
+            var stick = _motor != null && _root != null ? _root.InputRouter.MoveVector : Vector2.zero;
+            if (stick.sqrMagnitude > 0.04f) _heading = new Vector2(stick.x, stick.y * 0.5f);   // the stick on screen, as walked
             // Smoothed ground speed (the walk's playback rate follows it).
             if (dt > 0f) _speed = Mathf.Lerp(_speed, delta.magnitude / dt, Mathf.Clamp01(dt * 12f));
             var moving = _moving > 0f;

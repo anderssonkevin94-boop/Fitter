@@ -146,7 +146,9 @@ namespace Ravenholm.Presentation
         /// </summary>
         private void BuildWalls(int blockerLayer, float radius)
         {
-            var clipY = RowY(FrontRow - 1f);
+            // 16 px short of the counter's sorting row: pressing into the rail (the physics' contact margin) never carries
+            // the feet over it, where the figure would draw in front of the counter (Kevin's playtest, 2026-10-16).
+            var clipY = RowY(FrontRow - RailMarginPx);
             _walk.Clear();
             _walk.AddRange(ClipBelow(_floor, clipY));   // y up: where the feet may stand inside
             if (_walk.Count < 3) return;
@@ -218,6 +220,9 @@ namespace Ravenholm.Presentation
                 Edge(blockerLayer, "Shafts", loop);
             }
         }
+
+        /// <summary>Canvas pixels between the counter rail's line and the counter's sorting row.</summary>
+        public const float RailMarginPx = 16f;
 
         /// <summary>The doorway's posts (local), for tests.</summary>
         public Vector2 DoorPostNear { get; private set; }

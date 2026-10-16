@@ -132,6 +132,23 @@ namespace Ravenholm.Tests
             var target = SandboxSceneController.Current.ContextTarget;
             Assert.IsTrue(target is StationInspectable || target is BellInspectable, $"the counter (or its bell) is the button's target, not {target}");
 
+            // Facing the customers over the counter (Kevin's playtest): holding the stick toward them turns the supplier to
+            // face out, and pressing into the counter never carries them in front of it.
+            var animator = Motor.GetComponentInChildren<SupplierAnimator>();
+            var rowY = front;
+            var until0 = Time.realtimeSinceStartup + 1.5f;
+            while (Time.realtimeSinceStartup < until0)
+            {
+                root.InputRouter.ScriptedMove = new Vector2(0.15f, -1f);
+                Assert.Greater(Motor.transform.position.y, rowY, "pressed against the counter, still behind it");
+                yield return null;
+            }
+            root.InputRouter.ScriptedMove = null;
+            yield return new WaitForSeconds(0.2f);
+            Assert.That(animator.Dir, Is.EqualTo("S").Or.EqualTo("SE").Or.EqualTo("SW"), "facing out over the counter");
+            Assert.Greater(Motor.transform.position.y, rowY);
+            yield return Capture.Take("cart_04b_facing_out");
+
             // The walls: down toward the counter stays inside; along to the far end stays inside.
             var before = (Vector2)Motor.transform.position;
             yield return WalkTo(before + new Vector2(0f, -1f), 1.5f);
