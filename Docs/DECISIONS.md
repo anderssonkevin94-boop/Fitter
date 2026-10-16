@@ -1650,6 +1650,7 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - Only the road the supplier is on is real ground. The stretch past the next hairpin (ground, trees, cliffs) is hidden until the supplier is within 10 cells of the hairpin, then shown to walk onto (`PassView`).
   - Astra's layered valley view (`ParallaxBackdrop`) fills the screen behind the land: all five layers including `view_front`, each extended down by its bottom-edge fill, softened sideways so it doesn't streak. About 1950 of its 4096 composition pixels span the phone's width (no taller on wider screens).
   - The castle is on the far ridge at the pack's own scale, 8 % bigger per camp (was 1.45× and 25 % per camp).
+  - The whole view sits 12 % of the screen's height lower than the screen's top, so the castle clears the HUD and the camp's arrival tip (Kevin).
   - Retired: Astra's painted far legs and turns, the tiled valley floor and the castle at the road's end (they floated over the view). The art stays in the project, unused.
 - **Unchanged:** the road's layout, the 40-cell legs (the 24-cell experiment was dropped: camp 3's stalls fell off its ledge), camps, gates and gameplay.
 - **Tests.** `PassPlayModeTests` checks what is hidden at camp 1, near the first hairpin, along leg 2 and at camp 3, with captures `pass_view_camp1`, `pass_view_hairpin` and `pass_view_camp3`.

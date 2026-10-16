@@ -38,6 +38,8 @@ namespace Ravenholm.Presentation
         [SerializeField] private float screenWidthPx;
         [Tooltip("Where the composition's top sits, in units below the top of the screen.")]
         [SerializeField] private float topBelowScreen = 0f;
+        [Tooltip("And a share of the screen's height more (Kevin, 2026-10-16: the castle clear of the HUD and the camp's tip).")]
+        [SerializeField] private float topBelowScreenShare = 0.12f;
         [SerializeField] private Material material;
         [Tooltip("The composition's pixel row where the view ends (the near layer's bottom); it fades into the valley colour above it.")]
         [SerializeField] private float bottomPx = 2000f;
@@ -75,7 +77,9 @@ namespace Ravenholm.Presentation
         public Transform Castle => _castle;
 
         /// <summary>The world height of the view's top edge (it stays with the screen).</summary>
-        public float TopY => ScreenTop() - topBelowScreen;
+        public float TopY => ScreenTop() - TopOffset;
+
+        private float TopOffset => topBelowScreen + (_camera != null ? _camera.orthographicSize * 2f * topBelowScreenShare : 0f);
         public int Travellers => _travellers.Count;
 
 #if UNITY_EDITOR
@@ -206,7 +210,7 @@ namespace Ravenholm.Presentation
             // Centred on the castle: it stands straight ahead of the camp (the road winds either side of it).
             var centre = -castleGroundInLayerPx.x * scale / pixelsPerUnit;
             return new Vector2(centre + l.originPx.x * scale / pixelsPerUnit + camX * (1f - l.factor),
-                               ScreenTop() - topBelowScreen - l.originPx.y * scale / pixelsPerUnit);
+                               ScreenTop() - TopOffset - l.originPx.y * scale / pixelsPerUnit);
         }
 
         private readonly Dictionary<Sprite, Sprite> _soft = new Dictionary<Sprite, Sprite>();
