@@ -151,5 +151,76 @@ namespace Ravenholm.Tests
             yield return Capture.Take("forge_panel_close");
             panel.Close();
         }
+
+        [UnityTest]
+        public IEnumerator FacingARockBesideAStumpDigsAndTheWagonFadesWithHimBehindIt()
+        {
+            SceneManager.LoadScene(GameRoot.BootstrapSceneName);
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while ((GameRoot.Instance == null || SandboxSceneController.Current == null || SceneManager.GetActiveScene().name != "DebugSandbox")
+                   && Time.realtimeSinceStartup < deadline)
+                yield return null;
+            for (var i = 0; i < 3; i++) yield return null;
+            var root = GameRoot.Instance;
+            root.Hud.Tips.HideAll();
+            var forest = ForestGridView.Current;
+            var sim = root.Services.Sites.Get("site.forest");
+            var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
+
+            // The fourth playtest: facing a rock with a stump beside him, the button pulled the stump.
+            var c0 = IsoMap.Cell(motor.transform.position);
+            Vector3Int[] four = { Vector3Int.right, Vector3Int.left, Vector3Int.up, Vector3Int.down };
+            var found = false;
+            Vector3Int rock = default, stand = default, stump = default;
+            for (var r = 2; r < 40 && !found; r++)
+            for (var x = c0.x - r; x <= c0.x + r && !found; x++)
+            for (var y = c0.y - r; y <= c0.y + r && !found; y++)
+            {
+                var c = new Vector3Int(x, y, 0);
+                if (forest.HeightAt(c) < 2 || root.Services.Sites.ToolTooWeak(x, y)) continue;
+                foreach (var n in four)
+                {
+                    var st = c + n;
+                    if (forest.HeightAt(st) != 0 || !MineSlabView.Current.SurfaceWalkable(IsoMap.World(st)) || sim.CanChop(st.x, st.y)) continue;
+                    foreach (var m in four)
+                    {
+                        var t = st + m;
+                        if (t == c || !sim.CanChop(t.x, t.y) || forest.HeightAt(t) != 0 || root.Services.Sites.ToolTooWeak(t.x, t.y)) continue;
+                        rock = c; stand = st; stump = t; found = true; break;
+                    }
+                    if (found) break;
+                }
+            }
+            Assert.IsTrue(found, "a hill block at the forest's edge with a tree beside");
+            for (var k = 0; k < 200 && !sim.IsStump(stump.x, stump.y); k++) sim.PlayerChopCell(stump.x, stump.y, 1000, 1000);
+            Assert.IsTrue(sim.IsStump(stump.x, stump.y), "the tree beside is a stump now");
+            motor.Teleport(IsoMap.World(stand));
+            yield return null;
+            var d = (Vector2)IsoMap.World(rock) - (Vector2)motor.transform.position;
+            root.InputRouter.ScriptedMove = new Vector2(d.x, d.y * 2f).normalized * 0.3f;   // face the rock
+            yield return new WaitForSeconds(0.1f);
+            root.InputRouter.ScriptedMove = null;
+            motor.Teleport(IsoMap.World(stand));
+            yield return new WaitForSeconds(0.4f);
+            Assert.IsInstanceOf<ForestRockSpot>(SandboxSceneController.Current.ContextTarget, $"facing the rock the button digs, not the stump (it says \"{root.Hud.ContextLabel}\")");
+
+            // Behind the wagon (above its floor on the screen, outside it), the wagon fades; in front, it doesn't.
+            var fader = Object.FindAnyObjectByType<WagonFader>();
+            Assert.IsNotNull(fader, "the wagon has a fader");
+            var cart = fader.GetComponent<WalkInCart>();
+            var top = float.MinValue; var sumX = 0f;
+            foreach (var q in cart.Footprint) { top = Mathf.Max(top, q.y); sumX += q.x; }
+            var behind = (Vector2)fader.transform.position + new Vector2(sumX / cart.Footprint.Count, top + 0.25f);
+            motor.Teleport(behind);
+            yield return new WaitForSeconds(0.6f);
+            Assert.IsFalse(cart.Sample(motor.transform.position, out _, out _), "he is outside the wagon");
+            Assert.IsTrue(fader.Faded, "the wagon fades with him behind it");
+            yield return Capture.Take("wagon_fade");
+            var bottom = float.MaxValue;
+            foreach (var q in cart.Footprint) bottom = Mathf.Min(bottom, q.y);
+            motor.Teleport((Vector2)fader.transform.position + new Vector2(sumX / cart.Footprint.Count, bottom - 1.2f));
+            yield return new WaitForSeconds(0.6f);
+            Assert.IsFalse(fader.Faded, "and comes back in front");
+        }
     }
 }

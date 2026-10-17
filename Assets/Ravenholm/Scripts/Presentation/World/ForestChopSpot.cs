@@ -55,7 +55,8 @@ namespace Ravenholm.Presentation
             if (forest != null && sim != null && motor != null && !motor.Underground) Refresh(forest, sim, player.position);
             // Facing a rock to dig with the nearest tree beside rather than in front: the rock wins (the playtester,
             // 2026-10-17: facing a hill block at the forest's edge, the button chopped the tree next to it).
-            if (Available && _hasCell && !_clearing && _gateTier == 0 && root != null &&
+            // Stumps too (the fourth playtest: facing a cliff with a tree up on it, the button pulled a stump beside him).
+            if (Available && _hasCell && _gateTier == 0 && root != null &&
                 forest.RockTarget(player.position, motor.LastMove, root.InputRouter.MoveVector.sqrMagnitude < 0.04f, out _) &&
                 !Faced(forest, player.position, motor.LastMove, _cell))
                 Available = false;

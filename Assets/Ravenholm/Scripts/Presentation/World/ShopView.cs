@@ -440,6 +440,7 @@ namespace Ravenholm.Presentation
                 circle.offset = new Vector2(0f, 0.12f);
                 Ox.gameObject.AddComponent<OxWander>();   // he ambles about near the wagon (Kevin, 2026-10-16)
             }
+            wagon.AddComponent<WagonFader>();   // fades while the supplier is behind it (the fourth playtest)
             // Customers stand at the counter: the Store's marker is the pack's customer spot.
             if (ReceiverView.TryGet("receiver.store", out var store))
             {

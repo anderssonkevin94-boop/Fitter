@@ -381,7 +381,7 @@ namespace Ravenholm.Presentation
             return null;
         }
 
-        private static readonly Color GateTint = new Color(0.52f, 0.5f, 0.42f);
+        private static readonly Color GateTint = new Color(0.46f, 0.62f, 0.5f);   // a deeper, cooler green (the fourth playtest: the old olive-brown looked muddy)
 
         /// <summary>Bands further out are darker and cooler; bands not entered yet are darker still.</summary>
         public Color AreaTint(SiteSimulator sim, int band)

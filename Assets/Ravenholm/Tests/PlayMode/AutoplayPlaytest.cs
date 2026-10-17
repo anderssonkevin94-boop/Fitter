@@ -309,7 +309,7 @@ namespace Ravenholm.Tests
                 var trees = new List<(int x, int y, float d)>();
                 for (var x = c0.x - 16; x <= c0.x + 16; x++)
                 for (var y = c0.y - 16; y <= c0.y + 16; y++)
-                    if (forest.CanChop(x, y) && !s.Sites.ToolTooWeak(x, y) && view.CellOf(x, y, out _))
+                    if (forest.CanChop(x, y) && !s.Sites.ToolTooWeak(x, y) && view.CellOf(x, y, out var tc) && Mathf.Abs(view.HeightAt(tc) - view.PlayerFeet) <= 1)   // not up a cliff
                         trees.Add((x, y, Vector2.Distance(At, IsoMap.World(new Vector3Int(x, y, 0)))));
                 if (trees.Count == 0) { Problem("no tree the starting axe can cut within 16 cells of the camp"); break; }
                 var tree = trees.OrderBy(q => q.d).First();
