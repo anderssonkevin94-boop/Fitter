@@ -243,6 +243,11 @@ namespace Ravenholm.Presentation
             var dy = -move.x + 2f * move.y;
             var first = FacingFrom(move);
             yield return first;
+            // Only when facing between the axes (more than about 20 degrees off the one faced): facing straight along a
+            // grid line, a side cell is not in front (a tree there took the button from the rock faced, 2026-10-17).
+            var major = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy));
+            var minor = Mathf.Min(Mathf.Abs(dx), Mathf.Abs(dy));
+            if (minor < major * 0.36f) yield break;
             var second = first.x != 0 ? new Vector3Int(0, dy >= 0 ? 1 : -1, 0) : new Vector3Int(dx >= 0 ? 1 : -1, 0, 0);
             yield return second;
         }

@@ -1807,3 +1807,12 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
 - **Trees fade in front of the supplier** (pines hid him almost completely; the market stall fades but trees didn't). `ForestGridView.FadeTrees`: a tree standing lower on the screen than him, whose picture covers his middle, eases to 40 % and back when he steps out. Checked in `PlaytestFixesPlayModeTests`.
 - **The message box fits its text** ("Camp made at …" ran over the debug banner and out of its box). The toast hangs below the banner (its top 236 below the screen's top), 820 wide, grows down to fit its wrapped text, and stays up 1.4 to 4 s by length. Checked in `PlaytestFixesPlayModeTests`.
 - **Saving** (81 saves in two minutes of walking). `SaveScheduler.MarkDrifted`: changes that happen all the time save every 20 s at most, and on pause or quit. These are time passing (the sites, production, the simulation clock, the job board), walking, and a swing's progress until something is gathered. Real events still save at once or after the 1.5 s debounce: a tree felled, a block broken, a delivery, a completed expedition, a purchase. Checked in `SaveRateTests`.
+
+## 2026-10-17: the second playtest's fixes (Kevin: 1, 2 and the Forge panel)
+
+- **Digging beside a tree** (facing a hill block at the forest's edge, the button chopped the tree next to it).
+  - The chop target was the nearest tree in reach whichever way he faced, and it outranks digging. Now, facing a diggable block with the nearest tree not in front, the rock wins (`ForestChopSpot`).
+  - `FacingCells` counts the side cell only when facing more than about 20° off a grid line. Facing straight along one, a tree in the side cell had counted as "in front".
+  - Checked in `PlaytestFixesPlayModeTests` (three runs, three world seeds).
+- **Trees in thick forest.** Every tree in front covering any part of him (feet, middle, head, either side) fades, now to 25 % (was 40 %, middle only).
+- **The Forge panel** (the last craft button was cut off, Close scrolled out of sight). Close is pinned to the card's foot, the list scrolls above it, and a "More below ▼" hint shows while it runs on. This applies to every station panel. Checked in `PlaytestFixesPlayModeTests`.

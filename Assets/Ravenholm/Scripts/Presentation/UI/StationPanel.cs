@@ -64,7 +64,9 @@ namespace Ravenholm.Presentation
 
             var viewport = UiFactory.Rect("Viewport", card.transform);
             UiFactory.Stretch(viewport);
-            viewport.offsetMin = new Vector2(36f, 36f);
+            // The list scrolls above a Close button pinned to the card's foot (the playtester, 2026-10-17: with the
+            // Forge's many recipes the last craft button was cut off and Close scrolled out of sight).
+            viewport.offsetMin = new Vector2(36f, 196f);
             viewport.offsetMax = new Vector2(-36f, -130f);
             viewport.gameObject.AddComponent<RectMask2D>();
             viewport.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, 0);
@@ -80,7 +82,24 @@ namespace Ravenholm.Presentation
             scroll.viewport = viewport;
             scroll.horizontal = false;
             scroll.movementType = ScrollRect.MovementType.Clamped;
+            _scroll = scroll;
+            _viewport = viewport;
+
+            var close = _ui.Button("Close", card.transform, "Close", Close, out _);
+            Destroy(close.GetComponent<LayoutElement>());
+            UiFactory.Place(close.GetComponent<RectTransform>(), new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0f, 76f), new Vector2(520f, 96f));
+            _more = _ui.Text("MoreBelow", card.transform, "More below ▼", _theme.smallSize, _theme.ink, TextAlignmentOptions.Center, FontStyles.Bold);
+            UiFactory.Place(_more.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0f, 162f), new Vector2(600f, 52f));
+            _more.raycastTarget = false;
+            SandboxHud.AutoFit(_more, 18f);   // the largest text setting shrinks it to fit
         }
+
+        private ScrollRect _scroll;
+        private RectTransform _viewport;
+        private TextMeshProUGUI _more;
+
+        /// <summary>Whether the list has more below what is shown (tests).</summary>
+        public bool MoreBelow => _more != null && _more.gameObject.activeSelf;
 
         public void Show(StationInspectable station)
         {
@@ -109,6 +128,11 @@ namespace Ravenholm.Presentation
 
         private void Update()
         {
+            if (_more != null && _scroll != null && _viewport != null)
+            {
+                var more = _content.rect.height > _viewport.rect.height + 4f && _scroll.verticalNormalizedPosition > 0.02f;
+                if (_more.gameObject.activeSelf != more) _more.gameObject.SetActive(more);
+            }
             if (Time.unscaledTime < _nextRefresh) return;
             _nextRefresh = Time.unscaledTime + 0.2f;
             Refresh();
@@ -210,7 +234,6 @@ namespace Ravenholm.Presentation
             if (stationDef != null && Feel.DeveloperMode)
                 Button(() => $"DEBUG station level: {Prod.Level(stationId)} of {stationDef.MaxLevel} · tap to change",
                     () => _root.Services.Production.DebugCycleLevel(stationDef), null);
-            Button(() => "Close", Close, null);
         }
 
         // ------------------------------------------------------------------ upgrades (GDD 16)

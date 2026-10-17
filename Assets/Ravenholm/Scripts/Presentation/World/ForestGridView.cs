@@ -273,7 +273,7 @@ namespace Ravenholm.Presentation
         // ------------------------------------------------------------------ trees in front of the supplier
 
         /// <summary>How see-through a tree is while the supplier stands behind it (as the buildings fade).</summary>
-        public const float FadedTreeAlpha = 0.4f;
+        public const float FadedTreeAlpha = 0.25f;
 
         private readonly Dictionary<Vector3Int, float> _treeAlpha = new Dictionary<Vector3Int, float>();
         private readonly List<Vector3Int> _fadeDone = new List<Vector3Int>();
@@ -291,14 +291,20 @@ namespace Ravenholm.Presentation
             var c = SandboxSceneController.Current;
             if (c == null || c.Player == null) return;
             var p = (Vector2)c.Player.position;
-            var body = p + Vector2.up * 0.5f;
-            var step = Time.deltaTime * 5f;
+            // Any of him covered: his feet, his middle, his head, a little either side (2026-10-17, second playtest: in
+            // thick forest only the tree over his middle faded and he was lost behind the rows in front).
+            Vector2[] points = { p + new Vector2(0f, 0.15f), p + new Vector2(0f, 0.5f), p + new Vector2(0f, 0.85f),
+                                 p + new Vector2(-0.18f, 0.5f), p + new Vector2(0.18f, 0.5f) };
+            var step = Time.deltaTime * 6f;
             foreach (var kv in _shown)
             {
                 var sr = kv.Value;
                 if (sr == null || !sr.enabled) continue;
                 var at = (Vector2)sr.transform.position;
-                var behind = at.y < p.y && Mathf.Abs(at.x - p.x) < 1.6f && sr.bounds.Contains(new Vector3(body.x, body.y, sr.bounds.center.z));
+                var behind = false;
+                if (at.y < p.y && Mathf.Abs(at.x - p.x) < 1.8f)
+                    foreach (var q in points)
+                        if (sr.bounds.Contains(new Vector3(q.x, q.y, sr.bounds.center.z))) { behind = true; break; }
                 var has = _treeAlpha.TryGetValue(kv.Key, out var a);
                 if (!has && !behind) continue;
                 if (!has) a = 1f;

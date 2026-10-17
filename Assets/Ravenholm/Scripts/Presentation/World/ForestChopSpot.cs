@@ -53,7 +53,21 @@ namespace Ravenholm.Presentation
             var motor = player != null ? player.GetComponent<PlayerMotor>() : null;
             var sim = root != null ? root.Services.Sites.Get(SiteId) : null;
             if (forest != null && sim != null && motor != null && !motor.Underground) Refresh(forest, sim, player.position);
+            // Facing a rock to dig with the nearest tree beside rather than in front: the rock wins (the playtester,
+            // 2026-10-17: facing a hill block at the forest's edge, the button chopped the tree next to it).
+            if (Available && _hasCell && !_clearing && _gateTier == 0 && root != null &&
+                forest.RockTarget(player.position, motor.LastMove, root.InputRouter.MoveVector.sqrMagnitude < 0.04f, out _) &&
+                !Faced(forest, player.position, motor.LastMove, _cell))
+                Available = false;
             if (_collider != null) _collider.enabled = Available;
+        }
+
+        /// <summary>Whether a cell is the one faced (or the other beside that way).</summary>
+        private static bool Faced(ForestGridView forest, Vector2 me, Vector2 facing, Vector3Int cell)
+        {
+            var at = IsoMap.Cell(me);
+            foreach (var step in ForestGridView.FacingCells(facing)) if (at + step == cell) return true;
+            return false;
         }
 
         private void Refresh(ForestGridView forest, SiteSimulator sim, Vector2 me)
