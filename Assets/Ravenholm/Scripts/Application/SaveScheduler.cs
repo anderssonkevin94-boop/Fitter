@@ -25,6 +25,14 @@ namespace Ravenholm.Services
         private readonly float _debounceSeconds;
         private readonly List<ISaveSection> _sections = new List<ISaveSection>();
         private bool _dirty;
+        private bool _drifted;
+
+        /// <summary>
+        /// How often the game saves for changes that happen all the time (time passing, walking, a chop's progress): the
+        /// playtester counted 81 saves in two minutes of walking (2026-10-17). Real events still save at once or after the
+        /// short debounce; time passing is caught up from the clock on load anyway.
+        /// </summary>
+        public const float DriftSaveSeconds = 20f;
         private float _secondsSinceSave;
 
         public SaveScheduler(SaveCoordinator saves, float debounceSeconds)
@@ -34,7 +42,7 @@ namespace Ravenholm.Services
         }
 
         public SaveCoordinator Coordinator => _saves;
-        public bool IsDirty => _dirty;
+        public bool IsDirty => _dirty || _drifted;
 
         /// <summary>Raised after every load or save attempt (state may have changed).</summary>
         public event Action Committed;
@@ -49,11 +57,15 @@ namespace Ravenholm.Services
             var envelope = _saves.Load();
             foreach (var s in _sections) s.Read(envelope);
             _dirty = false;
+            _drifted = false;
             Loaded?.Invoke();
             Committed?.Invoke();
         }
 
         public void MarkDirty() => _dirty = true;
+
+        /// <summary>A change that happens all the time (time passing, walking, a chop's progress): saved every 20 s at most.</summary>
+        public void MarkDrifted() => _drifted = true;
 
         /// <summary>
         /// Debug commands used on this profile (GDD 23: debug use must never pass silently into an ordinary save).
@@ -72,6 +84,7 @@ namespace Ravenholm.Services
             if (ok)
             {
                 _dirty = false;
+                _drifted = false;
                 _secondsSinceSave = 0f;
             }
             Committed?.Invoke();
@@ -82,12 +95,13 @@ namespace Ravenholm.Services
         {
             _secondsSinceSave += unscaledDeltaSeconds;
             if (_dirty && _secondsSinceSave >= _debounceSeconds) SaveNow("autosave");
+            else if (_drifted && _secondsSinceSave >= DriftSaveSeconds) SaveNow("autosave (progress)");
         }
 
         /// <summary>Lifecycle flush (pause, focus loss, quit). Best effort; correctness never depends on it.</summary>
         public void Flush(string reason)
         {
-            if (_dirty) SaveNow(reason);
+            if (_dirty || _drifted) SaveNow(reason);
         }
 
         /// <summary>DEBUG: wipe the profile folder and start every section fresh.</summary>

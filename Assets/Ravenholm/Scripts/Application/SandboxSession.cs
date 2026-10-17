@@ -52,7 +52,7 @@ namespace Ravenholm.Services
             if (Math.Abs(x - _state.PlayerX) < 0.01f && Math.Abs(y - _state.PlayerY) < 0.01f) return;
             _state.PlayerX = x;
             _state.PlayerY = y;
-            _scheduler.MarkDirty();
+            _scheduler.MarkDrifted();   // walking: saved every 20 s at most (and when the app goes to the background)
         }
 
         public void Tick(float unscaledDeltaSeconds) => _scheduler.Tick(unscaledDeltaSeconds);

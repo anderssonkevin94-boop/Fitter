@@ -316,11 +316,14 @@ namespace Ravenholm.Tests
             var s = new SandboxSession(new SaveScheduler(c, 3f));
             s.Start();
             var g = c.Status.Generation;
+            // Walking saves on the slow path (2026-10-17): not after the short debounce, after DriftSaveSeconds.
             s.ReportPlayerPosition(1, 1);
             s.Tick(1f);
             Assert.AreEqual(g, c.Status.Generation, "no save before debounce");
             s.Tick(2.5f);
-            Assert.AreEqual(g + 1, c.Status.Generation, "save after debounce");
+            Assert.AreEqual(g, c.Status.Generation, "walking doesn't save after the short debounce");
+            s.Tick(SaveScheduler.DriftSaveSeconds);
+            Assert.AreEqual(g + 1, c.Status.Generation, "it saves on the slow path");
         }
 
         [Test]

@@ -227,7 +227,7 @@ namespace Ravenholm.Services
             Board.Advance(whole);
             // A completion is a critical transaction: save at once so it can never be applied twice.
             if (_completedThisTick) _scheduler.SaveNow("expedition completed");
-            else _scheduler.MarkDirty();
+            else _scheduler.MarkDrifted();   // time passing: saved every 20 s at most
         }
 
         // ------------------------------------------------------------------ commands (critical: save at once)
@@ -238,7 +238,7 @@ namespace Ravenholm.Services
             _completedThisTick = false;
             Board.Advance(ms);
             if (_completedThisTick && !DeferCompletionSaves) _scheduler.SaveNow("expedition completed");
-            else _scheduler.MarkDirty();
+            else _scheduler.MarkDrifted();
         }
 
         /// <summary>

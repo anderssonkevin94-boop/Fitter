@@ -78,7 +78,7 @@ namespace Ravenholm.Services
             _msRemainder = exact - whole;
             if (whole <= 0) return;
             Advance(whole, whole);
-            _scheduler.MarkDirty();
+            _scheduler.MarkDrifted();   // time passing: saved every 20 s at most
         }
 
         /// <summary>

@@ -262,11 +262,60 @@ namespace Ravenholm.Presentation
             var cam = _camera != null ? (Vector2)_camera.transform.position : Vector2.zero;
             UpdateSupplier();
             UpdateHighlight();
+            FadeTrees();
             var dug = Mine != null ? Mine.Record.SurfaceBroken.Count : 0;
             var key = $"{Mathf.Round(cam.x * 2f)}|{Mathf.Round(cam.y * 2f)}|{s.Depth}|{s.K}|{s.SectionDepths.Count}|{felled}|{s.Trees.Count}|{sim.FelledVersion}|{s.Revealed.Count}|{dug}";
             if (key == _key) return;
             _key = key;
             Redraw(sim, cam);
+        }
+
+        // ------------------------------------------------------------------ trees in front of the supplier
+
+        /// <summary>How see-through a tree is while the supplier stands behind it (as the buildings fade).</summary>
+        public const float FadedTreeAlpha = 0.4f;
+
+        private readonly Dictionary<Vector3Int, float> _treeAlpha = new Dictionary<Vector3Int, float>();
+        private readonly List<Vector3Int> _fadeDone = new List<Vector3Int>();
+
+        /// <summary>Whether a tree is faded now (tests).</summary>
+        public bool TreeFaded(Vector3Int c) => _treeAlpha.TryGetValue(c, out var a) && a < 0.99f;
+
+        /// <summary>
+        /// Trees fade while the supplier is behind them (the playtester, 2026-10-17: pines in front hid him almost
+        /// completely; the market stall fades but the trees didn't): a tree standing lower on the screen than him whose
+        /// picture covers his middle eases to 40 %, and back when he steps out.
+        /// </summary>
+        private void FadeTrees()
+        {
+            var c = SandboxSceneController.Current;
+            if (c == null || c.Player == null) return;
+            var p = (Vector2)c.Player.position;
+            var body = p + Vector2.up * 0.5f;
+            var step = Time.deltaTime * 5f;
+            foreach (var kv in _shown)
+            {
+                var sr = kv.Value;
+                if (sr == null || !sr.enabled) continue;
+                var at = (Vector2)sr.transform.position;
+                var behind = at.y < p.y && Mathf.Abs(at.x - p.x) < 1.6f && sr.bounds.Contains(new Vector3(body.x, body.y, sr.bounds.center.z));
+                var has = _treeAlpha.TryGetValue(kv.Key, out var a);
+                if (!has && !behind) continue;
+                if (!has) a = 1f;
+                a = Mathf.MoveTowards(a, behind ? FadedTreeAlpha : 1f, step);
+                _treeAlpha[kv.Key] = a;
+                SetAlpha(sr, a);
+                if (!behind && a >= 1f) _fadeDone.Add(kv.Key);
+            }
+            foreach (var k in _fadeDone) _treeAlpha.Remove(k);
+            _fadeDone.Clear();
+        }
+
+        private static void SetAlpha(SpriteRenderer sr, float a)
+        {
+            var col = sr.color;
+            col.a = a;
+            sr.color = col;
         }
 
         private void Redraw(SiteSimulator sim, Vector2 cam)
@@ -299,7 +348,8 @@ namespace Ravenholm.Presentation
             }
             var drop = new List<Vector3Int>();
             foreach (var kv in _shown) if (!keep.Contains(kv.Key)) drop.Add(kv.Key);
-            foreach (var c in drop) { Give(_shown[c]); _shown.Remove(c); }
+            foreach (var c in drop) { Give(_shown[c]); _shown.Remove(c); _treeAlpha.Remove(c); }
+            foreach (var kv in _treeAlpha) if (_shown.TryGetValue(kv.Key, out var t)) SetAlpha(t, kv.Value);   // the redraw reset the tint
             RedrawTerrain(cells);
         }
 

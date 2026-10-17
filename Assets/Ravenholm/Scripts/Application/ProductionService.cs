@@ -54,7 +54,7 @@ namespace Ravenholm.Services
             _msRemainder = exact - whole;
             if (whole <= 0) return;
             System.Advance(whole);
-            _scheduler.MarkDirty();
+            _scheduler.MarkDrifted();   // time passing: saved every 20 s at most
         }
 
         /// <summary>Advances processing by exact simulated milliseconds (shared simulation clock).</summary>
@@ -62,7 +62,7 @@ namespace Ravenholm.Services
         {
             if (ms <= 0) return;
             System.Advance(ms);
-            _scheduler.MarkDirty();
+            _scheduler.MarkDrifted();
         }
 
         // ------------------------------------------------------------------ player commands (critical: save at once)

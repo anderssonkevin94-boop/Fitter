@@ -100,7 +100,7 @@ namespace Ravenholm.Services
             _msRemainder = exact - whole;
             if (whole <= 0) return;
             foreach (var sim in _sims) sim.Advance(whole);
-            _scheduler.MarkDirty();
+            _scheduler.MarkDrifted();   // time passing: saved every 20 s at most
         }
 
         /// <summary>Advances every site by exact simulated milliseconds (used by the shared simulation clock).</summary>
@@ -108,7 +108,7 @@ namespace Ravenholm.Services
         {
             if (ms <= 0) return;
             foreach (var sim in _sims) sim.Advance(ms);
-            _scheduler.MarkDirty();
+            _scheduler.MarkDrifted();
         }
 
         /// <summary>Crew expansion: adds a named recruit to a site (no-op if already present).</summary>
@@ -161,7 +161,7 @@ namespace Ravenholm.Services
             var ms = (long)Math.Floor(_mineMs);
             _mineMs -= ms;
             var n = sim.PlayerMine(face, ms, PlayerDamagePerSecond);
-            _scheduler.MarkDirty();
+            if (n > 0) _scheduler.MarkDirty(); else _scheduler.MarkDrifted();   // a swing's progress: saved with the next gathered unit
             return n;
         }
 
@@ -178,7 +178,7 @@ namespace Ravenholm.Services
             var ms = (long)Math.Floor(_mineMs);
             _mineMs -= ms;
             var n = sim.PlayerMine(face, ms, PlayerDamagePerSecond, ore, plainRock: ore == null);
-            _scheduler.MarkDirty();
+            if (n > 0) _scheduler.MarkDirty(); else _scheduler.MarkDrifted();   // a swing's progress: saved with the next gathered unit
             return n;
         }
 
@@ -197,7 +197,7 @@ namespace Ravenholm.Services
             _digMs -= ms;
             var broke = sim.PlayerDig(x, u, row, ms, PlayerDamagePerSecond, from);
             if (broke) _scheduler.SaveNow("dug a block");
-            else _scheduler.MarkDirty();
+            else _scheduler.MarkDrifted();   // a swing's progress
             return broke;
         }
 
@@ -229,7 +229,7 @@ namespace Ravenholm.Services
             _digMs -= ms;
             var broke = sim.PlayerBreakSurface(x, y, level, ms, PlayerDamagePerSecond);
             if (broke) _scheduler.SaveNow("broke an outcrop block");
-            else _scheduler.MarkDirty();
+            else _scheduler.MarkDrifted();   // a swing's progress
             return broke;
         }
 
@@ -330,7 +330,7 @@ namespace Ravenholm.Services
             var felledBefore = sim.FelledVersion;
             var n = sim.PlayerChopCell(area, slot, ms, PlayerDamagePerSecond);
             if (sim.FelledVersion != felledBefore) _scheduler.SaveNow("felled a tree");
-            else _scheduler.MarkDirty();
+            else _scheduler.MarkDrifted();   // a swing's progress
             return n;
         }
 
@@ -342,7 +342,7 @@ namespace Ravenholm.Services
             var ms = (long)Math.Floor(_chopMs);
             _chopMs -= ms;
             var n = sim.PlayerChop(tree, ms, PlayerDamagePerSecond);
-            _scheduler.MarkDirty();
+            if (n > 0) _scheduler.MarkDirty(); else _scheduler.MarkDrifted();   // a swing's progress: saved with the next gathered unit
             return n;
         }
 

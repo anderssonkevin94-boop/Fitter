@@ -1801,3 +1801,9 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
 - **The agent.** `.claude/agents/playtester.md` runs the bot, reads the report, timeline and screenshots (and recent suite captures), and writes `Docs/Playtests/<date-time>.md`: broken, could be better, looks fine. It never changes the game.
 - **First report.** `Docs/Playtests/2026-10-17-2033.md`.
 - **Fixed from it: the Forge's button.** Standing at the Forge, the button offered "Inspect Forge Output" (the pickup mat lies nearer than the Forge's pivot), and tapping opened an info card. Stations now get a 0.6 priority over the pads and markers by them (`StationInspectable.ContextPriority`), so the Forge's crafting panel opens. Checked in `BlacksmithPlayModeTests`.
+
+## 2026-10-17: the playtester's first findings, fixed (Kevin: 3, 5 and 7)
+
+- **Trees fade in front of the supplier** (pines hid him almost completely; the market stall fades but trees didn't). `ForestGridView.FadeTrees`: a tree standing lower on the screen than him, whose picture covers his middle, eases to 40 % and back when he steps out. Checked in `PlaytestFixesPlayModeTests`.
+- **The message box fits its text** ("Camp made at …" ran over the debug banner and out of its box). The toast hangs below the banner (its top 236 below the screen's top), 820 wide, grows down to fit its wrapped text, and stays up 1.4 to 4 s by length. Checked in `PlaytestFixesPlayModeTests`.
+- **Saving** (81 saves in two minutes of walking). `SaveScheduler.MarkDrifted`: changes that happen all the time save every 20 s at most, and on pause or quit. These are time passing (the sites, production, the simulation clock, the job board), walking, and a swing's progress until something is gathered. Real events still save at once or after the 1.5 s debounce: a tree felled, a block broken, a delivery, a completed expedition, a purchase. Checked in `SaveRateTests`.

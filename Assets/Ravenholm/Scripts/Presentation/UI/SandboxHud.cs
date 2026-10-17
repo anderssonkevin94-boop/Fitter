@@ -38,6 +38,8 @@ namespace Ravenholm.Presentation
         private Image _joyKnob;
         private CanvasGroup _toastGroup;
         private TextMeshProUGUI _toastText;
+        private RectTransform _toastPanel;
+        private const float ToastWidth = 820f, ToastPadding = 18f;
         private float _toastUntil;
         private Image _persistIcon;
         private Button _contextButton;
@@ -352,9 +354,15 @@ namespace Ravenholm.Presentation
         {
             var toast = _ui.Panel("Toast", safe, _theme.panelDark);
             toast.raycastTarget = false;
-            UiFactory.Place(toast.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -280f), new Vector2(460f, 96f));
+            // Hangs below the debug banner (it ends 218 below the top) and grows down to fit its text (the playtester,
+            // 2026-10-17: "Camp made at ..." ran over the banner and out of its box).
+            UiFactory.Place(toast.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -236f), new Vector2(ToastWidth, 96f));
+            toast.rectTransform.pivot = new Vector2(0.5f, 1f);
+            toast.rectTransform.anchoredPosition = new Vector2(0f, -236f);
+            _toastPanel = toast.rectTransform;
             _toastText = _ui.Text("Text", toast.transform, "", _theme.bodySize, _theme.inkOnDark, TextAlignmentOptions.Center, FontStyles.Bold);
-            UiFactory.Stretch(_toastText.rectTransform, 10f);
+            _toastText.textWrappingMode = TextWrappingModes.Normal;
+            UiFactory.Stretch(_toastText.rectTransform, ToastPadding);
             _toastGroup = toast.gameObject.AddComponent<CanvasGroup>();
             _toastGroup.alpha = 0f;
             _toastGroup.blocksRaycasts = false;
@@ -379,7 +387,13 @@ namespace Ravenholm.Presentation
         {
             if (Time.unscaledTime < _toastUntil && _toastText.text == message) return;
             _toastText.text = message;
-            _toastUntil = Time.unscaledTime + 1.4f;
+            // As tall as its text needs; up long enough to read (a short one 1.4 s, a long one up to 4 s).
+            if (_toastPanel != null)
+            {
+                var h = _toastText.GetPreferredValues(message, ToastWidth - ToastPadding * 2f, 0f).y + ToastPadding * 2f;
+                _toastPanel.sizeDelta = new Vector2(ToastWidth, Mathf.Max(96f, h));
+            }
+            _toastUntil = Time.unscaledTime + Mathf.Clamp(1.4f + message.Length * 0.03f, 1.4f, 4f);
         }
 
         public string ToastText => Time.unscaledTime < _toastUntil ? _toastText.text : "";
