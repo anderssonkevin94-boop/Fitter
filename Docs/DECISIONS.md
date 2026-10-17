@@ -1726,3 +1726,29 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - `RoadTests`: six levels and their gates, each level its own band and three steps, the tints, the bridge built on level 3 and remembered.
   - `RoadPlayModeTests`: every level laid cell for cell with the camp and the wagon on land, captures `level{n}_camp` and `level{n}_overview`; the ravine, the bridge built and walked, the causeway's sign, the debug jump back to level 1.
   - `SiteTests.DeeperRevealPersistsThroughReload` is still ignored: its hill helper walks level 1's road, so band 2's reveal surviving a reload isn't tested on a level yet. `MovingOnTests` only checks that level 2 is band 2 and that its cut trees are remembered.
+
+## 2026-10-17: a full carry stops the swing (Kevin's playtest)
+
+- **The bug.** With the carry full, chopping or digging went on, and the units went onto a waiting pile at the site. The next swing at any tree or block pulled the whole pile into the carry at once, so the first chop of a tree jumped the carry to 12/12.
+- **Now.**
+  - A full carry stops the swing: no progress on the tree or block until the carry is unloaded. The toast reads "Carry full: take the logs to the Lumbermill, then come back for more."
+  - Units already waiting (older saves, or a block's units past the carry's last space) come back one at a time: each unit gathered by hand brings at most one waiting unit with it.
+  - `ISiteLedger.CarryFull`.
+- **Tests.** `HarvestTests`: a full carry stops the swing and nothing piles up; after unloading, a tree gives at most one log per swing; waiting logs come back one at a time. `EconomyTests`: no digging with a full carry.
+
+## 2026-10-17: the swing, the wagon's doorway, helmets and shields, instant crafts (Kevin's playtest)
+
+- **The swing (Kevin: it clipped through the body at every angle).** `HoseRig`:
+  - One hand on the tool (his right). The other stays at his side and braces a little, no reach across his body.
+  - The hand holds the tool near the end of its handle (`HoseCharacterDefinition.axeGrip`/`pickaxeGrip`, from the art's pivot at the handle's middle).
+  - The blade leads the swing: the tool is turned over when the strike's direction is on the handle's left on screen.
+  - Chopping (Kevin: side to side, a swing then the pull back) is a level swing at chest height: cocked back past his right side (100°), a fast strike across to forward-left (-28°), a beat at impact, then a slower pull back.
+  - Mining stays overhead, its plane tipped 24° out to his right, settling at his side (125°), not between his legs.
+  - `HoseRigPlayModeTests.SwingFrames` draws the mining and the chop in five views (`hose_swing_sheet`).
+  - Facing the camera, the chop's strike comes toward the viewer and the axe looks short over his chest. A painted front chop from Astra would fix that.
+- **The wagon's doorway (Kevin: in beside the door by the service desk).**
+  - The doorway is now set to the steps' top corners. It already was in practice, so this changed nothing measurable.
+  - `WalkInCartPlayModeTests.OnlyTheStepsLeadThroughTheDoor` walks at the door from all round (starts outside the walls' cushion) and finds no way in but the steps. It draws the walls, the floor and the doorway (`cart_walls_probe`).
+  - Kevin's spot isn't reproduced yet; waiting on a screenshot.
+- **Helmets and shields (Kevin: they can't be crafted).** Their recipes and blueprints were there (owned at start), but a save begun before the armour pack never learned them: starting blueprints were given only to a new company. Now every starting blueprint is known on load. `CraftingTests`.
+- **Instant crafts (Kevin: temporarily, for playtesting).** `BalanceProfile.playtestInstantCrafts` (on) makes every craft finish at once in the game. Tests, with their own save directory, keep the real times. Turn it off when the playtest is over.

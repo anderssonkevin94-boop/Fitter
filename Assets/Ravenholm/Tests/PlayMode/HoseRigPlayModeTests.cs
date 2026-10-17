@@ -135,21 +135,22 @@ namespace Ravenholm.Tests
             var origin = new Vector2(4000f, 4000f);
             var rigs = new List<(HoseRig rig, float t, HoseRig.Pose pose)>();
             float[] moments = { 0.04f, 0.1f, 0.2f, 0.225f, 0.25f, 0.28f, 0.36f, 0.44f };   // wind-up .. strike .. hold .. recover
-            for (var r = 0; r < views.Length + 1; r++)
+            // Five views mining, then the same five chopping (Kevin's playtest, 2026-10-17: the swing clips the body).
+            for (var r = 0; r < views.Length * 2; r++)
             for (var c = 0; c < moments.Length; c++)
                 rigs.Add((MakeRig(def, origin + new Vector2(c * 1.0f, -r * 1.35f)), moments[c], r < views.Length ? HoseRig.Pose.Mine : HoseRig.Pose.Chop));
             var raisedBehind = false;
             for (var i = 0; i < rigs.Count; i++)
             {
                 var (rig, t, pose) = rigs[i];
-                var view = i / moments.Length < views.Length ? views[i / moments.Length] : "E";
+                var view = views[(i / moments.Length) % views.Length];
                 var steps = Mathf.RoundToInt(t / 0.01f);
                 for (var k = 0; k < steps; k++) rig.Drive(view, pose, 0f, 0.01f, Vector2.zero, 1f);
                 if (rig.SwingAngle < -20f) raisedBehind = true;
             }
             Assert.IsTrue(raisedBehind, "the wind-up raises the tool behind his head");
             yield return null;
-            yield return Shoot("hose_swing_sheet", origin + new Vector2(3.5f, -3.3f), 4.4f, 1600, 1760);
+            yield return Shoot("hose_swing_sheet", origin + new Vector2(3.5f, -6.0f), 7.1f, 1400, 2480);
             foreach (var (rig, _, _) in rigs) Object.Destroy(rig.transform.parent.gameObject);
         }
 

@@ -369,11 +369,13 @@ namespace Ravenholm.Tests
             Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 4);
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
 
-            // A full carry leaves the rest waiting at the face; nothing is lost.
-            while (g.Sites.Get("site.mine").Record.FacePending.Count == 0 && blocks.MoveNext())
+            // A full carry stops the digging (Kevin's playtest, 2026-10-17): nothing piles up out of sight. (A block's units
+            // past the carry's last space still wait at the face; nothing is lost.)
+            while (!g.Logistics.System.IsFull && blocks.MoveNext())
                 Assert.IsTrue(DigTestKit.BreakHill(g, blocks.Current));
             Assert.IsTrue(g.Logistics.System.IsFull);
-            Assert.Greater(g.Sites.Get("site.mine").Record.FacePending.Count, 0);
+            Assert.IsTrue(blocks.MoveNext());
+            Assert.IsFalse(DigTestKit.BreakHill(g, blocks.Current), "no digging with a full carry");
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
             g.Logistics.System.DebugUnloadCarry();
 

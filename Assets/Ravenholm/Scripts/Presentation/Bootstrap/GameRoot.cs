@@ -70,6 +70,9 @@ namespace Ravenholm.Presentation
             else Debug.LogError("[GameRoot] " + Services.ContentReport);
 
             Services.Start();
+            // Playtesting (Kevin, 2026-10-17; temporary): crafts finish at once. Tests (their own save directory) keep the
+            // real craft times.
+            Services.Production.InstantCrafts = config.Balance != null && config.Balance.playtestInstantCrafts && SaveDirectoryOverride == null;
             var s = Services.Saves.Status;
             if (s.LoadStatus == Infrastructure.Save.SaveLoadStatus.RecoveredFromBackup || s.LoadStatus == Infrastructure.Save.SaveLoadStatus.Unrecoverable)
                 Debug.LogWarning($"[GameRoot] Save load: {s.LoadStatus}. {s.LoadDetail}");

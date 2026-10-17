@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
@@ -229,6 +230,100 @@ namespace Ravenholm.Tests
             yield return Capture.Take("cart_08_solid");
             CollectionAssert.IsEmpty(root.Services.Logistics.System.Audit());
             Assert.AreEqual(ground0.z, Motor.transform.position.z);
+        }
+
+        /// <summary>A line on top of everything, for the wall pictures.</summary>
+        private static void Line(Transform parent, Vector2[] pts, Color c, float w)
+        {
+            var go = new GameObject("DebugLine");
+            go.transform.SetParent(parent, false);
+            var lr = go.AddComponent<LineRenderer>();
+            lr.useWorldSpace = true;
+            lr.positionCount = pts.Length;
+            for (var i = 0; i < pts.Length; i++) lr.SetPosition(i, pts[i]);
+            lr.startWidth = lr.endWidth = w;
+            lr.material = new Material(Shader.Find("Sprites/Default"));
+            lr.startColor = lr.endColor = c;
+            lr.sortingLayerName = "Overlay";
+            lr.sortingOrder = 32000;
+        }
+
+        /// <summary>
+        /// Kevin's playtest (2026-10-17): "parts of it, like right off the door by the service desk". From all round the
+        /// doorway and the counter end, the supplier walks at the door: only up the steps may lead in. The wagon's walls are
+        /// drawn over a close picture, each start marked green (kept out, or in by the steps) or red (in another way).
+        /// </summary>
+        [UnityTest]
+        public IEnumerator OnlyTheStepsLeadThroughTheDoor()
+        {
+            SceneManager.LoadScene(GameRoot.BootstrapSceneName);
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while ((GameRoot.Instance == null || SandboxSceneController.Current == null || SceneManager.GetActiveScene().name != "DebugSandbox")
+                   && Time.realtimeSinceStartup < deadline)
+                yield return null;
+            for (var i = 0; i < 3; i++) yield return null;
+            GameRoot.Instance.Hud.Tips.HideAll();
+            var cart = ShopView.Current.Wagon.GetComponent<WalkInCart>();
+            var marks = new GameObject("Marks").transform;
+            foreach (var e in cart.GetComponentsInChildren<EdgeCollider2D>())
+            {
+                var pts = e.points.Select(q => (Vector2)e.transform.TransformPoint(q)).ToArray();
+                Line(marks, pts, new Color(1f, 0f, 1f), 0.035f);
+                Debug.Log($"[CartWalls] {e.name}: " + string.Join(" ", pts.Select(q => ((Vector2)cart.transform.InverseTransformPoint(q)).ToString("F2"))));
+            }
+            Vector2 Wl(Vector2 l) => cart.transform.TransformPoint(l);
+            Line(marks, cart.Footprint.Concat(new[] { cart.Footprint[0] }).Select(Wl).ToArray(), Color.cyan, 0.03f);   // the floor
+            Line(marks, cart.Walkable.Concat(new[] { cart.Walkable[0] }).Select(Wl).ToArray(), Color.yellow, 0.02f);  // where the feet may stand
+            Line(marks, new[] { Wl(cart.DoorPostNear), Wl(cart.DoorPostNear) + new Vector2(0f, 0.25f) }, Color.blue, 0.06f);
+            Line(marks, new[] { Wl(cart.DoorPostFar), Wl(cart.DoorPostFar) + new Vector2(0f, 0.25f) }, Color.blue, 0.06f);
+            Debug.Log("[CartWalls] footprint: " + string.Join(" ", cart.Footprint.Select(q => q.ToString("F2"))));
+            Debug.Log($"[CartWalls] door {(Vector2)cart.transform.InverseTransformPoint(cart.DoorGround):F2} steps {(Vector2)cart.transform.InverseTransformPoint(cart.StepsBottom):F2} posts {cart.DoorPostNear:F2} {cart.DoorPostFar:F2}");
+            var door = cart.DoorGround;
+            var steps = cart.StepsBottom;
+            var leaks = new List<string>();
+            var probes = 0;
+            for (var r = 0; r < 3; r++)
+            for (var k = 0; k < 14; k++)
+            {
+                var ang = k * Mathf.PI * 2f / 14f;
+                var from = door + new Vector2(Mathf.Cos(ang), Mathf.Sin(ang) * 0.5f) * (0.9f + r * 0.5f);
+                var local = (Vector2)cart.transform.InverseTransformPoint(from);
+                if (WalkInCart.Contains(cart.Footprint, local) || cart.Sample(from, out _, out _) || !MineSlabView.Current.SurfaceWalkable(from)) continue;
+                // Not inside the walls' cushion (no one can stand there: the walls keep the feet a body's width out).
+                if (WalkInCart.DistanceToPolygon(cart.Footprint, local) < GameRoot.Instance.Config.Balance.playerFootprintRadius * 1.6f) continue;
+                if (Vector2.Distance(from, steps) < 0.5f) continue;   // on the steps' foot: the way in
+                Motor.Teleport(from);
+                SandboxSceneController.Current.SnapPlayerToSavedPosition();
+                yield return null;
+                if (Vector2.Distance(Motor.transform.position, from) > 0.05f) continue;
+                probes++;
+                var bySteps = false;
+                var until = Time.realtimeSinceStartup + 1.4f;
+                while (Time.realtimeSinceStartup < until)
+                {
+                    if (Vector2.Distance(Motor.transform.position, steps) < 0.45f) bySteps = true;
+                    var d = door - (Vector2)Motor.transform.position;
+                    GameRoot.Instance.InputRouter.ScriptedMove = new Vector2(d.x, d.y * 2f).normalized;
+                    yield return null;
+                }
+                GameRoot.Instance.InputRouter.ScriptedMove = null;
+                var inside = cart.Sample(Motor.transform.position, out _, out _);
+                var leak = inside && !bySteps;
+                if (leak) leaks.Add($"{from - door:F2} -> {(Vector2)cart.transform.InverseTransformPoint(Motor.transform.position):F2}");
+                var dot = new[] { from + new Vector2(-0.05f, 0f), from + new Vector2(0.05f, 0f) };
+                Line(marks, dot, leak ? Color.red : Color.green, 0.1f);
+            }
+            Motor.Teleport(steps + new Vector2(-1.2f, -1.2f));
+            yield return null;
+            var cam = SandboxSceneController.Current.WorldCamera;
+            var follow = cam.GetComponent<FollowCamera>();
+            if (follow != null) follow.enabled = false;
+            cam.transform.position = new Vector3(door.x, door.y + 0.3f, cam.transform.position.z);
+            cam.orthographicSize = 2.6f;
+            yield return null;
+            yield return Capture.Take("cart_walls_probe");
+            Assert.Greater(probes, 10, "probed all round the door");
+            Assert.IsEmpty(leaks, "into the wagon without the steps: " + string.Join(" | ", leaks));
         }
     }
 }

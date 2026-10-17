@@ -22,6 +22,8 @@ namespace Ravenholm.Content
         [Min(0f)] public float pickupRadius = 0.8f;
         [Tooltip("Seconds a station takes to set up where it is placed (the journey, step 2).")]
         [Min(0f)] public float stationBuildSeconds = 8f;
+        [Tooltip("Playtesting (Kevin, 2026-10-17; temporary): crafts finish at once in the game. Tests keep the real craft times.")]
+        public bool playtestInstantCrafts = true;
         [Tooltip("Seconds per transferred unit (pickup or delivery). GDD default 0.08.")]
         [Min(0.01f)] public float transferInterval = 0.08f;
         [Tooltip("How much closer (units) an output pad is treated than a raw pile when breaking near-ties.")]

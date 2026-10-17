@@ -172,6 +172,19 @@ namespace Ravenholm.Presentation
             for (var i = 0; i < n; i++) offset[i] = OffsetCorner(_floor[(i - 1 + n) % n], _floor[i], _floor[(i + 1) % n], radius, ccw);
             var start = _floor[doorEdge];
             var end = _floor[(doorEdge + 1) % n];
+            // The doorway is only as wide as the top of the steps (Kevin's playtest, 2026-10-17: the pack's door points
+            // left room beside the steps, by the service desk, to walk in at ground level): the steps' top corners, on the
+            // door's edge.
+            if (_stairs.Count >= 4)
+            {
+                Vector2 OnEdge(Vector2 q)
+                {
+                    var e = end - start;
+                    return start + e * Mathf.Clamp01(Vector2.Dot(q - start, e) / e.sqrMagnitude);
+                }
+                doorA = OnEdge(_stairs[1]);
+                doorB = OnEdge(_stairs[2]);
+            }
             var nearStart = Vector2.Distance(doorA, start) <= Vector2.Distance(doorB, start) ? doorA : doorB;
             var farDoor = nearStart == doorA ? doorB : doorA;
             var normal = Outward(start, end, ccw);

@@ -270,44 +270,82 @@ namespace Ravenholm.Presentation
                 var g = GroundFacing(ViewName);                       // facing on the ground (x east, y north)
                 var right = new Vector2(g.y, -g.x);                   // his right, on the ground
                 var t = Mathf.Repeat(_work, SwingCycle);
-                // The handle's angle from straight up, forward positive: resting low in front (150), lifted in front and
-                // up behind his head (-35), then over the top and down in front: to the wall (95), the floor (135) or a
-                // block above (55). Passing over the top (0) is what makes it an overhead swing, not a pendulum.
-                float rest = 150f, raised = -35f;
-                var end = pose == Pose.MineDown ? 135f : pose == Pose.MineUp ? 55f : 95f;
-                float a, impact = 0f;
-                if (t < 0.2f) a = Mathf.Lerp(rest, raised, EaseOut(t / 0.2f));                    // wind-up
-                else if (t < 0.27f) a = Mathf.Lerp(raised, end, EaseIn((t - 0.2f) / 0.07f));       // strike
-                else if (t < 0.34f) { a = end; impact = 1f - (t - 0.27f) / 0.07f; }                // hold at impact
-                else a = Mathf.Lerp(end, rest, Mathf.SmoothStep(0f, 1f, (t - 0.34f) / 0.12f));     // recover
-                SwingAngle = a;
-                var tilt = pose == Pose.Chop ? 50f * Mathf.Deg2Rad : 0f;   // chop: the swing plane tips toward his right
-                var sa = Mathf.Sin(a * Mathf.Deg2Rad);
-                var ca = Mathf.Cos(a * Mathf.Deg2Rad);
-                // The handle's direction from the hands: in the plane of forward and (tipped) down.
-                var ground = g * sa + right * (Mathf.Sin(tilt) * ca);
-                var up = ca * Mathf.Cos(tilt);
                 Vector2 Project(Vector2 gr, float u) => new Vector2(gr.x, gr.y * 0.5f + u);   // the camera looks down
+                var chop = pose == Pose.Chop;
+                // The handle's direction from the hand at a moment of the swing (on the ground, and up).
+                float tilt = 24f * Mathf.Deg2Rad;
+                (Vector2 gr, float u) HandleAt(float deg)
+                {
+                    var r = deg * Mathf.Deg2Rad;
+                    // Chopping (Kevin's playtest, 2026-10-17): a level swing side to side at chest height, into the trunk
+                    // in front: the angle runs from straight ahead (0) round to his right and behind (positive).
+                    if (chop) return (g * Mathf.Cos(r) + right * Mathf.Sin(r), 0.18f);
+                    // Mining: overhead, in the plane of forward and up, tipped a little out to his right so it passes
+                    // beside him: the angle from straight up, forward positive.
+                    return (g * Mathf.Sin(r) + right * (Mathf.Sin(tilt) * Mathf.Cos(r)), Mathf.Cos(r) * Mathf.Cos(tilt));
+                }
+                float a, impact = 0f, lean01;
+                if (chop)
+                {
+                    // Cocked back past his right side, the strike sweeps across into the trunk, a beat at impact, then the
+                    // pull back to cocked for the next.
+                    // Ending out to his left front, not dead ahead, so it reads as a sweep across in every view (dead ahead
+                    // it points straight at the camera from the front and shrinks to a stub).
+                    const float cocked = 100f, hit = -28f;
+                    if (t < 0.06f) { a = cocked; lean01 = -1f; }                                                  // cocked
+                    else if (t < 0.14f) { a = Mathf.Lerp(cocked, hit, EaseIn((t - 0.06f) / 0.08f)); lean01 = 1f; } // strike
+                    else if (t < 0.22f) { a = hit; impact = 1f - (t - 0.14f) / 0.08f; lean01 = 1f; }               // impact
+                    else
+                    {
+                        var k = Mathf.SmoothStep(0f, 1f, (t - 0.22f) / 0.24f);                                     // pull back
+                        a = Mathf.Lerp(hit, cocked, k);
+                        lean01 = Mathf.Lerp(1f, -1f, k);
+                    }
+                }
+                else
+                {
+                    // The handle's angle from straight up, forward positive: resting out at his side (125), lifted up
+                    // behind his head (-35), then over the top and down in front: to the wall (95), the floor (135) or a
+                    // block above (55). Passing over the top (0) makes it an overhead swing, not a pendulum.
+                    float rest = 125f, raised = -35f;
+                    var end = pose == Pose.MineDown ? 135f : pose == Pose.MineUp ? 55f : 95f;
+                    if (t < 0.2f) a = Mathf.Lerp(rest, raised, EaseOut(t / 0.2f));                    // wind-up
+                    else if (t < 0.27f) a = Mathf.Lerp(raised, end, EaseIn((t - 0.2f) / 0.07f));       // strike
+                    else if (t < 0.34f) { a = end; impact = 1f - (t - 0.27f) / 0.07f; }                // hold at impact
+                    else a = Mathf.Lerp(end, rest, Mathf.SmoothStep(0f, 1f, (t - 0.34f) / 0.12f));     // recover
+                    lean01 = t < 0.2f ? -EaseOut(t / 0.2f) : t < 0.34f ? 1f : Mathf.Lerp(1f, 0f, (t - 0.34f) / 0.12f);
+                }
+                SwingAngle = a;
+                var (ground, up) = HandleAt(a);
                 var handle = Project(ground, up);
                 var reach = 0.26f;
-                var pivot = shoulderR + Vector2.up * 0.02f;
-                wristR = pivot + handle * reach;                       // the leading hand, at the tool's grip
-                wristL = wristR - handle * 0.075f;                     // the other hand further down the handle
-                handSpriteR = handSpriteL = HandGrip();
+                // The swinging shoulder sits out at his right side (on the ground), so the arc clears his body.
+                var pivot = shoulderR + Vector2.up * (chop ? -0.04f : 0.02f) + Project(right * 0.06f, 0f);
+                wristR = pivot + handle * reach;                       // one hand on the tool, at its grip
+                // The other hand stays at his side, bracing a touch against the swing (no reach across his body).
+                wristL = v.wristLeft + Vector2.up * bodyY + swayX + Project(-g * 0.03f * lean01, 0f);
+                handSpriteR = HandGrip();
                 _tool.enabled = true;
-                _tool.sprite = pose == Pose.Chop ? definition.axe : definition.pickaxe;
+                _tool.sprite = chop ? definition.axe : definition.pickaxe;
                 var len = handle.magnitude;
                 var ang = len > 0.0001f ? Mathf.Atan2(handle.y, handle.x) * Mathf.Rad2Deg : -90f;
                 ToolAngle = ang;
                 _toolPivot.localPosition = wristR;
                 _toolPivot.localRotation = Quaternion.Euler(0f, 0f, ang);
-                _toolPivot.localScale = new Vector3(Mathf.Max(0.25f, len), 1f, 1f);   // foreshortened along the handle
+                // Held near the end of the handle, not its middle (Kevin, 2026-10-17).
+                _tool.transform.localPosition = new Vector3(chop ? definition.axeGrip : definition.pickaxeGrip, 0f, 0f);
+                // The blade leads the swing (Kevin, 2026-10-17): it is painted on the handle's right; turned over when the
+                // way the strike goes (toward the trunk or the rock) is on the handle's left on screen.
+                var (g2, u2) = HandleAt(a + (chop ? -2f : 2f));
+                var ahead = Project(g2, u2) - handle;
+                var bladeSide = new Vector2(handle.y, -handle.x);   // the handle's right on screen
+                var flip = Vector2.Dot(ahead, bladeSide) < 0f ? -1f : 1f;
+                _toolPivot.localScale = new Vector3(Mathf.Max(0.25f, len), flip, 1f);   // foreshortened along the handle
                 // In front of his body when the tool head is nearer the camera than his middle (south on the ground),
                 // or out to his near side.
                 var headGround = ground + right * 0.25f;
                 _toolFront = headGround.y < 0.05f;
                 // The body leans back on the wind-up and into the strike, and dips at impact.
-                var lean01 = t < 0.2f ? -EaseOut(t / 0.2f) : t < 0.34f ? 1f : Mathf.Lerp(1f, 0f, (t - 0.34f) / 0.12f);
                 _lean = lean01 * 6f * -Mathf.Sign(f.x == 0f ? 0f : f.x);
                 bodyY += lean01 > 0f ? -0.015f * lean01 : 0.01f * -lean01;
                 if (impact > 0f && !Feel.ReducedMotion) bodyY += Mathf.Sin(impact * 40f) * 0.004f * impact;
@@ -498,11 +536,12 @@ namespace Ravenholm.Presentation
             {
                 // The swing shows: in front of him, except while the tool is raised behind his head. Seen from behind,
                 // the other way round: the wind-up comes toward the camera, the strike goes away from it.
+                // Only the swinging arm and the tool change sides; the free hand keeps its place at his side.
                 var front = _toolFront;
-                Order(_armL, front ? 7 : 0); Order(_armR, front ? 7 : 0);
-                Order(_sleeveL, front ? 8 : 1); Order(_sleeveR, front ? 8 : 1);
+                Order(_armR, front ? 7 : 0);
+                Order(_sleeveR, front ? 8 : 1);
                 _tool.sortingOrder = front ? 8 : -1;
-                _handL.sortingOrder = front ? 9 : 1; _handR.sortingOrder = front ? 9 : 1;
+                _handR.sortingOrder = front ? 9 : 1;
             }
 
             var top = v.body != null ? v.body.bounds.max.y : 1f;

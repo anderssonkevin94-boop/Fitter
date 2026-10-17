@@ -69,7 +69,6 @@ namespace Ravenholm.Domain.Sites
             var c = new GroveCell(area, slot);
             _s.Cleared.Add(c);
             _s.FelledAtMs.Remove(c);
-            TakeIntoCarry(_s.FacePending);
             Release(SpeciesAt(area, slot), true);
             // Foraging: mushrooms among the roots of a pulled stump.
             if (!string.IsNullOrEmpty(_c.Grove.StumpForage) && CellRoll(area, slot, 98) < _c.Grove.StumpForageChance) Release(_c.Grove.StumpForage, true);
@@ -184,7 +183,9 @@ namespace Ravenholm.Domain.Sites
         public int PlayerChopCell(int area, int slot, long ms, int dps)
         {
             if (!GroveMode) return 0;
-            TakeIntoCarry(_s.FacePending);
+            // A full carry (Kevin's playtest, 2026-10-17): the swing does nothing until it is unloaded, so no pile of logs
+            // builds up out of sight to land in the carry all at once at the next tree.
+            if (_ledger.CarryFull) return 0;
             if (!CanChop(area, slot) || ms <= 0 || dps <= 0) return 0;
             var c = new GroveCell(area, slot);
             _s.LastChop = c;

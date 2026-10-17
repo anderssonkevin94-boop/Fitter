@@ -131,7 +131,7 @@ namespace Ravenholm.Presentation
             if (root.Services.Logistics.System.IsFull && Time.unscaledTime > _fullToastAt + 4f)
             {
                 _fullToastAt = Time.unscaledTime;
-                root.Hud.ShowToast("Carry full: take the logs to the Lumbermill. The rest waits by the stump.");
+                root.Hud.ShowToast("Carry full: take the logs to the Lumbermill, then come back for more.");
             }
         }
 

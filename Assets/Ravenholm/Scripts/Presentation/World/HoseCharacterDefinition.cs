@@ -96,6 +96,8 @@ namespace Ravenholm.Presentation
         [Range(1f, 2f)] public float maxLegStretch = 1.3f;
         [Tooltip("Walking speed at full stick, ground units per second (the spec: 2.04).")]
         [Min(0.1f)] public float walkSpeed = 2.04f;
+        [Tooltip("Where the hand holds each tool: units along the handle from the art's pivot toward its end (the pivot is the handle's middle; Kevin, 2026-10-17: hold it near the end).")]
+        public float axeGrip = 0.156f, pickaxeGrip = 0.168f;
         [Tooltip("Steps per second at full speed, the same in every direction (the spec: 3.7).")]
         [Min(0.5f)] public float cadence = 3.7f;
         [Tooltip("How far a foot reaches ahead of or behind the hip, ground units (the spec: 0.16).")]

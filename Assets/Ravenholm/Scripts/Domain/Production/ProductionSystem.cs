@@ -141,12 +141,16 @@ namespace Ravenholm.Domain.Production
         /// <summary>A recipe's time at its station's level (each level above the recipe's own gate is quicker, as for batches).</summary>
         public int EffectiveCraftMs(CraftRecipe r)
         {
+            if (InstantCrafts) return 1;   // playtesting: every craft done at once
             var per = BatchTimePerLevel.TryGetValue(r.Station, out var f) ? f : 1.0;
             var above = Math.Max(0, Level(r.Station) - Math.Max(1, r.MinLevel));
             return (int)Math.Max(1, Math.Round(r.DurationMs * Math.Pow(per, above)));
         }
 
         public int Level(string facility) => _s.FacilityLevels.TryGetValue(facility, out var l) ? l : 1;
+
+        /// <summary>Playtesting (Kevin, 2026-10-17, temporary): crafts take no time.</summary>
+        public bool InstantCrafts;
 
         public ProcessRecipe Process(string id) => id != null && _processes.TryGetValue(id, out var p) ? p : null;
         public CraftRecipe Recipe(string id) => id != null && _recipes.TryGetValue(id, out var r) ? r : null;

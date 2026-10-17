@@ -67,6 +67,13 @@ namespace Ravenholm.Services
 
         // ------------------------------------------------------------------ player commands (critical: save at once)
 
+        /// <summary>Playtesting (temporary): crafts take no time.</summary>
+        public bool InstantCrafts
+        {
+            get => System.InstantCrafts;
+            set => System.InstantCrafts = value;
+        }
+
         public bool Craft(string recipeId, out string failure)
         {
             var ok = System.Craft(recipeId, out failure);
@@ -178,6 +185,10 @@ namespace Ravenholm.Services
                 _state.SimMs = d.SimMs;
                 foreach (var kv in d.FacilityLevels) _state.FacilityLevels[kv.Key] = kv.Value;
                 foreach (var b in d.Blueprints) _state.Blueprints.Add(b);
+                // Blueprints every company starts with, added to the game after this save began (the armour pack's
+                // helmets and shields, 2026-10-16): known now too.
+                if (_catalogue != null)
+                    foreach (var bp in _catalogue.Blueprints) if (bp != null && bp.OwnedAtStart) _state.Blueprints.Add(bp.Id);
                 foreach (var p in d.Processors)
                 {
                     var rec = new ProcessorRecord

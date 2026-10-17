@@ -243,6 +243,8 @@ namespace Ravenholm.Domain.Logistics
         /// A unit the supplier just mined or chopped (already recorded as created) goes straight into the carry.
         /// False when the carry is full: the site keeps it waiting at the face or tree instead.
         /// </summary>
+        public bool CarryFull => IsFull;
+
         public bool TryCarry(string resourceId)
         {
             if (IsFull) return false;

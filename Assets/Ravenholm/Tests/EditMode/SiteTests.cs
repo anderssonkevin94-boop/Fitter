@@ -26,6 +26,8 @@ namespace Ravenholm.Tests
         public int CreatedTotal => Created.Values.Sum();
         public readonly List<string> Carry = new List<string>();
         public int CarryCapacity = 12;
+        public bool CarryFull => Carry.Count >= CarryCapacity;
+
         public bool TryCarry(string r)
         {
             if (Carry.Count >= CarryCapacity) return false;

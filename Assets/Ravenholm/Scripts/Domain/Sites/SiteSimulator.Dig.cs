@@ -60,7 +60,7 @@ namespace Ravenholm.Domain.Sites
         public bool PlayerBreakSurface(int x, int y, int level, long ms, int dps)
         {
             if (!DigMode || level < 1 || IsSurfaceBroken(x, y, level)) return false;
-            TakeIntoCarry(_s.FacePending);
+            if (_ledger.CarryFull) return false;   // a full carry: no digging until it is unloaded
             var cell = new DigCell(x, y, -level);
             if (!_s.DigTarget.HasValue || !_s.DigTarget.Value.Equals(cell))
             {
@@ -201,7 +201,7 @@ namespace Ravenholm.Domain.Sites
         public bool PlayerDig(int x, int u, int row, long ms, int dps, DigFace from)
         {
             if (!CanDig(x, u, row)) return false;
-            TakeIntoCarry(_s.FacePending);
+            if (_ledger.CarryFull) return false;   // a full carry: no digging until it is unloaded
             var cell = new DigCell(x, u, row);
             if (!_s.DigTarget.HasValue || !_s.DigTarget.Value.Equals(cell))
             {
@@ -262,7 +262,17 @@ namespace Ravenholm.Domain.Sites
                 return;
             }
             _ledger.RecordCreated(resource);
-            if (_ledger.TryCarry(resource)) UnitEarned?.Invoke(PlayerId, -1, resource);
+            if (_ledger.TryCarry(resource))
+            {
+                UnitEarned?.Invoke(PlayerId, -1, resource);
+                // Anything left waiting at the site (from before a full carry stopped the swing) comes along one at a
+                // time with what is gathered, never all at once.
+                if (_s.FacePending.Count > 0 && _ledger.TryCarry(_s.FacePending[0]))
+                {
+                    UnitEarned?.Invoke(PlayerId, -1, _s.FacePending[0]);
+                    _s.FacePending.RemoveAt(0);
+                }
+            }
             else
             {
                 _s.FacePending.Add(resource);

@@ -74,6 +74,8 @@ namespace Ravenholm.Domain.Sites
         void Deposit(string containerId, string resourceId);
         /// <summary>Gives a just-created unit to the supplier's carry; false when the carry is full.</summary>
         bool TryCarry(string resourceId);
+        /// <summary>The supplier's carry is full: nothing more gathered by hand until it is unloaded.</summary>
+        bool CarryFull { get; }
     }
 
     public sealed class Composition
