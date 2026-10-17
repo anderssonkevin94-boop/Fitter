@@ -148,6 +148,14 @@ namespace Ravenholm.Content
             : switchback && index < Ridge.TurnSpans.Count
             ? Mathf.RoundToInt((float)(Ridge.TurnSpans[index].Mid - Ridge.CampS)) : gates[index].ahead;
 
+        /// <summary>A level's ground tint (gated levels): level 1 as painted, then each stop's own.</summary>
+        public Color LevelTint(int level)
+        {
+            if (level <= 0 || stops.Count == 0) return Color.white;
+            var c = stops[Mathf.Min(level, stops.Count) - 1].groundTint;
+            return c.a > 0 ? c : Color.white;
+        }
+
         /// <summary>The ground's tint at a distance along the road: each camp's land from halfway to it, blending in.</summary>
         public Color GroundTintAt(double ahead)
         {

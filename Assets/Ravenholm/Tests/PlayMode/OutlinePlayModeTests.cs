@@ -124,7 +124,6 @@ namespace Ravenholm.Tests
             var deadline = Time.realtimeSinceStartup + 10f;
             while ((GameRoot.Instance == null || SandboxSceneController.Current == null) && Time.realtimeSinceStartup < deadline) yield return null;
             Assert.NotNull(SandboxSceneController.Current, "town loaded");
-            if (PassView.Current != null) PassView.Current.gameObject.SetActive(false);   // keep all the ground shown in the measuring area
             var settings = GameRoot.Instance.Config.SandboxSettings.outlines;
             Assert.NotNull(settings, "outline settings are wired");
             Assert.NotNull(settings.material, "with the silhouette material");

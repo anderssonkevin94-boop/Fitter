@@ -1713,3 +1713,16 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - Let go of the stick and he keeps the facing he had.
 - **Tests.** `MovingOnTests` covers the gate, one way, and level 2 remembered with its own cut tree; and each level its own land. `MovingOnPlayModeTests` covers the sign, the panel, level 2's ground cell for cell, the drive and arrival (captures `gate_*`). The ox's drive check is back. Still ignored until step 3: `RoadTests` six camps and bridge, `RoadPlayModeTests`, `PassPlayModeTests`, `SiteTests.DeeperRevealPersistsThroughReload`.
 - **Open for step 3.** Levels 3 and 4's gates are build projects (the bridge, the causeway) and don't have their signs or gap fill on a level yet. Levels 1 and 2 play through.
+
+## 2026-10-17: gated levels, step 3: all six levels (Kevin)
+
+- **Gates (Kevin: keep the mix).**
+  - Level 1: old trees, the iron tool. Level 2: a rockslide, the tempered tool. Level 3, Hollow Wood: a ravine, build the bridge. Level 4, Witchlight Fen: a flood, build the causeway. Level 5: the sealed gate, the moonsilver tool. Level 6, Castle Approach: no gate; the castle is beyond its rim, and the finale job is there as before.
+  - Each level's gate stands across the road where it meets the north rim.
+- **The project sign.** One `GateProjectSpot` follows the company's level (`EditorSetupLevels`). On a project level it stands on the road 5 cells before the gap. Built, the gap fills with the bridge's planks or the causeway's stones and the Mine's cliffs there go. `LevelView` places it again after laying a level.
+- **Each level's ground** takes its stop's tint (`CampDefinition.LevelTint`); the town keeps its colours. Level 1 is as painted.
+- **Retired:** `PassView` and its test. The scene builder no longer builds the pass.
+- **Tests.**
+  - `RoadTests`: six levels and their gates, each level its own band and three steps, the tints, the bridge built on level 3 and remembered.
+  - `RoadPlayModeTests`: every level laid cell for cell with the camp and the wagon on land, captures `level{n}_camp` and `level{n}_overview`; the ravine, the bridge built and walked, the causeway's sign, the debug jump back to level 1.
+  - `SiteTests.DeeperRevealPersistsThroughReload` is still ignored: its hill helper walks level 1's road, so band 2's reveal surviving a reload isn't tested on a level yet. `MovingOnTests` only checks that level 2 is band 2 and that its cut trees are remembered.

@@ -13,9 +13,9 @@ using Object = UnityEngine.Object;
 namespace Ravenholm.Tests
 {
     /// <summary>
-    /// The road to the castle in the real scene (the journey, step 7): the ravine before Witchlight Fen is a gap in the land
-    /// until the bridge is built from stock at its sign; built, its planks fill the gap and the supplier can walk across.
-    /// Captures each camp up the road with its own land.
+    /// The six levels in the real scene (gated levels, Kevin 2026-10-16): each laid as its own land when the company gets
+    /// there (the camp in the same place at its front); Hollow Wood's gate is a ravine, a gap in the land until the bridge
+    /// is built from stock at its sign, then walked across. Captures each level from the camp and from above.
     /// </summary>
     public sealed class RoadPlayModeTests
     {
@@ -39,121 +39,7 @@ namespace Ravenholm.Tests
             try { Directory.Delete(_dir, true); } catch { /* best effort */ }
         }
 
-        [UnityTest]
-        [Ignore("Gated levels, steps 2-3 (2026-10-16): six levels behind gates; rewritten then")]
-        public IEnumerator EachCampStandsByTheDropWithItsGroupOnLand()
-        {
-            // Kevin, 2026-10-16: each camp looks over the drop to the castle (the land's edge a little right of the group).
-            SceneManager.LoadScene(GameRoot.BootstrapSceneName);
-            var deadline = Time.realtimeSinceStartup + 10f;
-            while ((GameRoot.Instance == null || SandboxSceneController.Current == null || SceneManager.GetActiveScene().name != "DebugSandbox")
-                   && Time.realtimeSinceStartup < deadline)
-                yield return null;
-            for (var i = 0; i < 3; i++) yield return null;
-            var root = GameRoot.Instance;
-            root.Hud.Tips.HideAll();
-            var s = root.Services;
-            var ground = GameObject.Find("Grid").transform.Find("Ground").GetComponent<UnityEngine.Tilemaps.Tilemap>();
-            var road = s.Catalogue.CurrentCamp;
-            for (var c = 0; c < road.CampCount; c++)
-            {
-                if (c > 0)
-                {
-                    s.Camp.DebugJumpTo(c);
-                    yield return null;
-                    deadline = Time.realtimeSinceStartup + 60f;
-                    while (DriveView.Current.Driving && Time.realtimeSinceStartup < deadline) yield return null;
-                    yield return new WaitForSeconds(0.5f);
-                }
-                // Everything the camp brings stands on land: the wagon shop, the Trader's pad, the staging piles.
-                var group = Object.FindObjectsByType<CampAnchored>(FindObjectsSortMode.None).Select(a => a.transform).ToList();
-                group.Add(ShopView.Current.transform);
-                foreach (var t in group)
-                foreach (var sr in t.GetComponentsInChildren<SpriteRenderer>())
-                {
-                    if (!sr.enabled || sr.sortingLayerName == "Overlay") continue;
-                    var cell = IsoMap.Cell(sr.transform.position);
-                    Assert.IsTrue(ground.HasTile(cell), $"camp {c + 1}: {sr.transform.parent?.name}/{sr.name} stands over the drop at {cell}");
-                }
-                // The drop is in view, a little right of the camp's middle.
-                var mid = IsoMap.World(Vector3Int.RoundToInt((Vector3)road.CampCentre(c)));
-                var dropAt = -1f;
-                for (var k = 0.5f; k < 6f && dropAt < 0f; k += 0.25f)
-                    if (!ground.HasTile(IsoMap.Cell(mid + new Vector2(k, 0f)))) dropAt = k;
-                // The bays (before the switchback pass, which shows the legs below instead): the drop right of the camp.
-                if (!road.Switchback) Assert.That(dropAt, Is.InRange(1.5f, 3.4f), $"camp {c + 1}: the drop is on screen right of the camp");
-                var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
-                motor.Teleport(mid);
-                SandboxSceneController.Current.SnapPlayerToSavedPosition();
-                yield return new WaitForSeconds(0.6f);
-                yield return Capture.Take($"edge_camp{c + 1}");
-            }
-        }
-
-        [UnityTest]
-        [Ignore("Gated levels, steps 2-3 (2026-10-16): six levels behind gates; rewritten then")]
-        public IEnumerator ThePassDropsALegAtEveryTurnAndWalksSmoothly()
-        {
-            // The switchback pass (2026-10-16): each leg drawn 2 units lower than the last, easing through the turns; the
-            // ground stays one plane to walk on, and everything (tiles, the supplier) uses the one mapping.
-            SceneManager.LoadScene(GameRoot.BootstrapSceneName);
-            var deadline = Time.realtimeSinceStartup + 10f;
-            while ((GameRoot.Instance == null || SandboxSceneController.Current == null || SceneManager.GetActiveScene().name != "DebugSandbox")
-                   && Time.realtimeSinceStartup < deadline)
-                yield return null;
-            for (var i = 0; i < 3; i++) yield return null;
-            var root = GameRoot.Instance;
-            root.Hud.Tips.HideAll();
-            var road = root.Services.Catalogue.CurrentCamp;
-            Assume.That(road.Switchback);
-            var ridge = road.Ridge;
-            var ground = GameObject.Find("Grid").transform.Find("Ground").GetComponent<UnityEngine.Tilemaps.Tilemap>();
-            var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
-            Assert.AreEqual(2.0 * ridge.TurnSpans.Count, ridge.DropAt(ridge.Length), 1e-6, "a leg's drop per turn");
-            for (var t = 0; t < ridge.TurnSpans.Count; t++)
-            {
-                var turn = ridge.TurnSpans[t];
-                Assert.AreEqual(2.0 * t, ridge.DropAt(turn.S0 - ridge.DropRampIntoLegs), 1e-6, "level until the drop's ease begins");
-                Assert.AreEqual(2.0 * t + 2.0, ridge.DropAt(turn.S1 + ridge.DropRampIntoLegs), 1e-6, "a whole leg lower after it");
-                Assert.AreEqual(2.0 * t + 1.0, ridge.DropAt(turn.Mid), 1e-6, "half way down at the turn's middle");
-                var (mx, my) = ridge.PointAt(turn.Mid);
-                var cell = new Vector3Int(Mathf.RoundToInt((float)mx), Mathf.RoundToInt((float)my), 0);
-                if (ridge.InProjectGap(cell.x, cell.y)) continue;   // the ravine and the flood: gaps until built
-                Assert.IsTrue(ground.HasTile(cell), $"turn {t + 1} is land");
-                Assert.AreEqual(-IsoMap.Drop(cell), ground.GetTransformMatrix(cell).m13, 1e-4f, "its tile drawn at its drop");
-                Assert.AreEqual(cell, IsoMap.Cell(IsoMap.World(cell)), "the mapping goes both ways");
-                if (t < 2)   // the first turns: before the project gaps
-                {
-                    motor.Teleport(IsoMap.World(cell));
-                    SandboxSceneController.Current.SnapPlayerToSavedPosition();
-                    yield return new WaitForSeconds(0.6f);
-                    yield return Capture.Take($"pass_turn{t + 1}");
-                }
-            }
-            // Walk round the first turn along the road: the supplier moves smoothly, no jumps.
-            var t0 = ridge.TurnSpans[0];
-            var (sx, sy) = ridge.PointAt(t0.S0 - 3);
-            motor.Teleport(IsoMap.World((float)sx, (float)sy));
-            SandboxSceneController.Current.SnapPlayerToSavedPosition();
-            yield return null;
-            var last = (Vector2)motor.transform.position;
-            var biggest = 0f;
-            for (var s = t0.S0 - 3; s < t0.S1 + 3; s += 0.25)
-            {
-                var (px, py) = ridge.PointAt(s);
-                var target = IsoMap.World((float)px, (float)py);
-                motor.Teleport(target);
-                yield return null;
-                biggest = Mathf.Max(biggest, Vector2.Distance(last, target));
-                last = target;
-            }
-            Assert.Less(biggest, 0.3f, "round the turn without a jump");
-            yield return Capture.Take("pass_turn1_walked");
-        }
-
-        [UnityTest]
-        [Ignore("Gated levels, steps 2-3 (2026-10-16): six levels behind gates; rewritten then")]
-        public IEnumerator TheBridgeIsBuiltAndWalkedAcross()
+        private static IEnumerator Boot()
         {
             SceneManager.LoadScene(GameRoot.BootstrapSceneName);
             var deadline = Time.realtimeSinceStartup + 10f;
@@ -162,24 +48,101 @@ namespace Ravenholm.Tests
                 yield return null;
             Assert.NotNull(SandboxSceneController.Current);
             for (var i = 0; i < 3; i++) yield return null;
+            GameRoot.Instance.Hud.Tips.HideAll();
+        }
+
+        private static IEnumerator JumpTo(int level)
+        {
+            GameRoot.Instance.Services.Camp.DebugJumpTo(level);
+            yield return null;
+            var deadline = Time.realtimeSinceStartup + 60f;
+            while (DriveView.Current.Driving && Time.realtimeSinceStartup < deadline) yield return null;
+            yield return new WaitForSeconds(0.6f);
+        }
+
+        /// <summary>The whole level from above, without the HUD (Captures/{name}.png).</summary>
+        private static IEnumerator Overview(string name)
+        {
+            var cam = SandboxSceneController.Current.WorldCamera;
+            var follow = cam.GetComponent<FollowCamera>();
+            if (follow != null) follow.enabled = false;
+            var canvases = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None).Where(c => c.enabled).ToList();
+            foreach (var c in canvases) c.enabled = false;
+            var (pos, size) = (cam.transform.position, cam.orthographicSize);
+            var r = GameRoot.Instance.Services.Camp.Ridge;
+            cam.transform.position = new Vector3((float)r.LevelCX, (float)r.LevelCY + 2f, pos.z);   // the outline's centre (world)
+            cam.orthographicSize = (float)r.LevelRY * 1.9f;
+            const int w = 1800, h = 1350;
+            var rt = new RenderTexture(w, h, 24);
+            cam.targetTexture = rt;
+            for (var i = 0; i < 4; i++) yield return null;
+            var prev = RenderTexture.active;
+            RenderTexture.active = rt;
+            var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+            tex.Apply();
+            RenderTexture.active = prev;
+            cam.targetTexture = null;
+            var dir = Path.GetFullPath(Path.Combine(UnityEngine.Application.dataPath, "..", "Captures"));
+            Directory.CreateDirectory(dir);
+            File.WriteAllBytes(Path.Combine(dir, name + ".png"), tex.EncodeToPNG());
+            Object.Destroy(tex);
+            rt.Release();
+            cam.transform.position = pos;
+            cam.orthographicSize = size;
+            foreach (var c in canvases) c.enabled = true;
+            if (follow != null) follow.enabled = true;
+        }
+
+        [UnityTest]
+        public IEnumerator EachLevelIsLaidAsItsOwnLand()
+        {
+            yield return Boot();
+            var s = GameRoot.Instance.Services;
+            var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
+            var ground = GameObject.Find("Grid").transform.Find("Ground").GetComponent<UnityEngine.Tilemaps.Tilemap>();
+            var mine = MineSlabView.Current;
+            for (var level = 0; level < 6; level++)
+            {
+                if (level > 0) yield return JumpTo(level);
+                Assert.AreEqual(level, s.Camp.Index);
+                Assert.AreEqual(level, LevelView.Current.Painted, $"level {level + 1}'s ground is laid");
+                var r = s.Camp.Ridge;
+                var e = r.Extent;
+                var wrong = 0;
+                for (var x = e.minX; x <= e.maxX; x++)
+                for (var y = e.minY; y <= e.maxY; y++)
+                {
+                    var land = r.InLand(x, y) && (!r.InProjectGap(x, y) || s.Camp.IsBuilt(r.GateIndexAt(x, y)));
+                    if (land != ground.HasTile(new Vector3Int(x, y, 0))) wrong++;
+                }
+                Assert.AreEqual(0, wrong, $"level {level + 1}: the ground is its land, cell for cell");
+                Assert.IsTrue(mine.SurfaceWalkable(s.Camp.CentreOf(level)), $"level {level + 1}: the camp stands on land");
+                Assert.IsTrue(mine.SurfaceWalkable(ShopView.Current.Wagon.position), $"level {level + 1}: so does the wagon");
+                Assert.Less(Vector2.Distance(motor.transform.position, s.Camp.CentreOf(level)), 9f, $"level {level + 1}: the supplier is at the camp");
+                Assert.AreEqual(level < 5, s.Camp.HasNext, level < 5 ? "a gate on to the next level" : "the last level: the castle ahead");
+                yield return Capture.Take($"level{level + 1}_camp");
+                yield return Overview($"level{level + 1}_overview");
+            }
+            CollectionAssert.IsEmpty(s.Logistics.System.Audit());
+        }
+
+        [UnityTest]
+        public IEnumerator TheBridgeIsBuiltAndWalkedAcross()
+        {
+            yield return Boot();
             var root = GameRoot.Instance;
-            root.Hud.Tips.HideAll();
             var s = root.Services;
             var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
             var mine = MineSlabView.Current;
+            var spot = GateProjectSpot.Current;
+            Assert.NotNull(spot, "the level's project sign is in the scene");
+            Assert.IsFalse(spot.Shown, "level 1's gate is old trees: no sign");
 
-            // Each camp up the road, with its own land.
-            for (var c = 1; c < 6; c++)
-            {
-                motor.Teleport(s.Camp.CentreOf(c));
-                SandboxSceneController.Current.SnapPlayerToSavedPosition();
-                yield return new WaitForSeconds(0.6f);
-                Assert.IsTrue(mine.SurfaceWalkable(s.Camp.CentreOf(c)), $"camp {c + 1}'s clearing is land");
-                yield return Capture.Take($"road_camp{c + 1}");
-            }
-
-            // The ravine: a gap until built.
-            var spot = Object.FindObjectsByType<GateProjectSpot>(FindObjectsSortMode.None).Single(p => p.Gate == 2);
+            // Hollow Wood (level 3): its gate is the ravine, a gap until built.
+            yield return JumpTo(2);
+            Assert.IsTrue(spot.Shown, "the bridge's sign before the ravine");
+            Assert.AreEqual(2, spot.Gate);
             Assert.Greater(spot.GapCells.Count, 10, "a ravine across the land");
             var mid = spot.GapCells.OrderBy(c => (c - spot.GapCells[spot.GapCells.Count / 2]).sqrMagnitude).First();
             var midWorld = IsoMap.World(mid);
@@ -206,20 +169,13 @@ namespace Ravenholm.Tests
             Assert.Less(Vector2.Distance(motor.transform.position, midWorld), 0.5f, "standing on the bridge, not sent back");
             yield return Capture.Take("road_bridge");
 
-            // The developer tools' camp jump: up the road to Hollow Wood (the drive), then straight back to camp 1.
-            s.Camp.DebugJumpTo(2);
-            yield return null;
-            deadline = Time.realtimeSinceStartup + 60f;
-            while (DriveView.Current.Driving && Time.realtimeSinceStartup < deadline) yield return null;
-            yield return new WaitForSeconds(0.5f);
-            Assert.Less(Vector2.Distance(motor.transform.position, s.Camp.CentreOf(2)), 9f, "the supplier arrived at Hollow Wood");
-            yield return Capture.Take("road_jump_hollow_wood");
-            s.Camp.DebugJumpTo(0);
-            yield return null;
-            deadline = Time.realtimeSinceStartup + 5f;
-            while (DriveView.Current.Driving && Time.realtimeSinceStartup < deadline) yield return null;
-            Assert.IsFalse(DriveView.Current.Driving, "no drive back down the road");
-            yield return new WaitForSeconds(0.3f);
+            // Witchlight Fen (level 4): the causeway's sign; the debug jump back to level 1 lays its ground again.
+            yield return JumpTo(3);
+            Assert.IsTrue(spot.Shown && spot.Gate == 3, "the causeway's sign");
+            yield return Capture.Take("road_flood");
+            yield return JumpTo(0);
+            Assert.AreEqual(0, LevelView.Current.Painted);
+            Assert.IsFalse(spot.Shown);
             Assert.Less(Vector2.Distance(motor.transform.position, s.Camp.CentreOf(0)), 9f, "back at Meadow's Edge");
             CollectionAssert.IsEmpty(s.Logistics.System.Audit());
         }

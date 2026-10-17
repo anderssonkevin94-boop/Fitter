@@ -29,37 +29,46 @@ namespace Ravenholm.Tests
         }
 
         [Test]
-        [Ignore("Gated levels, steps 2-3 (2026-10-16): six levels behind gates; rewritten then")]
-        public void SixCampsUpTheRoadWithABlockerBeforeEach()
+        public void SixLevelsWithABlockerAtTheEndOfEachButTheLast()
         {
+            // Gated levels (Kevin, 2026-10-16): six camps, each its own level, left through its gate on the north rim.
             var road = Cat.CurrentCamp;
+            Assert.IsTrue(road.Plateau);
             Assert.AreEqual(6, road.CampCount);
             CollectionAssert.AreEqual(new[] { "Meadow's Edge", "River Bend", "Hollow Wood", "Witchlight Fen", "Crown Highlands", "Castle Approach" },
                 Enumerable.Range(0, 6).Select(road.CampName));
-            for (var i = 0; i < 5; i++)
-                Assert.That(road.GateAhead(i), Is.InRange(road.CampAhead(i) + 20, road.CampAhead(i + 1) - 20), $"blocker {i + 1} lies between camps {i + 1} and {i + 2}");
-            Assert.AreEqual("Bridge", road.Gates[2].project);
-            Assert.AreEqual("Causeway", road.Gates[3].project);
-            Assert.AreEqual(4, road.Gates[4].tier, "the sealed gate needs the moonsilver tool");
+            Assert.AreEqual(2, road.Gates[0].tier, "level 1: old trees, the iron tool");
+            Assert.IsTrue(road.Gates[1].rock && road.Gates[1].tier == 3, "level 2: a rockslide, the tempered tool");
+            Assert.AreEqual("Bridge", road.Gates[2].project, "level 3: a ravine to bridge");
+            Assert.AreEqual("Causeway", road.Gates[3].project, "level 4: a flood to cross");
+            Assert.AreEqual(4, road.Gates[4].tier, "level 5: the sealed gate needs the moonsilver tool");
             Assert.IsTrue(Cat.Equipment.Any(e => e.Slot == EquipmentSlot.Tool && e.Tier == 4), "and the moonsilver tool exists");
-            var ridge = road.Ridge;
-            Assert.Greater(ridge.Length - ridge.CampS, road.CampAhead(5) + 20, "the land runs past the last camp");
-            Assert.AreEqual(6, ridge.BandAt((int)ridge.PointAt(ridge.CampS + road.CampAhead(5)).x, (int)ridge.PointAt(ridge.CampS + road.CampAhead(5)).y),
-                "one band per camp: the last camp is band 6");
-            var steps = Enumerable.Range(0, (int)(ridge.Length - ridge.CampS)).Select(a => ridge.PointAt(ridge.CampS + a))
-                .Select(p => ridge.ContinuationAt((int)p.x, (int)p.y)).ToList();
-            Assert.AreEqual(2, steps.Max(), "three effort steps per band, so a band's last trees stay easier than the next band's first");
-            Assert.AreNotEqual(Color.white, road.GroundTintAt(road.CampAhead(2)), "Hollow Wood's land has its own tint");
-            Assert.AreEqual(Color.white, road.GroundTintAt(10), "Meadow's Edge is as it was");
+            for (var level = 0; level < 6; level++)
+            {
+                var r = road.RidgeFor(level);
+                var cx = (int)road.ClearingCentre.x;
+                var cy = (int)road.ClearingCentre.y;
+                Assert.IsTrue(r.InClearing(cx, cy), $"level {level + 1}: the camp at its front");
+                Assert.AreEqual(level + 1, r.BandAt(cx + 12, cy + 12), $"level {level + 1}: its own band of wood and ore");
+                var own = 0;
+                for (var g = 0; g < r.Gates.Count; g++)
+                    if (r.Gates[g].S <= r.Length) { own++; Assert.AreEqual(level, g, $"level {level + 1}: only its own gate"); }
+                Assert.AreEqual(level < 5 ? 1 : 0, own, level < 5 ? $"level {level + 1}: a gate on its rim" : "the last level: no gate, the castle beyond");
+                var steps = Enumerable.Range(0, (int)(r.Length - r.CampS)).Select(a => r.PointAt(r.CampS + a))
+                    .Select(p => r.ContinuationAt((int)p.x, (int)p.y)).ToList();
+                Assert.AreEqual(2, steps.Max(), $"level {level + 1}: three effort steps toward its gate");
+            }
+            Assert.AreEqual(Color.white, road.LevelTint(0), "Meadow's Edge is as it was");
+            Assert.AreNotEqual(Color.white, road.LevelTint(2), "Hollow Wood's land has its own tint");
         }
 
         [Test]
-        [Ignore("Gated levels, step 3 (2026-10-16): each level's gate project; rewritten then")]
         public void ABridgeIsBuiltFromStockAndRemembered()
         {
             var g = Boot();
             var camp = g.Camp;
-            var ridge = g.Catalogue.CurrentCamp.Ridge;
+            camp.DebugJumpTo(2);   // level 3, Hollow Wood: its gate is the ravine
+            var ridge = camp.Ridge;
             var (gx, gy) = ridge.PointAt(ridge.Gates[2].S);
             Assert.IsTrue(ridge.InProjectGap((int)gx, (int)gy), "a ravine across the road");
             Assert.IsFalse(ridge.InGrove((int)gx, (int)gy), "no trees in it");

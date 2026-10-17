@@ -61,14 +61,15 @@ namespace Ravenholm.Presentation
             if (this == null || ground == null) return;
             var camp = _root.Services.Camp;
             if (!camp.Levels || camp.Index == Painted) return;
-            Lay(camp.Ridge);
+            Lay(camp.Ridge, _root.Services.Catalogue.CurrentCamp.LevelTint(camp.Index));
             Painted = camp.Index;
+            if (GateProjectSpot.Current != null) GateProjectSpot.Current.Place();   // a built bridge or causeway, filled again
             if (ForestGridView.Current != null) ForestGridView.Current.Rebuild();
             if (MineSlabView.Current != null) MineSlabView.Current.RefreshGround();
         }
 
         /// <summary>The level's ground: its land (no tile past its edges or in a project's gap), the town kept as built.</summary>
-        private void Lay(RidgeLayout ridge)
+        private void Lay(RidgeLayout ridge, Color tint)
         {
             var old = ground.cellBounds;
             var e = ridge.Extent;
@@ -91,11 +92,13 @@ namespace Ravenholm.Presentation
                 laid.Add(tile);
             }
             ground.SetTiles(cells.ToArray(), laid.ToArray());
+            // Each level's land has its own tint (a darker wood, a misty fen, grey uplands); the town keeps its own colours.
             foreach (var c in cells)
             {
                 if (!ground.HasTile(c)) continue;
+                var inTown = c.x >= town.xMin && c.x < town.xMax && c.y >= town.yMin && c.y < town.yMax && ridge.InClearing(c.x, c.y);
                 ground.SetTileFlags(c, TileFlags.None);
-                ground.SetColor(c, Color.white);
+                ground.SetColor(c, inTown ? Color.white : tint);
             }
         }
 

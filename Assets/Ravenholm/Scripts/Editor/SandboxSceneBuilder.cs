@@ -125,7 +125,6 @@ namespace Ravenholm.EditorTools
             // The valley view beyond the north cliff, with the castle on the far ridge (Astra, 2026-10-15). The placeholder
             // castle at the road's end is gone; adventurers come and go by the cliff path.
             var pathTop = Horizon(world, settings);
-            BuildPass(world, settings);
             // Phase 7: the Beacon trophy, hidden until the campaign finale succeeds.
             Prop(props, "Beacon Trophy", "Props/prop_beacon_trophy", new Vector2(-3.2f, 2.3f),
                 "The castle's banner, given to your company for its last great job.", "").gameObject.AddComponent<TrophyView>();
@@ -166,7 +165,18 @@ namespace Ravenholm.EditorTools
             // The road's build projects (step 7): a sign at the near side of each gap.
             var road = settings.camp;
             var tilesForProjects = ProjectSetup.EnsureTiles();
-            for (var g = 0; g < road.Gates.Count; g++)
+            if (road.Plateau)
+            {
+                // Gated levels (2026-10-17): one sign, standing before the company's level's gate when it is a project.
+                var levelSign = Sprite(world, "Project Sign", "Wagon/camp_sign", Vector2.zero);
+                levelSign.gameObject.AddComponent<SpriteOutline>();
+                var lc = levelSign.gameObject.AddComponent<BoxCollider2D>();
+                lc.isTrigger = true;
+                lc.size = new Vector2(1.2f, 1.6f);
+                lc.offset = new Vector2(0f, 0.6f);
+                levelSign.gameObject.AddComponent<GateProjectSpot>().EditorSetupLevels(_groundMap, tilesForProjects["bridge"], tilesForProjects["plaza"]);
+            }
+            for (var g = 0; g < road.Gates.Count && !road.Plateau; g++)
             {
                 if (string.IsNullOrEmpty(road.Gates[g].project)) continue;
                 if (road.Ridge.Gates[g].S > road.Ridge.Length) continue;   // another level's gate
@@ -767,18 +777,6 @@ namespace Ravenholm.EditorTools
         /// its edge; the castle needn't be in view all the time). Returns where adventurers come from and go to:
         /// a little way up the old road ahead, toward the castle.
         /// </summary>
-        /// <summary>
-        /// The switchback pass seen from the road (Kevin, 2026-10-16): the stretch past the next hairpin hidden until the
-        /// supplier nears it, so the valley view shows there.
-        /// </summary>
-        private static void BuildPass(Transform world, SandboxSettings settings)
-        {
-            if (settings.camp == null || !settings.camp.Switchback) return;
-            var go = new GameObject("Pass");
-            go.transform.SetParent(world, false);
-            go.AddComponent<PassView>().EditorSetup(_groundMap);
-        }
-
         private static Vector2 Horizon(Transform world, SandboxSettings settings)
         {
             var par = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(PlaceholderSpriteImporter.ArtRoot + "View/parallax.json"));
