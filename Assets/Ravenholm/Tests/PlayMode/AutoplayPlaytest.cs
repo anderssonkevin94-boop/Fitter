@@ -130,7 +130,11 @@ namespace Ravenholm.Tests
             bool Open(Vector3Int c)
             {
                 var w = IsoMap.World(c);
-                return (slab == null || slab.SurfaceWalkable(w)) && Physics2D.OverlapCircle(w, radius * 0.8f, mask) == null;
+                if (slab != null && !slab.SurfaceWalkable(w)) return false;
+                // Right beside him counts as open: pressed against a counter or a wall, every cell centre round him touches
+                // it, and the map had no way out (the fifth playtest: "no route to the gate" from the Store's counter).
+                if (Mathf.Abs(c.x - start.x) <= 1 && Mathf.Abs(c.y - start.y) <= 1) return true;
+                return Physics2D.OverlapCircle(w, radius * 0.8f, mask) == null;
             }
             int H(Vector3Int c) => forest != null ? forest.HeightAt(c) : 0;
             var openSet = new SortedSet<(float f, int id)>();

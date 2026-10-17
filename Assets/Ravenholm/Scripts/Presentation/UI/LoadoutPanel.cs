@@ -25,6 +25,14 @@ namespace Ravenholm.Presentation
         private TextMeshProUGUI _title;
         private readonly List<(TextMeshProUGUI label, Button button, Func<string> text, Func<bool> enabled)> _live = new List<(TextMeshProUGUI, Button, Func<string>, Func<bool>)>();
         private readonly List<(TextMeshProUGUI text, Func<string> provider)> _texts = new List<(TextMeshProUGUI, Func<string>)>();
+        private Slot _selectedSlot = Slot.Weapon;
+        private RectTransform _equipment;
+        private RectTransform _choices;
+        private TextMeshProUGUI _summary;
+        private TextMeshProUGUI _warning;
+        private WorkshopHeroPreview _preview;
+        private string _optionsKey = "";
+        private readonly List<Action> _visualRefresh = new List<Action>();
         private string _contractorId;
         private Loadout _loadout = new Loadout();
         private string _message = "";
@@ -37,13 +45,13 @@ namespace Ravenholm.Presentation
 
         public static LoadoutPanel Create(Transform parent, UiFactory ui, GameRoot root)
         {
-            var content = ui.ModalScroll(parent, "LoadoutLayer", out var layer, out var title);
+            var rect = UiFactory.Rect("LoadoutLayer", parent);
+            UiFactory.Stretch(rect);
+            rect.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, .08f);
+            var layer = rect.gameObject;
             var panel = layer.AddComponent<LoadoutPanel>();
-            panel._ui = ui;
-            panel._theme = ui.Theme;
-            panel._root = root;
-            panel._content = content;
-            panel._title = title;
+            panel._ui = ui; panel._theme = ui.Theme; panel._root = root;
+            panel.Build();
             layer.SetActive(false);
             return panel;
         }
@@ -67,6 +75,7 @@ namespace Ravenholm.Presentation
                 gameObject.SetActive(true);
                 TouchInputRouter.PushModal();
             }
+            _selectedSlot = Slot.Weapon;
             Rebuild();
         }
 
@@ -89,6 +98,7 @@ namespace Ravenholm.Presentation
             if (Time.unscaledTime < _next) return;
             _next = Time.unscaledTime + 0.25f;
             if (Contractor == null || Board.State.Posting == null) { Close(); return; }
+            RefreshEquipment();
             foreach (var t in _texts) t.text.text = t.provider();
             foreach (var b in _live)
             {
@@ -97,28 +107,174 @@ namespace Ravenholm.Presentation
             }
         }
 
+        private void Build()
+        {
+            var card = WorkshopUi.Frame(transform);
+            WorkshopUi.Bounds(card.rectTransform, .025f, .055f, .975f, .91f);
+            _title = WorkshopUi.Label(_ui, card.transform, "EQUIP HERO", 52, .055f, .925f, .81f, .99f, true);
+            var close = WorkshopUi.Button(_ui, "Close", card.transform, "×", Close, out _, false);
+            WorkshopUi.Bounds((RectTransform)close.transform, .84f, .925f, .96f, .99f);
+            _summary = WorkshopUi.Label(_ui, card.transform, "", 34, .055f, .83f, .95f, .925f);
+            _equipment = UiFactory.Rect("Equipment", card.transform);
+            WorkshopUi.Bounds(_equipment, .05f, .48f, .95f, .83f);
+            _choices = UiFactory.Rect("Choices", card.transform);
+            WorkshopUi.Bounds(_choices, .05f, .27f, .95f, .48f);
+            var viewport = UiFactory.Rect("ReviewViewport", card.transform);
+            WorkshopUi.Bounds(viewport, .055f, .15f, .945f, .265f);
+            viewport.gameObject.AddComponent<RectMask2D>();
+            viewport.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, 0);
+            _content = UiFactory.Rect("Review", viewport);
+            _content.anchorMin = new Vector2(0, 1); _content.anchorMax = Vector2.one;
+            _content.pivot = new Vector2(.5f, 1); _content.sizeDelta = Vector2.zero;
+            UiFactory.Column(_content.gameObject, 12, new RectOffset(8, 8, 8, 16));
+            _content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var scroll = viewport.gameObject.AddComponent<ScrollRect>();
+            scroll.content = _content; scroll.viewport = viewport; scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            _warning = WorkshopUi.Label(_ui, card.transform, "", 27, .055f, .10f, .945f, .145f, true, TextAlignmentOptions.Center);
+            var back = WorkshopUi.Button(_ui, "Back", card.transform, "Back", Close, out _, false);
+            WorkshopUi.Bounds((RectTransform)back.transform, .055f, .025f, .33f, .095f);
+            var send = WorkshopUi.Button(_ui, "Send", card.transform, "", Send, out var sendLabel);
+            WorkshopUi.Bounds((RectTransform)send.transform, .35f, .025f, .945f, .095f);
+            _live.Add((sendLabel, send, SendText, () => Board.DispatchBlockedReason(_contractorId, _loadout) == null));
+        }
+
         private void Rebuild()
         {
-            for (var i = _content.childCount - 1; i >= 0; i--) Destroy(_content.GetChild(i).gameObject);
-            _live.Clear();
-            _texts.Clear();
+            WorkshopUi.Clear(_content);
+            WorkshopUi.Clear(_equipment);
+            _texts.Clear(); _visualRefresh.Clear(); _optionsKey = "";
             var c = Contractor;
-            _title.text = c != null ? $"Meet {c.Name}" : "Applicant";
-
-            Text(CardText);
+            var cls = c != null && _root.Services.Catalogue.TryGet<AdventurerClassDefinition>(c.ClassId, out var cd) ? cd : null;
+            var stats = c != null ? Board.BaseStats(c) : default;
+            _summary.text = c == null ? "Applicant" : $"<b>{c.Name}</b> · {cls?.DisplayName} · Level {c.Level}\nMight {stats.Might}    Survival {stats.Survival}    Insight {stats.Insight}";
+            var portrait = UiFactory.Rect("HeroPreview", _equipment);
+            WorkshopUi.Bounds(portrait, .30f, .06f, .70f, .99f);
+            _preview = portrait.gameObject.AddComponent<WorkshopHeroPreview>();
+            WorkshopUi.Label(_ui, _equipment, "Hero", 26, .34f, 0, .66f, .08f, false, TextAlignmentOptions.Center);
+            AddSlot(Slot.Head, 0, .68f); AddSlot(Slot.Weapon, 0, .35f); AddSlot(Slot.Armor, 0, .02f);
+            AddSlot(Slot.OffHand, .71f, .68f); AddSlot(Slot.Potion1, .71f, .35f); AddSlot(Slot.Potion2, .71f, .02f);
             Text(() => string.IsNullOrEmpty(_message) ? "" : $"<b>{_message}</b>");
-            Header("Loadout (reserved while you decide)");
-            Button(() => SlotText(Slot.Weapon), () => Cycle(Slot.Weapon), null);
-            Button(() => SlotText(Slot.OffHand), () => Cycle(Slot.OffHand), null);
-            Button(() => SlotText(Slot.Head), () => Cycle(Slot.Head), null);
-            Button(() => SlotText(Slot.Armor), () => Cycle(Slot.Armor), null);
-            Button(() => SlotText(Slot.Potion1), () => Cycle(Slot.Potion1), null);
-            Button(() => SlotText(Slot.Potion2), () => Cycle(Slot.Potion2), null);
-            Header("Review");
+            Text(() => $"<b>{Quest?.Name}</b> · Review ↓");
             Text(ForecastText);
-            Button(SendText, Send, () => Board.DispatchBlockedReason(_contractorId, _loadout) == null);
-            Button(() => "Back (releases the gear)", Close, null);
-            Update();
+            Text(CardText); // Keep traits, history and the exact fee available in the scrolling review.
+            RefreshEquipment();
+            _next = 0; Update();
+        }
+
+        private static string SlotName(Slot slot) => slot switch
+        {
+            Slot.Weapon => "Weapon", Slot.Armor => "Body", Slot.Head => "Head", Slot.OffHand => "Off-hand",
+            Slot.Potion1 => "Potion 1", _ => "Potion 2"
+        };
+
+        private ItemDefinition Definition(string instance)
+        {
+            var id = instance == null ? null : _root.Services.Logistics.System.DefinitionOfItem(instance);
+            return id != null && _root.Services.Catalogue.TryGet<ItemDefinition>(id, out var item) ? item : null;
+        }
+
+        private void AddSlot(Slot slot, float x, float y)
+        {
+            var button = WorkshopUi.Button(_ui, "Slot" + slot, _equipment, "", () => SelectSlot((int)slot), out var label, false);
+            WorkshopUi.Bounds((RectTransform)button.transform, x, y, x + .29f, y + .30f, 3);
+            WorkshopUi.Label(_ui, button.transform, SlotName(slot), 29, .02f, .74f, .98f, 1, true, TextAlignmentOptions.Center);
+            WorkshopUi.Bounds(label.rectTransform, .015f, .01f, .985f, .3f);
+            label.fontSizeMax = 27; label.fontSizeMin = 22;
+            var icon = _ui.Icon("Item", button.transform, null, 100);
+            WorkshopUi.Bounds(icon.rectTransform, .18f, .30f, .82f, .76f);
+            var face = button.transform.Find("Face").GetComponent<Image>();
+            _visualRefresh.Add(() =>
+            {
+                var item = Definition(Get(slot));
+                icon.sprite = item != null ? WorkshopUi.ItemSprite(item) : EmptySprite(slot); icon.enabled = icon.sprite != null; icon.color = item == null ? new Color(.5f, .45f, .38f, .24f) : Color.white;
+                label.text = item != null ? item.DisplayName : "Empty";
+                if (slot == Slot.OffHand && Info(_loadout.Weapon) is ItemInfo weapon && weapon.TwoHanded) label.text = "Two-handed";
+                face.color = _selectedSlot == slot ? GoldTint : WorkshopUi.Cream;
+            });
+        }
+
+        private Sprite EmptySprite(Slot slot)
+        {
+            var category = slot == Slot.Weapon ? ItemCategory.Weapon : slot == Slot.Armor ? ItemCategory.Armor
+                : slot == Slot.Head ? ItemCategory.Helmet : slot == Slot.OffHand ? ItemCategory.Shield : ItemCategory.Potion;
+            foreach (var item in _root.Services.Catalogue.Items)
+                if (item != null && item.Category == category) return WorkshopUi.ItemSprite(item);
+            return null;
+        }
+
+        private static Color GoldTint => new Color32(244, 211, 143, 255);
+
+        public void SelectSlot(int slotIndex)
+        {
+            if (!IsOpen || !Enum.IsDefined(typeof(Slot), slotIndex)) return;
+            _selectedSlot = (Slot)slotIndex; _optionsKey = ""; RefreshEquipment();
+        }
+
+        private void RefreshEquipment()
+        {
+            if (_warning != null) _warning.text = Quest != null && Quest.Recovery ? "Safe survey · No death outcome" : "Gear is lost if the hero dies.";
+            foreach (var refresh in _visualRefresh) refresh();
+            if (_preview != null) _preview.SetEquipment(Definition(_loadout.Head), Definition(_loadout.Armor),
+                Definition(_loadout.Weapon), Definition(_loadout.OffHand));
+            var options = Options(_selectedSlot);
+            var key = _selectedSlot + "|" + Get(_selectedSlot) + "|" + string.Join(",", options);
+            if (key == _optionsKey) return;
+            _optionsKey = key;
+            WorkshopUi.Clear(_choices);
+            WorkshopUi.Label(_ui, _choices, "CHOOSE " + SlotName(_selectedSlot).ToUpperInvariant(), 33, 0, .79f, .65f, 1, true);
+            WorkshopUi.Label(_ui, _choices, "Store stock · swipe →", 25, .65f, .79f, 1, 1);
+            var view = UiFactory.Rect("ItemViewport", _choices);
+            WorkshopUi.Bounds(view, 0, .22f, 1, .79f);
+            view.gameObject.AddComponent<RectMask2D>();
+            view.gameObject.AddComponent<Image>().color = Color.clear;
+            var content = UiFactory.Rect("Items", view);
+            content.anchorMin = Vector2.zero; content.anchorMax = Vector2.up; content.pivot = new Vector2(0, .5f);
+            content.sizeDelta = new Vector2(0, 0);
+            var layout = content.gameObject.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 14; layout.childControlHeight = true; layout.childForceExpandHeight = true;
+            layout.childControlWidth = true; layout.childForceExpandWidth = false;
+            content.gameObject.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var scroll = view.gameObject.AddComponent<ScrollRect>();
+            scroll.content = content; scroll.viewport = view; scroll.vertical = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            options.Add(null);
+            foreach (var instance in options)
+            {
+                var captured = instance;
+                var item = Definition(instance);
+                var chosen = Get(_selectedSlot) == instance;
+                var button = WorkshopUi.Button(_ui, "ChooseItem", content, "", () => EquipSelected(captured), out var label, chosen);
+                var le = button.GetComponent<LayoutElement>(); le.minWidth = le.preferredWidth = 260; le.minHeight = 0;
+                WorkshopUi.Bounds(label.rectTransform, 0, 0, 1, .34f);
+                label.text = (chosen ? "• " : "") + (item != null ? item.DisplayName : "Unequip");
+                label.fontSizeMax = 28; label.fontSizeMin = 22;
+                if (item != null)
+                {
+                    var icon = _ui.Icon("Icon", button.transform, WorkshopUi.ItemSprite(item), 100);
+                    WorkshopUi.Bounds(icon.rectTransform, .2f, .35f, .8f, .98f);
+                }
+            }
+            var selected = Definition(Get(_selectedSlot));
+            WorkshopUi.Label(_ui, _choices, selected != null ? selected.StatLine() : "Choose an item from your available stock.", 27, 0, 0, 1, .22f);
+        }
+
+        /// <summary>Choose a specific compatible instance, preserving reservations and the two-handed rule.</summary>
+        public bool EquipSelected(string instance)
+        {
+            if (!IsOpen || Contractor == null || Quest == null) return false;
+            if (instance != null && !Options(_selectedSlot).Contains(instance))
+            {
+                _message = "That item is no longer available for this slot.";
+                _next = 0; Update(); return false;
+            }
+            var candidate = Copy(_loadout); Set(candidate, _selectedSlot, instance);
+            if (_selectedSlot == Slot.Weapon && Info(candidate.Weapon) is ItemInfo weapon && weapon.TwoHanded) candidate.OffHand = null;
+            var ok = Board.ReserveLoadout(candidate);
+            if (ok) { _loadout = candidate; _message = ""; }
+            else _message = "That item was just reserved elsewhere.";
+            _confirmUntil = -1; _optionsKey = ""; _next = 0; Update();
+            return ok;
         }
 
         private void Header(string text)
@@ -154,7 +310,7 @@ namespace Ravenholm.Presentation
             if (Board.ReserveLoadout(candidate)) _loadout = candidate;
             else _message = "That item was just reserved elsewhere.";
             _confirmUntil = -1f;
-            Update();
+            _next = 0; Update();
         }
 
         /// <summary>One instance per distinct definition that fits the slot and is not in another slot or reserved elsewhere.</summary>
@@ -367,7 +523,7 @@ namespace Ravenholm.Presentation
             if (!Board.State.FirstDispatchDone && Time.unscaledTime > _confirmUntil)
             {
                 _confirmUntil = Time.unscaledTime + 3f;
-                Update();
+                _next = 0; Update();
                 return;
             }
             var name = Contractor?.Name;
@@ -381,7 +537,7 @@ namespace Ravenholm.Presentation
                 return;
             }
             _message = UnitVisuals.PrettyIds(failure);
-            Update();
+            _next = 0; Update();
         }
     }
 }

@@ -205,9 +205,9 @@ namespace Ravenholm.Tests
             Assert.IsInstanceOf<ForestRockSpot>(SandboxSceneController.Current.ContextTarget, $"facing the rock the button digs, not the stump (it says \"{root.Hud.ContextLabel}\")");
 
             // Behind the wagon (above its floor on the screen, outside it), the wagon fades; in front, it doesn't.
-            var fader = Object.FindAnyObjectByType<WagonFader>();
+            var cart = Object.FindAnyObjectByType<WalkInCart>();
+            var fader = cart.GetComponent<BehindFader>();
             Assert.IsNotNull(fader, "the wagon has a fader");
-            var cart = fader.GetComponent<WalkInCart>();
             var top = float.MinValue; var sumX = 0f;
             foreach (var q in cart.Footprint) { top = Mathf.Max(top, q.y); sumX += q.x; }
             var behind = (Vector2)fader.transform.position + new Vector2(sumX / cart.Footprint.Count, top + 0.25f);
@@ -221,6 +221,57 @@ namespace Ravenholm.Tests
             motor.Teleport((Vector2)fader.transform.position + new Vector2(sumX / cart.Footprint.Count, bottom - 1.2f));
             yield return new WaitForSeconds(0.6f);
             Assert.IsFalse(fader.Faded, "and comes back in front");
+        }
+    
+        [UnityTest]
+        public IEnumerator CampFurnitureFadesWithHimBehindAndTheTraderStallKeepsHimOut()
+        {
+            SceneManager.LoadScene(GameRoot.BootstrapSceneName);
+            var deadline = Time.realtimeSinceStartup + 10f;
+            while ((GameRoot.Instance == null || SandboxSceneController.Current == null || SceneManager.GetActiveScene().name != "DebugSandbox")
+                   && Time.realtimeSinceStartup < deadline)
+                yield return null;
+            for (var i = 0; i < 3; i++) yield return null;
+            var root = GameRoot.Instance;
+            root.Hud.Tips.HideAll();
+            var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
+
+            // The fifth playtest: chopping behind the weapon rack and the dummy, only his hat showed.
+            BehindFader tallest = null;
+            var height = 0f;
+            foreach (var view in ShopView.Current.Views.Values)
+            {
+                var f = view.GetComponent<BehindFader>();
+                Assert.IsNotNull(f, $"{view.name} fades");
+                var top = float.MinValue;
+                foreach (var sr in view.GetComponentsInChildren<SpriteRenderer>()) top = Mathf.Max(top, sr.bounds.max.y);
+                if (top - view.transform.position.y > height) { height = top - view.transform.position.y; tallest = f; }
+            }
+            Assert.IsNotNull(tallest, "the camp has furniture");
+            var spot = (Vector2)tallest.transform.position + new Vector2(0f, 0.35f);
+            motor.Teleport(spot);
+            yield return new WaitForSeconds(0.6f);
+            Assert.IsTrue(tallest.Faded, $"{tallest.name} fades with him just behind it (he is at {motor.transform.position})");
+            yield return Capture.Take("furniture_fade");
+            motor.Teleport((Vector2)tallest.transform.position + new Vector2(0f, -1.6f));
+            yield return new WaitForSeconds(0.6f);
+            Assert.IsFalse(tallest.Faded, "and comes back with him in front");
+
+            // The Trader's stall: walking into it from behind or the side stops him at its posts, not inside.
+            var pad = GameObject.Find("Trader Pad").transform;
+            var art = pad.GetComponent<SpriteRenderer>().bounds;
+            motor.Teleport((Vector2)pad.position + new Vector2(0f, 2.5f));
+            yield return null;
+            root.InputRouter.ScriptedMove = Vector2.down;
+            yield return new WaitForSeconds(2f);
+            root.InputRouter.ScriptedMove = null;
+            Assert.GreaterOrEqual(motor.transform.position.y, pad.position.y + 0.75f, "from behind he stops at the stall's back (at 2×2 he got to 0.68)");
+            motor.Teleport((Vector2)pad.position + new Vector2(3f, 0f));
+            yield return null;
+            root.InputRouter.ScriptedMove = Vector2.left;
+            yield return new WaitForSeconds(2f);
+            root.InputRouter.ScriptedMove = null;
+            Assert.GreaterOrEqual(motor.transform.position.x, art.max.x + 0.05f, "from the side he stops outside its posts (at 2×2 he got 0.1 inside)");
         }
     }
 }

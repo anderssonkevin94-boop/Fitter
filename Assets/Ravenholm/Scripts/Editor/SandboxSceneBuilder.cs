@@ -94,7 +94,7 @@ namespace Ravenholm.EditorTools
             var apothecary = Building(buildings, "Apothecary", "bld_apothecary", new Vector2(-2.9f, -1.7f), new Vector2(2.2f, 2.2f),
                 "Receives herbs (no processing needed). Potions are crafted here.", "", new Vector2(2f, 2f), ReceiverKind.Apothecary, stationId: "station.apothecary");
             var traderPad = Building(buildings, "Trader Pad", "bld_trader_pad", new Vector2(3.0f, -2.1f), new Vector2(2.2f, 2.0f),
-                "A periodic visitor sets up here to sell external materials and buy Store goods at poor prices.", "", new Vector2(2f, 2f));
+                "A periodic visitor sets up here to sell external materials and buy Store goods at poor prices.", "", new Vector2(2.65f, 2.65f));   // the stall's posts (2.5 wide art; at 2×2 he walked in, fifth playtest)
             TraderStall(traderPad);
             traderPad.gameObject.AddComponent<CampAnchored>();   // the Trader comes along to each camp (the journey, step 4)
             MineDig(buildings);

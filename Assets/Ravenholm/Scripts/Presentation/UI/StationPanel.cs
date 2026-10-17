@@ -36,6 +36,9 @@ namespace Ravenholm.Presentation
         private string _structureKey = "";
         private float _nextRefresh;
         private string _lastMessage = "";
+        private bool _upgrades;
+        private Image _craftTabFace, _upgradeTabFace;
+        private TextMeshProUGUI _status;
 
         public bool IsOpen => gameObject.activeSelf;
         public string StationId => _station != null ? _station.StationId : null;
@@ -45,7 +48,7 @@ namespace Ravenholm.Presentation
         {
             var layer = UiFactory.Rect("StationLayer", parent);
             UiFactory.Stretch(layer);
-            layer.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.07f, 0.05f, 0.4f);
+            layer.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.07f, 0.05f, 0.08f);
             var panel = layer.gameObject.AddComponent<StationPanel>();
             panel.Build(ui, root);
             layer.gameObject.SetActive(false);
@@ -57,17 +60,17 @@ namespace Ravenholm.Presentation
             _ui = ui;
             _theme = ui.Theme;
             _root = root;
-            var card = _ui.Panel("Card", transform, _theme.panel);
-            UiFactory.Stretch(card.rectTransform, 28f);
+            var card = WorkshopUi.Frame(transform);
+            WorkshopUi.Bounds(card.rectTransform, .025f, .10f, .975f, .84f);
             _title = _ui.Text("Title", card.transform, "", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
-            UiFactory.Place(_title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(900f, 80f));
+            UiFactory.Place(_title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(820f, 80f));
 
             var viewport = UiFactory.Rect("Viewport", card.transform);
             UiFactory.Stretch(viewport);
             // The list scrolls above a Close button pinned to the card's foot (the playtester, 2026-10-17: with the
             // Forge's many recipes the last craft button was cut off and Close scrolled out of sight).
-            viewport.offsetMin = new Vector2(36f, 196f);
-            viewport.offsetMax = new Vector2(-36f, -130f);
+            viewport.offsetMin = new Vector2(36f, 250f);
+            viewport.offsetMax = new Vector2(-36f, -285f);
             viewport.gameObject.AddComponent<RectMask2D>();
             viewport.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, 0);
             _content = UiFactory.Rect("Content", viewport);
@@ -85,11 +88,24 @@ namespace Ravenholm.Presentation
             _scroll = scroll;
             _viewport = viewport;
 
-            var close = _ui.Button("Close", card.transform, "Close", Close, out _);
+            var craftTab = WorkshopUi.Button(_ui, "CraftTab", card.transform, "Craft", () => SelectTab(false), out _);
+            WorkshopUi.Bounds((RectTransform)craftTab.transform, .045f, 1, .32f, 1);
+            ((RectTransform)craftTab.transform).offsetMin = new Vector2(0, -230);
+            ((RectTransform)craftTab.transform).offsetMax = new Vector2(0, -130);
+            _craftTabFace = craftTab.transform.Find("Face").GetComponent<Image>();
+            var upgradeTab = WorkshopUi.Button(_ui, "UpgradeTab", card.transform, "Upgrade", () => SelectTab(true), out _, false);
+            WorkshopUi.Bounds((RectTransform)upgradeTab.transform, .34f, 1, .64f, 1);
+            ((RectTransform)upgradeTab.transform).offsetMin = new Vector2(0, -230);
+            ((RectTransform)upgradeTab.transform).offsetMax = new Vector2(0, -130);
+            _upgradeTabFace = upgradeTab.transform.Find("Face").GetComponent<Image>();
+            _status = WorkshopUi.Label(_ui, card.transform, "", 27, .66f, 1, .96f, 1, false, TextAlignmentOptions.Center);
+            _status.rectTransform.offsetMin = new Vector2(0, -230);
+            _status.rectTransform.offsetMax = new Vector2(0, -130);
+            var close = WorkshopUi.Button(_ui, "Close", card.transform, "Close", Close, out _, false);
             Destroy(close.GetComponent<LayoutElement>());
-            UiFactory.Place(close.GetComponent<RectTransform>(), new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0f, 76f), new Vector2(520f, 96f));
+            UiFactory.Place(close.GetComponent<RectTransform>(), new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0f, 42f), new Vector2(520f, 132f));
             _more = _ui.Text("MoreBelow", card.transform, "More below ▼", _theme.smallSize, _theme.ink, TextAlignmentOptions.Center, FontStyles.Bold);
-            UiFactory.Place(_more.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0f, 162f), new Vector2(600f, 52f));
+            UiFactory.Place(_more.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0f, 192f), new Vector2(600f, 44f));
             _more.raycastTarget = false;
             SandboxHud.AutoFit(_more, 18f);   // the largest text setting shrinks it to fit
         }
@@ -104,6 +120,7 @@ namespace Ravenholm.Presentation
         public void Show(StationInspectable station)
         {
             _station = station;
+            _upgrades = false;
             _lastMessage = "";
             _structureKey = "";
             if (!IsOpen)
@@ -161,6 +178,11 @@ namespace Ravenholm.Presentation
                 _structureKey = key;
                 Rebuild();
             }
+            if (_status != null)
+            {
+                var def = Cat.TryGet<StationDefinition>(_station.StationId, out var sd) ? sd : null;
+                _status.text = def == null ? "" : $"Output {_root.Services.Logistics.System.ContainerUnitCount(def.OutputPadContainerId)}/{def.OutputPadCapacity}\nSlots {Prod.BusySlots(_station.StationId)}/{Prod.CraftSlots(_station.StationId)}";
+            }
             foreach (var t in _liveTexts) t.text.text = t.provider();
             foreach (var b in _live)
             {
@@ -171,7 +193,7 @@ namespace Ravenholm.Presentation
 
         private string StructureKey()
         {
-            var sb = new StringBuilder(_station.StationId);
+            var sb = new StringBuilder(_station.StationId).Append(_upgrades);
             sb.Append('|').Append(Prod.Level(_station.StationId));
             sb.Append('|').Append(_root.Services.Economy.Purchased.Count).Append('|').Append(Feel.DeveloperMode);
             sb.Append('|').Append(_root.Services.Sites.PlayerToolId);
@@ -179,61 +201,83 @@ namespace Ravenholm.Presentation
             return sb.ToString();
         }
 
+        public void SelectTab(bool upgrades)
+        {
+            _upgrades = upgrades; _structureKey = ""; Refresh();
+            _scroll.verticalNormalizedPosition = 1;
+        }
+
         private void Rebuild()
         {
-            for (var i = _content.childCount - 1; i >= 0; i--) Destroy(_content.GetChild(i).gameObject);
-            _live.Clear();
-            _liveTexts.Clear();
+            WorkshopUi.Clear(_content);
+            _live.Clear(); _liveTexts.Clear();
             var stationId = _station.StationId;
             var stationDef = Cat.TryGet<StationDefinition>(stationId, out var sd) ? sd : null;
-            _title.text = _station.Title;
-
-            Text(() => _station.BuildDetail(), _theme.smallSize);
-            Text(() => string.IsNullOrEmpty(_lastMessage) ? "" : $"<b>{_lastMessage}</b>", _theme.smallSize);
-
-            if (_station.HasReceiver)
+            _title.text = _station.Title.ToUpperInvariant();
+            _craftTabFace.color = _upgrades ? WorkshopUi.Cream : WorkshopUi.Gold;
+            _upgradeTabFace.color = _upgrades ? WorkshopUi.Gold : WorkshopUi.Cream;
+            if (_upgrades)
             {
-                Header("Receiving");
-                Text(ReceiverText, _theme.smallSize);
+                if (stationDef != null) UpgradeSection(stationDef);
+                if (stationDef != null && stationDef.SellsSupplierTools) ToolsSection();
             }
-
-            var processes = new List<ProcessRecipe>();
-            foreach (var p in Prod.Processes) if (p.Facility == stationId) processes.Add(p);
-            if (processes.Count > 0)
+            else
             {
-                Header("Processing line (automatic)");
-                Text(ProcessText, _theme.smallSize);
-                foreach (var p in processes)
-                {
-                    var proc = p;
-                    Button(() => ProcessButtonText(proc), () => _root.Services.Production.SelectProcess(stationId, proc.Id),
-                        () => Prod.Level(stationId) >= proc.MinLevel);
-                }
-                Button(ReserveText, CycleReserve, null);
-            }
-
-            var recipes = new List<CraftRecipe>();
-            foreach (var r in Prod.Recipes)
-                if (r.Station == stationId && Prod.State.Blueprints.Contains(r.BlueprintId)) recipes.Add(r);   // unknown recipes stay hidden (GDD 9)
-            if (recipes.Count > 0)
-            {
-                Header("Craft");
-                Text(() => stationDef != null ? $"Output pad: {_root.Services.Logistics.System.ContainerUnitCount(stationDef.OutputPadContainerId)}/{stationDef.OutputPadCapacity}" : "", _theme.smallSize);
+                foreach (var recipe in Prod.Recipes)
+                    if (recipe.Station == stationId && Prod.State.Blueprints.Contains(recipe.BlueprintId)) AddRecipe(recipe);
                 Text(() => SlotsText(stationId), _theme.smallSize);
-                foreach (var r in recipes)
+                var processes = new List<ProcessRecipe>();
+                foreach (var process in Prod.Processes) if (process.Facility == stationId) processes.Add(process);
+                if (processes.Count > 0)
                 {
-                    var recipe = r;
-                    Text(() => RecipeCard(recipe), _theme.smallSize);
-                    Button(() => CraftButtonText(recipe), () => Craft(recipe.Id), () => Prod.CraftBlockedReason(recipe.Id) == null);
+                    Header("Processing line"); Text(ProcessText, _theme.smallSize);
+                    foreach (var process in processes)
+                    {
+                        var captured = process;
+                        Button(() => ProcessButtonText(captured), () => _root.Services.Production.SelectProcess(stationId, captured.Id),
+                            () => Prod.Level(stationId) >= captured.MinLevel);
+                    }
+                    Button(ReserveText, CycleReserve, null);
                 }
+                if (_station.HasReceiver) { Header("Receiving"); Text(ReceiverText, _theme.smallSize); }
             }
-
-            if (stationDef != null) UpgradeSection(stationDef);
-            if (stationDef != null && stationDef.SellsSupplierTools) ToolsSection();
-
+            Text(() => _lastMessage, _theme.smallSize);
             if (stationDef != null && Feel.DeveloperMode)
                 Button(() => $"DEBUG station level: {Prod.Level(stationId)} of {stationDef.MaxLevel} · tap to change",
                     () => _root.Services.Production.DebugCycleLevel(stationDef), null);
+        }
+
+        private void AddRecipe(CraftRecipe recipe)
+        {
+            var item = Cat.TryGet<ItemDefinition>(recipe.OutputItemId, out var d) ? d : null;
+            var row = WorkshopUi.Surface("Recipe_" + recipe.Id, _content, WorkshopUi.Cream);
+            row.gameObject.AddComponent<LayoutElement>().preferredHeight = 280;
+            var icon = _ui.Icon("Item", row.transform, item != null ? WorkshopUi.ItemSprite(item) : _theme.unknown, 132);
+            WorkshopUi.Bounds(icon.rectTransform, .025f, .29f, .19f, .92f);
+            WorkshopUi.Label(_ui, row.transform, item != null ? item.DisplayName : recipe.OutputItemId, 35, .21f, .68f, .76f, .98f, true);
+            WorkshopUi.Label(_ui, row.transform, item != null ? item.StatLine() : "", 26, .21f, .45f, .76f, .70f);
+            var costs = WorkshopUi.Label(_ui, row.transform, "", 25, .21f, .20f, .76f, .46f);
+            var state = WorkshopUi.Label(_ui, row.transform, "", 25, .025f, .025f, .975f, .20f);
+            var button = WorkshopUi.Button(_ui, "Craft", row.transform, "Craft", () => Craft(recipe.Id), out var label);
+            WorkshopUi.Bounds((RectTransform)button.transform, .78f, .34f, .97f, .82f);
+            _live.Add(new LiveButton { Button = button, Label = label, Text = () => Prod.Level(recipe.Station) < recipe.MinLevel ? "Locked" : "Craft",
+                Enabled = () => Prod.CraftBlockedReason(recipe.Id) == null });
+            _liveTexts.Add((costs, () =>
+            {
+                var sb = new StringBuilder();
+                foreach (var cost in recipe.Inputs)
+                {
+                    if (sb.Length > 0) sb.Append(" · ");
+                    var enough = _root.Services.Logistics.System.SharedAvailable(cost.Key) >= cost.Value;
+                    sb.Append($"<color={(enough ? "#3B6E2E" : "#A64232")}>{cost.Value} {UnitVisuals.DisplayName(cost.Key)}</color>");
+                }
+                return sb.ToString();
+            }));
+            _liveTexts.Add((state, () =>
+            {
+                var reason = Prod.CraftBlockedReason(recipe.Id);
+                return reason == null ? $"Ready · {Duration(Prod.EffectiveCraftMs(recipe))}" : UnitVisuals.PrettyIds(reason);
+            }));
         }
 
         // ------------------------------------------------------------------ upgrades (GDD 16)
@@ -354,7 +398,7 @@ namespace Ravenholm.Presentation
 
         private void Button(Func<string> text, Action onClick, Func<bool> enabled)
         {
-            _ui.Button("Button", _content, "", onClick, out var label);
+            WorkshopUi.Button(_ui, "Button", _content, "", onClick, out var label);
             label.fontSize = _theme.smallSize;
             label.enableAutoSizing = true;
             label.fontSizeMin = 20f;

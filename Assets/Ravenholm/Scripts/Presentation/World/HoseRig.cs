@@ -61,6 +61,11 @@ namespace Ravenholm.Presentation
         public string HeadwearItem { get; set; }
 
         /// <summary>Whether headwear is drawn now (tests).</summary>
+        /// <summary>Painted-part anchors for the equipment portrait, available after Drive builds the rig.</summary>
+        public SpriteRenderer BodyAttachment => _body;
+        public SpriteRenderer LeftHandAttachment => _handL;
+        public SpriteRenderer RightHandAttachment => _handR;
+
         public bool HeadwearShown => _headwear != null && _headwear.enabled;
         private Transform _toolPivot;
         private Vector2 _handLp, _handLv, _handRp, _handRv;
