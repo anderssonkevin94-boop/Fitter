@@ -106,7 +106,7 @@ namespace Ravenholm.Tests
             GameRoot.Instance.Hud.ScriptedHold = true;   // hold the button
             yield return WaitUntil(() => forest.IsFelled(area, slot), 10f, "the tree is felled");
             GameRoot.Instance.Hud.ScriptedHold = false;
-            Assert.GreaterOrEqual(services.Logistics.System.CarryCount, 4, "its logs went straight into the carry");
+            Assert.GreaterOrEqual(services.Logistics.System.CarryCount, 2, "its two logs went straight into the carry");
             Assert.IsFalse(view.HasStandingTree(cell), "a stump: the tile can be walked now");
             yield return null;
             yield return null;

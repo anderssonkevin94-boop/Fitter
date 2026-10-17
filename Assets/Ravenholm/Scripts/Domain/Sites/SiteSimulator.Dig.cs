@@ -77,8 +77,8 @@ namespace Ravenholm.Domain.Sites
                 var band = SurfaceBand(x, y);
                 var mix = LayerMix(band, true);   // breaking a block of a deeper layer reveals that layer
                 var ore = SurfaceOreAt(x, y, level);
+                // One unit a block (Kevin's playtest, 2026-10-17: the ore's bonus unit gave too much); a rare find stays.
                 Release(ore ?? LayerBaseline(band), true);
-                if (ore != null && _rng.NextDouble() < MineVeins.HandBonusChance) Release(ore, true);
                 if (!string.IsNullOrEmpty(mix.RareResourceId) && _rng.NextDouble() < mix.RareChance) Release(mix.RareResourceId, true);
             }
             Resolve();

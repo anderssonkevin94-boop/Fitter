@@ -236,6 +236,17 @@ namespace Ravenholm.Presentation
         }
 
         /// <summary>The cell the supplier faces from the way they last moved (along the grid's axes).</summary>
+        /// <summary>The neighbouring cell faced, then the other one beside that way (the second-nearest grid axis).</summary>
+        public static IEnumerable<Vector3Int> FacingCells(Vector2 move)
+        {
+            var dx = move.x + 2f * move.y;
+            var dy = -move.x + 2f * move.y;
+            var first = FacingFrom(move);
+            yield return first;
+            var second = first.x != 0 ? new Vector3Int(0, dy >= 0 ? 1 : -1, 0) : new Vector3Int(dx >= 0 ? 1 : -1, 0, 0);
+            yield return second;
+        }
+
         public static Vector3Int FacingFrom(Vector2 move)
         {
             var dx = move.x + 2f * move.y;
@@ -251,9 +262,13 @@ namespace Ravenholm.Presentation
         {
             block = default;
             var c = CellAt(plane);
-            var a = c + FacingFrom(facingMove);
-            if (!HasTreeOrStump(a))
+            // The cell faced, then (facing between the grid's axes, Kevin's playtest 2026-10-17) the other cell beside
+            // that way, so the rock right in front is never skipped.
+            foreach (var step in FacingCells(facingMove))
             {
+                var a = c + step;
+                // A tree within reach wins (it is chopped instead); one standing on top of a wall doesn't hide the wall.
+                if (HasTreeOrStump(a) && SurfaceTop(a) <= _feet + 1) continue;
                 if (SolidAt(a, _feet + 2)) { block = new Vector3Int(a.x, a.y, _feet + 2); return true; }
                 if (SolidAt(a, _feet + 1)) { block = new Vector3Int(a.x, a.y, _feet + 1); return true; }
             }

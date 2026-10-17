@@ -59,8 +59,11 @@ namespace Ravenholm.Tests
             }
             Assert.IsTrue(log.IsFull, "the carry filled");
             var tree = NextTree(g, 6);
+            // (The tree that filled the carry may leave its last log waiting at the site; nothing more piles up.)
+            var waiting = forest.Record.FacePending.Count;
+            Assert.LessOrEqual(waiting, 1, "at most the filling tree's last log waits");
             for (var i = 0; i < 200; i++) Assert.AreEqual(0, g.Sites.PlayerChopCell("site.forest", tree.x, tree.y, 0.1f), "no logs while the carry is full");
-            Assert.AreEqual(0, forest.Record.FacePending.Count, "and none piling up at the site");
+            Assert.AreEqual(waiting, forest.Record.FacePending.Count, "and none piling up at the site");
 
             // Unloaded: the next chops bring the logs one at a time.
             log.DebugUnloadCarry();

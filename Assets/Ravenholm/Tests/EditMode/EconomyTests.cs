@@ -397,7 +397,7 @@ namespace Ravenholm.Tests
             Assert.IsTrue(found, "a tree ahead of camp the starting axe can cut");
             for (var i = 0; i < 2000 && !forest.IsFelled(tx, ty); i++) g.Sites.PlayerChopCell("site.forest", tx, ty, 0.1f);
             Assert.IsTrue(forest.IsFelled(tx, ty));
-            Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 4, "a tree's four logs (herbs are a bonus roll)");
+            Assert.GreaterOrEqual(g.Logistics.System.CarryCount, 2, "a tree's two logs (herbs are a bonus roll)");
             Assert.AreEqual(new GroveCell(tx, ty), forest.Record.LastChop);
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
             g.Logistics.System.DebugUnloadCarry();

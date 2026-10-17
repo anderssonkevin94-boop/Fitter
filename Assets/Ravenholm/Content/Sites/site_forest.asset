@@ -27,7 +27,7 @@ MonoBehaviour:
   recruits: []
   stagingContainerId: container.forest_staging
   stagingCapacity: 96
-  unitsPerSectionOrTree: 4
+  unitsPerSectionOrTree: 2
   treesPerClearing: 6
   baseDurability: 40
   growthPerBand: 1.18

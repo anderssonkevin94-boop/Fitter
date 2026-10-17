@@ -1765,3 +1765,10 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - The views are drawn at half scale (256 px per unit against the single stack sprites' 512). Items without views keep their stack sprite.
 - **Shop furniture** already shows A on left-facing pieces and B on right-facing ones; unchanged.
 - **Tests.** `StackSpritePlayModeTests.TheCarriedPileTurnsWithTheSupplier` turns him through all eight directions with logs, an ingot, lumber, a sword and a coat, and checks each piece's view (captures `carry_views_*`).
+
+## 2026-10-17: smaller yields; digging the wall in front (Kevin's playtest)
+
+- **Yields (Kevin: "a tree should be 2 logs and a stone should be one").** A tree gives 2 logs (`site_forest` units per tree, was 4). A hill block gives 1 unit: the ore's 50 % bonus unit is gone for hill blocks. The rare find (a gem, a herb) still rolls.
+- **The wall in front (Kevin: facing a wall, the stones right in front couldn't be selected).** `ForestGridView.RockTarget`:
+  - A tree no longer hides the rock beneath it unless the tree is within reach (its ground no higher than a step). A tree on top of a wall left the wall undiggable, and the button offered the unreachable tree.
+  - Facing between the grid's axes, the other neighbouring cell that way is tried too (`FacingCells`).
