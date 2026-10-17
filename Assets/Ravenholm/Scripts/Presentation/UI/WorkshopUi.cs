@@ -47,6 +47,7 @@ namespace Ravenholm.Presentation
             var image = rt.gameObject.AddComponent<Image>();
             image.color = color;
             image.raycastTarget = false;
+            rt.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
             return image;
         }
 
@@ -58,7 +59,8 @@ namespace Ravenholm.Presentation
 
         public static Image Surface(string name, Transform parent, Color color)
         {
-            var edge = Fill(name, parent, Edge);
+            var edge = UiFactory.Rect(name, parent).gameObject.AddComponent<Image>();
+            edge.color = Edge; edge.raycastTarget = false;
             var face = Fill("Face", edge.transform, color);
             UiFactory.Stretch(face.rectTransform, 3);
             return edge;
@@ -71,10 +73,12 @@ namespace Ravenholm.Presentation
             Bounds(topEdge.rectTransform, 0, 1, 1, 1);
             topEdge.rectTransform.offsetMin = new Vector2(4, -8); topEdge.rectTransform.offsetMax = new Vector2(-4, -3);
             var paper = Surface("Paper", card.transform, Cream);
+            paper.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
             UiFactory.Stretch(paper.rectTransform, 24);
             foreach (var corner in new[] { Vector2.zero, Vector2.right, Vector2.up, Vector2.one })
             {
                 var bracket = Surface("IronCorner", card.transform, Iron);
+                bracket.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
                 UiFactory.Place(bracket.rectTransform, corner, corner, Vector2.zero, new Vector2(52, 52));
                 var rivet = Fill("Rivet", bracket.transform, new Color32(153, 171, 181, 255));
                 UiFactory.Place(rivet.rectTransform, Vector2.one * .5f, Vector2.one * .5f, Vector2.zero, new Vector2(9, 9));
@@ -95,12 +99,8 @@ namespace Ravenholm.Presentation
             out TextMeshProUGUI label, bool primary = true)
         {
             var button = ui.Button(name, parent, text, action, out label);
-            var graphic = button.GetComponent<Image>();
-            graphic.sprite = null; graphic.color = Edge;
-            var face = Fill("Face", button.transform, primary ? Gold : Cream);
-            UiFactory.Stretch(face.rectTransform, 3); face.transform.SetAsFirstSibling();
-            button.targetGraphic = face;
-            var colors = button.colors; colors.disabledColor = new Color(.75f, .75f, .75f, 1); button.colors = colors;
+            var face = button.transform.Find("Face").GetComponent<Image>();
+            face.color = primary ? Gold : Cream;
             label.fontSize = 34; label.enableAutoSizing = true; label.fontSizeMin = 25; label.fontSizeMax = 34;
             return button;
         }

@@ -35,7 +35,7 @@ namespace Ravenholm.Presentation
         public static ShopBuildPanel Create(Transform parent, UiFactory ui, GameRoot root)
         {
             var card = ui.Panel("ShopBuild", parent, ui.Theme.panel);
-            UiFactory.Place(card.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 24f), new Vector2(1060f, 620f));
+            UiFactory.Place(card.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 24f), new Vector2(1060f, 850f));
             var panel = card.gameObject.AddComponent<ShopBuildPanel>();
             panel.Build(ui, root);
             card.gameObject.SetActive(false);
@@ -48,22 +48,41 @@ namespace Ravenholm.Presentation
             _theme = ui.Theme;
             _root = root;
             var content = UiFactory.Rect("Content", transform);
-            UiFactory.Stretch(content, 28f);
+            UiFactory.Stretch(content, 48f);
             UiFactory.Column(content.gameObject, 10f, new RectOffset(8, 8, 4, 4));
             _title = _ui.Text("Title", content, "", _theme.bodySize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
-            _title.gameObject.AddComponent<LayoutElement>().preferredHeight = 56f;
+            _title.gameObject.AddComponent<LayoutElement>().preferredHeight = 64f;
             _info = _ui.Text("Info", content, "", _theme.smallSize, _theme.ink, TextAlignmentOptions.TopLeft);
             _info.richText = true;
-            _info.gameObject.AddComponent<LayoutElement>().preferredHeight = 150f;
+            _info.gameObject.AddComponent<LayoutElement>().preferredHeight = 185f;
             _message = _ui.Text("Message", content, "", _theme.smallSize - 2f, new Color32(180, 64, 52, 255), TextAlignmentOptions.TopLeft, FontStyles.Bold);
-            _message.gameObject.AddComponent<LayoutElement>().preferredHeight = 44f;
-            _buttons = UiFactory.Rect("Buttons", content);
+            _message.gameObject.AddComponent<LayoutElement>().preferredHeight = 84f;
+            SandboxHud.AutoFit(_title, 28f);
+            SandboxHud.AutoFit(_info, 26f);
+            SandboxHud.AutoFit(_message, 25f);
+            var viewport = UiFactory.Rect("Catalogue", content);
+            viewport.gameObject.AddComponent<LayoutElement>().flexibleHeight = 1;
+            viewport.gameObject.AddComponent<RectMask2D>();
+            viewport.gameObject.AddComponent<Image>().color = Color.clear;
+            _buttons = UiFactory.Rect("Buttons", viewport);
+            _buttons.anchorMin = new Vector2(0, 1); _buttons.anchorMax = Vector2.one;
+            _buttons.pivot = new Vector2(.5f, 1); _buttons.sizeDelta = Vector2.zero;
+            var scroll = viewport.gameObject.AddComponent<ScrollRect>();
+            scroll.viewport = viewport; scroll.content = _buttons; scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            _buttons.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            _buttons.gameObject.AddComponent<WorkshopGrid>();
             var grid = _buttons.gameObject.AddComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(480f, 104f);
+            grid.cellSize = new Vector2(470f, 132f);
             grid.spacing = new Vector2(16f, 12f);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = 2;
-            _buttons.gameObject.AddComponent<LayoutElement>().preferredHeight = 340f;
+            var hint = _ui.Text("MoreBelow", content, "Scroll for more furniture", 26, WorkshopUi.Iron, TextAlignmentOptions.Center);
+            hint.gameObject.AddComponent<LayoutElement>().preferredHeight = 36;
+            var watch = hint.gameObject.AddComponent<WorkshopScrollHint>();
+            watch.Scroll = scroll; watch.Label = hint;
+            var done = _ui.Button("CloseBuild", content, "Finish building", () => _root.Hud.CloseShopBuild(), out _);
+            done.transform.SetAsLastSibling();
         }
 
         private static ShopView View => ShopView.Current;
@@ -100,6 +119,7 @@ namespace Ravenholm.Presentation
                 b.label.text = b.text();
                 b.button.interactable = b.enabled == null || b.enabled();
             }
+            _message.gameObject.SetActive(!string.IsNullOrEmpty(_message.text));
             if (Key() != _key) Rebuild();
         }
 
@@ -124,9 +144,11 @@ namespace Ravenholm.Presentation
         {
             if (View == null) return;
             _key = Key();
-            for (var i = _buttons.childCount - 1; i >= 0; i--) Destroy(_buttons.GetChild(i).gameObject);
+            WorkshopUi.Clear(_buttons);
             _live.Clear();
             _message.text = StationBuild.Selected != null || _listingKits ? StationBuild.LastMessage : View.LastMessage;
+            _message.gameObject.SetActive(!string.IsNullOrEmpty(_message.text));
+            _info.GetComponent<LayoutElement>().preferredHeight = _listing || _listingKits ? 90 : 185;
 
             if (StationBuild.Selected != null) { StationChoice(StationBuild.Selected); return; }
             if (_listingKits) { ListKits(); return; }
@@ -147,7 +169,6 @@ namespace Ravenholm.Presentation
                 Button(() => Shop.WagonLevel >= Shop.Definition.WagonMaxLevel ? "Wagon fully upgraded" : $"Upgrade the wagon to {Shop.WagonLevel + 1}",
                     () => View.Report(Shop.UpgradeWagon() ?? "A bigger, finer carpet."), () => Shop.WagonUpgradeBlockedReason() == null);
             if (kits > 0) Button(() => $"Station kits ({KitCount()})", () => { _listingKits = true; Rebuild(); });
-            Button(() => "Done", () => _root.Hud.CloseShopBuild());
         }
 
         // ------------------------------------------------------------------ the camp's stations

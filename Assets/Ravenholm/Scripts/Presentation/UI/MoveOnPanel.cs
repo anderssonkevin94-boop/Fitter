@@ -27,27 +27,31 @@ namespace Ravenholm.Presentation
         public static MoveOnPanel Create(Transform parent, UiFactory ui, GameRoot root)
         {
             var card = ui.Panel("MoveOn", parent, ui.Theme.panel);
-            UiFactory.Place(card.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 24f), new Vector2(1060f, 660f));
+            UiFactory.Place(card.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 24f), new Vector2(1060f, 850f));
             var panel = card.gameObject.AddComponent<MoveOnPanel>();
             panel._ui = ui;
             panel._theme = ui.Theme;
             panel._root = root;
             var content = UiFactory.Rect("Content", card.transform);
-            UiFactory.Stretch(content, 28f);
+            UiFactory.Stretch(content, 48f);
             UiFactory.Column(content.gameObject, 10f, new RectOffset(8, 8, 4, 4));
             panel._title = ui.Text("Title", content, "", ui.Theme.bodySize, ui.Theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
-            panel._title.gameObject.AddComponent<LayoutElement>().preferredHeight = 56f;
+            panel._title.gameObject.AddComponent<LayoutElement>().preferredHeight = 90f;
             panel._info = ui.Text("Info", content, "", ui.Theme.smallSize, ui.Theme.ink, TextAlignmentOptions.TopLeft);
-            panel._info.gameObject.AddComponent<LayoutElement>().preferredHeight = 210f;
+            panel._info.gameObject.AddComponent<LayoutElement>().preferredHeight = 260f;
             panel._message = ui.Text("Message", content, "", ui.Theme.smallSize - 2f, new Color32(180, 64, 52, 255), TextAlignmentOptions.TopLeft, FontStyles.Bold);
-            panel._message.gameObject.AddComponent<LayoutElement>().preferredHeight = 90f;
+            panel._message.gameObject.AddComponent<LayoutElement>().preferredHeight = 100f;
+            SandboxHud.AutoFit(panel._title, 28f);
+            SandboxHud.AutoFit(panel._info, 26f);
+            SandboxHud.AutoFit(panel._message, 25f);
             panel._buttons = UiFactory.Rect("Buttons", content);
             var grid = panel._buttons.gameObject.AddComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(480f, 104f);
+            grid.cellSize = new Vector2(470f, 132f);
             grid.spacing = new Vector2(16f, 12f);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = 2;
-            panel._buttons.gameObject.AddComponent<LayoutElement>().preferredHeight = 230f;
+            panel._buttons.gameObject.AddComponent<LayoutElement>().preferredHeight = 280f;
+            panel._buttons.gameObject.AddComponent<WorkshopGrid>();
             card.gameObject.SetActive(false);
             return panel;
         }
@@ -85,7 +89,7 @@ namespace Ravenholm.Presentation
         private void Rebuild()
         {
             var camp = _root.Services.Camp;
-            for (var i = _buttons.childCount - 1; i >= 0; i--) Destroy(_buttons.GetChild(i).gameObject);
+            WorkshopUi.Clear(_buttons);
             _live.Clear();
             _title.text = camp.Levels ? $"Through the gate to {camp.NextName}" : $"Make camp at {camp.NextName}";
             Button(() => camp.Levels ? "Go through the gate" : "Make camp here", () =>

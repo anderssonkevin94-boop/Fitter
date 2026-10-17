@@ -1833,3 +1833,14 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
 - **Camp furniture fades with the supplier behind it** (the weapon rack and the dummy hid him chopping behind them). The wagon's fader became `BehindFader` and now goes on every furniture piece as well. It fades all of the piece's sprites, its stock included, to 30 % while he stands behind it and it covers his feet, middle or head. It skips the wagon while he is inside it, and never fades the ox. Checked in `PlaytestFixesPlayModeTests` and in the capture.
 - **The Trader's stall keeps him out.** Its blocker was a 2 × 2 diamond (1.84 wide) under art 2.47 wide, so from the back or the side he walked about 0.3 in among the posts. With the stall faded, he looked like he was inside it. It is now 2.65 × 2.65 (about 2.44 wide), matching the posts. Checked in `PlaytestFixesPlayModeTests`.
 - **Astra's workshop UI** (her work, committed alongside: `WorkshopUi`, `WorkshopHeroPreview`, the reworked `LoadoutPanel` and `StationPanel`, and her `WorkshopUiPlayModeTests`). Shipped as she left it, after the full suites passed.
+
+## 2026-10-18: Astra's UI, second pass
+
+- Astra restyled the rest of the HUD and panels in the workshop look:
+  - the HUD's top-bar buttons (gold chips), the info card (taller, with auto-fitting text) and the debug panel;
+  - the away report, job board, loadout, move-on, result, settings, shop build, Store, tip and Trader panels;
+  - `UiFactory` and `WorkshopUi`, plus her `WorkshopScreensPlayModeTests`.
+- Committed as she left it, after the full suites passed.
+- Two tests updated for it:
+  - The joystick test hides the tips first: her taller tip card covers the middle of the 640 × 480 headless screen, where the test starts its drag. On the phone it sits at the top.
+  - The quest map's "not bunched" threshold is now 250: the nodes spread 296 in her narrower panel, against the old 300.

@@ -123,7 +123,7 @@ namespace Ravenholm.Presentation
 
         private void Rebuild()
         {
-            for (var i = _content.childCount - 1; i >= 0; i--) Destroy(_content.GetChild(i).gameObject);
+            WorkshopUi.Clear(_content);
             _live.Clear();
             _texts.Clear();
             var s = Board.State;
@@ -131,15 +131,14 @@ namespace Ravenholm.Presentation
             Text(() => Castle
                 ? $"Gold <b>{s.Gold}</b> · Reputation <b>{s.Reputation}</b> · The castle posts these jobs. Adventurers take them and come to your shop to be kitted out; you lend the gear for {Board.Config.ShopSharePercent}% of the castle's reward."
                 : $"Gold <b>{s.Gold}</b> · Reputation <b>{s.Reputation}</b> · Applicants per job: {Board.ApplicantTarget}");
-            Text(() => string.IsNullOrEmpty(_message) ? "" : $"<b>{_message}</b>");
+            var message = _ui.LiveText(_content, _theme.smallSize);
+            _texts.Add((message, () =>
+            {
+                message.transform.parent.gameObject.SetActive(!string.IsNullOrEmpty(_message));
+                return $"<b>{_message}</b>";
+            }));
 
             Text(CampaignText);
-            Header("Map");
-            var mapArea = UiFactory.Rect("QuestMap", _content);
-            MapNodes = QuestMapView.Build(mapArea, _ui, Cat, Board, ExplainNode);
-            mapArea.gameObject.AddComponent<LayoutElement>().preferredHeight = mapArea.sizeDelta.y;
-            Text(MapText);   // the same map in words (accessible, and lists what unlocks each job)
-
             var unread = s.Results.FindAll(r => !r.Acknowledged);
             if (unread.Count > 0)
             {
@@ -220,6 +219,13 @@ namespace Ravenholm.Presentation
             var away = _root.Services.Simulation.LastReport;
             if (away != null) Button(() => $"While you were away ({AwayReportPanel.Duration(away.ElapsedMs)}): show the summary again", () => _root.Hud.ShowAwayReport(away), null);
 
+            Header("Map");
+            var mapArea = UiFactory.Rect("QuestMap", _content);
+            MapNodes = QuestMapView.Build(mapArea, _ui, Cat, Board, ExplainNode);
+            mapArea.gameObject.AddComponent<LayoutElement>().preferredHeight = mapArea.sizeDelta.y;
+            Text(MapText);   // the same map in words (accessible, and lists what unlocks each job)
+
+
             // Company roster (GDD 10): everyone who has worked for you, including the fallen.
             var worked = new List<ContractorRecord>();
             foreach (var c in s.Contractors.Values) if (c.Jobs > 0 && !c.Sponsored) worked.Add(c);
@@ -244,7 +250,7 @@ namespace Ravenholm.Presentation
                     Button(() => $"{res.ContractorName} · {Name(res.QuestId)} · {ResultPanel.OutcomeWord(res.Outcome)}", () => _root.Hud.ShowResult(res.ExpeditionId), null);
                 }
             }
-            Button(() => "Close", Close, null);
+            _ui.FooterButton(_content, "Close", "Close", Close);
         }
 
         private List<RegionDefinition> Regions()
@@ -314,8 +320,9 @@ namespace Ravenholm.Presentation
 
         private void Header(string text)
         {
-            var t = _ui.Text("Header", _content, text, _theme.bodySize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
-            t.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
+            var t = _ui.Text("Header", _content, text, 36, WorkshopUi.Iron, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            t.gameObject.AddComponent<LayoutElement>().preferredHeight = 88f;
+            SandboxHud.AutoFit(t, 28);
         }
 
         private void Text(Func<string> provider) => _texts.Add((_ui.LiveText(_content, _theme.smallSize), provider));

@@ -274,7 +274,7 @@ namespace Ravenholm.Presentation
             _carryChip = (RectTransform)_carryText.transform.parent;
 
             // Job Board shortcut (GDD 11: also reachable from the Store).
-            var board = _ui.Panel("BoardButton", bar, _theme.roundButton);
+            var board = _ui.Panel("BoardButton", bar, _theme.chip, WorkshopUi.Gold);
             board.type = Image.Type.Simple;
             UiFactory.Place(board.rectTransform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-150f, 0), new Vector2(132f, 132f));
             board.gameObject.AddComponent<Button>().onClick.AddListener(ShowJobBoard);
@@ -287,7 +287,7 @@ namespace Ravenholm.Presentation
             UiFactory.Stretch(_boardBadge.rectTransform);
 
             // Build mode for the shop (Shop Titans style): move, turn, upgrade and buy furniture; grow the shop.
-            var build = _ui.Panel("BuildButton", bar, _theme.roundButton);
+            var build = _ui.Panel("BuildButton", bar, _theme.chip, WorkshopUi.Gold);
             build.type = Image.Type.Simple;
             UiFactory.Place(build.rectTransform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(0, -150f), new Vector2(132f, 132f));   // under the settings button, clear of the chips
             build.gameObject.AddComponent<Button>().onClick.AddListener(ToggleShopBuild);
@@ -302,7 +302,7 @@ namespace Ravenholm.Presentation
                 UiFactory.Stretch(bl.rectTransform, 10f);
             }
 
-            var gear = _ui.Panel("DebugButton", bar, _theme.roundButton);
+            var gear = _ui.Panel("DebugButton", bar, _theme.chip, WorkshopUi.Gold);
             gear.type = Image.Type.Simple;
             UiFactory.Place(gear.rectTransform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), Vector2.zero, new Vector2(132f, 132f));
             gear.gameObject.AddComponent<Button>().onClick.AddListener(ShowSettings);
@@ -529,12 +529,14 @@ namespace Ravenholm.Presentation
             backdropRt.gameObject.AddComponent<Button>().onClick.AddListener(HideInfo);
 
             var card = _ui.Panel("Card", layer, _theme.panel);
-            UiFactory.Place(card.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 40f), new Vector2(1100f, 620f));
+            UiFactory.Place(card.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 40f), new Vector2(1100f, 760f));
             UiFactory.Column(card.gameObject, 20f, new RectOffset(48, 48, 44, 40));
             _infoTitle = _ui.Text("Title", card.transform, "", _theme.titleSize, _theme.ink, TextAlignmentOptions.TopLeft, FontStyles.Bold);
             _infoTitle.gameObject.AddComponent<LayoutElement>().preferredHeight = 72f;
             _infoBody = _ui.Text("Body", card.transform, "", _theme.bodySize, _theme.ink, TextAlignmentOptions.TopLeft);
             _infoBody.gameObject.AddComponent<LayoutElement>().flexibleHeight = 1f;
+            AutoFit(_infoTitle, 32f);
+            AutoFit(_infoBody, 28f);
             _ui.Button("Close", card.transform, "Close", HideInfo, out _);
 
             _infoLayer = layer.gameObject;
@@ -543,39 +545,9 @@ namespace Ravenholm.Presentation
 
         private void BuildDebugLayer(RectTransform safe)
         {
-            var layer = UiFactory.Rect("DebugLayer", safe);
-            UiFactory.Stretch(layer);
-            layer.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.07f, 0.05f, 0.45f);
-
-            var panel = _ui.Panel("Panel", layer, _theme.panel);
-            UiFactory.Stretch(panel.rectTransform, 28f);
-
-            var title = _ui.Text("Title", panel.transform, "Debug · Phase 9", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
-            UiFactory.Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(800f, 80f));
-
-            // Scrollable body so the panel fits short (16:9) and tall phones alike.
-            var viewport = UiFactory.Rect("Viewport", panel.transform);
-            UiFactory.Stretch(viewport);
-            viewport.offsetMin = new Vector2(36f, 36f);
-            viewport.offsetMax = new Vector2(-36f, -130f);
-            viewport.gameObject.AddComponent<RectMask2D>();
-            viewport.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, 0);
-
-            var content = UiFactory.Rect("Content", viewport);
-            content.anchorMin = new Vector2(0, 1);
-            content.anchorMax = new Vector2(1, 1);
-            content.pivot = new Vector2(0.5f, 1);
-            content.sizeDelta = Vector2.zero;
-            UiFactory.Column(content.gameObject, 18f, new RectOffset(12, 12, 8, 24));
-            content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-            var scroll = viewport.gameObject.AddComponent<ScrollRect>();
-            scroll.content = content;
-            scroll.viewport = viewport;
-            scroll.horizontal = false;
-            scroll.movementType = ScrollRect.MovementType.Clamped;
-
-            _ui.Button("Close", content, "Close", CloseDebug, out _);
+            var content = _ui.ModalScroll(safe, "DebugLayer", out var layer, out var title);
+            title.text = "Developer tools";
+            _ui.FooterButton(content, "Close", "Close", CloseDebug);
             _ui.Button("SaveNow", content, "Save now", () => Report(_root.Services.Sandbox.SaveNow("debug: save now") ? "Saved." : "Save FAILED, see status."), out _);
             _ui.Button("Reload", content, "Reload from disk", ReloadFromDisk, out _);
             _ui.Button("Corrupt", content, "Corrupt save file (test)", CorruptSave, out _);
@@ -726,7 +698,7 @@ namespace Ravenholm.Presentation
             _debugStatus = _ui.Text("Status", content, "", _theme.smallSize - 4f, _theme.ink, TextAlignmentOptions.TopLeft);
             _debugStatus.richText = true;
 
-            _debugLayer = layer.gameObject;
+            _debugLayer = layer;
             _debugLayer.SetActive(false);
         }
 

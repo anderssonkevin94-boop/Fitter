@@ -283,7 +283,8 @@ namespace Ravenholm.Presentation
             t.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
         }
 
-        private void Text(Func<string> provider) => _texts.Add((_ui.LiveText(_content, _theme.smallSize), provider));
+        private void Text(Func<string> provider) => _texts.Add((_ui.Text("Text", _content, "", _theme.smallSize,
+            _theme.ink, TextAlignmentOptions.TopLeft), provider));
 
         private void Button(Func<string> text, Action onClick, Func<bool> enabled)
         {

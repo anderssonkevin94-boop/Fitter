@@ -56,7 +56,7 @@ namespace Ravenholm.Tests
             yield return new WaitForSeconds(0.4f);
             var nodes = hud.JobBoard.MapNodes;
             Assert.AreEqual(8, nodes.Count, "only Frontier Paths is reached");
-            Assert.Greater(nodes.Max(n => n.Position.x) - nodes.Min(n => n.Position.x), 300f, "nodes spread across the map, not bunched");
+            Assert.Greater(nodes.Max(n => n.Position.x) - nodes.Min(n => n.Position.x), 250f, "nodes spread across the map, not bunched");   // 296 in Astra's narrower panel (2026-10-18)
             Assert.AreEqual(nodes.Count, nodes.Select(n => n.Position).Distinct().Count(), "no two nodes on the same spot");
             Assert.AreEqual(">", nodes.Single(n => n.Quest.Id == "quest.roadside_patrol").Marker, "the campaign's next job");
             Assert.AreEqual("o", nodes.Single(n => n.Quest.Id == "quest.local_supply_survey").Marker);

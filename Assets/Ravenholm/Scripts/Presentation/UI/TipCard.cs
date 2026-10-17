@@ -24,7 +24,7 @@ namespace Ravenholm.Presentation
         {
             var theme = ui.Theme;
             var card = ui.Panel("TipCard", parent, theme.panel);
-            UiFactory.Place(card.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -268f), new Vector2(1060f, 214f));
+            UiFactory.Place(card.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -268f), new Vector2(1060f, 350f));
             var tip = card.gameObject.AddComponent<TipCard>();
             tip._root = root;
             tip._group = card.gameObject.AddComponent<CanvasGroup>();
@@ -36,15 +36,15 @@ namespace Ravenholm.Presentation
             tip._text.fontSizeMax = theme.smallSize;
             var tr = tip._text.rectTransform;
             UiFactory.Stretch(tr);
-            tr.offsetMin = new Vector2(28f, 100f);
-            tr.offsetMax = new Vector2(-28f, -20f);
+            tr.offsetMin = new Vector2(44f, 168f);
+            tr.offsetMax = new Vector2(-44f, -40f);
 
-            var got = ui.Button("GotIt", card.transform, "Got it", () => tip.Acknowledge(), out var gl, 84f);
+            var got = ui.Button("GotIt", card.transform, "Got it", () => tip.Acknowledge(), out var gl, 132f);
             gl.fontSize = theme.smallSize;
-            UiFactory.Place((RectTransform)got.transform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-24f, 12f), new Vector2(240f, 84f));
-            var hide = ui.Button("HideTips", card.transform, "Hide tips", () => tip.HideAll(), out var hl, 84f);
+            UiFactory.Place((RectTransform)got.transform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-40f, 28f), new Vector2(240f, 132f));
+            var hide = ui.Button("HideTips", card.transform, "Hide tips", () => tip.HideAll(), out var hl, 132f);
             hl.fontSize = theme.smallSize;
-            UiFactory.Place((RectTransform)hide.transform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-284f, 12f), new Vector2(260f, 84f));
+            UiFactory.Place((RectTransform)hide.transform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-298f, 28f), new Vector2(260f, 132f));
             tip._group.alpha = 0f;
             tip._group.blocksRaycasts = false;
             return tip;

@@ -130,7 +130,7 @@ namespace Ravenholm.Presentation
 
         private void Rebuild()
         {
-            for (var i = _content.childCount - 1; i >= 0; i--) Destroy(_content.GetChild(i).gameObject);
+            WorkshopUi.Clear(_content);
             _live.Clear();
             _title.text = "Wandering Trader";
             _status = _ui.LiveText(_content, _theme.smallSize);
@@ -144,7 +144,7 @@ namespace Ravenholm.Presentation
                     var key = o.Entry.Key;
                     var goods = o.GoodsId;
                     var kind = o.Entry.Goods;
-                    Row(() => OfferText(key, goods, kind), () => Buy(key), () => OfferEnabled(key));
+                    TradeRow(GoodsIcon(goods), () => OfferText(key, goods, kind), () => Buy(key), () => OfferEnabled(key), "Buy");
                 }
 
                 Header("Sell from the Store (poor prices)");
@@ -155,7 +155,7 @@ namespace Ravenholm.Presentation
                     if (log.IsReserved(id)) continue;   // reserved for a loadout: never sold out from under it
                     var instance = id;
                     any = true;
-                    Row(() => $"Sell {UnitVisuals.DisplayName(log.DefinitionOfItem(instance))} for {SellValue(instance)} gold", () => Sell(instance), null);
+                    TradeRow(GoodsIcon(log.DefinitionOfItem(instance)), () => $"{UnitVisuals.DisplayName(log.DefinitionOfItem(instance))}\nTrader pays {SellValue(instance)} gold", () => Sell(instance), null, "Sell");
                 }
                 if (!any) _ui.LiveText(_content, _theme.smallSize).text = "Nothing in the Store to sell. Gear on expeditions or reserved for a loadout cannot be sold.";
             }
@@ -164,7 +164,35 @@ namespace Ravenholm.Presentation
                 _ui.LiveText(_content, _theme.smallSize).text =
                     "The Trader visits for a few minutes at a time. Iron ingots and cedar lumber are always on offer, so you can rebuild after a bad run. Rope, fur, herbs and rarer goods vary by visit.";
             }
-            Row(() => "Close", Close, null);
+            _ui.FooterButton(_content, "Close", "Close", Close);
+        }
+
+        private Sprite GoodsIcon(string id)
+        {
+            var cat = _root.Services.Catalogue;
+            if (cat.TryGet<Content.ItemDefinition>(id, out var item)) return WorkshopUi.ItemSprite(item);
+            if (cat.TryGet<Content.ResourceDefinition>(id, out var resource)) return resource.Icon;
+            foreach (var recipe in cat.Recipes)
+                if (recipe != null && recipe.RequiredBlueprint != null && recipe.RequiredBlueprint.Id == id)
+                    return WorkshopUi.ItemSprite(recipe.OutputItem);
+            return _theme.board;
+        }
+
+        private void TradeRow(Sprite sprite, Func<string> text, Action action, Func<bool> enabled, string verb)
+        {
+            var card = _ui.Panel("Trade", _content, _theme.chip);
+            card.raycastTarget = false;
+            card.gameObject.AddComponent<LayoutElement>().preferredHeight = 224;
+            var icon = _ui.Icon("Goods", card.transform, sprite, 144);
+            UiFactory.Place(icon.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(24, 0), new Vector2(144, 144));
+            var label = _ui.Text("Description", card.transform, text(), 32, _theme.ink);
+            UiFactory.Stretch(label.rectTransform);
+            label.rectTransform.offsetMin = new Vector2(192, 24);
+            label.rectTransform.offsetMax = new Vector2(-214, -24);
+            SandboxHud.AutoFit(label, 25);
+            var button = _ui.Button(verb, card.transform, verb, action, out _);
+            UiFactory.Place((RectTransform)button.transform, new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(-24, 0), new Vector2(166, 132));
+            _live.Add((button, label, text, enabled));
         }
 
         private int SellValue(string instanceId)
@@ -180,7 +208,7 @@ namespace Ravenholm.Presentation
             var o = Current(key);
             if (o == null) return "Gone";
             var name = kind == TraderGoods.Blueprint ? $"Blueprint: {UnitVisuals.DisplayName(goods)}" : UnitVisuals.DisplayName(goods);
-            return o.Remaining <= 0 ? $"{name} · sold out this visit" : $"Buy {name} · {o.Entry.Price} gold · {o.Remaining} left";
+            return o.Remaining <= 0 ? $"{name} · sold out this visit" : $"<b>{name}</b>\n{o.Entry.Price} gold · {o.Remaining} left";
         }
 
         private bool OfferEnabled(string key)
@@ -191,8 +219,9 @@ namespace Ravenholm.Presentation
 
         private void Header(string text)
         {
-            var h = _ui.Text("Header", _content, text, _theme.bodySize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
-            h.gameObject.AddComponent<LayoutElement>().preferredHeight = 60f;
+            var h = _ui.Text("Header", _content, text, 36, WorkshopUi.Iron, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            h.gameObject.AddComponent<LayoutElement>().preferredHeight = 88f;
+            SandboxHud.AutoFit(h, 28);
         }
 
         private void Row(Func<string> text, Action onClick, Func<bool> enabled)

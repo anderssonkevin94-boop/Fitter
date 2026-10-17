@@ -52,13 +52,16 @@ namespace Ravenholm.Presentation
         private void Build()
         {
             _title.text = "Settings";
+            Section("Sound & feedback");
             Row(() => $"Music: {Percent(S.MusicVolume)} · tap to change", () => Settings.Update(s => s.MusicVolume = NextVolume(s.MusicVolume)));
             Row(() => $"Sound effects: {Percent(S.EffectsVolume)} · tap to change", () => Settings.Update(s => s.EffectsVolume = NextVolume(s.EffectsVolume)));
             Row(() => $"Haptics: {(S.Haptics ? "on" : "off")}", () => Settings.Update(s => s.Haptics = !s.Haptics));
+            Section("Display & controls");
             Row(() => $"Reduced motion: {(S.ReducedMotion ? "on" : "off")}", () => Settings.Update(s => s.ReducedMotion = !s.ReducedMotion));
             Row(() => $"Text size: {Mathf.RoundToInt(S.TextScale * 100)}% · tap to change", CycleTextScale);
             Row(() => $"Joystick: {(S.JoystickSide == JoystickSide.Either ? "anywhere low on the screen" : S.JoystickSide == JoystickSide.Left ? "left half" : "right half")}",
                 () => Settings.Update(s => s.JoystickSide = (JoystickSide)(((int)s.JoystickSide + 1) % 3)));
+            Section("Guidance");
             Row(() => $"First-hour tips: {(Tips.Hidden ? "hidden" : "shown")}", ToggleTips);
             Row(() => "Show tips again from the start", () => Tips.Restart());
             var note = _ui.LiveText(_content, _theme.smallSize - 2f);
@@ -66,7 +69,13 @@ namespace Ravenholm.Presentation
             _devRow = Row(() => "Developer tools…", () => { Close(); _root.Hud.OpenDebug(); });
             _versionRow = Row(() => $"Version {UnityEngine.Application.version} · balance revision {_root.Services.Catalogue.BalanceRevision}" +
                                     (DeveloperMode ? " · developer mode" : ""), TapVersion);
-            Row(() => "Close", Close);
+            _ui.FooterButton(_content, "Close", "Close", Close);
+        }
+
+        private void Section(string title)
+        {
+            var label = _ui.Text("Section", _content, title, 36, WorkshopUi.Iron, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
+            label.gameObject.AddComponent<LayoutElement>().preferredHeight = 66;
         }
 
         private TutorialService Tips => _root.Services.Tutorial;

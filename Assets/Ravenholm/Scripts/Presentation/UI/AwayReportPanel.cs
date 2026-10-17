@@ -37,17 +37,17 @@ namespace Ravenholm.Presentation
         public void Show(AwayReport report)
         {
             if (report == null) return;
-            for (var i = _content.childCount - 1; i >= 0; i--) Destroy(_content.GetChild(i).gameObject);
+            WorkshopUi.Clear(_content);
             _title.text = "While you were away";
             BodyText = Describe(report);
-            _ui.LiveText(_content, _theme.bodySize - 4f).text = BodyText;
+            _ui.Report(_content, BodyText);
+            var prior = _content.parent.parent.Find("Footer/Results");
+            if (prior != null) prior.gameObject.SetActive(false);
             if (report.Results.Count > 0)
             {
-                _ui.RowButton(_content, ViewResults, out var view);
-                view.text = report.Results.Count == 1 ? "Read the result" : $"View all {report.Results.Count} results";
+                _ui.FooterButton(_content, "Results", report.Results.Count == 1 ? "Read the result" : $"View {report.Results.Count} results", ViewResults);
             }
-            _ui.RowButton(_content, Close, out var label);
-            label.text = "Back to work";
+            _ui.FooterButton(_content, "Close", "Back to work", Close);
             if (!IsOpen)
             {
                 gameObject.SetActive(true);

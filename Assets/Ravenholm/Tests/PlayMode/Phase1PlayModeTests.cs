@@ -216,6 +216,8 @@ namespace Ravenholm.Tests
         {
             yield return Boot();
             var router = GameRoot.Instance.InputRouter;
+            GameRoot.Instance.Hud.Tips.HideAll();   // Astra's taller tip card covers the middle of the small headless screen
+            for (var i = 0; i < 3; i++) yield return null;
             // Headless editors have no focused Game view; route all device input to the game for this test.
             var previousBehaviour = InputSystem.settings.editorInputBehaviorInPlayMode;
             var previousBackground = InputSystem.settings.backgroundBehavior;

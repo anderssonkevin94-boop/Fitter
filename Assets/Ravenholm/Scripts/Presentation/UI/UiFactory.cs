@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Ravenholm.Presentation
 {
-    /// <summary>Small helpers for building placeholder uGUI from the theme in code.</summary>
+    /// <summary>Shared workshop surfaces, accessible controls and scrolling panels.</summary>
     public sealed class UiFactory
     {
         private readonly UiTheme _theme;
@@ -41,11 +41,23 @@ namespace Ravenholm.Presentation
 
         public Image Panel(string name, Transform parent, Sprite sprite, Color? tint = null)
         {
-            var rt = Rect(name, parent);
-            var img = rt.gameObject.AddComponent<Image>();
-            img.sprite = sprite;
-            img.type = Image.Type.Sliced;
-            img.color = tint ?? Color.white;
+            Image img;
+            if (sprite == _theme.panel)
+            {
+                img = WorkshopUi.Frame(parent);
+                img.name = name;
+            }
+            else if (sprite == _theme.chip || sprite == _theme.panelDark)
+            {
+                img = WorkshopUi.Surface(name, parent, tint ?? (sprite == _theme.panelDark ? WorkshopUi.Iron : WorkshopUi.Cream));
+            }
+            else
+            {
+                img = Rect(name, parent).gameObject.AddComponent<Image>();
+                img.sprite = sprite;
+                img.type = Image.Type.Sliced;
+                img.color = tint ?? Color.white;
+            }
             img.raycastTarget = true;
             return img;
         }
@@ -82,17 +94,24 @@ namespace Ravenholm.Presentation
 
         public Button Button(string name, Transform parent, string label, Action onClick, out TextMeshProUGUI labelText, float height = -1f)
         {
-            var img = Panel(name, parent, _theme.button);
+            var img = Rect(name, parent).gameObject.AddComponent<Image>();
+            img.color = WorkshopUi.Edge;
+            var face = WorkshopUi.Fill("Face", img.transform, WorkshopUi.Gold);
+            Stretch(face.rectTransform, 3);
             var btn = img.gameObject.AddComponent<Button>();
-            btn.targetGraphic = img;
+            btn.targetGraphic = face;
             var colors = btn.colors;
             colors.pressedColor = new Color(0.85f, 0.78f, 0.7f);
+            colors.disabledColor = new Color(.65f, .65f, .65f, 1f);
             btn.colors = colors;
             btn.onClick.AddListener(() => onClick());
             var le = img.gameObject.AddComponent<LayoutElement>();
             le.minHeight = le.preferredHeight = height > 0 ? height : _theme.minTouchTarget;
             labelText = Text("Label", img.transform, label, _theme.bodySize, _theme.ink, TextAlignmentOptions.Center, FontStyles.Bold);
-            Stretch(labelText.rectTransform, 12f);
+            Stretch(labelText.rectTransform, 16f);
+            labelText.enableAutoSizing = true;
+            labelText.fontSizeMin = 25f;
+            labelText.fontSizeMax = _theme.bodySize;
             return btn;
         }
 
@@ -113,15 +132,22 @@ namespace Ravenholm.Presentation
         {
             var l = Rect(name, parent);
             Stretch(l);
-            l.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.07f, 0.05f, 0.4f);
+            l.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.07f, 0.05f, 0.18f);
             var card = Panel("Card", l, _theme.panel);
-            Stretch(card.rectTransform, 28f);
+            WorkshopUi.Bounds(card.rectTransform, .025f, .055f, .975f, .94f);
             title = Text("Title", card.transform, "", _theme.titleSize, _theme.ink, TextAlignmentOptions.MidlineLeft, FontStyles.Bold);
-            Place(title.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(48f, -36f), new Vector2(980f, 80f));
+            WorkshopUi.Bounds(title.rectTransform, 0, 1, 1, 1);
+            title.rectTransform.offsetMin = new Vector2(56, -150);
+            title.rectTransform.offsetMax = new Vector2(-56, -40);
+            SandboxHud.AutoFit(title, 32);
+            var rule = WorkshopUi.Fill("Rule", card.transform, WorkshopUi.Wood);
+            WorkshopUi.Bounds(rule.rectTransform, 0, 1, 1, 1);
+            rule.rectTransform.offsetMin = new Vector2(56, -166);
+            rule.rectTransform.offsetMax = new Vector2(-56, -162);
             var viewport = Rect("Viewport", card.transform);
             Stretch(viewport);
-            viewport.offsetMin = new Vector2(36f, 36f);
-            viewport.offsetMax = new Vector2(-36f, -130f);
+            viewport.offsetMin = new Vector2(44f, 240f);
+            viewport.offsetMax = new Vector2(-44f, -186f);
             viewport.gameObject.AddComponent<RectMask2D>();
             viewport.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, 0);
             var content = Rect("Content", viewport);
@@ -136,6 +162,14 @@ namespace Ravenholm.Presentation
             scroll.viewport = viewport;
             scroll.horizontal = false;
             scroll.movementType = ScrollRect.MovementType.Clamped;
+            var footer = Rect("Footer", card.transform);
+            WorkshopUi.Bounds(footer, 0, 0, 1, 0);
+            footer.offsetMin = new Vector2(56, 48);
+            footer.offsetMax = new Vector2(-56, 180);
+            var row = footer.gameObject.AddComponent<HorizontalLayoutGroup>();
+            row.spacing = 18; row.childControlWidth = row.childControlHeight = true;
+            row.childForceExpandWidth = row.childForceExpandHeight = true;
+            AddScrollHint(card.transform, scroll, 188);
             layer = l.gameObject;
             return content;
         }
@@ -143,20 +177,79 @@ namespace Ravenholm.Presentation
         /// <summary>A text row whose content is re-read on every refresh.</summary>
         public TextMeshProUGUI LiveText(Transform parent, float size)
         {
-            var t = Text("Text", parent, "", size, _theme.ink, TextAlignmentOptions.TopLeft);
+            var card = Panel("Note", parent, _theme.chip);
+            card.raycastTarget = false;
+            Column(card.gameObject, 0, new RectOffset(24, 24, 22, 22));
+            var t = Text("Text", card.transform, "", size, _theme.ink, TextAlignmentOptions.TopLeft);
             t.richText = true;
             return t;
+        }
+
+        public void Report(Transform parent, string text)
+        {
+            foreach (var section in text.Split(new[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries))
+                LiveText(parent, _theme.smallSize).text = section.Trim();
+        }
+
+        /// <summary>Persistent actions outside the scrolling body; rebuilding a screen replaces its action.</summary>
+        public Button FooterButton(RectTransform content, string name, string text, Action action)
+        {
+            var footer = content.parent.parent.Find("Footer");
+            var old = footer.Find(name);
+            if (old != null)
+            {
+                var button = old.GetComponent<Button>();
+                button.onClick.RemoveAllListeners(); button.onClick.AddListener(() => action());
+                old.GetComponentInChildren<TextMeshProUGUI>().text = text;
+                old.gameObject.SetActive(true);
+                return button;
+            }
+            return Button(name, footer, text, action, out _);
+        }
+
+        public void AddScrollHint(Transform parent, ScrollRect scroll, float bottom)
+        {
+            var hint = Text("MoreBelow", parent, "Scroll for more", 26, WorkshopUi.Iron, TextAlignmentOptions.Center);
+            WorkshopUi.Bounds(hint.rectTransform, 0, 0, 1, 0);
+            hint.rectTransform.offsetMin = new Vector2(56, bottom);
+            hint.rectTransform.offsetMax = new Vector2(-56, bottom + 42);
+            var watch = hint.gameObject.AddComponent<WorkshopScrollHint>();
+            watch.Scroll = scroll; watch.Label = hint;
         }
 
         /// <summary>A full-width button with an auto-sized label.</summary>
         public Button RowButton(Transform parent, Action onClick, out TextMeshProUGUI label)
         {
             var b = Button("Button", parent, "", onClick, out label);
+            b.transform.Find("Face").GetComponent<Image>().color = WorkshopUi.Cream;
             label.fontSize = _theme.smallSize;
             label.enableAutoSizing = true;
-            label.fontSizeMin = 20f;
+            label.fontSizeMin = 25f;
             label.fontSizeMax = _theme.smallSize;
             return b;
+        }
+    }
+
+    public sealed class WorkshopGrid : MonoBehaviour
+    {
+        public int Columns = 2;
+        private void LateUpdate()
+        {
+            var grid = GetComponent<GridLayoutGroup>();
+            var width = ((RectTransform)transform).rect.width;
+            grid.cellSize = new Vector2((width - grid.padding.horizontal - grid.spacing.x * (Columns - 1)) / Columns, grid.cellSize.y);
+        }
+    }
+
+    public sealed class WorkshopScrollHint : MonoBehaviour
+    {
+        public ScrollRect Scroll;
+        public TextMeshProUGUI Label;
+        private void LateUpdate()
+        {
+            if (Scroll == null || Scroll.content == null) return;
+            Label.enabled = Scroll.content.rect.height > Scroll.viewport.rect.height + 4;
+            Label.text = Scroll.verticalNormalizedPosition < .01f ? "Scroll up for more" : "Scroll for more";
         }
     }
 }

@@ -44,14 +44,12 @@ namespace Ravenholm.Presentation
             var r = _root.Services.Jobs.State.Results.Find(x => x.ExpeditionId == expeditionId);
             if (r == null) return;
             _expeditionId = expeditionId;
-            for (var i = _content.childCount - 1; i >= 0; i--) Destroy(_content.GetChild(i).gameObject);
+            WorkshopUi.Clear(_content);
             _title.text = Headline(r);
             BodyText = Describe(r);
             if (r.BlueprintGranted != null) BlueprintReveal(r.BlueprintGranted);
-            var t = _ui.LiveText(_content, _theme.bodySize - 4f);
-            t.text = BodyText;
-            _ui.RowButton(_content, Continue, out var label);
-            label.text = "Continue";
+            _ui.Report(_content, BodyText);
+            _ui.FooterButton(_content, "Continue", "Continue", Continue);
             if (!IsOpen)
             {
                 gameObject.SetActive(true);
@@ -71,7 +69,7 @@ namespace Ravenholm.Presentation
             if (recipe == null || recipe.OutputItem == null) return;
             var card = _ui.Panel("BlueprintReveal", _content, _theme.chip, new Color(1f, 0.93f, 0.72f, 1f));
             card.gameObject.AddComponent<LayoutElement>().preferredHeight = 200f;
-            var icon = _ui.Icon("Icon", card.transform, recipe.OutputItem.Icon, 150f);
+            var icon = _ui.Icon("Icon", card.transform, WorkshopUi.ItemSprite(recipe.OutputItem), 150f);
             UiFactory.Place(icon.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(24f, 0), new Vector2(150f, 150f));
             var text = _ui.Text("Text", card.transform,
                 $"<b>New blueprint: {recipe.OutputItem.DisplayName}</b>\n{recipe.OutputItem.StatLine()}\nCraft it at the <b>{recipe.Station.DisplayName}</b>" +
