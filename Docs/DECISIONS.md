@@ -1816,3 +1816,7 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - Checked in `PlaytestFixesPlayModeTests` (three runs, three world seeds).
 - **Trees in thick forest.** Every tree in front covering any part of him (feet, middle, head, either side) fades, now to 25 % (was 40 %, middle only).
 - **The Forge panel** (the last craft button was cut off, Close scrolled out of sight). Close is pinned to the card's foot, the list scrolls above it, and a "More below ▼" hint shows while it runs on. This applies to every station panel. Checked in `PlaytestFixesPlayModeTests`.
+- **Later (third playtest: the fade still didn't show).** Two causes, both fixed.
+  - **The tree shader ignored the renderer's colour.** In Unity 6 a sprite renderer's colour reaches the shader as `unity_SpriteColor`, not only in the vertex colour, so `SpriteUnlitStencilMark` (the trees) drew every tree fully opaque and untinted. It now multiplies by `unity_SpriteColor` (Core2D). Side effect: the trees' designed tints show for the first time: the gates' old trees darker, each later band a touch cooler and darker.
+  - **"In front" is the draw order now, not the screen height.** On the Ground layer, a tree drawn after the supplier's sorting group that covers him fades. A tree on a hill, or in his own row, could be drawn over him while standing "behind" him on screen.
+  - Checked by looking at the captures (the supplier visible through the faded trees), not just by the fade's number.

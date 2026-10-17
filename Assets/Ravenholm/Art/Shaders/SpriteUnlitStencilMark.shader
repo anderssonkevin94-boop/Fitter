@@ -27,6 +27,7 @@ Shader "Ravenholm/SpriteUnlitStencilMark"
             #pragma vertex Vert
             #pragma fragment Frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
@@ -39,7 +40,9 @@ Shader "Ravenholm/SpriteUnlitStencilMark"
                 Varyings o;
                 o.positionCS = TransformObjectToHClip(i.positionOS);
                 o.uv = i.uv;
-                o.color = i.color;
+                // The renderer's colour (a tree's tint, its fade) comes as unity_SpriteColor in Unity 6, not in the vertex
+                // colour alone (2026-10-17: the trees' fade and tints never showed).
+                o.color = i.color * unity_SpriteColor;
                 return o;
             }
 

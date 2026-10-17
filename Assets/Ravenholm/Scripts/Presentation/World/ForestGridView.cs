@@ -276,6 +276,7 @@ namespace Ravenholm.Presentation
         public const float FadedTreeAlpha = 0.25f;
 
         private readonly Dictionary<Vector3Int, float> _treeAlpha = new Dictionary<Vector3Int, float>();
+        private UnityEngine.Rendering.SortingGroup _playerGroup;
         private readonly List<Vector3Int> _fadeDone = new List<Vector3Int>();
 
         /// <summary>Whether a tree is faded now (tests).</summary>
@@ -291,6 +292,12 @@ namespace Ravenholm.Presentation
             var c = SandboxSceneController.Current;
             if (c == null || c.Player == null) return;
             var p = (Vector2)c.Player.position;
+            // Drawn over him: on his layer (the Ground, where he is sorted among the Forest's blocks and trees) after him.
+            // Judged by the draw order, not the screen height: a tree on a hill, or in his own row, can be drawn over him
+            // while standing "behind" him on screen (the third playtest: solid pines still hid him).
+            if (_playerGroup == null) _playerGroup = c.Player.GetComponent<UnityEngine.Rendering.SortingGroup>();
+            var amongTrees = _playerGroup != null && _playerGroup.sortingLayerName == "Ground";
+            var playerOrder = _playerGroup != null ? _playerGroup.sortingOrder : int.MaxValue;
             // Any of him covered: his feet, his middle, his head, a little either side (2026-10-17, second playtest: in
             // thick forest only the tree over his middle faded and he was lost behind the rows in front).
             Vector2[] points = { p + new Vector2(0f, 0.15f), p + new Vector2(0f, 0.5f), p + new Vector2(0f, 0.85f),
@@ -302,7 +309,7 @@ namespace Ravenholm.Presentation
                 if (sr == null || !sr.enabled) continue;
                 var at = (Vector2)sr.transform.position;
                 var behind = false;
-                if (at.y < p.y && Mathf.Abs(at.x - p.x) < 1.8f)
+                if (amongTrees && sr.sortingOrder >= playerOrder && Mathf.Abs(at.x - p.x) < 1.8f)
                     foreach (var q in points)
                         if (sr.bounds.Contains(new Vector3(q.x, q.y, sr.bounds.center.z))) { behind = true; break; }
                 var has = _treeAlpha.TryGetValue(kv.Key, out var a);
