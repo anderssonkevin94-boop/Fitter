@@ -122,10 +122,17 @@ namespace Ravenholm.Presentation
         }
 
         /// <summary>Fills the slots with these items (one per slot, in order) and their counts.</summary>
+        /// <summary>What it shows now, spot by spot (a null def is an empty spot); the display picker reads it.</summary>
+        public IReadOnlyList<(ItemDefinition def, int count)> CurrentStock { get; private set; } = System.Array.Empty<(ItemDefinition, int)>();
+
+        /// <summary>Changes whenever what it shows changes.</summary>
+        public string StockKey => _stockKey;
+
         public void SetStock(IReadOnlyList<(ItemDefinition def, int count)> stock)
         {
+            CurrentStock = stock;
             var key = new System.Text.StringBuilder();
-            foreach (var s in stock) key.Append(s.def.Id).Append('x').Append(s.count).Append(',');
+            foreach (var s in stock) key.Append(s.def != null ? s.def.Id : "-").Append('x').Append(s.count).Append(',');   // a gap: an empty spot
             if (key.ToString() == _stockKey) return;
             _stockKey = key.ToString();
             VisibleCount = 0;
@@ -137,7 +144,7 @@ namespace Ravenholm.Presentation
             }
             for (var i = 0; i < _items.Count; i++)
             {
-                var on = i < stock.Count && stock[i].def.StackSprite != null;
+                var on = i < stock.Count && stock[i].def != null && stock[i].def.StackSprite != null;
                 _items[i].gameObject.SetActive(on);
                 if (!on) continue;
                 VisibleCount++;

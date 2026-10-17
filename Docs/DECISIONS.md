@@ -1844,3 +1844,18 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
 - Two tests updated for it:
   - The joystick test hides the tips first: her taller tip card covers the middle of the 640 × 480 headless screen, where the test starts its drag. On the phone it sits at the top.
   - The quest map's "not bunched" threshold is now 250: the nodes spread 296 in her narrower panel, against the old 300.
+
+## 2026-10-18: the display picker (Kevin: choose what tables and stands show, like equipping a hero)
+
+- **Tapping a display piece** (a table, armour stand, weapon stand or shelf) now opens a picker instead of an info card; the button's verb is "Arrange" (`DisplayInspectable`, `DisplayPanel`). It is built like Equip Hero:
+  - the piece's spots on top, each showing its item ("Auto · …" dimmed when the racks chose it);
+  - a swipe strip of the Store stock that fits the selected spot, with counts, plus **Auto**;
+  - Done and × close it.
+- **The choice is a display preference only**, as the GDD's stocking and display rules require: nothing moves or is reserved, and Store inventory is untouched.
+  - `Placement.Shown` holds one item definition id per spot ("" = Auto). It is saved as `shown` (ids, not assets); ids no longer in the content fall back to Auto.
+  - `ShopService.SetShown(placementId, spot, itemId)` refuses items the piece can't show, with a reason.
+- **Racks**:
+  - A chosen spot shows its item while one is in stock, and falls back to Auto when it's gone.
+  - Auto spots fill in the racks' order (pinned, strongest, newest) and never repeat an item chosen elsewhere on that kind of piece.
+  - A dressed armour stand's spots are Body, Head and Shield, each limited to its category.
+- Checked in `DisplayPickerPlayModeTests` and by looking at the capture.

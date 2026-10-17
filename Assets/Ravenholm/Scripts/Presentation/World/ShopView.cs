@@ -487,7 +487,7 @@ namespace Ravenholm.Presentation
             _stockKey = "";
         }
 
-        /// <summary>Furniture is tapped like any building: the desk opens the Store and carries its bell; the rest show info.</summary>
+        /// <summary>Furniture is tapped like any building: the desk opens the Store and carries its bell; displays open their picker.</summary>
         private static void AddTapTarget(FurnitureView view, ShopFurnitureDefinition def)
         {
             var col = view.gameObject.AddComponent<BoxCollider2D>();
@@ -509,8 +509,7 @@ namespace Ravenholm.Presentation
                 bi.EditorSetupVisual(bell.transform);
                 return;
             }
-            view.gameObject.AddComponent<Inspectable>().EditorSetup(def.DisplayName,
-                "Shows some of your stock. Open the Store for the full inventory; use Build to move, turn or upgrade it.", "");
+            view.gameObject.AddComponent<DisplayInspectable>().Bind(def.DisplayName);   // tap: choose what it shows (2026-10-18)
         }
 
         private static void FitTapTarget(FurnitureView view)
@@ -565,41 +564,78 @@ namespace Ravenholm.Presentation
             sr.sortingOrder = 3;
         }
 
-        /// <summary>Hands each display piece its share of the stock: pieces of the same kind take consecutive slices.</summary>
+        /// <summary>
+        /// Hands each display piece its share of the stock. Spots the player chose (the display picker, 2026-10-18) show
+        /// their item while it is in stock; the rest fill in the racks' order, pieces of the same kind taking consecutive
+        /// slices, never repeating a chosen item.
+        /// </summary>
         private void Restock()
         {
             if (_root == null) return;
             var st = _root.Services.Logistics.System.State;
+            var shop = _root.Services.Shop;
+            var ordered = new List<FurnitureView>(_views.Values);
+            ordered.Sort((x, y) => string.CompareOrdinal(x.PlacementId, y.PlacementId));
+            var choices = new System.Text.StringBuilder();
+            foreach (var v in ordered) choices.Append(string.Join(",", Shown(shop, v))).Append(v.LayeredStand ? "L" : "").Append(';');
             var key = st.StoreItems.Count + ":" + (st.StoreItems.Count > 0 ? st.StoreItems[st.StoreItems.Count - 1] : "") + ":" +
-                      string.Join(",", st.PinnedDefinitions) + ":" + _views.Count;
+                      string.Join(",", st.PinnedDefinitions) + ":" + _views.Count + ":" + choices;
             if (key == _stockKey) return;
             _stockKey = key;
             var lists = new Dictionary<FurnitureDisplay, List<(ItemDefinition def, int count, string newest)>>();
-            var ordered = new List<FurnitureView>(_views.Values);
-            ordered.Sort((x, y) => string.CompareOrdinal(x.PlacementId, y.PlacementId));
             var shown = new Dictionary<FurnitureDisplay, HashSet<string>>();   // per kind, as before: one item may show on two kinds
+            foreach (var v in ordered)   // chosen items are kept out of every Auto spot of their kind
+            {
+                var kind = v.Definition.Display;
+                if (!shown.TryGetValue(kind, out var taken)) shown[kind] = taken = new HashSet<string>();
+                foreach (var id in Shown(shop, v)) if (id != "") taken.Add(id);
+            }
             foreach (var v in ordered)
             {
                 var kind = v.Definition.Display;
                 if (!lists.TryGetValue(kind, out var list)) lists[kind] = list = Representative(_root, v.Definition.Shows);
-                if (!shown.TryGetValue(kind, out var taken)) shown[kind] = taken = new HashSet<string>();
+                var taken = shown[kind];
+                var chosen = Shown(shop, v);
+                (ItemDefinition def, int count) Stocked(int spot, ItemCategory? only)
+                {
+                    if (spot >= chosen.Count || chosen[spot] == "") return default;
+                    foreach (var e in list)
+                        if (e.def.Id == chosen[spot] && (only == null || e.def.Category == only)) return (e.def, e.count);
+                    return default;   // out of stock (or not this spot's kind): Auto
+                }
                 var slice = new List<(ItemDefinition, int)>();
                 if (v.LayeredStand)
                 {
-                    // A dressed armour stand shows a set (Kevin, 2026-10-16): the next body armour, helmet and shield.
-                    foreach (var cat in new[] { ItemCategory.Armor, ItemCategory.Helmet, ItemCategory.Shield })
-                        foreach (var e in list)
-                            if (e.def.Category == cat && taken.Add(e.def.Id)) { slice.Add((e.def, e.count)); break; }
+                    // A dressed armour stand shows a set (Kevin, 2026-10-16): body armour, helmet and shield, in that order.
+                    for (var i = 0; i < LayeredSpots.Length; i++)
+                    {
+                        var pick = Stocked(i, LayeredSpots[i]);
+                        if (pick.def == null)
+                            foreach (var e in list)
+                                if (e.def.Category == LayeredSpots[i] && taken.Add(e.def.Id)) { pick = (e.def, e.count); break; }
+                        if (pick.def != null) slice.Add(pick);
+                    }
                 }
                 else
-                    foreach (var e in list)
+                {
+                    for (var i = 0; i < v.SlotCount; i++) slice.Add(Stocked(i, null));
+                    var next = 0;
+                    for (var i = 0; i < slice.Count; i++)
                     {
-                        if (slice.Count >= v.SlotCount) break;
-                        if (taken.Add(e.def.Id)) slice.Add((e.def, e.count));
+                        if (slice[i].Item1 != null) continue;
+                        while (next < list.Count && !taken.Add(list[next].def.Id)) next++;
+                        if (next < list.Count) { slice[i] = (list[next].def, list[next].count); next++; }
                     }
+                }
                 v.SetStock(slice);
             }
         }
+
+        /// <summary>The spots of a layered armour stand, in the picker's order.</summary>
+        public static readonly ItemCategory[] LayeredSpots = { ItemCategory.Armor, ItemCategory.Helmet, ItemCategory.Shield };
+
+        private static IReadOnlyList<string> Shown(Ravenholm.Services.ShopService shop, FurnitureView v) =>
+            (IReadOnlyList<string>)shop.Find(v.PlacementId)?.Shown ?? Array.Empty<string>();
 
         /// <summary>
         /// Stocked items a display shows, one entry per item type with its count: pinned first, then strongest, then newest.

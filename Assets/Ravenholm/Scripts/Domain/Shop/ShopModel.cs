@@ -69,6 +69,11 @@ namespace Ravenholm.Domain.Shop
         public bool Placed;
         public int A, B;
         public Facing Facing;
+        /// <summary>
+        /// What the player chose for each display spot (2026-10-18): an item definition id per spot, "" for Auto (the
+        /// racks' own order). A display preference only: it never moves or reserves inventory (GDD: stocking and display).
+        /// </summary>
+        public readonly List<string> Shown = new List<string>();
     }
 
     public sealed class ShopState

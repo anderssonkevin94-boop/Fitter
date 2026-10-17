@@ -29,6 +29,7 @@ namespace Ravenholm.Presentation
         private TextMeshProUGUI _boardBadge;
         private JobBoardPanel _jobBoard;
         private LoadoutPanel _loadout;
+        private DisplayPanel _display;
         private ResultPanel _result;
         private TextMeshProUGUI _forceButtonText;
         private TextMeshProUGUI _campButtonText;
@@ -107,6 +108,7 @@ namespace Ravenholm.Presentation
 
         public JobBoardPanel JobBoard => _jobBoard;
         public LoadoutPanel Loadout => _loadout;
+        public DisplayPanel Display => _display;
         public ResultPanel Result => _result;
 
         /// <summary>Opens a result card on demand (results never block movement on their own, GDD 2).</summary>
@@ -154,6 +156,13 @@ namespace Ravenholm.Presentation
             HideInfo();
             _jobBoard.Close();
             _loadout.Show(contractorId);
+        }
+
+        /// <summary>Arrange a display piece: choose what each spot shows (2026-10-18).</summary>
+        public void ShowDisplay(string placementId)
+        {
+            HideInfo();
+            _display.Show(placementId);
         }
 
         public void ShowStore()
@@ -222,6 +231,7 @@ namespace Ravenholm.Presentation
             _storePanel = StorePanel.Create(safe, _ui, root);
             _jobBoard = JobBoardPanel.Create(safe, _ui, root);
             _loadout = LoadoutPanel.Create(safe, _ui, root);
+            _display = DisplayPanel.Create(safe, _ui, root);
             _result = ResultPanel.Create(safe, _ui, root);
             _traderPanel = TraderPanel.Create(safe, _ui, root);
             _settingsPanel = SettingsPanel.Create(safe, _ui, root);
@@ -837,6 +847,7 @@ namespace Ravenholm.Presentation
             _settingsPanel.Close();
             _jobBoard.Close();
             _loadout.Close();
+            _display.Close();
             if (_result.IsOpen) _result.Continue();
             _debugLayer.SetActive(true);
             TouchInputRouter.PushModal();

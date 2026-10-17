@@ -101,6 +101,35 @@ namespace Ravenholm.Services
             return Place(id, p.A, p.B, p.Facing == Facing.A ? Facing.B : Facing.A);
         }
 
+        /// <summary>The most spots one display piece can hold (the largest potion shelf has 9).</summary>
+        public const int MaxDisplaySpots = 16;
+
+        /// <summary>
+        /// Chooses what one spot of a display piece shows (2026-10-18, Kevin: pick what a table or stand displays, like
+        /// equipping a hero). Null or "" sets the spot back to Auto. Display only: inventory is untouched. Returns why
+        /// not, or null.
+        /// </summary>
+        public string SetShown(string placementId, int spot, string itemDefinitionId)
+        {
+            var p = Find(placementId);
+            var def = FurnitureOf(p);
+            if (p == null || def == null) return "No such piece";
+            if (def.Display == FurnitureDisplay.None) return "This piece doesn't display goods";
+            if (spot < 0 || spot >= MaxDisplaySpots) return "No such spot";
+            var id = itemDefinitionId ?? "";
+            if (id != "")
+            {
+                if (!_catalogue.TryGet<ItemDefinition>(id, out var item)) return "No such item";
+                if (!def.Shows(item)) return $"{def.DisplayName} can't show {item.DisplayName}";
+            }
+            while (p.Shown.Count <= spot) p.Shown.Add("");
+            if (p.Shown[spot] == id) return null;
+            p.Shown[spot] = id;
+            while (p.Shown.Count > 0 && p.Shown[p.Shown.Count - 1] == "") p.Shown.RemoveAt(p.Shown.Count - 1);
+            Commit("shop: display chosen");
+            return null;
+        }
+
         public string Store(string id)
         {
             var p = Find(id);
@@ -380,6 +409,7 @@ namespace Ravenholm.Services
                 d.Furniture.Add(new ShopFurnitureSaveData
                 {
                     Id = p.Id, Furniture = p.FurnitureId, Level = p.Level, Placed = p.Placed, A = p.A, B = p.B, Facing = p.Facing.ToString(),
+                    Shown = new List<string>(p.Shown),
                 });
             env.Shop = d;
         }
@@ -398,11 +428,15 @@ namespace Ravenholm.Services
             {
                 if (ShapeOf(f.Furniture) == null) continue;   // furniture no longer in the content: dropped
                 var def = _catalogue.Get<ShopFurnitureDefinition>(f.Furniture);
-                State.Furniture.Add(new Placement
+                var placement = new Placement
                 {
                     Id = f.Id, FurnitureId = f.Furniture, Level = Math.Max(1, Math.Min(f.Level, def.MaxLevel)), Placed = f.Placed,
                     A = f.A, B = f.B, Facing = f.Facing == "B" ? Facing.B : Facing.A,
-                });
+                };
+                if (f.Shown != null)
+                    foreach (var id in f.Shown)   // items no longer in the content fall back to Auto
+                        placement.Shown.Add(!string.IsNullOrEmpty(id) && _catalogue.TryGet<ItemDefinition>(id, out _) ? id : "");
+                State.Furniture.Add(placement);
             }
             if (Wagon)
             {

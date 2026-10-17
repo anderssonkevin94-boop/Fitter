@@ -490,6 +490,7 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("a")] public int A;
         [JsonProperty("b")] public int B;
         [JsonProperty("facing")] public string Facing = "A";
+        [JsonProperty("shown")] public List<string> Shown = new List<string>();
     }
 
     [JsonObject(MemberSerialization.OptIn)]
