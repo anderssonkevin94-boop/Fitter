@@ -796,6 +796,12 @@ namespace Ravenholm.Presentation
         public bool ContextHeld => _contextHold != null && _contextHold.Held || ScriptedHold;
         public bool ScriptedHold { get; set; }
 
+        /// <summary>A tap on the context button from code (the autoplay playtester), as a finger would.</summary>
+        public void ScriptedPress() => OnContextPressed();
+
+        /// <summary>What the context button says now ("Chop cedar log", "Walk closer").</summary>
+        public string ContextLabel => _contextLabel != null ? _contextLabel.text : "";
+
         private void OnContextPressed()
         {
             var c = SandboxSceneController.Current;

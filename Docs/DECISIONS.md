@@ -1791,3 +1791,13 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - `StationPlayModeTests` moves and packs the whole Blacksmith, the Smelter with it.
   - The haul and craft tests use the mats.
 - **Not done.** The kit art isn't shown anywhere yet (kits are only listed in build mode). Smoke and sparks at the chimney and anvil points are not added.
+
+## 2026-10-17: the playtester (Kevin: an agent that plays the game and reports)
+
+- **The bot.** `AutoplayPlaytest` (PlayMode; `[Explicit]` and category Autoplay, so the suites skip it). It plays a fresh camp with only the stick (`ScriptedMove`) and the action button (`SandboxHud.ScriptedHold`/`ScriptedPress`):
+  - it explores eight ways, chops, digs, delivers, visits the Forge and the Store, and walks to the gate;
+  - it plans routes with A* over open ground (steps of one block, no blockers) and sidesteps when stuck;
+  - it records snags with what was in the way, the button's label at each job, times, errors, frame times and screenshots, into `Captures/Autoplay/report.md`, `timeline.txt` and `Captures/autoplay_*.png`.
+- **The agent.** `.claude/agents/playtester.md` runs the bot, reads the report, timeline and screenshots (and recent suite captures), and writes `Docs/Playtests/<date-time>.md`: broken, could be better, looks fine. It never changes the game.
+- **First report.** `Docs/Playtests/2026-10-17-2033.md`.
+- **Fixed from it: the Forge's button.** Standing at the Forge, the button offered "Inspect Forge Output" (the pickup mat lies nearer than the Forge's pivot), and tapping opened an info card. Stations now get a 0.6 priority over the pads and markers by them (`StationInspectable.ContextPriority`), so the Forge's crafting panel opens. Checked in `BlacksmithPlayModeTests`.

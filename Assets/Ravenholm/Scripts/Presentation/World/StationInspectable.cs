@@ -14,6 +14,12 @@ namespace Ravenholm.Presentation
         [SerializeField] private bool hasReceiver;
         [SerializeField] private ReceiverKind receiverKind;
 
+        /// <summary>
+        /// Standing at a station, the button opens the station (its crafting, its line), not its pad or mat nearby: the
+        /// Blacksmith's pickup mat lies closer than the Forge's own pivot (playtest, 2026-10-17).
+        /// </summary>
+        public override float ContextPriority => 0.6f;
+
         public override string ContextVerb => "Open";
         public override bool OpensOwnPanel => true;
         public string StationId => stationId;

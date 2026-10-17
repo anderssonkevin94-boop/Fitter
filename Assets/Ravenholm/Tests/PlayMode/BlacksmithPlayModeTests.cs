@@ -74,6 +74,19 @@ namespace Ravenholm.Tests
             motor.Teleport((Vector2)rug.position + new Vector2(0.2f, -1.6f));
             SandboxSceneController.Current.SnapPlayerToSavedPosition();
             yield return new WaitForSeconds(0.4f);
+            // Standing in front of the Forge, the button opens the Forge (not the pickup mat beside it; playtest, 2026-10-17).
+            motor.Teleport((Vector2)anvil.transform.position + new Vector2(0f, -1.1f));
+            SandboxSceneController.Current.SnapPlayerToSavedPosition();
+            yield return new WaitForSeconds(0.4f);
+            Assert.AreSame(anvil.GetComponent<StationInspectable>(), SandboxSceneController.Current.ContextTarget,
+                $"at the Forge the button offers the Forge (it says \"{root.Hud.ContextLabel}\")");
+            root.Hud.ScriptedPress();
+            yield return null;
+            Assert.IsTrue(root.Hud.StationPanel.IsOpen, "tapping it opens the Forge's crafting panel");
+            root.Hud.StationPanel.Close();
+            motor.Teleport((Vector2)rug.position + new Vector2(0.2f, -1.6f));
+            SandboxSceneController.Current.SnapPlayerToSavedPosition();
+            yield return new WaitForSeconds(0.4f);
             Assert.IsFalse(furnace.Burning, "idle: the furnace is out");
             Assert.IsFalse(anvil.Burning, "idle: the coals are out");
             yield return Look(rug.position, "blacksmith_idle");
