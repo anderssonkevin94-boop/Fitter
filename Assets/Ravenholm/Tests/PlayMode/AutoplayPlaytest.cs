@@ -117,9 +117,10 @@ namespace Ravenholm.Tests
 
         /// <summary>
         /// A route over walkable cells (A*, the way a player would plan it: open ground, steps of one block, no blockers),
-        /// as world waypoints; null when there is none within reach of the search.
+        /// as world waypoints; null when there is none within reach of the search. With <paramref name="partial"/>, a
+        /// route to the reachable cell nearest the goal instead (to stand in front of a gate that is still shut).
         /// </summary>
-        private static List<Vector2> Route(Vector2 from, Vector2 to)
+        private static List<Vector2> Route(Vector2 from, Vector2 to, bool partial = false)
         {
             var forest = ForestGridView.Current;
             var slab = MineSlabView.Current;
@@ -157,6 +158,8 @@ namespace Ravenholm.Tests
             Vector3Int[] steps = { Vector3Int.right, Vector3Int.left, Vector3Int.up, Vector3Int.down,
                 new Vector3Int(1, 1, 0), new Vector3Int(-1, -1, 0), new Vector3Int(1, -1, 0), new Vector3Int(-1, 1, 0) };
             var found = -1;
+            var best = s0;
+            var bestD = Vector3Int.Distance(start, goal);
             var visited = 0;
             while (openSet.Count > 0 && visited < 12000)
             {
@@ -165,6 +168,8 @@ namespace Ravenholm.Tests
                 var c = cells[cur.id];
                 visited++;
                 if (Mathf.Abs(c.x - goal.x) + Mathf.Abs(c.y - goal.y) <= 1) { found = cur.id; break; }
+                var d = Vector3Int.Distance(c, goal);
+                if (d < bestD) { bestD = d; best = cur.id; }
                 foreach (var st in steps)
                 {
                     var n = c + st;
@@ -180,11 +185,11 @@ namespace Ravenholm.Tests
                     openSet.Add((cost + Vector3Int.Distance(n, goal), ni));
                 }
             }
-            if (found < 0) return null;
+            if (found < 0 && !partial) return null;
             var path = new List<Vector2>();
-            for (var i = found; i >= 0; i = came[i]) path.Add(IsoMap.World(cells[i]));
+            for (var i = found >= 0 ? found : best; i >= 0; i = came[i]) path.Add(IsoMap.World(cells[i]));
             path.Reverse();
-            path.Add(to);
+            if (found >= 0) path.Add(to);
             return path;
         }
 
@@ -391,7 +396,17 @@ namespace Ravenholm.Tests
 
             // 7. The way on: toward the gate.
             Note("— the gate —");
-            yield return WalkTo(s.Camp.ExitWorld, "the gate on the north rim", 30f, 1.5f);
+            // The gate's band of old trees needs a better tool: with the starting axe the way through is often shut (on some
+            // worlds there is a gap round its end). Then walk to the nearest point in front of it, not into the wagon (the
+            // fifth and sixth playtests: "no route", 12 snags on the wagon).
+            if (Route(At, s.Camp.ExitWorld) == null)
+            {
+                var front = Route(At, s.Camp.ExitWorld, partial: true);
+                var stop = front[front.Count - 1];
+                Note($"the gate is shut on foot: old trees across the way need a better tool (the Forge). Walking to the nearest point in front of it, {Vector2.Distance(stop, s.Camp.ExitWorld):F1} from the road's end");
+                yield return WalkTo(stop, "the front of the gate's old trees", 30f, 0.6f);
+            }
+            else yield return WalkTo(s.Camp.ExitWorld, "the gate on the north rim", 30f, 1.5f);
             yield return Shot("gate");
             Note($"at the gate the button says \"{Root.Hud.ContextLabel}\"; move-on: {s.Camp.MoveOnBlockedReason(At) ?? "allowed"}");
 
