@@ -111,7 +111,7 @@ namespace Ravenholm.Tests
             var cases = new[]
             {
                 (from: (Vector2)GameObject.Find("Smelter").transform.position + new Vector2(0f, -1.7f), to: (Vector2)GameObject.Find("Smelter").transform.position, name: "Smelter"),
-                (from: new Vector2(-3.5f, -5.6f), to: new Vector2(-5.4f, -3.8f), name: "Forge"),
+                (from: (Vector2)GameObject.Find("Forge").transform.position + new Vector2(0.4f, -1.5f), to: (Vector2)GameObject.Find("Forge").transform.position, name: "Forge"),
                 (from: new Vector2(-2.9f, -3.2f), to: new Vector2(-2.9f, -1.7f), name: "Apothecary"),
                 (from: (Vector2)ShopView.Current.Wagon.position + new Vector2(0f, 1.1f), to: (Vector2)ShopView.Current.Wagon.position, name: "The wagon"),
                 (from: (Vector2)GameObject.Find("Lumbermill").transform.position + new Vector2(1.9f, -1.2f), to: (Vector2)GameObject.Find("Lumbermill").transform.position, name: "Lumbermill"),
@@ -160,7 +160,7 @@ namespace Ravenholm.Tests
             Assert.AreEqual(0, Sys.CarryCount, "smelter accepts ore and gems");
             Assert.AreEqual(12, Shared("resource.iron_ore") + Shared("resource.copper_ore") + Shared("resource.gem"));
 
-            yield return StandAt(new Vector2(-4.3f, -4.0f), 1.0f);   // forge output pad
+            yield return StandAt(Spot("container.forge_pad"), 1.0f);   // forge output pad (the Blacksmith's pickup mat)
             Assert.AreEqual(5, Sys.CarryCount);
             Assert.IsTrue(Sys.State.Carry.All(u => u.Kind == UnitKind.Item));
 

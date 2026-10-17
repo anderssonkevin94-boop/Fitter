@@ -51,7 +51,7 @@ namespace Ravenholm.Tests
             var root = GameRoot.Instance;
             root.Hud.Tips.HideAll();
             var s = root.Services;
-            var smelter = StationSiteView.All["station.smelter"];
+            var smelter = StationSiteView.All["station.forge"];   // the Blacksmith setup: the Smelter rides with the Forge
             var receiver = s.Logistics.System.State.Receivers["receiver.smelter"];
             var receiverFrom = new Vector2(receiver.X, receiver.Y);
             var from = (Vector2)smelter.transform.position;
@@ -61,12 +61,12 @@ namespace Ravenholm.Tests
             yield return null;
             Assert.IsTrue(root.Hud.ShopBuild.IsOpen);
             Assert.IsTrue(ShopView.Current.HandleTap(smelter.TapCollider.bounds.center));
-            Assert.AreEqual("station.smelter", StationBuild.Selected, "tapping a station picks it");
+            Assert.AreEqual("station.forge", StationBuild.Selected, "tapping the Blacksmith picks its whole setup");
 
             // Somewhere free in the clearing, a few steps from where it stood.
             (int x, int y) spot = default;
             var found = false;
-            var site = s.Stations.Site("station.smelter");
+            var site = s.Stations.Site("station.forge");
             for (var r = 3; r < 14 && !found; r++)
             for (var dx = -r; dx <= r && !found; dx++)
             {
@@ -78,6 +78,9 @@ namespace Ravenholm.Tests
             Assert.IsTrue(ShopView.Current.HandleTap(centre));
             Assert.AreEqual(StationSiteMode.Placed, site.Mode, StationBuild.LastMessage);
             Assert.AreEqual(spot, (site.X, site.Y));
+            var rider = s.Stations.Site("station.smelter");
+            Assert.AreEqual((site.X, site.Y, site.Mode), (rider.X, rider.Y, rider.Mode), "the Smelter moved with it");
+            Assert.AreEqual(0, rider.W, "and takes no cells of its own");
             yield return null;
             Assert.AreEqual(centre.x, smelter.transform.position.x, 0.01f, "the building moved");
             Assert.AreEqual(centre.y, smelter.transform.position.y, 0.01f);
@@ -107,7 +110,9 @@ namespace Ravenholm.Tests
             yield return Capture.Take("station_moved");
 
             // Packed into its kit: gone from the camp, taking nothing; then set up again from the kit list.
-            Assert.IsNull(s.Stations.Pack("station.smelter"));
+            Assert.IsNull(s.Stations.Pack("station.smelter"));   // packing either packs the setup
+            Assert.AreEqual(StationSiteMode.Packed, site.Mode, "the whole Blacksmith packed");
+            CollectionAssert.DoesNotContain(System.Linq.Enumerable.Select(s.Stations.Kits(), k => k.StationId), "station.smelter", "one kit: the Blacksmith's");
             yield return null;
             Assert.IsFalse(smelter.gameObject.activeSelf, "packed away");
             Assert.AreEqual(0f, s.Logistics.System.State.Receivers["receiver.smelter"].Radius);

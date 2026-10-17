@@ -5623,6 +5623,125 @@
     0.10938
    ],
    "ppu": 256
+  },
+  "Blacksmith/blacksmith_kit.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256,
+   "outline": true
+  },
+  "Blacksmith/blacksmith_rug.png": {
+   "pivot": [
+    0.5,
+    0.3
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/crafting_1.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256,
+   "outline": true
+  },
+  "Blacksmith/crafting_1_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/crafting_2.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256,
+   "outline": true
+  },
+  "Blacksmith/crafting_2_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/crafting_3.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256,
+   "outline": true
+  },
+  "Blacksmith/crafting_3_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/delivery_mat.png": {
+   "pivot": [
+    0.5,
+    0.375
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/furnace_1.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256,
+   "outline": true
+  },
+  "Blacksmith/furnace_1_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/furnace_2.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256,
+   "outline": true
+  },
+  "Blacksmith/furnace_2_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/furnace_3.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256,
+   "outline": true
+  },
+  "Blacksmith/furnace_3_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/pickup_mat.png": {
+   "pivot": [
+    0.5,
+    0.375
+   ],
+   "ppu": 256
   }
  }
 }

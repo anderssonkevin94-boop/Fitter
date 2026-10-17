@@ -56,6 +56,8 @@ namespace Ravenholm.EditorTools
             if (rel.StartsWith("Tiles/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Carried pieces keep their whole canvas too (Astra's stack sprites: no trimming, the pivot on the floor line).
             if (rel.StartsWith("Stacks/")) settings.spriteMeshType = SpriteMeshType.FullRect;
+            // Astra's modular Blacksmith (2026-10-17): untrimmed canvases, as the pack asks (its points are canvas pixels).
+            if (rel.StartsWith("Blacksmith/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Outline-free character parts: the game's outline is drawn inside each sprite's rectangle.
             if (rel.StartsWith("Characters/StoreOwner/") || rel.StartsWith("Characters/Citizens/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Ground and blocks fill their shapes edge to edge: full-rect so neighbours meet without mesh gaps.

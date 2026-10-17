@@ -21,6 +21,9 @@ namespace Ravenholm.Presentation
 
         public static void Select(string stationId)
         {
+            // A station riding with another (the Smelter with the Forge) is moved as its whole setup.
+            var root = GameRoot.Instance;
+            if (stationId != null && root != null) stationId = root.Services.Stations.LeaderOf(stationId);
             Selected = stationId;
             LastMessage = "";
             if (stationId != null && ShopView.Current != null && ShopView.Current.Selected != null) ShopView.Current.Deselect();

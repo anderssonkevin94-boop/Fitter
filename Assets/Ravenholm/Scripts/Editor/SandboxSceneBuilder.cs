@@ -83,11 +83,10 @@ namespace Ravenholm.EditorTools
             // --- buildings (positions are footprint centres in world units) ---
             // The shop (Shop Titans style, 2026-10-15): drawn from its grid of tiles; furniture is placed in build mode.
             var shop = Shop(buildings);
-            var smelter = Building(buildings, "Smelter", "bld_smelter", new Vector2(-14.5f, -1.5f), new Vector2(2.2f, 2.4f),
-                "Receives raw ore, coal and gems, then smelts them into ingots automatically.", "", new Vector2(2f, 2f), ReceiverKind.Smelter, stationId: "station.smelter");
-            Building(buildings, "Forge", "bld_forge", new Vector2(-5.4f, -3.8f), new Vector2(2.2f, 2.0f),
-                "Covered work area. Makes metal weapons, armour, helmets and shields from permanent blueprints. Finished goods appear on its output pad.",
-                "", new Vector2(2f, 2f), stationId: "station.forge");
+            // The Blacksmith (Astra's modular pack, Kevin 2026-10-17: one setup): the Smelter's furnace and the Forge's
+            // crafting station on one rug, with a delivery mat and a pickup mat.
+            var smithy = Blacksmith(buildings, BlacksmithCentre);
+            var smelter = smithy.Find("Smelter");
             var mill = Building(buildings, "Lumbermill", "bld_lumbermill", new Vector2(-11.6f, 3.2f), new Vector2(2.4f, 2.0f),
                 "Receives logs, then saws them into lumber automatically.", "", new Vector2(2.5f, 2f), ReceiverKind.Lumbermill, stationId: "station.lumbermill");
             Building(buildings, "Workshop", "bld_workbench", new Vector2(5.6f, -3.8f), new Vector2(1.7f, 1.8f),
@@ -132,7 +131,7 @@ namespace Ravenholm.EditorTools
             Flowers(props);
 
             // --- PHASE 1 FIXTURES: receivers, raw piles and output pads ---
-            Receiver(logistics, "receiver.smelter", ReceiverKind.Smelter, new Vector2(-13.65f, -2.2f), 0.6f, smelter.transform, "icon_iron_ore", true);
+            Receiver(logistics, "receiver.smelter", ReceiverKind.Smelter, BlacksmithCentre + BlacksmithDelivery, 0.6f, smelter, "icon_iron_ore", true);
             Receiver(logistics, "receiver.lumbermill", ReceiverKind.Lumbermill, new Vector2(-12.5f, 2.45f), 0.6f, mill.transform, "icon_cedar_log", true);
             Receiver(logistics, "receiver.apothecary", ReceiverKind.Apothecary, new Vector2(-2.15f, -2.45f), 0.55f, apothecary.transform, "icon_herb", true);
             Receiver(logistics, "receiver.store", ReceiverKind.Store, ShopEntrance(), 0.55f, shop, "icon_iron_sword", false);
@@ -143,8 +142,10 @@ namespace Ravenholm.EditorTools
                 (Vector2)_grid.GetCellCenterWorld(_mineCell + new Vector3Int(MineEntry + 2, 3, 0)), null, null, null, hidden: true);
             Container(logistics, "container.forest_staging", "Forest Staging", ContainerKind.RawPile, new Vector2(-16.0f, 0.6f),
                 null, null, null, hidden: true);
-            Container(logistics, "container.forge_pad", "Forge Output", ContainerKind.OutputPad, new Vector2(-4.3f, -4.55f),
+            var forgePad = Container(logistics, "container.forge_pad", "Forge Output", ContainerKind.OutputPad, BlacksmithCentre + BlacksmithPickup,
                 "Crafted goods appear here (holds 6). Walk close to pick them up, then stock them at the Store.", null, null, 6);
+            // The Blacksmith's pickup mat is the pad's ground: the old pad art goes (the goods still pile on it).
+            Object.DestroyImmediate(forgePad.Find("Pad").gameObject);
             Container(logistics, "container.workbench_pad", "Workshop Output", ContainerKind.OutputPad, new Vector2(4.6f, -4.45f),
                 "Crafted bows and staves appear here (holds 6).", null, null, 6);
             Container(logistics, "container.apothecary_pad", "Apothecary Output", ContainerKind.OutputPad, new Vector2(-3.85f, -2.45f),
@@ -192,13 +193,12 @@ namespace Ravenholm.EditorTools
                 projectSign.gameObject.AddComponent<GateProjectSpot>().EditorSetup(g, _groundMap,
                     tilesForProjects[road.Gates[g].project == "Bridge" ? "bridge" : "plaza"]);
             }
-            ProcessorBar(smelter.transform, "station.smelter", 2.75f);
+            ProcessorBar(smelter, "station.smelter", BlacksmithBarHeight);
             ProcessorBar(mill.transform, "station.lumbermill", 2.2f);
             // The journey, step 2 (2026-10-15): each station can be set up elsewhere at the camp, its marker and pad with it.
-            Site(buildings, "Smelter", "station.smelter", logistics, "Receiver Smelter");
             Site(buildings, "Lumbermill", "station.lumbermill", logistics, "Receiver Lumbermill");
             Site(buildings, "Apothecary", "station.apothecary", logistics, "Receiver Apothecary", "Apothecary Output");
-            Site(buildings, "Forge", "station.forge", logistics, "Forge Output");
+            Site(buildings, "Blacksmith", "station.forge", logistics, "Receiver Smelter", "Forge Output");   // the Smelter rides with it
             Site(buildings, "Workshop", "station.workbench", logistics, "Workshop Output");
             // The Kitchen (the crafting expansion, 2026-10-16): it arrives as a kit, to be set up in build mode.
             Building(buildings, "Kitchen", "bld_kitchen", new Vector2(8.6f, -2.6f), new Vector2(2.2f, 2.2f),
@@ -447,6 +447,76 @@ namespace Ravenholm.EditorTools
             sr.sortingOrder = order;
             if (_unlit != null) sr.sharedMaterial = _unlit;
             return sr;
+        }
+
+        // ------------------------------------------------------------------ the Blacksmith (Astra's modular pack, 2026-10-17)
+
+        /// <summary>Where the Blacksmith's rug is laid out at camp 1 (its centre, world units).</summary>
+        private static readonly Vector2 BlacksmithCentre = new Vector2(-12.9f, -1.9f);
+
+        // The pack's parent-local positions (points.json placements, world units from the rug's centre).
+        private static readonly Vector2 BlacksmithFurnace = new Vector2(-0.225f, 0.5375f);
+        private static readonly Vector2 BlacksmithCrafting = new Vector2(0.95f, -0.05f);
+        private static readonly Vector2 BlacksmithDelivery = new Vector2(-1.15f, 0.125f);
+        private static readonly Vector2 BlacksmithPickup = new Vector2(0.125f, -0.5125f);
+        /// <summary>The furnace's progress bar point above its ground (level 1: pixel 188 on the 400 ground line).</summary>
+        private const float BlacksmithBarHeight = (400f - 188f) / 256f;
+
+        /// <summary>
+        /// The Blacksmith: one camp setup (set up, packed and moved as the Forge's site; the Smelter rides with it). The rug
+        /// and the two mats lie flat on the ground and are walked on; the furnace (the Smelter) and the crafting station (the
+        /// Forge) are each their own building: their own tap target, blocker, level art and fire. Returns the setup's root.
+        /// </summary>
+        private static Transform Blacksmith(Transform parent, Vector2 centre)
+        {
+            var rug = Sprite(parent, "Blacksmith", "Blacksmith/blacksmith_rug", centre);
+            rug.sortingLayerName = "Ground";
+            rug.sortingOrder = 1;   // with the wagon's carpet: under everyone
+            var tap = rug.gameObject.AddComponent<BoxCollider2D>();   // build mode picks the setup by its rug
+            tap.isTrigger = true;
+            tap.size = new Vector2(3.4f, 1.6f);
+            tap.enabled = false;
+            foreach (var (name, at) in new[] { ("Delivery Mat", BlacksmithDelivery), ("Pickup Mat", BlacksmithPickup) })
+            {
+                var mat = Sprite(rug.transform, name, $"Blacksmith/{(name.StartsWith("Delivery") ? "delivery" : "pickup")}_mat", at);
+                mat.sortingLayerName = "Ground";
+                mat.sortingOrder = 2;
+            }
+            Station(rug.transform, "Smelter", "furnace", BlacksmithFurnace, new Vector2(1.2f, 1.9f), new Vector2(1f, 1f),
+                "The furnace: raw ore, coal and gems delivered to its mat are smelted into ingots automatically.", "station.smelter", ReceiverKind.Smelter);
+            Station(rug.transform, "Forge", "crafting", BlacksmithCrafting, new Vector2(1.6f, 1.3f), new Vector2(0.8f, 1.5f),
+                "The anvil and hearth: metal weapons, armour, helmets and shields from permanent blueprints. Finished goods appear on its mat.",
+                "station.forge", null);
+            AddLabel(rug.transform, "Blacksmith", 1.9f);
+            return rug.transform;
+        }
+
+        /// <summary>A station of a modular setup: its level art and fire, tap target, footprint blocker and outline.</summary>
+        private static void Station(Transform setup, string title, string art, Vector2 local, Vector2 tapSize, Vector2 blockCells,
+            string description, string stationId, ReceiverKind? receiver)
+        {
+            var sr = Sprite(setup, title, $"Blacksmith/{art}_1", local);
+            sr.gameObject.AddComponent<SpriteOutline>();
+            var col = sr.gameObject.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+            col.size = tapSize;
+            col.offset = new Vector2(0f, tapSize.y * 0.3f);
+            var s = sr.gameObject.AddComponent<StationInspectable>();
+            s.EditorSetup(title, description, "");
+            s.EditorSetupStation(stationId, receiver.HasValue, receiver ?? ReceiverKind.Store);
+            var glow = Sprite(sr.transform, "Fire", $"Blacksmith/{art}_1_glow", Vector2.zero);
+            glow.sortingOrder = sr.sortingOrder + 1;   // just above its station, no outline
+            glow.enabled = false;
+            var levels = new List<Sprite>();
+            var glows = new List<Sprite>();
+            for (var n = 1; n <= 3; n++)
+            {
+                levels.Add(ProjectSetup.LoadSprite($"Blacksmith/{art}_{n}"));
+                glows.Add(ProjectSetup.LoadSprite($"Blacksmith/{art}_{n}_glow"));
+            }
+            sr.gameObject.AddComponent<StationArt>().EditorSetup(stationId, sr, glow, levels, glows);
+            Diamond(sr.transform, blockCells.x, blockCells.y, 0.92f);
+            sr.gameObject.AddComponent<ObstructionFader>();
         }
 
         /// <summary>

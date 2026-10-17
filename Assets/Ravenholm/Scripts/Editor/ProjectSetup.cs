@@ -863,6 +863,18 @@ namespace Ravenholm.EditorTools
                 mill.EditorSetFootprint(new Vector2Int(3, 2));
                 EditorUtility.SetDirty(mill);
             }
+            // The Blacksmith (Astra's modular pack, Kevin 2026-10-17: one setup): the Forge's crafting station leads a 4 x 3 camp
+            // setup on its rug; the Smelter's furnace rides with it (set up, packed and moved together). Each keeps its own
+            // levels, recipes and processes.
+            if (catalogue.TryGet<StationDefinition>("station.forge", out var forge) && catalogue.TryGet<StationDefinition>("station.smelter", out var smelter)
+                && (forge.Footprint != new Vector2Int(4, 3) || smelter.RidesWith != forge || forge.SetupName != "Blacksmith"))
+            {
+                forge.EditorSetFootprint(new Vector2Int(4, 3));
+                forge.EditorSetSetup(null, "Blacksmith");
+                smelter.EditorSetSetup(forge, "");
+                EditorUtility.SetDirty(forge);
+                EditorUtility.SetDirty(smelter);
+            }
             // The camps further up the road and their gates: EnsureRoad (step 7).
             if (catalogue.Camps.Count == 0) { catalogue.EditorSetCamps(new List<CampDefinition> { camp }); EditorUtility.SetDirty(catalogue); }
             if (settings.camp == null) { settings.camp = camp; EditorUtility.SetDirty(settings); }

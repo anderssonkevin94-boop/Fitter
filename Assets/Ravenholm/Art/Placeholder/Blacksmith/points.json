@@ -1,0 +1,829 @@
+{
+  "schema_version": 2,
+  "pack": "Ravenholm modular caravan blacksmith",
+  "coordinate_system": "pixels: top-left origin, y down; u grows down-right, v grows down-left",
+  "pixels_per_unit": 256,
+  "tile_diamond": [
+    256,
+    128
+  ],
+  "recommended_footprint_tiles": [
+    4,
+    3
+  ],
+  "layout_canvas": [
+    1200,
+    1000
+  ],
+  "layout_ground": [
+    600,
+    700
+  ],
+  "grid_origin_pixel": [
+    536,
+    476
+  ],
+  "projection": "pixel=(536+128*(u-v), 476+64*(u+v))",
+  "sprite_local_formula": "((x-ground.x)/256, (ground.y-y)/256)",
+  "upgrade_rules": {
+    "furnace": [
+      1,
+      2,
+      3
+    ],
+    "crafting": [
+      1,
+      2,
+      3
+    ],
+    "independent": true,
+    "preserve_ground_and_reservation": true,
+    "combinations": 9
+  },
+  "assets": {
+    "furnace_1": {
+      "canvas": [
+        512,
+        512
+      ],
+      "ground": [
+        256,
+        400
+      ],
+      "unity_pivot": [
+        0.5,
+        0.21875
+      ],
+      "pixels_per_unit": 256,
+      "sprite": "assets/furnace_1.png",
+      "glow": "assets/furnace_1_glow.png",
+      "level": 1,
+      "upgrade_group": "furnace",
+      "points": {
+        "chimney_top": [
+          256,
+          229
+        ],
+        "progress_bar": [
+          256,
+          188
+        ],
+        "fire": [
+          285,
+          377
+        ]
+      },
+      "fire_clip_polygon": [
+        [
+          263,
+          390
+        ],
+        [
+          263,
+          368
+        ],
+        [
+          270,
+          359
+        ],
+        [
+          281,
+          351
+        ],
+        [
+          290,
+          347
+        ],
+        [
+          295,
+          349
+        ],
+        [
+          296,
+          371
+        ],
+        [
+          307,
+          383
+        ],
+        [
+          279,
+          400
+        ]
+      ],
+      "walkable": false,
+      "ground_reservation_tiles": [
+        1,
+        1
+      ]
+    },
+    "furnace_2": {
+      "canvas": [
+        512,
+        512
+      ],
+      "ground": [
+        256,
+        400
+      ],
+      "unity_pivot": [
+        0.5,
+        0.21875
+      ],
+      "pixels_per_unit": 256,
+      "sprite": "assets/furnace_2.png",
+      "glow": "assets/furnace_2_glow.png",
+      "level": 2,
+      "upgrade_group": "furnace",
+      "points": {
+        "chimney_top": [
+          256,
+          221
+        ],
+        "progress_bar": [
+          256,
+          180
+        ],
+        "fire": [
+          285,
+          377
+        ]
+      },
+      "fire_clip_polygon": [
+        [
+          264,
+          391
+        ],
+        [
+          264,
+          368
+        ],
+        [
+          273,
+          359
+        ],
+        [
+          284,
+          353
+        ],
+        [
+          292,
+          350
+        ],
+        [
+          296,
+          352
+        ],
+        [
+          296,
+          371
+        ],
+        [
+          307,
+          384
+        ],
+        [
+          279,
+          400
+        ]
+      ],
+      "walkable": false,
+      "ground_reservation_tiles": [
+        1,
+        1
+      ]
+    },
+    "furnace_3": {
+      "canvas": [
+        512,
+        512
+      ],
+      "ground": [
+        256,
+        400
+      ],
+      "unity_pivot": [
+        0.5,
+        0.21875
+      ],
+      "pixels_per_unit": 256,
+      "sprite": "assets/furnace_3.png",
+      "glow": "assets/furnace_3_glow.png",
+      "level": 3,
+      "upgrade_group": "furnace",
+      "points": {
+        "chimney_top": [
+          256,
+          213
+        ],
+        "progress_bar": [
+          256,
+          172
+        ],
+        "fire": [
+          285,
+          377
+        ]
+      },
+      "fire_clip_polygon": [
+        [
+          264,
+          391
+        ],
+        [
+          264,
+          368
+        ],
+        [
+          273,
+          358
+        ],
+        [
+          284,
+          352
+        ],
+        [
+          292,
+          348
+        ],
+        [
+          296,
+          350
+        ],
+        [
+          296,
+          371
+        ],
+        [
+          307,
+          384
+        ],
+        [
+          279,
+          400
+        ]
+      ],
+      "walkable": false,
+      "ground_reservation_tiles": [
+        1,
+        1
+      ]
+    },
+    "crafting_1": {
+      "canvas": [
+        512,
+        512
+      ],
+      "ground": [
+        256,
+        400
+      ],
+      "unity_pivot": [
+        0.5,
+        0.21875
+      ],
+      "pixels_per_unit": 256,
+      "sprite": "assets/crafting_1.png",
+      "glow": "assets/crafting_1_glow.png",
+      "level": 1,
+      "upgrade_group": "crafting",
+      "points": {
+        "anvil": [
+          284,
+          322
+        ],
+        "fire": [
+          210,
+          305
+        ]
+      },
+      "fire_clip_polygon": [
+        [
+          181,
+          303
+        ],
+        [
+          203,
+          289
+        ],
+        [
+          219,
+          289
+        ],
+        [
+          236,
+          299
+        ],
+        [
+          232,
+          309
+        ],
+        [
+          218,
+          321
+        ],
+        [
+          202,
+          314
+        ]
+      ],
+      "walkable": false,
+      "ground_reservation_tiles": [
+        1.5,
+        0.8
+      ]
+    },
+    "crafting_2": {
+      "canvas": [
+        512,
+        512
+      ],
+      "ground": [
+        256,
+        400
+      ],
+      "unity_pivot": [
+        0.5,
+        0.21875
+      ],
+      "pixels_per_unit": 256,
+      "sprite": "assets/crafting_2.png",
+      "glow": "assets/crafting_2_glow.png",
+      "level": 2,
+      "upgrade_group": "crafting",
+      "points": {
+        "anvil": [
+          287,
+          322
+        ],
+        "fire": [
+          210,
+          305
+        ]
+      },
+      "fire_clip_polygon": [
+        [
+          181,
+          303
+        ],
+        [
+          204,
+          289
+        ],
+        [
+          222,
+          292
+        ],
+        [
+          237,
+          302
+        ],
+        [
+          220,
+          321
+        ],
+        [
+          201,
+          314
+        ]
+      ],
+      "walkable": false,
+      "ground_reservation_tiles": [
+        1.5,
+        0.8
+      ]
+    },
+    "crafting_3": {
+      "canvas": [
+        512,
+        512
+      ],
+      "ground": [
+        256,
+        400
+      ],
+      "unity_pivot": [
+        0.5,
+        0.21875
+      ],
+      "pixels_per_unit": 256,
+      "sprite": "assets/crafting_3.png",
+      "glow": "assets/crafting_3_glow.png",
+      "level": 3,
+      "upgrade_group": "crafting",
+      "points": {
+        "anvil": [
+          290,
+          322
+        ],
+        "fire": [
+          210,
+          305
+        ]
+      },
+      "fire_clip_polygon": [
+        [
+          181,
+          303
+        ],
+        [
+          204,
+          289
+        ],
+        [
+          222,
+          292
+        ],
+        [
+          237,
+          302
+        ],
+        [
+          220,
+          321
+        ],
+        [
+          201,
+          314
+        ]
+      ],
+      "walkable": false,
+      "ground_reservation_tiles": [
+        1.5,
+        0.8
+      ]
+    },
+    "rug": {
+      "sprite": "assets/blacksmith_rug.png",
+      "canvas": [
+        1200,
+        1000
+      ],
+      "ground": [
+        600,
+        700
+      ],
+      "unity_pivot": [
+        0.5,
+        0.3
+      ],
+      "pixels_per_unit": 256,
+      "walkable": true,
+      "footprint_tiles": [
+        4,
+        3
+      ],
+      "footprint": [
+        [
+          536,
+          476
+        ],
+        [
+          1048,
+          732
+        ],
+        [
+          664,
+          924
+        ],
+        [
+          152,
+          668
+        ]
+      ],
+      "footprint_bbox_pixels": [
+        896,
+        448
+      ]
+    },
+    "delivery": {
+      "sprite": "assets/delivery_mat.png",
+      "canvas": [
+        256,
+        256
+      ],
+      "ground": [
+        128,
+        160
+      ],
+      "unity_pivot": [
+        0.5,
+        0.375
+      ],
+      "pixels_per_unit": 256,
+      "walkable": true,
+      "footprint_tiles": [
+        0.625,
+        0.625
+      ],
+      "footprint": [
+        [
+          128,
+          120
+        ],
+        [
+          208,
+          160
+        ],
+        [
+          128,
+          200
+        ],
+        [
+          48,
+          160
+        ]
+      ],
+      "item_spawn": [
+        128,
+        160
+      ],
+      "items_baked_in": false
+    },
+    "pickup": {
+      "sprite": "assets/pickup_mat.png",
+      "canvas": [
+        256,
+        256
+      ],
+      "ground": [
+        128,
+        160
+      ],
+      "unity_pivot": [
+        0.5,
+        0.375
+      ],
+      "pixels_per_unit": 256,
+      "walkable": true,
+      "footprint_tiles": [
+        0.625,
+        0.625
+      ],
+      "footprint": [
+        [
+          128,
+          120
+        ],
+        [
+          208,
+          160
+        ],
+        [
+          128,
+          200
+        ],
+        [
+          48,
+          160
+        ]
+      ],
+      "item_spawn": [
+        128,
+        160
+      ],
+      "items_baked_in": false
+    },
+    "kit": {
+      "canvas": [
+        512,
+        512
+      ],
+      "ground": [
+        256,
+        400
+      ],
+      "unity_pivot": [
+        0.5,
+        0.21875
+      ],
+      "pixels_per_unit": 256,
+      "sprite": "assets/blacksmith_kit.png",
+      "walkable": false,
+      "ground_reservation_tiles": [
+        1,
+        1
+      ]
+    }
+  },
+  "placements": {
+    "furnace": {
+      "grid_uv": [
+        0.7,
+        0.65
+      ],
+      "ground_pixel_in_layout": [
+        542.4,
+        562.4
+      ],
+      "unity_local_position": [
+        -0.2250000000000001,
+        0.5375000000000001
+      ],
+      "cell_delta_for_current_IsoMap": [
+        0.85,
+        1.3
+      ],
+      "approach_uv": [
+        0.7,
+        1.55
+      ],
+      "approach_pixel": [
+        427.2,
+        620.0
+      ],
+      "reservation_uv": [
+        0.2,
+        0.15,
+        1.2,
+        1.15
+      ],
+      "walkable": false
+    },
+    "crafting": {
+      "grid_uv": [
+        3.05,
+        0.65
+      ],
+      "ground_pixel_in_layout": [
+        843.2,
+        712.8
+      ],
+      "unity_local_position": [
+        0.9500000000000002,
+        -0.04999999999999982
+      ],
+      "cell_delta_for_current_IsoMap": [
+        0.85,
+        -1.0499999999999998
+      ],
+      "approach_uv": [
+        3.05,
+        1.55
+      ],
+      "approach_pixel": [
+        728.0,
+        770.4
+      ],
+      "reservation_uv": [
+        2.3,
+        0.25,
+        3.8,
+        1.05
+      ],
+      "walkable": false
+    },
+    "delivery": {
+      "grid_uv": [
+        0.6,
+        2.4
+      ],
+      "ground_pixel_in_layout": [
+        305.6,
+        668.0
+      ],
+      "unity_local_position": [
+        -1.15,
+        0.125
+      ],
+      "cell_delta_for_current_IsoMap": [
+        -0.8999999999999999,
+        1.4
+      ],
+      "approach_uv": [
+        1.1,
+        2.4
+      ],
+      "approach_pixel": [
+        369.6,
+        700.0
+      ],
+      "reservation_uv": null,
+      "walkable": true
+    },
+    "pickup": {
+      "grid_uv": [
+        3.15,
+        2.4
+      ],
+      "ground_pixel_in_layout": [
+        632.0,
+        831.2
+      ],
+      "unity_local_position": [
+        0.125,
+        -0.5125000000000002
+      ],
+      "cell_delta_for_current_IsoMap": [
+        -0.8999999999999999,
+        -1.15
+      ],
+      "approach_uv": [
+        2.65,
+        2.4
+      ],
+      "approach_pixel": [
+        568.0,
+        799.2
+      ],
+      "reservation_uv": null,
+      "walkable": true
+    }
+  },
+  "navigation": {
+    "equipment_reservations_uv": {
+      "furnace": [
+        0.2,
+        0.15,
+        1.2,
+        1.15
+      ],
+      "crafting": [
+        2.3,
+        0.25,
+        3.8,
+        1.05
+      ]
+    },
+    "reserved_central_aisle_uv": [
+      1.25,
+      0,
+      2.25,
+      3.25
+    ],
+    "aisle_width_tiles": 1,
+    "entry_uv": [
+      1.75,
+      3.25
+    ],
+    "routes_uv": {
+      "furnace": [
+        [
+          1.75,
+          3.25
+        ],
+        [
+          1.75,
+          1.55
+        ],
+        [
+          0.7,
+          1.55
+        ]
+      ],
+      "crafting": [
+        [
+          1.75,
+          3.25
+        ],
+        [
+          1.75,
+          1.55
+        ],
+        [
+          3.05,
+          1.55
+        ]
+      ],
+      "delivery": [
+        [
+          1.75,
+          3.25
+        ],
+        [
+          1.75,
+          2.4
+        ],
+        [
+          1.1,
+          2.4
+        ]
+      ],
+      "pickup": [
+        [
+          1.75,
+          3.25
+        ],
+        [
+          1.75,
+          2.4
+        ],
+        [
+          2.65,
+          2.4
+        ]
+      ]
+    },
+    "test_actor_radius_tiles": 0.2,
+    "status": "Offline geometric route checks only; radius is a test assumption, not a measured game setting. Validate actual actor movement and item piles in Unity."
+  },
+  "integration_notes": [
+    "Create independent furnace and crafting station objects. The rug and mats are separate ground sprites, with no blocking collider.",
+    "Keep deliveries and outputs as runtime item objects. Neither mat has baked stock. Keep stock piles within their pad so the aisle stays clear.",
+    "Use independent station level fields and replace only the matching sprite/glow. Preserve receiver/container IDs and saves using the existing game logic.",
+    "Do not block the entire 4x3 group footprint; it reserves placement space but most of it is walkable.",
+    "Use each station ground pivot for actor depth sorting. Render its glow immediately above it, without the silhouette-outline effect.",
+    "The existing IsoMap maps positive cells upward on screen; this pack UV maps downward. The included cell deltas swap and negate UV deltas. Account for Ridge height through the existing IsoMap API.",
+    "This pack supersedes the roofed 3x2 art direction. Recommended floor is now 4x3 to retain a full-tile aisle with separate stations."
+  ]
+}

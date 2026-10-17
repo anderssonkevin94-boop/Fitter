@@ -29,7 +29,7 @@ namespace Ravenholm.Tests
                 g.Logistics.RegisterContainer(site.StagingContainerId, Domain.Logistics.ContainerKind.RawPile, 0f, 100f, 0.45f, null);
             g.Logistics.RegisterContainer("container.forge_pad", Domain.Logistics.ContainerKind.OutputPad, -4f, -4f, 0.45f, null);
             // Where the scene lays the stations out (corner cells).
-            g.Stations.RegisterDefault("station.smelter", -18, 10, 2, 2);
+            g.Stations.RegisterDefault("station.lumbermill", -18, 10, 2, 2);
             g.Stations.RegisterDefault("station.forge", -14, -4, 2, 2);
             return g;
         }
@@ -58,15 +58,15 @@ namespace Ravenholm.Tests
             var g = Boot();
             var camp = g.Catalogue.CurrentCamp;
             var (cx, cy) = ((int)camp.ClearingCentre.x + 6, (int)camp.ClearingCentre.y + 6);
-            Assert.IsNull(g.Stations.CanPlace("station.smelter", cx, cy), "the clearing is cleared, level ground");
-            Assert.IsNull(g.Stations.Place("station.smelter", cx, cy));
-            var site = g.Stations.Site("station.smelter");
+            Assert.IsNull(g.Stations.CanPlace("station.lumbermill", cx, cy), "the clearing is cleared, level ground");
+            Assert.IsNull(g.Stations.Place("station.lumbermill", cx, cy));
+            var site = g.Stations.Site("station.lumbermill");
             Assert.AreEqual(StationSiteMode.Placed, site.Mode);
             Assert.AreEqual((cx, cy), (site.X, site.Y));
-            Assert.IsTrue(g.Stations.Building("station.smelter"), "it takes a moment to build");
+            Assert.IsTrue(g.Stations.Building("station.lumbermill"), "it takes a moment to build");
             _clock.Advance(TimeSpan.FromSeconds(g.Balance.stationBuildSeconds + 0.5));
-            Assert.IsFalse(g.Stations.Building("station.smelter"));
-            Assert.AreEqual(1f, g.Stations.BuildProgress("station.smelter"));
+            Assert.IsFalse(g.Stations.Building("station.lumbermill"));
+            Assert.AreEqual(1f, g.Stations.BuildProgress("station.lumbermill"));
             Assert.IsNotNull(g.Stations.CanPlace("station.forge", cx + 1, cy + 1), "never on another station");
         }
 
@@ -121,15 +121,15 @@ namespace Ravenholm.Tests
             CollectionAssert.Contains(new System.Collections.Generic.List<StationSite>(g.Stations.Kits()), g.Stations.Site("station.forge"));
             var camp = g.Catalogue.CurrentCamp;
             var (cx, cy) = ((int)camp.ClearingCentre.x - 4, (int)camp.ClearingCentre.y + 8);
-            Assert.IsNull(g.Stations.Place("station.smelter", cx, cy));
+            Assert.IsNull(g.Stations.Place("station.lumbermill", cx, cy));
             g.Scheduler.SaveNow("test");
 
             var back = Boot();
             var forge = back.Stations.Site("station.forge");
             Assert.AreEqual(StationSiteMode.Packed, forge.Mode, "packed stays packed");
-            var smelter = back.Stations.Site("station.smelter");
-            Assert.AreEqual(StationSiteMode.Placed, smelter.Mode);
-            Assert.AreEqual((cx, cy), (smelter.X, smelter.Y), "set up where it was put");
+            var mill = back.Stations.Site("station.lumbermill");
+            Assert.AreEqual(StationSiteMode.Placed, mill.Mode);
+            Assert.AreEqual((cx, cy), (mill.X, mill.Y), "set up where it was put");
             Assert.IsNull(back.Stations.Place("station.forge", cx + 4, cy), "a kit is set up again");
             Assert.AreEqual(StationSiteMode.Placed, back.Stations.Site("station.forge").Mode);
         }

@@ -45,6 +45,40 @@ namespace Ravenholm.Services
 
         public StationSite Site(string stationId) => stationId != null && State.Sites.TryGetValue(stationId, out var s) ? s : null;
 
+        // ------------------------------------------------------------------ camp setups (the Blacksmith, 2026-10-17)
+
+        /// <summary>The station leading the setup a station belongs to: itself unless it rides with another.</summary>
+        public string LeaderOf(string stationId) =>
+            stationId != null && _catalogue.TryGet<StationDefinition>(stationId, out var d) && d.RidesWith != null ? d.RidesWith.Id : stationId;
+
+        /// <summary>A station set up, packed and moved with another (the Smelter's furnace with the Forge).</summary>
+        public bool RidesWithAnother(string stationId) => LeaderOf(stationId) != stationId;
+
+        /// <summary>The name of the setup a station belongs to (its kit, its place in build mode).</summary>
+        public string SetupName(string stationId) =>
+            _catalogue.TryGet<StationDefinition>(LeaderOf(stationId), out var d) ? d.SetupName : stationId;
+
+        /// <summary>
+        /// A rider stands wherever its leader stands, packed when it is packed, built when it is built. It takes no cells of
+        /// its own: the leader's footprint is the whole setup.
+        /// </summary>
+        private void SyncRiders()
+        {
+            foreach (var def in _catalogue.Stations)
+            {
+                if (def == null || def.RidesWith == null) continue;
+                var lead = Site(def.RidesWith.Id);
+                if (lead == null) continue;
+                if (!State.Sites.TryGetValue(def.Id, out var s)) State.Sites[def.Id] = s = new StationSite { StationId = def.Id };
+                s.Mode = lead.Mode;
+                s.X = lead.X;
+                s.Y = lead.Y;
+                s.W = 0;
+                s.H = 0;
+                s.ReadyAtUtcTicks = lead.ReadyAtUtcTicks;
+            }
+        }
+
         /// <summary>The scene says where a station was laid out (its corner cell); saved spots win over it.</summary>
         public StationSite RegisterDefault(string stationId, int x, int y, int w, int h)
         {
@@ -57,6 +91,7 @@ namespace Ravenholm.Services
             s.W = w;
             s.H = h;
             if (s.Mode == StationSiteMode.Default) { s.X = x; s.Y = y; }
+            SyncRiders();
             return s;
         }
 
@@ -109,6 +144,7 @@ namespace Ravenholm.Services
 
         public string CanPlace(string stationId, int x, int y)
         {
+            stationId = LeaderOf(stationId);
             var s = Site(stationId);
             return s == null ? "Unknown station" : StationPlacement.CanPlace(State, s, x, y, GroundProblem);
         }
@@ -118,6 +154,7 @@ namespace Ravenholm.Services
         /// <summary>Sets a station up with its corner at (x, y): from where it stands, or from its kit. It takes a short build.</summary>
         public string Place(string stationId, int x, int y)
         {
+            stationId = LeaderOf(stationId);
             var why = CanPlace(stationId, x, y);
             if (why != null) return why;
             var s = Site(stationId);
@@ -126,36 +163,44 @@ namespace Ravenholm.Services
             s.X = x;
             s.Y = y;
             s.ReadyAtUtcTicks = _clock.UtcNow.Ticks + TimeSpan.FromSeconds(_buildSeconds).Ticks;
+            SyncRiders();
             Commit("set up a station");
             return null;
         }
 
         public string PackBlockedReason(string stationId)
         {
+            stationId = LeaderOf(stationId);
             var s = Site(stationId);
             if (s == null || !s.Standing) return "Already packed";
-            var def = _catalogue.TryGet<StationDefinition>(stationId, out var d) ? d : null;
-            var pad = def != null ? def.OutputPadContainerId : null;
-            if (!string.IsNullOrEmpty(pad) && _logistics.System.State.Containers.TryGetValue(pad, out var c) && c.UnitCount > 0)
-                return "Collect the goods from its pad first";
+            // Every station of the setup: its pad must be empty.
+            foreach (var def in _catalogue.Stations)
+            {
+                if (def == null || LeaderOf(def.Id) != stationId) continue;
+                var pad = def.OutputPadContainerId;
+                if (!string.IsNullOrEmpty(pad) && _logistics.System.State.Containers.TryGetValue(pad, out var c) && c.UnitCount > 0)
+                    return "Collect the goods from its pad first";
+            }
             return null;
         }
 
         /// <summary>Packs a station into its kit (to be set up again later).</summary>
         public string Pack(string stationId)
         {
+            stationId = LeaderOf(stationId);
             var why = PackBlockedReason(stationId);
             if (why != null) return why;
             var s = Site(stationId);
             s.Mode = StationSiteMode.Packed;
             s.ReadyAtUtcTicks = 0;
+            SyncRiders();
             Commit("packed a station");
             return null;
         }
 
         public IEnumerable<StationSite> Kits()
         {
-            foreach (var s in State.Sites.Values) if (!s.Standing) yield return s;
+            foreach (var s in State.Sites.Values) if (!s.Standing && !RidesWithAnother(s.StationId)) yield return s;   // a rider is in its leader's kit
         }
 
         private void Commit(string reason)
@@ -197,6 +242,7 @@ namespace Ravenholm.Services
                     s.ReadyAtUtcTicks = sd.ReadyAt;
                 }
             State = fresh;
+            SyncRiders();
             Changed?.Invoke();
         }
     }

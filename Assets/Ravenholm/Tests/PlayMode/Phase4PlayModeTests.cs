@@ -64,7 +64,7 @@ namespace Ravenholm.Tests
             Assert.IsTrue(s.Production.Craft("recipe.iron_sword", out var f), f);
             Assert.IsTrue(s.Production.Craft("recipe.riveted_coat", out f), f);
             s.Production.DebugFinishCrafts();   // crafting is timed (the crafting expansion): done now for the test
-            yield return StandAt(new Vector2(-4.3f, -4.0f), 0.5f);
+            yield return StandAt(Phase1PlayModeTests.Spot("container.forge_pad"), 0.5f);   // the Blacksmith's pickup mat
             yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.5f);
             Assert.AreEqual(2, s.Logistics.System.StoreItems.Count);
             SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(new Vector2(0f, -0.5f));

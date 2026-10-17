@@ -152,7 +152,7 @@ namespace Ravenholm.Presentation
 
         // ------------------------------------------------------------------ the camp's stations
 
-        private string StationName(string id) => _root.Services.Catalogue.TryGet<StationDefinition>(id, out var d) ? d.DisplayName : id;
+        private string StationName(string id) => Stations.SetupName(id);   // a camp setup (the Blacksmith) by its own name
 
         private void StationChoice(string id)
         {

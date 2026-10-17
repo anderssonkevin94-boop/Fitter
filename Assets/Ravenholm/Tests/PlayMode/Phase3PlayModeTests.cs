@@ -78,7 +78,7 @@ namespace Ravenholm.Tests
             yield return Capture.Take("phase3_forge_panel");
             panel.Close();
 
-            yield return StandAt(new Vector2(-4.3f, -4.0f), 0.6f);   // forge output pad
+            yield return StandAt(Phase1PlayModeTests.Spot("container.forge_pad"), 0.6f);   // forge output pad (the Blacksmith's pickup mat)
             Assert.AreEqual(2, log.CarryCount);
             yield return StandAt(Phase1PlayModeTests.Spot("receiver.store"), 0.6f);  // store receiving strip
             Assert.AreEqual(2, log.State.StoreItems.Count);

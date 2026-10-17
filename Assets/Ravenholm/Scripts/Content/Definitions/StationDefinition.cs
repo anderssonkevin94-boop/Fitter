@@ -24,6 +24,10 @@ namespace Ravenholm.Content
         [SerializeField] private Vector2Int footprint = new Vector2Int(2, 2);
         [Tooltip("A new station arrives as a kit: the player sets it up (the Kitchen, 2026-10-16).")]
         [SerializeField] private bool startsAsKit;
+        [Tooltip("Set up, packed and moved together with this station as one camp setup (the Smelter with the Forge: Astra's modular Blacksmith, 2026-10-17). Levels, recipes and processes stay its own.")]
+        [SerializeField] private StationDefinition ridesWith;
+        [Tooltip("The name of the camp setup this station leads (its kit and its place in build mode), when other stations ride with it.")]
+        [SerializeField] private string setupName = "";
 
         public override string IdKind => "station";
         public string OutputPadContainerId => outputPadContainerId;
@@ -34,6 +38,8 @@ namespace Ravenholm.Content
         public bool SellsSupplierTools => sellsSupplierTools;
         public Vector2Int Footprint => footprint;
         public bool StartsAsKit => startsAsKit;
+        public StationDefinition RidesWith => ridesWith;
+        public string SetupName => string.IsNullOrEmpty(setupName) ? DisplayName : setupName;
 
         public override void Validate(List<string> errors)
         {
@@ -46,6 +52,12 @@ namespace Ravenholm.Content
         public void EditorSetSellsSupplierTools(bool sells) => sellsSupplierTools = sells;
         public void EditorSetFootprint(Vector2Int cells) => footprint = cells;
         public void EditorSetStartsAsKit(bool kit) => startsAsKit = kit;
+
+        public void EditorSetSetup(StationDefinition leader, string name)
+        {
+            ridesWith = leader;
+            setupName = name ?? "";
+        }
 
         public void EditorSetupStation(string pad, int padCapacity, int start, int max)
         {

@@ -1772,3 +1772,22 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
 - **The wall in front (Kevin: facing a wall, the stones right in front couldn't be selected).** `ForestGridView.RockTarget`:
   - A tree no longer hides the rock beneath it unless the tree is within reach (its ground no higher than a step). A tree on top of a wall left the wall undiggable, and the button offered the unreachable tree.
   - Facing between the grid's axes, the other neighbouring cell that way is tried too (`FacingCells`).
+
+## 2026-10-17: the Blacksmith (Astra's modular pack; Kevin: one setup)
+
+- **The art.** Astra's modular caravan Blacksmith (`Tools/ArtImport/import_blacksmith.py`, `Art/Placeholder/Blacksmith/`): the rug, the furnace and the crafting station at three levels each, their fire overlays, the delivery and pickup mats, and the kit. All are untrimmed canvases at 256 px per unit with the pack's pivots. The stations and the kit have the game's outline; the rug, the mats and the fires don't.
+- **One setup (Kevin's choice).**
+  - The Forge's crafting station leads a 4 × 3 camp setup (`station.forge` footprint 4 × 3, set-up name "Blacksmith"). The Smelter's furnace rides with it (`StationDefinition.ridesWith`).
+  - `StationsService` keeps a rider on its leader's spot, mode and build time. A rider takes no cells of its own, packing or placing either one moves the whole setup, its leader's kit is the only kit listed, and a pad on any of them blocks packing.
+  - Build mode picks the whole setup (`StationBuild.Select` takes the leader).
+  - Each station keeps its own levels, recipes, processes and saves. Nothing in the economy changed.
+- **In the scene.**
+  - The rug at (-12.9, -1.9), where the Smelter stood, with the pack's parent-local positions. The furnace is "Smelter" (its `StationInspectable`, the progress bar at the art's point, a 1 × 1 blocker). The crafting station is "Forge" (a 0.8 × 1.5 blocker). The rug and mats are Ground-layer sprites under everyone, walked on.
+  - `receiver.smelter` stands on the delivery mat and `container.forge_pad` on the pickup mat (its old pad art removed).
+  - The old Smelter and Forge buildings are gone.
+- **`StationArt`.** Each station shows its level's sprite and fire (all nine pairings). The fire flickers while the station works (a smelting batch in flight; a craft on it, plus 2.5 s so an instant craft still flares) and is out when idle.
+- **Tests.**
+  - `BlacksmithPlayModeTests`: idle fires out, the aisle open, the stations solid, both fires at once, the furnace to 3 with the anvil at 1 then 2, upgrades in place (captures `blacksmith_*`).
+  - `StationPlayModeTests` moves and packs the whole Blacksmith, the Smelter with it.
+  - The haul and craft tests use the mats.
+- **Not done.** The kit art isn't shown anywhere yet (kits are only listed in build mode). Smoke and sparks at the chimney and anvil points are not added.

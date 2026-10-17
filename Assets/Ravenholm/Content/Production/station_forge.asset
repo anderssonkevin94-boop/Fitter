@@ -21,3 +21,7 @@ MonoBehaviour:
   maxLevel: 3
   batchTimePerLevel: 0.85
   sellsSupplierTools: 1
+  footprint: {x: 4, y: 3}
+  startsAsKit: 0
+  ridesWith: {fileID: 0}
+  setupName: Blacksmith

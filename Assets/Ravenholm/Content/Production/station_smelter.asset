@@ -20,3 +20,8 @@ MonoBehaviour:
   startingLevel: 1
   maxLevel: 3
   batchTimePerLevel: 0.85
+  sellsSupplierTools: 0
+  footprint: {x: 2, y: 2}
+  startsAsKit: 0
+  ridesWith: {fileID: 11400000, guid: 8279030b2932a401294be343f1e4c40a, type: 2}
+  setupName: 
