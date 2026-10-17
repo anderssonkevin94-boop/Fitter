@@ -20,5 +20,11 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: f6b78417d9fba436cbe3e439b8fc1b59, type: 3}
   stackSprite: {fileID: 21300000, guid: 451be58606d4b4b93824f078a422a21c, type: 3}
   stackStep: 0.13
+  views:
+    a: {fileID: 21300000, guid: 114cf6a4ccb744aa085b355a17cc5f5d, type: 3}
+    front: {fileID: 21300000, guid: 0cebab10057c0410fa4eb29a4314dcd0, type: 3}
+    b: {fileID: 21300000, guid: c25cb5e16897d4b62bac122c430366ec, type: 3}
+    side: {fileID: 21300000, guid: 1f979f39557bb40feacc56c66d6bd796, type: 3}
+    aRunsUpRight: 0
   mineBlock: {fileID: 0}
   mapTint: {r: 0.43137255, g: 0.6901961, b: 0.32941177, a: 1}

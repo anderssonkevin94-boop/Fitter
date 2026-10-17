@@ -136,7 +136,12 @@ namespace Ravenholm.Tests
             motor.Teleport(new Vector2(store.X + 1.0f, store.Y - 0.6f));
             yield return new WaitForSeconds(0.3f);
             var grown = 0;
-            for (var i = 0; i < 8; i++) if (Mathf.Abs(stack.Find($"Piece{i}").localScale.x - 1.1f) < 0.01f) grown++;
+            for (var i = 0; i < 8; i++)
+            {
+                // Drawn at its view's scale (Astra's four views: half the single stack sprite's), then 10% larger.
+                var baseScale = UnitVisuals.CarryView(Sys.State.Carry[i], view.Facing) != null ? UnitVisuals.CarryViewScale : 1f;
+                if (Mathf.Abs(stack.Find($"Piece{i}").localScale.x - 1.1f * baseScale) < 0.01f) grown++;
+            }
             Assert.Greater(grown, 0, "pieces the store takes are enlarged 10%");
             var flew = false;
             for (var n = 0; n < 8; n++)
@@ -160,6 +165,47 @@ namespace Ravenholm.Tests
             }
             yield return Capture.Take("stack_racks");
             CollectionAssert.IsEmpty(Sys.Audit());
+        }
+
+        /// <summary>
+        /// Astra's four item views (Kevin, 2026-10-17: "only one angle is used"): the carried pile turns with the supplier,
+        /// each piece crosswise to his way: across the screen facing the camera or away, end-on facing left or right, along
+        /// the other diagonal on the diagonals.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator TheCarriedPileTurnsWithTheSupplier()
+        {
+            SceneManager.LoadScene(GameRoot.BootstrapSceneName);
+            yield return Until(() => GameRoot.Instance != null && SandboxSceneController.Current != null, 10f, () => "town loaded");
+            for (var i = 0; i < 3; i++) yield return null;
+            GameRoot.Instance.Hud.Tips.HideAll();
+            var player = SandboxSceneController.Current.Player;
+            var view = player.GetComponent<CarryStackView>();
+            var stack = player.Find("CarryStack");
+            CarryMaterials("resource.cedar_log", "resource.maple_log", "resource.iron_ingot", "resource.cedar_lumber");
+            CarryItems("item.iron_sword", "item.steel_coat");
+            var router = GameRoot.Instance.InputRouter;
+            string[] dirs = { "E", "NE", "N", "NW", "W", "SW", "S", "SE" };
+            for (var d = 0; d < dirs.Length; d++)
+            {
+                var a = d * Mathf.PI / 4f;
+                router.ScriptedMove = new Vector2(Mathf.Cos(a), Mathf.Sin(a));   // the stick: he faces it
+                yield return new WaitForSeconds(0.12f);
+                router.ScriptedMove = null;
+                yield return new WaitForSeconds(0.35f);
+                Assert.AreEqual(dirs[d], view.Facing, $"the pile faces {dirs[d]} with him");
+                var carry = Sys.State.Carry;
+                for (var k = 0; k < carry.Count; k++)
+                {
+                    var expect = UnitVisuals.CarryView(carry[k], dirs[d]);
+                    Assert.NotNull(expect, $"{carry[k].Id}: has views");
+                    Assert.AreSame(expect, stack.Find($"Piece{k}").GetComponent<SpriteRenderer>().sprite, $"{dirs[d]}: piece {k} ({carry[k].Id}) shows its {dirs[d]} view");
+                }
+                yield return Capture.Take($"carry_views_{dirs[d]}");
+            }
+            var log = Sys.State.Carry[0];
+            Assert.AreNotSame(UnitVisuals.CarryView(log, "S"), UnitVisuals.CarryView(log, "E"), "a log across the screen facing the camera, end-on facing right");
+            Sys.DebugUnloadCarry();
         }
     }
 }

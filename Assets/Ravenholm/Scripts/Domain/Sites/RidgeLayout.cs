@@ -136,6 +136,15 @@ namespace Ravenholm.Domain.Sites
 
         private double Phase(int k) => Hash01(k, 77, Seed) * Math.PI * 2;
 
+        /// <summary>Cells round the road's end past the gate, where the way on to the next level is: never a tree.</summary>
+        public bool ExitClear(int x, int y)
+        {
+            var (ex, ey) = PointAt(Length);
+            var dx = x - ex;
+            var dy = y - ey;
+            return dx * dx + dy * dy < 3.0 * 3.0 && GateAt(x, y) == null;
+        }
+
         // ------------------------------------------------------------------ the switchback pass (Kevin, 2026-10-16)
 
         /// <summary>
@@ -724,6 +733,7 @@ namespace Ravenholm.Domain.Sites
         public bool FixedOpen(ulong seed, int x, int y, out bool open)
         {
             open = false;
+            if (Plateau && ExitClear(x, y)) { open = true; return true; }   // the way on through the gate stays clear
             if (GateAt(x, y) != null) return true;
             if (!OnRoad(x, y)) return false;
             open = Hash01(x, y, 71 + (int)(seed % 997)) < 0.75;

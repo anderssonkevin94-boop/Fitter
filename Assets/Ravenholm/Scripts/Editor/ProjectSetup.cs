@@ -1025,6 +1025,32 @@ namespace Ravenholm.EditorTools
                 }
             }
 
+            // Astra's four item views (2026-10-17): every item and material carried shows the view matching the carrier's
+            // facing. Armour's A is its armour-stand layer (another canvas), so armour has no diagonal carry views.
+            var viewsJson = PlaceholderSpriteImporter.ArtRoot + "Items/views.json";
+            if (File.Exists(viewsJson))
+            {
+                var vj = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(viewsJson));
+                foreach (var kv in (Newtonsoft.Json.Linq.JObject)vj["items"])
+                {
+                    var key = kv.Key;
+                    Sprite V(string view) => LoadSprite($"Items/item_{key}_{view}");
+                    var upRight = (bool?)kv.Value["a_runs_up_right"] ?? true;
+                    if (catalogue.TryGet<ItemDefinition>("item." + key, out var it))
+                    {
+                        var stand = it.StandLayer != StandLayer.None;
+                        it.EditorSetViews(new ObjectViews { a = stand ? null : V("A"), front = V("front"), b = stand ? null : V("B"), side = V("side"), aRunsUpRight = upRight });
+                        EditorUtility.SetDirty(it);
+                    }
+                    else if (catalogue.TryGet<ResourceDefinition>("resource." + key, out var res))
+                    {
+                        res.EditorSetViews(new ObjectViews { a = V("A"), front = V("front"), b = V("B"), side = V("side"), aRunsUpRight = upRight });
+                        EditorUtility.SetDirty(res);
+                    }
+                    else Debug.LogWarning($"[Setup] Item views for {key}: no item or resource of that id");
+                }
+            }
+
             // 6 x 6 tiles to start (Kevin, 2026-10-15; first 4 x 6), with a 2-tile entrance on the front-right edge.
             ShopDefinition.StartingPiece P(ShopFurnitureDefinition f, int a, int b, bool facingB = false) =>
                 new ShopDefinition.StartingPiece { furniture = f, level = 1, tile = new V2(a, b), facingB = facingB };

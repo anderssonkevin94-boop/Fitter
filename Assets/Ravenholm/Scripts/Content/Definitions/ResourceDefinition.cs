@@ -45,6 +45,9 @@ namespace Ravenholm.Content
         [Tooltip("Height between this piece and the one above it in a carried pile (local units before the pile's scale). Thin pieces (planks, blades, bows) stack closer. From the art's suggested-spacing.json.")]
         [Min(0.01f)] [SerializeField] private float stackStep = 0.13f;
 
+        [Tooltip("Astra's four views (2026-10-17): carried, the view that matches the way the carrier faces.")]
+        [SerializeField] private ObjectViews views = new ObjectViews();
+
         [Tooltip("Mine ore: the painted block shown where this ore sits in the rock, within the lamp's light (optional).")]
         [SerializeField] private Sprite mineBlock;
 
@@ -56,6 +59,7 @@ namespace Ravenholm.Content
         public ReceiverType AcceptedReceiver => acceptedReceiver;
         public Sprite Icon => icon;
         public Sprite StackSprite => stackSprite;
+        public ObjectViews Views => views;
         public float StackStep => stackStep;
         public Color MapTint => mapTint;
         public Sprite MineBlock => mineBlock;
@@ -71,6 +75,8 @@ namespace Ravenholm.Content
 
 #if UNITY_EDITOR
         public void EditorSetTint(Color c) => mapTint = c;
+
+        public void EditorSetViews(ObjectViews v) => views = v;
 
         public void EditorSetup(ResourceCategory newCategory, ReceiverType receiver, Sprite newIcon, Sprite newStack)
         {

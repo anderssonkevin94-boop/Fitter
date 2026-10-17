@@ -4967,6 +4967,662 @@
     0.21738281250000002
    ],
    "ppu": 720
+  },
+  "Items/item_antidote_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_antidote_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_arcane_dust_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_arcane_dust_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_bow_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_bow_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_log_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_log_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_lumber_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_lumber_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_staff_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_staff_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_coal_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_coal_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_copper_ingot_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_copper_ingot_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_copper_ore_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_copper_ore_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_copper_ward_staff_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_copper_ward_staff_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_fur_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_fur_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_fur_brigandine_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_fur_brigandine_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_gem_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_gem_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_herb_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_herb_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_dagger_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_dagger_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_ingot_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_ingot_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_ore_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_ore_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_sword_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_sword_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_ironwood_greatbow_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_ironwood_greatbow_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_ironwood_log_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_ironwood_log_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_ironwood_lumber_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_ironwood_lumber_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_maple_log_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_maple_log_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_maple_longbow_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_maple_longbow_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_maple_lumber_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_maple_lumber_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_blade_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_blade_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_focus_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_focus_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_ingot_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_ingot_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_mail_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_mail_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_ore_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_ore_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_pathfinder_draught_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_pathfinder_draught_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_recovery_tonic_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_recovery_tonic_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_riveted_coat_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_riveted_coat_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_rope_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_rope_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_coat_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_coat_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_ingot_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_ingot_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_maul_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_maul_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_stiletto_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_stiletto_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_sword_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_sword_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_strong_tonic_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_strong_tonic_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_trapsense_draught_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_trapsense_draught_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_warding_draught_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_warding_draught_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
   }
  }
 }

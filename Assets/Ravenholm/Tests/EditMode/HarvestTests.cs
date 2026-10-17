@@ -91,14 +91,20 @@ namespace Ravenholm.Tests
             }
             g.Sites.SpeedMultiplier = 5f;
             var tree = NextTree(g, 6);
-            var max = 0;
+            // Each unit gathered by hand brings at most one waiting log with it: never more waiting logs in a swing than
+            // units gathered (a log, and now and then its bonus herb).
+            var worst = 0;
             for (var i = 0; i < 4000 && !forest.IsFelled(tree.x, tree.y); i++)
             {
                 var before = log.CarryCount;
+                var waitingBefore = forest.Record.FacePending.Count;
                 g.Sites.PlayerChopCell("site.forest", tree.x, tree.y, 0.05f);
-                max = Math.Max(max, log.CarryCount - before);
+                var fromWaiting = waitingBefore - forest.Record.FacePending.Count;
+                var gathered = log.CarryCount - before - fromWaiting;
+                Assert.LessOrEqual(fromWaiting, gathered, "no more waiting logs than units gathered at a swing");
+                worst = Math.Max(worst, log.CarryCount - before);
             }
-            Assert.LessOrEqual(max, 3, "a log cut (and its odd bonus herb) brings at most one waiting log with it");
+            Assert.LessOrEqual(worst, 4, "never a jump: at most a log, its herb and a waiting one each");
             Assert.Less(forest.Record.FacePending.Count, 10, "the waiting logs are coming back");
         }
     }

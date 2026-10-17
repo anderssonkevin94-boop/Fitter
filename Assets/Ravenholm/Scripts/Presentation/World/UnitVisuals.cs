@@ -19,6 +19,28 @@ namespace Ravenholm.Presentation
             return def != null && cat.TryGet<ItemDefinition>(def, out var i) ? i.StackSprite : null;
         }
 
+        /// <summary>
+        /// A carried piece seen the way its carrier faces (Astra's four views, 2026-10-17), null when it has none: the
+        /// pile then shows its single <see cref="StackSprite"/>.
+        /// </summary>
+        public static Sprite CarryView(CarryUnit unit, string dir)
+        {
+            var root = GameRoot.Instance;
+            if (root == null) return null;
+            var cat = root.Services.Catalogue;
+            Content.ObjectViews v = null;
+            if (unit.Kind == UnitKind.Material) { if (cat.TryGet<ResourceDefinition>(unit.Id, out var r)) v = r.Views; }
+            else
+            {
+                var def = root.Services.Logistics.System.DefinitionOf(unit);
+                if (def != null && cat.TryGet<ItemDefinition>(def, out var i)) v = i.Views;
+            }
+            return v != null && v.Any ? v.Crosswise(dir) : null;
+        }
+
+        /// <summary>The views are drawn at 256 px per unit; the single stack sprites at 512: a view's scale in the pile.</summary>
+        public const float CarryViewScale = 0.5f;
+
         /// <summary>The height a piece takes in a pile (its definition's stack step; 0.13 when unknown).</summary>
         public static float StackStep(CarryUnit unit)
         {

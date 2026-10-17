@@ -57,6 +57,16 @@ namespace Ravenholm.Tests
                 var steps = Enumerable.Range(0, (int)(r.Length - r.CampS)).Select(a => r.PointAt(r.CampS + a))
                     .Select(p => r.ContinuationAt((int)p.x, (int)p.y)).ToList();
                 Assert.AreEqual(2, steps.Max(), $"level {level + 1}: three effort steps toward its gate");
+                // The way on (the road's end past the gate) is never grown over, whatever the world seed.
+                var (ex, ey) = r.PointAt(r.Length);
+                for (var dx = -2; dx <= 2; dx++)
+                for (var dy = -2; dy <= 2; dy++)
+                {
+                    int x = (int)System.Math.Round(ex) + dx, y = (int)System.Math.Round(ey) + dy;
+                    if (!r.InLand(x, y) || !r.ExitClear(x, y)) continue;
+                    foreach (var seed in new ulong[] { 1, 42, 9001, 123456789 })
+                        Assert.IsTrue(r.FixedOpen(seed, x, y, out var open) && open, $"level {level + 1}: no tree at the gate's exit ({x}, {y})");
+                }
             }
             Assert.AreEqual(Color.white, road.LevelTint(0), "Meadow's Edge is as it was");
             Assert.AreNotEqual(Color.white, road.LevelTint(2), "Hollow Wood's land has its own tint");

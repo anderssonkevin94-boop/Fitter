@@ -32,6 +32,12 @@ MonoBehaviour:
   stackSprite: {fileID: 21300000, guid: 603bd60203d494baea7df5acc5a2eb1a, type: 3}
   stackStep: 0.13
   smallDisplay: 0
+  views:
+    a: {fileID: 21300000, guid: 94a1ac31f5ac241098aa37bbac13cd78, type: 3}
+    front: {fileID: 21300000, guid: 9f59d1d1620074c41b83d6472470ac04, type: 3}
+    b: {fileID: 21300000, guid: 8dd1576613a634151bf41c74248adc1e, type: 3}
+    side: {fileID: 21300000, guid: 9634993ea20d840daac3aa951195a769, type: 3}
+    aRunsUpRight: 1
   displayA: {fileID: 21300000, guid: 94a1ac31f5ac241098aa37bbac13cd78, type: 3}
   displayB: {fileID: 21300000, guid: 8dd1576613a634151bf41c74248adc1e, type: 3}
   displayBoundsA:

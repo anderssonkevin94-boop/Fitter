@@ -17,7 +17,8 @@ namespace Ravenholm.Presentation
         public override string ContextVerb => _root != null && _root.Services.Camp.Levels ? "Through the gate" : "Make camp";
         public override bool OpensOwnPanel => true;
         public override bool IsContextAvailable => Available;
-        public override float ContextPriority => 0.8f;
+        // The way on wins over the trees and rocks within reach (a young tree by the road's end took the button, 2026-10-17).
+        public override float ContextPriority => 2f;
 
         private void Start()
         {

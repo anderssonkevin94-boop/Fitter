@@ -96,6 +96,8 @@ namespace Ravenholm.Content
         [Min(0.01f)] [SerializeField] private float stackStep = 0.13f;
         [Tooltip("A small piece (daggers, a focus): shown on the Store's display tables rather than its racks.")]
         [SerializeField] private bool smallDisplay;
+        [Tooltip("Astra's four views (2026-10-17): carried, the view that matches the way the carrier faces.")]
+        [SerializeField] private ObjectViews views = new ObjectViews();
         [Tooltip("Shown on shop furniture (Astra, 2026-10-15): view A on left-facing pieces, B on right-facing ones.")]
         [SerializeField] private Sprite displayA;
         [SerializeField] private Sprite displayB;
@@ -170,6 +172,7 @@ namespace Ravenholm.Content
 
         /// <summary>Which layer of the armour stand view A is (None: a view fitted into the slot like any other).</summary>
         public StandLayer StandLayer => standLayer;
+        public ObjectViews Views => views;
         public Sprite StandHeadA => standHeadA;
 
         /// <summary>The display view for a facing (A for left-facing furniture), with its visible bounds; null if not drawn.</summary>
@@ -217,6 +220,7 @@ namespace Ravenholm.Content
 #if UNITY_EDITOR
         public void EditorSetPower(int p) => power = p;
         public void EditorSetSmallDisplay(bool small) => smallDisplay = small;
+        public void EditorSetViews(ObjectViews v) => views = v;
 
         public void EditorSetDisplay(Sprite a, Rect boundsA, Sprite b, Rect boundsB)
         {

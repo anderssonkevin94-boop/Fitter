@@ -1752,3 +1752,16 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - Kevin's spot isn't reproduced yet; waiting on a screenshot.
 - **Helmets and shields (Kevin: they can't be crafted).** Their recipes and blueprints were there (owned at start), but a save begun before the armour pack never learned them: starting blueprints were given only to a new company. Now every starting blueprint is known on load. `CraftingTests`.
 - **Instant crafts (Kevin: temporarily, for playtesting).** `BalanceProfile.playtestInstantCrafts` (on) makes every craft finish at once in the game. Tests, with their own save directory, keep the real times. Turn it off when the playtest is over.
+
+## 2026-10-17: Astra's four item views; the carried pile turns with the supplier
+
+- **The pack.** Astra's four item views v1 (`Tools/ArtImport/import_item_views.py`). For 41 items and materials, A and B are the views already in `Items/` (unchanged; armour's A stays its armour-stand layer), plus the new front and side views. All are 256 px per unit with the pivot on the display anchor (128, 228), and use the game's outline. Their points are merged into `Items/points.json`, and `Items/views.json` is kept.
+- **A and B are named for the furniture facing, not the item's lie,** so the import measures which way each item's A view runs (`a_runs_up_right`, from the opaque pixels' principal axis). Cedar's A climbs to the right; maple's, ironwood's and the iron ingot's climb to the left.
+- **Content.** `ObjectViews` (a, front, b, side, aRunsUpRight) on `ItemDefinition.Views` and `ResourceDefinition.Views`, set by setup from `views.json`.
+- **The carried pile** (Kevin: only one angle was used). Each piece shows the view that lies across the supplier's way (`ObjectViews.Crosswise`):
+  - facing the camera or away (S, N): the side view, its long side across the screen;
+  - facing left or right (E, W): the front view, end-on;
+  - on the diagonals: the A or B view that runs along the other diagonal.
+  - The views are drawn at half scale (256 px per unit against the single stack sprites' 512). Items without views keep their stack sprite.
+- **Shop furniture** already shows A on left-facing pieces and B on right-facing ones; unchanged.
+- **Tests.** `StackSpritePlayModeTests.TheCarriedPileTurnsWithTheSupplier` turns him through all eight directions with logs, an ingot, lumber, a sword and a coat, and checks each piece's view (captures `carry_views_*`).

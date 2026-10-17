@@ -1,0 +1,349 @@
+{
+  "view_order": [
+    "A",
+    "front",
+    "B",
+    "side"
+  ],
+  "camera": {
+    "projection": "orthographic",
+    "target_elevation_degrees": 30,
+    "note": "Hand-drawn elevated cardinal views; approximate camera target, not calibrated 3D renders."
+  },
+  "facings": {
+    "A": "Original left-facing diagonal display view",
+    "B": "Original right-facing diagonal display view",
+    "front": "Cardinal main display face. Logs/lumber/ingots: short end toward camera. Bow: broad bow-and-string plane.",
+    "side": "Cardinal profile rotated 90 degrees from front; log/lumber/ingot long axis horizontal. Armor chest points screen right."
+  },
+  "items": {
+    "antidote": {
+      "A": "Items/item_antidote_A.png",
+      "B": "Items/item_antidote_B.png",
+      "front": "Items/item_antidote_front.png",
+      "side": "Items/item_antidote_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 1.75
+    },
+    "arcane_dust": {
+      "A": "Items/item_arcane_dust_A.png",
+      "B": "Items/item_arcane_dust_B.png",
+      "front": "Items/item_arcane_dust_front.png",
+      "side": "Items/item_arcane_dust_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 1.11
+    },
+    "cedar_bow": {
+      "A": "Items/item_cedar_bow_A.png",
+      "B": "Items/item_cedar_bow_B.png",
+      "front": "Items/item_cedar_bow_front.png",
+      "side": "Items/item_cedar_bow_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 30.45
+    },
+    "cedar_log": {
+      "A": "Items/item_cedar_log_A.png",
+      "B": "Items/item_cedar_log_B.png",
+      "front": "Items/item_cedar_log_front.png",
+      "side": "Items/item_cedar_log_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 2.5
+    },
+    "cedar_lumber": {
+      "A": "Items/item_cedar_lumber_A.png",
+      "B": "Items/item_cedar_lumber_B.png",
+      "front": "Items/item_cedar_lumber_front.png",
+      "side": "Items/item_cedar_lumber_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 3.72
+    },
+    "cedar_staff": {
+      "A": "Items/item_cedar_staff_A.png",
+      "B": "Items/item_cedar_staff_B.png",
+      "front": "Items/item_cedar_staff_front.png",
+      "side": "Items/item_cedar_staff_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 29.02
+    },
+    "coal": {
+      "A": "Items/item_coal_A.png",
+      "B": "Items/item_coal_B.png",
+      "front": "Items/item_coal_front.png",
+      "side": "Items/item_coal_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 1.9
+    },
+    "copper_ingot": {
+      "A": "Items/item_copper_ingot_A.png",
+      "B": "Items/item_copper_ingot_B.png",
+      "front": "Items/item_copper_ingot_front.png",
+      "side": "Items/item_copper_ingot_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 4.06
+    },
+    "copper_ore": {
+      "A": "Items/item_copper_ore_A.png",
+      "B": "Items/item_copper_ore_B.png",
+      "front": "Items/item_copper_ore_front.png",
+      "side": "Items/item_copper_ore_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 2.17
+    },
+    "copper_ward_staff": {
+      "A": "Items/item_copper_ward_staff_A.png",
+      "B": "Items/item_copper_ward_staff_B.png",
+      "front": "Items/item_copper_ward_staff_front.png",
+      "side": "Items/item_copper_ward_staff_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 53.49
+    },
+    "fur": {
+      "A": "Items/item_fur_A.png",
+      "B": "Items/item_fur_B.png",
+      "front": "Items/item_fur_front.png",
+      "side": "Items/item_fur_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 2.57
+    },
+    "fur_brigandine": {
+      "A": "Items/item_fur_brigandine_A.png",
+      "B": "Items/item_fur_brigandine_B.png",
+      "front": "Items/item_fur_brigandine_front.png",
+      "side": "Items/item_fur_brigandine_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 1.74
+    },
+    "gem": {
+      "A": "Items/item_gem_A.png",
+      "B": "Items/item_gem_B.png",
+      "front": "Items/item_gem_front.png",
+      "side": "Items/item_gem_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 2.14
+    },
+    "herb": {
+      "A": "Items/item_herb_A.png",
+      "B": "Items/item_herb_B.png",
+      "front": "Items/item_herb_front.png",
+      "side": "Items/item_herb_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 1.64
+    },
+    "iron_dagger": {
+      "A": "Items/item_iron_dagger_A.png",
+      "B": "Items/item_iron_dagger_B.png",
+      "front": "Items/item_iron_dagger_front.png",
+      "side": "Items/item_iron_dagger_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 18.17
+    },
+    "iron_ingot": {
+      "A": "Items/item_iron_ingot_A.png",
+      "B": "Items/item_iron_ingot_B.png",
+      "front": "Items/item_iron_ingot_front.png",
+      "side": "Items/item_iron_ingot_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 2.89
+    },
+    "iron_ore": {
+      "A": "Items/item_iron_ore_A.png",
+      "B": "Items/item_iron_ore_B.png",
+      "front": "Items/item_iron_ore_front.png",
+      "side": "Items/item_iron_ore_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 1.84
+    },
+    "iron_sword": {
+      "A": "Items/item_iron_sword_A.png",
+      "B": "Items/item_iron_sword_B.png",
+      "front": "Items/item_iron_sword_front.png",
+      "side": "Items/item_iron_sword_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 35.02
+    },
+    "ironwood_greatbow": {
+      "A": "Items/item_ironwood_greatbow_A.png",
+      "B": "Items/item_ironwood_greatbow_B.png",
+      "front": "Items/item_ironwood_greatbow_front.png",
+      "side": "Items/item_ironwood_greatbow_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 96.85
+    },
+    "ironwood_log": {
+      "A": "Items/item_ironwood_log_A.png",
+      "B": "Items/item_ironwood_log_B.png",
+      "front": "Items/item_ironwood_log_front.png",
+      "side": "Items/item_ironwood_log_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 2.25
+    },
+    "ironwood_lumber": {
+      "A": "Items/item_ironwood_lumber_A.png",
+      "B": "Items/item_ironwood_lumber_B.png",
+      "front": "Items/item_ironwood_lumber_front.png",
+      "side": "Items/item_ironwood_lumber_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 2.77
+    },
+    "maple_log": {
+      "A": "Items/item_maple_log_A.png",
+      "B": "Items/item_maple_log_B.png",
+      "front": "Items/item_maple_log_front.png",
+      "side": "Items/item_maple_log_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 2.35
+    },
+    "maple_longbow": {
+      "A": "Items/item_maple_longbow_A.png",
+      "B": "Items/item_maple_longbow_B.png",
+      "front": "Items/item_maple_longbow_front.png",
+      "side": "Items/item_maple_longbow_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 74.15
+    },
+    "maple_lumber": {
+      "A": "Items/item_maple_lumber_A.png",
+      "B": "Items/item_maple_lumber_B.png",
+      "front": "Items/item_maple_lumber_front.png",
+      "side": "Items/item_maple_lumber_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 2.99
+    },
+    "moonsilver_blade": {
+      "A": "Items/item_moonsilver_blade_A.png",
+      "B": "Items/item_moonsilver_blade_B.png",
+      "front": "Items/item_moonsilver_blade_front.png",
+      "side": "Items/item_moonsilver_blade_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 77.01
+    },
+    "moonsilver_focus": {
+      "A": "Items/item_moonsilver_focus_A.png",
+      "B": "Items/item_moonsilver_focus_B.png",
+      "front": "Items/item_moonsilver_focus_front.png",
+      "side": "Items/item_moonsilver_focus_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 2.72
+    },
+    "moonsilver_ingot": {
+      "A": "Items/item_moonsilver_ingot_A.png",
+      "B": "Items/item_moonsilver_ingot_B.png",
+      "front": "Items/item_moonsilver_ingot_front.png",
+      "side": "Items/item_moonsilver_ingot_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 3.35
+    },
+    "moonsilver_mail": {
+      "A": "Items/item_moonsilver_mail_A.png",
+      "B": "Items/item_moonsilver_mail_B.png",
+      "front": "Items/item_moonsilver_mail_front.png",
+      "side": "Items/item_moonsilver_mail_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 1.85
+    },
+    "moonsilver_ore": {
+      "A": "Items/item_moonsilver_ore_A.png",
+      "B": "Items/item_moonsilver_ore_B.png",
+      "front": "Items/item_moonsilver_ore_front.png",
+      "side": "Items/item_moonsilver_ore_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 2.02
+    },
+    "pathfinder_draught": {
+      "A": "Items/item_pathfinder_draught_A.png",
+      "B": "Items/item_pathfinder_draught_B.png",
+      "front": "Items/item_pathfinder_draught_front.png",
+      "side": "Items/item_pathfinder_draught_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 2.3
+    },
+    "recovery_tonic": {
+      "A": "Items/item_recovery_tonic_A.png",
+      "B": "Items/item_recovery_tonic_B.png",
+      "front": "Items/item_recovery_tonic_front.png",
+      "side": "Items/item_recovery_tonic_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 2.41
+    },
+    "riveted_coat": {
+      "A": "Items/item_riveted_coat_A.png",
+      "B": "Items/item_riveted_coat_B.png",
+      "front": "Items/item_riveted_coat_front.png",
+      "side": "Items/item_riveted_coat_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 1.9
+    },
+    "rope": {
+      "A": "Items/item_rope_A.png",
+      "B": "Items/item_rope_B.png",
+      "front": "Items/item_rope_front.png",
+      "side": "Items/item_rope_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 2.16
+    },
+    "steel_coat": {
+      "A": "Items/item_steel_coat_A.png",
+      "B": "Items/item_steel_coat_B.png",
+      "front": "Items/item_steel_coat_front.png",
+      "side": "Items/item_steel_coat_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 1.27
+    },
+    "steel_ingot": {
+      "A": "Items/item_steel_ingot_A.png",
+      "B": "Items/item_steel_ingot_B.png",
+      "front": "Items/item_steel_ingot_front.png",
+      "side": "Items/item_steel_ingot_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 3.35
+    },
+    "steel_maul": {
+      "A": "Items/item_steel_maul_A.png",
+      "B": "Items/item_steel_maul_B.png",
+      "front": "Items/item_steel_maul_front.png",
+      "side": "Items/item_steel_maul_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 3.66
+    },
+    "steel_stiletto": {
+      "A": "Items/item_steel_stiletto_A.png",
+      "B": "Items/item_steel_stiletto_B.png",
+      "front": "Items/item_steel_stiletto_front.png",
+      "side": "Items/item_steel_stiletto_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 28.23
+    },
+    "steel_sword": {
+      "A": "Items/item_steel_sword_A.png",
+      "B": "Items/item_steel_sword_B.png",
+      "front": "Items/item_steel_sword_front.png",
+      "side": "Items/item_steel_sword_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 60.19
+    },
+    "strong_tonic": {
+      "A": "Items/item_strong_tonic_A.png",
+      "B": "Items/item_strong_tonic_B.png",
+      "front": "Items/item_strong_tonic_front.png",
+      "side": "Items/item_strong_tonic_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 1.41
+    },
+    "trapsense_draught": {
+      "A": "Items/item_trapsense_draught_A.png",
+      "B": "Items/item_trapsense_draught_B.png",
+      "front": "Items/item_trapsense_draught_front.png",
+      "side": "Items/item_trapsense_draught_side.png",
+      "a_runs_up_right": false,
+      "a_elongation": 1.99
+    },
+    "warding_draught": {
+      "A": "Items/item_warding_draught_A.png",
+      "B": "Items/item_warding_draught_B.png",
+      "front": "Items/item_warding_draught_front.png",
+      "side": "Items/item_warding_draught_side.png",
+      "a_runs_up_right": true,
+      "a_elongation": 1.63
+    }
+  }
+}

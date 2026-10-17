@@ -107,12 +107,19 @@ namespace Ravenholm.Presentation
             {
                 var on = i < visible;
                 _pieces[i].gameObject.SetActive(on);
-                if (on) _pieces[i].sprite = UnitVisuals.StackSprite(_shown[i]);
+                if (!on) continue;
+                // The view matching the way the supplier faces (Astra's four views), else the single stack sprite.
+                var view = UnitVisuals.CarryView(_shown[i], _dir);
+                _pieces[i].sprite = view != null ? view : UnitVisuals.StackSprite(_shown[i]);
             }
         }
 
         private SupplierAnimator _animator;
         private bool _behind;
+        private string _dir = "S";
+
+        /// <summary>The way the pile's views face (the supplier's facing), for tests.</summary>
+        public string Facing => _dir;
 
         private void Update()
         {
@@ -122,6 +129,12 @@ namespace Ravenholm.Presentation
             // In other poses (mining, climbing) it rides on the head as before.
             if (_animator == null) _animator = GetComponentInChildren<SupplierAnimator>();
             var onArms = _animator != null && _animator.CarryAnchor.HasValue;
+            var dir = _animator != null && !string.IsNullOrEmpty(_animator.Dir) ? _animator.Dir : "S";
+            if (dir != _dir)
+            {
+                _dir = dir;
+                ApplyVisibility();   // the pieces turn with him
+            }
             // On the head: just above the painted head when there is one (characters differ in height).
             _stackRoot.localPosition = onArms ? _animator.CarryAnchor.Value
                 : _animator != null ? new Vector2(stackOrigin.x, _animator.HeadTop - 0.03f) : stackOrigin;
@@ -147,7 +160,8 @@ namespace Ravenholm.Presentation
                 var match = near != null && i < _shown.Count && sys.Accepts(near.Kind, _shown[i]);
                 var bob = match && !Feel.ReducedMotion ? Mathf.Abs(Mathf.Sin(Time.time * 7f + i * 0.6f)) * 0.05f : 0f;
                 t.localPosition = new Vector3(i % 2 == 0 ? -0.02f : 0.02f, _heights[i] + bob, 0f);
-                t.localScale = Vector3.one * (match ? 1.1f : 1f);
+                var viewScale = i < _shown.Count && UnitVisuals.CarryView(_shown[i], _dir) != null ? UnitVisuals.CarryViewScale : 1f;
+                t.localScale = Vector3.one * (viewScale * (match ? 1.1f : 1f));
             }
 
             _pulse = Mathf.MoveTowards(_pulse, 0f, Time.deltaTime * 3f);
