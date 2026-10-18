@@ -34,6 +34,11 @@ namespace Ravenholm.Domain.Jobs
         public long InjuredUntilMs;
         public bool Sponsored;
         public int Skin;
+        /// <summary>
+        /// Their look (Astra's head library and civilian outfits, 2026-10-19): a head identity and everyday clothes, by id.
+        /// Empty: the game picks one from the contractor's id (the same every load) until the player chooses.
+        /// </summary>
+        public string HeadId = "", OutfitId = "";
         public int Jobs;
         public int Successes;
         public string LastNote = "";

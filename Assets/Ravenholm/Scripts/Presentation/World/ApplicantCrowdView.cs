@@ -122,12 +122,20 @@ namespace Ravenholm.Presentation
             SandboxSceneController.Current?.RefreshInspectables();
         }
 
+        /// <summary>A contractor's look changed (Equip Hero's clothes): their figure in the crowd shows it at once.</summary>
+        public void RefreshLook(ContractorRecord c)
+        {
+            if (c != null && _shown.TryGetValue(c.Id, out var go) && go != null)
+                CitizenAppearance.Apply(go.GetComponentInChildren<HoseRig>(), c);
+        }
+
         private GameObject Spawn(ContractorRecord c, Vector2 pos, bool interactive)
         {
             if (citizen != null)
             {
                 // Every adventurer is the citizen for now, walking exactly like the supplier.
                 var fig = CitizenFigure.Create(transform, c != null ? c.Name : "Applicant", pos, citizen, animations);
+                CitizenAppearance.Apply(fig.GetComponentInChildren<HoseRig>(), c);   // their own head and clothes
                 if (!interactive) return fig;
                 var box = fig.AddComponent<BoxCollider2D>();
                 box.isTrigger = true;

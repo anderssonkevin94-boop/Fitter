@@ -365,6 +365,8 @@ namespace Ravenholm.Infrastructure.Save
         [JsonProperty("injuredUntilMs")] public long InjuredUntilMs;
         [JsonProperty("sponsored")] public bool Sponsored;
         [JsonProperty("skin")] public int Skin;
+        [JsonProperty("head")] public string HeadId;
+        [JsonProperty("outfit")] public string OutfitId;
         [JsonProperty("jobs")] public int Jobs;
         [JsonProperty("successes")] public int Successes;
         [JsonProperty("lastNote")] public string LastNote;

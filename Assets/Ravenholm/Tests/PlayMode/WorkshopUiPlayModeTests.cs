@@ -46,7 +46,9 @@ namespace Ravenholm.Tests
             root.Hud.ShowLoadout(applicant.ContractorId);
             yield return new WaitForSeconds(.25f);
             var panel = root.Hud.Loadout;
-            Assert.AreEqual(6, panel.transform.Find("Card/Equipment").GetComponentsInChildren<Button>().Length);
+            var around = panel.transform.Find("Card/Equipment").GetComponentsInChildren<Button>();
+            Assert.AreEqual(6, around.Count(b => b.name.StartsWith("Slot")), "six equipment slots");
+            Assert.IsTrue(around.Any(b => b.name == "Clothes"), "and the hero's Clothes button (2026-10-19)");
             panel.transform.Find("Card/Equipment/SlotArmor").GetComponent<Button>().onClick.Invoke();
             yield return null;
             var armor = log.StoreItems.First(i => log.DefinitionOfItem(i) == "item.riveted_coat");

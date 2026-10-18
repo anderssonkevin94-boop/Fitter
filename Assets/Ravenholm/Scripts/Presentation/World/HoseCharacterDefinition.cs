@@ -73,6 +73,37 @@ namespace Ravenholm.Presentation
             public string headwear;
         }
 
+        /// <summary>
+        /// A head identity (Astra's head library v2, 2026-10-19): a head per view with its skin mask, its own default skin
+        /// (baked into its pixels; the neck, hands and arms take it), and small helmet nudges per helmet and view (pixels on
+        /// the canvas, x right, y down; absent: none).
+        /// </summary>
+        [Serializable]
+        public sealed class HeadSet
+        {
+            public string id;
+            public List<HeadView> views = new List<HeadView>();
+            public Color skinBase = new Color32(0xDA, 0x87, 0x5B, 255);
+            public Color skinShadow = new Color32(0xCA, 0x66, 0x42, 255);
+            public List<HelmetFit> helmetFits = new List<HelmetFit>();
+        }
+
+        [Serializable]
+        public sealed class HeadView
+        {
+            public string view;
+            public Sprite head;
+            public Texture2D skinMask;
+        }
+
+        [Serializable]
+        public sealed class HelmetFit
+        {
+            public string headwear;
+            public string view;
+            public Vector2 offsetPx;
+        }
+
         /// <summary>A shared hand's skin mask (the hands are the store owner's; their masks come with the modular pack).</summary>
         [Serializable]
         public sealed class HandMask
@@ -90,6 +121,10 @@ namespace Ravenholm.Presentation
         public List<WornArmour> wornArmour = new List<WornArmour>();
         public List<HandMask> handMasks = new List<HandMask>();
         public List<HeadwearSet> headwearSets = new List<HeadwearSet>();
+        [Tooltip("Head identities beyond the views' own head (the blond); any head fits any outfit.")]
+        public List<HeadSet> headSets = new List<HeadSet>();
+        [Tooltip("Everyday outfits a character may wear (civilian clothes, not armour): its civilian_outfit_id.")]
+        public List<string> civilianOutfits = new List<string>();
         public List<WornHeadwear> wornHeadwear = new List<WornHeadwear>();
         [Tooltip("Tints only skin-masked pixels (R base, G shadow): head, neck and hands.")]
         public Material skinMaterial;
@@ -113,6 +148,47 @@ namespace Ravenholm.Presentation
             if (string.IsNullOrEmpty(itemId) || wornArmour == null) return null;
             foreach (var w in wornArmour) if (w != null && w.item == itemId) return w.outfit;
             return null;
+        }
+
+        public HeadSet HeadSetFor(string headId)
+        {
+            if (string.IsNullOrEmpty(headId) || headSets == null) return null;
+            foreach (var h in headSets) if (h != null && h.id == headId) return h;
+            return null;
+        }
+
+        /// <summary>A head identity's head and mask in a view (the views' own head when the id is unknown or empty).</summary>
+        public (Sprite head, Texture2D mask) HeadFor(string headId, View view)
+        {
+            var set = HeadSetFor(headId);
+            if (set != null)
+                foreach (var hv in set.views)
+                    if (hv != null && hv.view == view.name && hv.head != null) return (hv.head, hv.skinMask);
+            return (view.head, view.headSkinMask);
+        }
+
+        /// <summary>A head identity's skin (its default palette), else the definition's.</summary>
+        public (Color skin, Color shadow) SkinOf(string headId)
+        {
+            var set = HeadSetFor(headId);
+            return set != null ? (set.skinBase, set.skinShadow) : (skinBase, skinShadow);
+        }
+
+        /// <summary>A helmet's nudge on a head in a view, in pixels on the canvas (x right, y down).</summary>
+        public Vector2 HelmetOffsetPx(string headId, string headwearId, string view)
+        {
+            var set = HeadSetFor(headId);
+            if (set == null || string.IsNullOrEmpty(headwearId)) return Vector2.zero;
+            foreach (var f in set.helmetFits) if (f != null && f.headwear == headwearId && f.view == view) return f.offsetPx;
+            return Vector2.zero;
+        }
+
+        /// <summary>Every head identity's id, the views' own head first (the blond).</summary>
+        public List<string> HeadIds()
+        {
+            var ids = new List<string> { "" };
+            foreach (var h in headSets) if (h != null && !string.IsNullOrEmpty(h.id)) ids.Add(h.id);
+            return ids;
         }
 
         /// <summary>The headwear set an equipped head item is worn as (null: none, or not worn on this character).</summary>

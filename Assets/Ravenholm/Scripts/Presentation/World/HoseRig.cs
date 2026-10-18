@@ -78,6 +78,15 @@ namespace Ravenholm.Presentation
         public SpriteRenderer WeaponHeldPart => _weaponHeld;
         public SpriteRenderer ShieldHeldPart => _shieldHeld;
 
+        /// <summary>The head identity (modular characters; empty: the definition's own head, the blond).</summary>
+        public string HeadId { get; set; }
+
+        /// <summary>
+        /// The everyday clothes (civilian_outfit_id, Astra's civilian outfits, 2026-10-19): worn while no mapped armour is;
+        /// taking armour off restores them. Empty or unknown: the definition's everyday outfit.
+        /// </summary>
+        public string CivilianOutfit { get; set; }
+
         /// <summary>The outfit drawn now (modular characters; null otherwise).</summary>
         public string WornOutfit { get; private set; }
 
@@ -442,7 +451,8 @@ namespace Ravenholm.Presentation
             {
                 // A head over a worn outfit, on one canvas: the head rides on the torso at zero offset (its head mount is
                 // every torso's), so it shares the torso's lean, sway, bob, squash and mirror; no per-outfit nudges.
-                WornOutfit = definition.OutfitForArmour(ArmourItem) ?? definition.defaultOutfit;
+                WornOutfit = definition.OutfitForArmour(ArmourItem)
+                             ?? (!string.IsNullOrEmpty(CivilianOutfit) && definition.TorsoFor(CivilianOutfit, ViewName).torso != null ? CivilianOutfit : definition.defaultOutfit);
                 var (torso, torsoMask) = definition.TorsoFor(WornOutfit, ViewName);
                 _body.sprite = torso;
                 if (_head == null)
@@ -450,9 +460,10 @@ namespace Ravenholm.Presentation
                     _head = new GameObject("Head").AddComponent<SpriteRenderer>();
                     _head.transform.SetParent(_body.transform, false);
                 }
-                _head.sprite = v.head;
+                var (headSprite, headMask) = definition.HeadFor(HeadId, v);
+                _head.sprite = headSprite;
                 Skin(_body, torsoMask);
-                Skin(_head, v.headSkinMask);
+                Skin(_head, headMask);
             }
             // Headwear rides on the body (its lean, sway and squash; mirrored with the rig), on the body's own canvas.
             // Modular (v2): a helmet set over the head, on its canvas at zero offset, riding on it.
@@ -468,6 +479,10 @@ namespace Ravenholm.Presentation
             {
                 _headwear.sprite = hat;
                 _headwear.enabled = hat != null;
+                // Each head's own small fit for the helmet in this view (pixels on the canvas; mirrored with the rig).
+                var fit = modular ? definition.HelmetOffsetPx(HeadId, WornHeadwear, ViewName) : Vector2.zero;
+                var ppu = hat != null ? hat.pixelsPerUnit : 340f;
+                _headwear.transform.localPosition = new Vector3(fit.x / ppu, -fit.y / ppu, 0f);
             }
             // Lean about his hips (side views; head-on a lean would point at the camera).
             var hipsAt = (v.hipLeft + v.hipRight) * 0.5f;
@@ -679,7 +694,7 @@ namespace Ravenholm.Presentation
         }
 
         /// <summary>The arms' colour: the skin's base on modular characters (the neck and hands match), else the definition's.</summary>
-        private Color ArmColor => definition.Modular ? SkinBase ?? definition.skinBase : definition.armColor;
+        private Color ArmColor => definition.Modular ? SkinBase ?? definition.SkinOf(HeadId).skin : definition.armColor;
 
         /// <summary>Tints a part's skin-masked pixels with this character's skin (nothing else changes); no mask: as painted.</summary>
         private void Skin(SpriteRenderer sr, Texture2D mask)
@@ -694,8 +709,9 @@ namespace Ravenholm.Presentation
             _skinBlock ??= new MaterialPropertyBlock();
             sr.GetPropertyBlock(_skinBlock);
             _skinBlock.SetTexture(SkinMaskId, mask);
-            _skinBlock.SetColor(SkinBaseId, SkinBase ?? definition.skinBase);
-            _skinBlock.SetColor(SkinShadowId, SkinShadow ?? definition.skinShadow);
+            var (headSkin, headShadow) = definition.SkinOf(HeadId);
+            _skinBlock.SetColor(SkinBaseId, SkinBase ?? headSkin);
+            _skinBlock.SetColor(SkinShadowId, SkinShadow ?? headShadow);
             sr.SetPropertyBlock(_skinBlock);
         }
 

@@ -151,7 +151,10 @@ namespace Ravenholm.Presentation
             var portrait = UiFactory.Rect("HeroPreview", _equipment);
             WorkshopUi.Bounds(portrait, .30f, .06f, .70f, .99f);
             _preview = portrait.gameObject.AddComponent<WorkshopHeroPreview>();
-            WorkshopUi.Label(_ui, _equipment, "Hero", 26, .34f, 0, .66f, .08f, false, TextAlignmentOptions.Center);
+            // Their everyday clothes (Astra's civilian outfits, 2026-10-19): tap to try the next; saved with the hero.
+            var clothes = WorkshopUi.Button(_ui, "Clothes", _equipment, "Clothes ›", NextClothes, out var clothesLabel, false);
+            WorkshopUi.Bounds((RectTransform)clothes.transform, .36f, 0, .64f, .09f);
+            clothesLabel.fontSizeMax = 26; clothesLabel.fontSizeMin = 18;
             AddSlot(Slot.Head, 0, .68f); AddSlot(Slot.Weapon, 0, .35f); AddSlot(Slot.Armor, 0, .02f);
             AddSlot(Slot.OffHand, .71f, .68f); AddSlot(Slot.Potion1, .71f, .35f); AddSlot(Slot.Potion2, .71f, .02f);
             Text(() => string.IsNullOrEmpty(_message) ? "" : $"<b>{_message}</b>");
@@ -205,6 +208,20 @@ namespace Ravenholm.Presentation
 
         private static Color GoldTint => new Color32(244, 211, 143, 255);
 
+        private HoseCharacterDefinition Citizen => FindAnyObjectByType<ApplicantCrowdView>()?.Citizen;
+
+        /// <summary>Puts the hero in their next everyday outfit (armour still shows over it while equipped).</summary>
+        public void NextClothes()
+        {
+            var def = Citizen; var c = Contractor;
+            if (!IsOpen || def == null || c == null || def.civilianOutfits.Count == 0) return;
+            var (_, current) = CitizenAppearance.For(def, c);
+            var next = def.civilianOutfits[(def.civilianOutfits.IndexOf(current) + 1) % def.civilianOutfits.Count];
+            _root.Services.Jobs.SetAppearance(c.Id, null, next);
+            FindAnyObjectByType<ApplicantCrowdView>()?.RefreshLook(c);
+            _next = 0; Update();
+        }
+
         public void SelectSlot(int slotIndex)
         {
             if (!IsOpen || !Enum.IsDefined(typeof(Slot), slotIndex)) return;
@@ -215,6 +232,11 @@ namespace Ravenholm.Presentation
         {
             if (_warning != null) _warning.text = Quest != null && Quest.Recovery ? "Safe survey · No death outcome" : "Gear is lost if the hero dies.";
             foreach (var refresh in _visualRefresh) refresh();
+            if (_preview != null && Citizen != null && Contractor != null)
+            {
+                var (head, outfit) = CitizenAppearance.For(Citizen, Contractor);
+                _preview.SetAppearance(head, outfit);
+            }
             if (_preview != null) _preview.SetEquipment(Definition(_loadout.Head), Definition(_loadout.Armor),
                 Definition(_loadout.Weapon), Definition(_loadout.OffHand));
             var options = Options(_selectedSlot);

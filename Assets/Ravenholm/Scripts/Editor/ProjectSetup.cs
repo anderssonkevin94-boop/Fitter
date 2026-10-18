@@ -1300,6 +1300,8 @@ namespace Ravenholm.EditorTools
             def.handMasks = new List<HoseCharacterDefinition.HandMask>();
             def.headwearSets = new List<HoseCharacterDefinition.HeadwearSet>();
             def.wornHeadwear = new List<HoseCharacterDefinition.WornHeadwear>();
+            def.headSets = new List<HoseCharacterDefinition.HeadSet>();
+            def.civilianOutfits = new List<string>();
             foreach (var v in def.views) { v.head = null; v.headSkinMask = null; }
             if (!File.Exists(libPath)) return;
             var lib = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(libPath));
@@ -1341,6 +1343,29 @@ namespace Ravenholm.EditorTools
                 }
             if (lib["equipment_to_headwear"] is Newtonsoft.Json.Linq.JObject toHat)
                 foreach (var e in toHat) def.wornHeadwear.Add(new HoseCharacterDefinition.WornHeadwear { item = e.Key, headwear = (string)e.Value });
+            // Head identities (Astra's head library v2, 2026-10-19): every head set but the views' own (the character's
+            // head_id), with its default skin and its helmet nudges.
+            var ownHead = (string)character["head_id"];
+            foreach (var h in (Newtonsoft.Json.Linq.JObject)lib["head_sets"])
+            {
+                if (h.Key == ownHead) continue;
+                var set = new HoseCharacterDefinition.HeadSet { id = h.Key };
+                foreach (var v in (Newtonsoft.Json.Linq.JObject)h.Value["views"])
+                    set.views.Add(new HoseCharacterDefinition.HeadView { view = v.Key, head = LoadSprite(dir + "Heads/" + (string)v.Value), skinMask = Mask((string)v.Value) });
+                if (h.Value["default_skin"] is Newtonsoft.Json.Linq.JObject skin)
+                {
+                    if (ColorUtility.TryParseHtmlString((string)skin["base"], out var b)) set.skinBase = b;
+                    if (ColorUtility.TryParseHtmlString((string)skin["shadow"], out var sh)) set.skinShadow = sh;
+                }
+                if (h.Value["headwear_fit_offsets"] is Newtonsoft.Json.Linq.JObject fits)
+                    foreach (var f in fits)
+                    foreach (var fv in (Newtonsoft.Json.Linq.JObject)f.Value)
+                        set.helmetFits.Add(new HoseCharacterDefinition.HelmetFit { headwear = f.Key, view = fv.Key, offsetPx = new Vector2((float)fv.Value[0], (float)fv.Value[1]) });
+                def.headSets.Add(set);
+            }
+            // Everyday clothes: every outfit that isn't armour (the citizen's blue first).
+            foreach (var o in def.outfits)
+                if (!def.wornArmour.Exists(w => w.outfit == o.id)) def.civilianOutfits.Add(o.id);
             foreach (var hand in new[] { def.handOpenFront, def.handOpenSide, def.handOpenBack, def.handGripFront, def.handGripSide, def.handGripBack, def.handPointFront, def.handPointSide, def.handPointBack })
                 if (hand != null) def.handMasks.Add(new HoseCharacterDefinition.HandMask { hand = hand, mask = Mask(hand.name) });
             ColorUtility.TryParseHtmlString((string)character["skin_base"], out def.skinBase);

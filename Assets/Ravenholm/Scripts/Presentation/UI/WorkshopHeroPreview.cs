@@ -26,6 +26,15 @@ namespace Ravenholm.Presentation
         public string ShownWeaponId => WeaponShown ? _weapon.Id : null;
         public string ShownShieldId => ShieldShown ? _shield.Id : null;
 
+        /// <summary>The hero's own look (head identity and everyday clothes) under the equipment.</summary>
+        public void SetAppearance(string headId, string outfitId)
+        {
+            _headId = headId;
+            _outfitId = outfitId;
+        }
+
+        private string _headId, _outfitId;
+
         public void SetEquipment(ItemDefinition head, ItemDefinition body, ItemDefinition weapon, ItemDefinition shield)
         {
             _head = head; _body = body; _weapon = weapon;
@@ -61,6 +70,8 @@ namespace Ravenholm.Presentation
         private void LateUpdate()
         {
             if (_rig == null) return;
+            _rig.HeadId = _headId;
+            _rig.CivilianOutfit = _outfitId;
             _rig.HeadwearItem = _head != null ? _head.Id : null;
             _rig.ArmourItem = _body != null ? _body.Id : null;   // modular characters wear mapped armour as their outfit
             _rig.Drive("SE", HoseRig.Pose.Idle, 0, Time.unscaledDeltaTime, Vector2.zero, 1);

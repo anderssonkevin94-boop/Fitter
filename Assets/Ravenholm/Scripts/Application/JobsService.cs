@@ -267,6 +267,21 @@ namespace Ravenholm.Services
             _scheduler.SaveNow("posting cancelled");
         }
 
+        /// <summary>
+        /// Sets how a contractor looks (Astra's heads and civilian outfits, 2026-10-19): a head identity and everyday
+        /// clothes, by id (null keeps the current one). Saved with the contractor; armour still shows over the clothes
+        /// while worn. Returns why not, or null.
+        /// </summary>
+        public string SetAppearance(string contractorId, string headId, string outfitId)
+        {
+            var c = Board.Contractor(contractorId);
+            if (c == null) return "No such adventurer";
+            if (headId != null) c.HeadId = headId;
+            if (outfitId != null) c.OutfitId = outfitId;
+            _scheduler.SaveNow("appearance changed");
+            return null;
+        }
+
         public bool Dispatch(string contractorId, Loadout loadout, out string failure, out ExpeditionRecord expedition)
         {
             var ok = Board.Dispatch(contractorId, loadout, testDeparture: false, out failure, out expedition);
@@ -450,6 +465,7 @@ namespace Ravenholm.Services
                     Id = cd.Id, Name = cd.Name, ClassId = cd.ClassId, Level = cd.Level, Xp = cd.Xp, PersonalityPrice = cd.PersonalityPrice,
                     Status = Enum.TryParse(cd.Status, out ContractorStatus st) ? st : ContractorStatus.Available,
                     InjuredUntilMs = cd.InjuredUntilMs, Sponsored = cd.Sponsored, Skin = cd.Skin, Jobs = cd.Jobs, Successes = cd.Successes,
+                    HeadId = cd.HeadId ?? "", OutfitId = cd.OutfitId ?? "",
                     LastNote = cd.LastNote ?? "", Injuries = cd.Injuries, HighestDifficulty = cd.HighestDifficulty, DeathNote = cd.DeathNote ?? "",
                 };
                 c.Traits.AddRange(cd.Traits);
@@ -525,6 +541,7 @@ namespace Ravenholm.Services
                 {
                     Id = c.Id, Name = c.Name, ClassId = c.ClassId, Level = c.Level, Xp = c.Xp, PersonalityPrice = c.PersonalityPrice,
                     Status = c.Status.ToString(), InjuredUntilMs = c.InjuredUntilMs, Sponsored = c.Sponsored, Skin = c.Skin, Jobs = c.Jobs,
+                    HeadId = c.HeadId, OutfitId = c.OutfitId,
                     Successes = c.Successes, LastNote = c.LastNote, Injuries = c.Injuries, HighestDifficulty = c.HighestDifficulty, DeathNote = c.DeathNote,
                 };
                 cd.Traits.AddRange(c.Traits);

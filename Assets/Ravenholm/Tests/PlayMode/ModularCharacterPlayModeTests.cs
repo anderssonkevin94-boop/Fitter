@@ -308,5 +308,137 @@ namespace Ravenholm.Tests
             rt.Release();
             Object.Destroy(cam.gameObject);
         }
+    
+        /// <summary>
+        /// Astra's head library v2 and civilian outfits (2026-10-19): twelve more heads, each with its own skin on the
+        /// neck, hands and arms; twelve everyday outfits kept per character beside the armour; helmets fitted per head.
+        /// Writes Captures/modular_people.png.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator HeadsAndEverydayClothes()
+        {
+            yield return Boot();
+            var crowd = Object.FindAnyObjectByType<ApplicantCrowdView>();
+            var def = crowd.Citizen;
+            Assert.AreEqual(12, def.headSets.Count, "twelve more heads");
+            Assert.AreEqual(13, def.civilianOutfits.Count, "the citizen's blue and twelve everyday outfits");
+            Assert.IsFalse(def.civilianOutfits.Contains("steel_armour"), "armour is not everyday clothes");
+            var stage = new GameObject("PeopleStage").transform;
+            stage.position = new Vector3(400f, 400f, 0f);
+            var a = Figure(stage, crowd, "Person", stage.position);
+            var b = Figure(stage, crowd, "Twin", (Vector2)stage.position + new Vector2(30f, 0f));
+            var offset = b.transform.position - a.transform.position;
+            var block = new MaterialPropertyBlock();
+
+            foreach (var head in def.HeadIds())
+            {
+                a.HeadId = head; b.HeadId = head;
+                var (skin, _) = def.SkinOf(head);
+                var k = 0;
+                foreach (var dir in Dirs)
+                for (var f = 0; f < 6; f++, k++)
+                {
+                    // Clothes change mid-stride on one of them only.
+                    a.CivilianOutfit = def.civilianOutfits[(k / 3) % def.civilianOutfits.Count];
+                    a.Drive(dir, HoseRig.Pose.Walk, 0.05f, 1f / 30f, Vector2.zero, 1f);
+                    b.Drive(dir, HoseRig.Pose.Walk, 0.05f, 1f / 30f, Vector2.zero, 1f);
+                    Assert.AreEqual(def.HeadFor(head, def.Get(a.ViewName)).head, a.HeadAttachment.sprite, $"{head} {dir}: their head");
+                    Assert.AreEqual(def.TorsoFor(a.CivilianOutfit, a.ViewName).torso, a.BodyAttachment.sprite, $"{head} {dir}: {a.CivilianOutfit}");
+                    Assert.Less(Vector3.Distance(a.HeadAttachment.transform.position, b.HeadAttachment.transform.position - offset), 1e-3f, "no head jump on a change of clothes");
+                    Assert.Less(Vector2.Distance(a.LeftFoot, b.LeftFoot), 1e-4f, "the stride goes on");
+                    foreach (var part in new[] { a.HeadAttachment, a.BodyAttachment, a.LeftHandAttachment })
+                    {
+                        part.GetPropertyBlock(block);
+                        Assert.AreEqual(skin.r, block.GetColor("_SkinBase").r, 0.01f, $"{head}: {part.name} in the head's skin");
+                    }
+                }
+                yield return null;
+            }
+
+            // Armour over the clothes; off again, their own clothes come back (not the default blue).
+            a.HeadId = "sandy_bob"; a.CivilianOutfit = "coat_wine";
+            a.ArmourItem = "item.riveted_coat";
+            a.Drive("SE", HoseRig.Pose.Walk, 0.05f, 1f / 30f, Vector2.zero, 1f);
+            Assert.AreEqual("riveted_coat", a.WornOutfit);
+            a.ArmourItem = null;
+            a.Drive("SE", HoseRig.Pose.Walk, 0.05f, 1f / 30f, Vector2.zero, 1f);
+            Assert.AreEqual("coat_wine", a.WornOutfit, "their own clothes restored");
+            // A helmet stays on through changes of clothes and head, with each head's own nudge.
+            a.HeadwearItem = "item.iron_helm";
+            a.Drive("SE", HoseRig.Pose.Walk, 0.05f, 1f / 30f, Vector2.zero, 1f);
+            var hat = a.GetComponentsInChildren<SpriteRenderer>(true).First(r => r.name == "Headwear");
+            var fit = def.HelmetOffsetPx("sandy_bob", "iron_helm", "SE");
+            Assert.AreNotEqual(Vector2.zero, fit, "sandy_bob has a nudge for the iron helm in SE");
+            Assert.AreEqual(fit.x / hat.sprite.pixelsPerUnit, hat.transform.localPosition.x, 1e-4f, "the head's helmet nudge");
+            a.CivilianOutfit = "apron_herb"; a.HeadId = "black_bob";
+            for (var f = 0; f < 3; f++) a.Drive("SE", HoseRig.Pose.Walk, 0.05f, 1f / 30f, Vector2.zero, 1f);
+            Assert.IsTrue(hat.enabled, "the helmet stays on");
+            Assert.AreSame(a.HeadAttachment.transform, hat.transform.parent);
+            // Carrying in every direction.
+            foreach (var dir in Dirs) a.Drive(dir, HoseRig.Pose.Carry, 0.05f, 1f / 30f, Vector2.zero, 1f, carrying: true);
+
+            // A contractor's look: chosen once from their id (the same every load), saved when the player changes it.
+            var jobs = GameRoot.Instance.Services.Jobs;
+            var c = jobs.Board.State.Contractors.Values.First();
+            c.HeadId = ""; c.OutfitId = "";
+            var picked = CitizenAppearance.For(def, c);
+            Assert.AreEqual(picked, CitizenAppearance.For(def, c), "the same pick every time");
+            var looks = new System.Collections.Generic.HashSet<(string, string)>();
+            for (var n = 0; n < 40; n++) looks.Add(CitizenAppearance.For(def, new Ravenholm.Domain.Jobs.ContractorRecord { Id = "contractor." + n }));
+            Assert.Greater(looks.Count, 20, "a varied crowd");
+            Assert.IsNull(jobs.SetAppearance(c.Id, "cropped_coils", "waistcoat_sage"));
+            var env = new Ravenholm.Infrastructure.Save.SaveEnvelope();
+            ((Ravenholm.Services.ISaveSection)jobs).Write(env);
+            c.HeadId = ""; c.OutfitId = "";
+            ((Ravenholm.Services.ISaveSection)jobs).Read(env);
+            var again = jobs.Board.Contractor(c.Id);
+            Assert.AreEqual("cropped_coils", again.HeadId, "kept through a reload");
+            Assert.AreEqual("waistcoat_sage", again.OutfitId);
+
+            yield return PeopleSheet(stage, crowd);
+            Object.Destroy(stage.gameObject);
+        }
+
+        /// <summary>Thirteen heads, each in different everyday clothes, through the eight directions; last row a helmet.</summary>
+        private static IEnumerator PeopleSheet(Transform stage, ApplicantCrowdView crowd)
+        {
+            var def = crowd.Citizen;
+            var heads = def.HeadIds();
+            var rigs = new List<(HoseRig rig, string dir)>();
+            for (var r = 0; r < heads.Count; r++)
+            for (var i = 0; i < Dirs.Length; i++)
+            {
+                var rig = Figure(stage, crowd, $"P{r}{i}", (Vector2)stage.position + new Vector2(300f + i * 1.3f, -r * 1.75f));
+                rig.HeadId = heads[r];
+                rig.CivilianOutfit = def.civilianOutfits[(r + i) % def.civilianOutfits.Count];
+                if (r % 4 == 3) rig.HeadwearItem = "item.iron_helm";
+                rigs.Add((rig, Dirs[i]));
+            }
+            var cam = new GameObject("PeopleCamera").AddComponent<Camera>();
+            cam.orthographic = true;
+            cam.orthographicSize = heads.Count * 1.75f / 2f + 0.6f;
+            cam.transform.position = new Vector3(stage.position.x + 300f + 3.5f * 1.3f, stage.position.y - (heads.Count - 1) * 1.75f / 2f + 0.6f, -10f);
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color32(0xEF, 0xE7, 0xD6, 255);
+            var rt = new RenderTexture(1500, 3200, 24);
+            cam.targetTexture = rt;
+            for (var f = 0; f < 10; f++)
+            {
+                foreach (var r in rigs) r.rig.Drive(r.dir, HoseRig.Pose.Walk, 0.05f, 1f / 30f, Vector2.zero, 1f);
+                yield return null;
+            }
+            cam.Render();
+            var prev = RenderTexture.active;
+            RenderTexture.active = rt;
+            var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+            tex.Apply();
+            RenderTexture.active = prev;
+            File.WriteAllBytes(Path.Combine(Path.GetFullPath(Path.Combine(UnityEngine.Application.dataPath, "..", "Captures")), "modular_people.png"), tex.EncodeToPNG());
+            cam.targetTexture = null;
+            Object.Destroy(tex);
+            rt.Release();
+            Object.Destroy(cam.gameObject);
+        }
     }
 }

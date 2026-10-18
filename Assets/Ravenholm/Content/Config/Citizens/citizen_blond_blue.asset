@@ -133,6 +133,210 @@ MonoBehaviour:
     - view: N
       torso: {fileID: 21300000, guid: df5c30efc15784c74b4f44e875471064, type: 3}
       skinMask: {fileID: 2800000, guid: cefd7a65d95274af2831905b57ee78b7, type: 3}
+  - id: tunic_moss
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: 93906f519cf004720b6d1e0c60ce2f46, type: 3}
+      skinMask: {fileID: 2800000, guid: 9090fe62fb84f41b3a7134f063a26cf0, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: f3bffe0d0ffb746ecbb5d2958294e731, type: 3}
+      skinMask: {fileID: 2800000, guid: edf7439fb0fac43eea8165342447d19f, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: e5409171268794d70939512ac5af5654, type: 3}
+      skinMask: {fileID: 2800000, guid: 4661faa2a141e4f5c9af4379c450328b, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: 7dee3998cb251454f97dbfd39acd41a3, type: 3}
+      skinMask: {fileID: 2800000, guid: 4e1f572e4b440451b86b37e4e4145632, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: c72923f18f223459ca67e540c81699bb, type: 3}
+      skinMask: {fileID: 2800000, guid: e0c4b2b4e206d428aae338336104ff23, type: 3}
+  - id: tunic_rust
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: 0898fcd4f924b47cb89f246a95a5726d, type: 3}
+      skinMask: {fileID: 2800000, guid: 7cd26710891ba4ab7ac16b465330bf97, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: 2d8a7bbd6fb0d44b0a89090e446a339f, type: 3}
+      skinMask: {fileID: 2800000, guid: af0ac05bd917848bb81a722bb3579dea, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: 0bddab843b30a4304ac90d15bc196bc0, type: 3}
+      skinMask: {fileID: 2800000, guid: b277a2267d6f54e9baca9297094f90fa, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: 2a6b894de27d14448b7616c960807cb4, type: 3}
+      skinMask: {fileID: 2800000, guid: e2f9ea0a13e3045b39cddebb912231d4, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: ffbfeea1ccd1b4442a5004ffdf8c9d70, type: 3}
+      skinMask: {fileID: 2800000, guid: 0e83ea02b91ff469a913dda26e0697a2, type: 3}
+  - id: tunic_blue
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: 85c7b3617f3854db8804bd7fa399ed4e, type: 3}
+      skinMask: {fileID: 2800000, guid: edbfb29b3659e4affafa59e35a35ecfd, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: 362ed96b2e3534ed780487aba84a3e7e, type: 3}
+      skinMask: {fileID: 2800000, guid: 6f12fa0b074d647e0a81ea413801e343, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: 6953713e70c6943d390c1f222b9364f3, type: 3}
+      skinMask: {fileID: 2800000, guid: 1aa978f27ea4d4767934a4fad0b7b1c4, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: 60dbc6837a504465fab2969532cc96c7, type: 3}
+      skinMask: {fileID: 2800000, guid: 192f2cc16f75c490b8f86c60f016db21, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: 425d20da7618a4bee94f5320b83e8e08, type: 3}
+      skinMask: {fileID: 2800000, guid: 910113114491d45d2a5f82b1df90742a, type: 3}
+  - id: waistcoat_ochre
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: b74cd88b71f5b4755b1e23f35bb2922b, type: 3}
+      skinMask: {fileID: 2800000, guid: 99da2e837045c4df8bf8678c3da89275, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: 8155a3532813541de883116bc793b75e, type: 3}
+      skinMask: {fileID: 2800000, guid: 082440bde46da4c64bd4a87a2601b5dd, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: 78b5b1fcea34546fca78b2ef51e6c6c4, type: 3}
+      skinMask: {fileID: 2800000, guid: 143db03e5cfaa4b9fbeff88e94e3b572, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: a9a935e2320b54941861363b0a15fb00, type: 3}
+      skinMask: {fileID: 2800000, guid: 1e3e36262aa594dca910290e06b2228b, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: 0ca84324e891a4b798fcef2aff67af8d, type: 3}
+      skinMask: {fileID: 2800000, guid: 2ac3d1228836247b690b65d6267a22bb, type: 3}
+  - id: waistcoat_berry
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: 096d6ba2aa92344f5b23f312d0fdd28b, type: 3}
+      skinMask: {fileID: 2800000, guid: 8bba89727f2ba4421a43885f951c5986, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: acf2c16d83a804d609a9e13ed8fb10d9, type: 3}
+      skinMask: {fileID: 2800000, guid: d24bccba2e2414d20b99dfca7c933c12, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: 720d1cd9b5f064767b3dec1ecfd38c20, type: 3}
+      skinMask: {fileID: 2800000, guid: a33703df6a2c94428b7517c11cbad4e4, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: 90878dc4522f84a81941a2eae8ff93de, type: 3}
+      skinMask: {fileID: 2800000, guid: 1c6421e30c3bd45359e0d557a47afa30, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: a44fe7238dc3d4f33a2b08cc44312a6c, type: 3}
+      skinMask: {fileID: 2800000, guid: eaafed86769f440078b0ac765e3b4c80, type: 3}
+  - id: waistcoat_sage
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: 591e51c2229ed443fa0ea14a0ef166a0, type: 3}
+      skinMask: {fileID: 2800000, guid: e4d0babd1f53a491789b8347b4c77833, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: 5ba477e34bb83494cb15f297728cce3a, type: 3}
+      skinMask: {fileID: 2800000, guid: d0edfa544fa764fd2a32ab5b0651e8df, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: 5346a4206cd8d49cd9e47f7cd5e5c226, type: 3}
+      skinMask: {fileID: 2800000, guid: 28e42e1a894344d89b578bccebac220e, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: 33483cf98c2fd43abb5b02bf3f2a3cbb, type: 3}
+      skinMask: {fileID: 2800000, guid: e74a250f4e3d547398d14501e167d3b6, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: 7e1e40b444b394222aaf2a77f8fe9d14, type: 3}
+      skinMask: {fileID: 2800000, guid: 27e21c83612b44820865f386ca85f77e, type: 3}
+  - id: apron_clay
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: 685e822374b4746da81da6d8e8122f76, type: 3}
+      skinMask: {fileID: 2800000, guid: cd0fbf6b6e134490b93626615cc7104f, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: 4e8c847cba99b4ab18c35245d33c537e, type: 3}
+      skinMask: {fileID: 2800000, guid: 864b9d827785a450b900bf7b3db09849, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: a93212e3eba6143068397edba9c8cdf4, type: 3}
+      skinMask: {fileID: 2800000, guid: b279b3cc210df43c993dd7095076b3ac, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: ad9d0fc4fad90429d96c9b1825c7abf0, type: 3}
+      skinMask: {fileID: 2800000, guid: b5bb6cd1aa73e4a7991bc215843d7329, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: 59e417744198345eaba7ec0576edfd01, type: 3}
+      skinMask: {fileID: 2800000, guid: fd085e213894a4cd29c1ed93bcb3f8df, type: 3}
+  - id: apron_herb
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: e1a29f69c56e64503abdcc724544dc65, type: 3}
+      skinMask: {fileID: 2800000, guid: 92367cc6a9f96472da01684e2b61199d, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: b8803c47f3eff427b8c01ab730d47f04, type: 3}
+      skinMask: {fileID: 2800000, guid: cfa21d6029ff240c98d19fc3e7297bce, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: f2088099f74884d78bd8e15320bd8a93, type: 3}
+      skinMask: {fileID: 2800000, guid: 256cc62a80900493d81c670214bee46a, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: 1b4cd8c1ef7cc4d07956d981e2f458f2, type: 3}
+      skinMask: {fileID: 2800000, guid: 116aebd63a1ed41f1bfdca997a168d33, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: 06cf1146a832b4754acc7e1ab0d582a8, type: 3}
+      skinMask: {fileID: 2800000, guid: aad427bc611b542149f21063e1b1f745, type: 3}
+  - id: apron_indigo
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: 291a7fdb9715f44fbb7bf7c453594b82, type: 3}
+      skinMask: {fileID: 2800000, guid: 672a0ff8bb61a46ca8b645963fa4f828, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: 991c98023fcf549d4934b3c4946da50f, type: 3}
+      skinMask: {fileID: 2800000, guid: 15a5d6c2b0a0843009fb6e8a27cb117e, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: b9ee86e00b8fd4f4ea82c235633dcf0c, type: 3}
+      skinMask: {fileID: 2800000, guid: 16ac3ea48a7c04b6a8a42c9922507b10, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: 464bcc70c9d3d4d45a33e532aa703e80, type: 3}
+      skinMask: {fileID: 2800000, guid: 2dd01d08c1f0847b49bbe9cbc9100f32, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: 10229fc435d6a46da8649c36a471599f, type: 3}
+      skinMask: {fileID: 2800000, guid: 580c2c9ca107c4f3baba06fe33f68f35, type: 3}
+  - id: coat_teal
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: 65bca0cc2c9ad42ce9e15305bb9a8dc1, type: 3}
+      skinMask: {fileID: 2800000, guid: 57ec24c48344b48349e9e13fd7771c8c, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: c42ec15d65a42443b8f2e28f897ca7c7, type: 3}
+      skinMask: {fileID: 2800000, guid: 5c23aa8fa36a3405899c2d49d75045d2, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: 9b0864a211e18434b891d67afde29359, type: 3}
+      skinMask: {fileID: 2800000, guid: 27014edea13ea46d6af9cc51429a7f6d, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: 82c47111c40414d43b9a94013631be62, type: 3}
+      skinMask: {fileID: 2800000, guid: f81a2609673ab47309626075a47067b1, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: d526f2dd9687442a3b8325462a34549e, type: 3}
+      skinMask: {fileID: 2800000, guid: 577fa7d2ae7b147ceac467f00a79ca2f, type: 3}
+  - id: coat_wine
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: 0ffce842396f040cd8c862c1a98d4b29, type: 3}
+      skinMask: {fileID: 2800000, guid: f2c8923b9f3ec4946804849254ffc3f3, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: fe999e1acca4f47b39e2566d1e3990e8, type: 3}
+      skinMask: {fileID: 2800000, guid: 0cbe5f2ea500143c68f06af5e7756d26, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: dfe5f1f9b6e98453d9423f0c6a2e8215, type: 3}
+      skinMask: {fileID: 2800000, guid: 0c5bd4c0c567244629f27f7ab29ecda7, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: 6e890663c844a4e089825367be0a9ef6, type: 3}
+      skinMask: {fileID: 2800000, guid: 295845ac6a38342e8bd45d0400e3ebae, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: 0b4378374e260442aa410db77be66005, type: 3}
+      skinMask: {fileID: 2800000, guid: c3eda337ce5c74a268d2cff26f5eb5f7, type: 3}
+  - id: coat_navy
+    views:
+    - view: S
+      torso: {fileID: 21300000, guid: 00f1ee2dcae984621b4b804a0b2dc14c, type: 3}
+      skinMask: {fileID: 2800000, guid: 1ba489fcc25414d82956c2c67de36827, type: 3}
+    - view: SE
+      torso: {fileID: 21300000, guid: 54ba2de29742a47d9adb901da84fdedb, type: 3}
+      skinMask: {fileID: 2800000, guid: a3ad2580c3ab4435ea97c7e210e8dbf6, type: 3}
+    - view: E
+      torso: {fileID: 21300000, guid: d0826715492a34fc5ac9bc5199b86ff5, type: 3}
+      skinMask: {fileID: 2800000, guid: 23370be8b558e4a46b0a2b0e05a4fe0f, type: 3}
+    - view: NE
+      torso: {fileID: 21300000, guid: 9936c74ce6dfb4adaa1505cd839dd12e, type: 3}
+      skinMask: {fileID: 2800000, guid: dced6226131cf4c398545bdd3704777f, type: 3}
+    - view: N
+      torso: {fileID: 21300000, guid: e708e4798594f40399d44ff67762d4b0, type: 3}
+      skinMask: {fileID: 2800000, guid: bb23a0e1061ca4ddfa429448a85111b4, type: 3}
   defaultOutfit: citizen_blue
   wornArmour:
   - item: item.steel_coat
@@ -215,6 +419,318 @@ MonoBehaviour:
       sprite: {fileID: 21300000, guid: df88f34be43e64ab3a4e4d1b004e2f00, type: 3}
     - view: N
       sprite: {fileID: 21300000, guid: 448ec246759334073a2d15909a6a8ba3, type: 3}
+  headSets:
+  - id: chestnut_curls
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: 32cc8e0942eeb4591aed3d89b7e480b9, type: 3}
+      skinMask: {fileID: 2800000, guid: 5f1e46c277fda410a8620fc453d92b31, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: 644c13753b63340e0b204c2437f1872e, type: 3}
+      skinMask: {fileID: 2800000, guid: b8605ebe54b7a49df8969c8671f3aca2, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: 23b30cd163666417a9fc17acc54b96a3, type: 3}
+      skinMask: {fileID: 2800000, guid: 147a52a87e6a24b798a4c6e9b1fd22d6, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: b46be656825444e578212eccea4c2cf9, type: 3}
+      skinMask: {fileID: 2800000, guid: 32d1c510f60da4b5381ad61ece57f109, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: 630d295c6808e484291986bfc6f7aa0a, type: 3}
+      skinMask: {fileID: 2800000, guid: 2f07f714b71254f009f547e2e0c41f41, type: 3}
+    skinBase: {r: 0.5921569, g: 0.38039216, b: 0.24705882, a: 1}
+    skinShadow: {r: 0.4627451, g: 0.2784314, b: 0.18039216, a: 1}
+    helmetFits:
+    - headwear: iron_helm
+      view: SE
+      offsetPx: {x: -2, y: 0}
+  - id: black_bob
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: 6d667f23d98a4494f9ed4f235cb85a10, type: 3}
+      skinMask: {fileID: 2800000, guid: b42a0d3771ac84fbdb93031d4935c4c7, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: bcea9ec9a97704ef0bb7cc7f1ec86d71, type: 3}
+      skinMask: {fileID: 2800000, guid: 86882c53efc924d8fbf3d766c2c53e42, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: 8c7560f241a1649b09c2e16bfdf4d9c1, type: 3}
+      skinMask: {fileID: 2800000, guid: cb80f0183aeb54ea6a11c2acd5d0e6ff, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: b2f7b8ec5ce5d4291a12d92103b8de44, type: 3}
+      skinMask: {fileID: 2800000, guid: a9077bb58f32942f69eb28431f6b8892, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: 4b22095f2d35a437f95efa85aa320752, type: 3}
+      skinMask: {fileID: 2800000, guid: f5e0ad8b5fe3f424f9222076d574d22d, type: 3}
+    skinBase: {r: 0.78039217, g: 0.60784316, b: 0.4117647, a: 1}
+    skinShadow: {r: 0.64705884, g: 0.4627451, b: 0.30588236, a: 1}
+    helmetFits: []
+  - id: auburn_crop
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: fc5ffafb5f96942fba39eb6597f137cf, type: 3}
+      skinMask: {fileID: 2800000, guid: cc6f5591c19b241a698191d96795c1e8, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: 0d5f4736ee8d2417787bca446455419a, type: 3}
+      skinMask: {fileID: 2800000, guid: a761d5f4018294a2786e473fd8b883fe, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: f76696bd28e544496acc25b168b2b476, type: 3}
+      skinMask: {fileID: 2800000, guid: 8d7ebe37002cb4cdf89e4007743fe4ac, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: 0e4419e24f1d24cfeb6fe7d183d27dcd, type: 3}
+      skinMask: {fileID: 2800000, guid: 94cf68dd4f5e94b59b3e02c5c3e2c53d, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: 22e305bcbd13449d68a69b2a0e694380, type: 3}
+      skinMask: {fileID: 2800000, guid: fafef1f73e6554ab1850527dc9512688, type: 3}
+    skinBase: {r: 0.8862745, g: 0.6901961, b: 0.5411765, a: 1}
+    skinShadow: {r: 0.75686276, g: 0.54509807, b: 0.40392157, a: 1}
+    helmetFits: []
+  - id: silver_beard
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: 7d3fe9150f52549cfa4f2425c3bc4ca9, type: 3}
+      skinMask: {fileID: 2800000, guid: a6f359949d7984abdb7f9a81798b7af8, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: 343255528fade4077b2fe7a5cf5ae8cd, type: 3}
+      skinMask: {fileID: 2800000, guid: c5409fed50e1847839447ed7aa9a3526, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: 58c575552a6ad499e809778ff6963c4c, type: 3}
+      skinMask: {fileID: 2800000, guid: 1e259a5c4b0fe4f03bde30724da8a460, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: 5cb8e6bd686c54fd19fd9659ef8589c7, type: 3}
+      skinMask: {fileID: 2800000, guid: 796e8e7b65665456b94c4c30a988c43b, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: a0d43cca1acc64e11977cb2a8fd82668, type: 3}
+      skinMask: {fileID: 2800000, guid: 0097999abfbe845bda03e1e91fb05ad1, type: 3}
+    skinBase: {r: 0.79607844, g: 0.5803922, b: 0.4392157, a: 1}
+    skinShadow: {r: 0.6509804, g: 0.43529412, b: 0.3137255, a: 1}
+    helmetFits: []
+  - id: black_crop
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: cf0df2e4a2c634d2aac2069c64f3c9d4, type: 3}
+      skinMask: {fileID: 2800000, guid: f498ee2e21e7f4aa5a1ff7e61b39ed02, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: 9c4baf9c0f7484dc68f093421199c2ed, type: 3}
+      skinMask: {fileID: 2800000, guid: 5d83fa97828824f358f9f9b0b1bacedc, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: 17bf881c7eb69448ca40d76d6bc19fa0, type: 3}
+      skinMask: {fileID: 2800000, guid: 9675cb043e4c34419886248a96046951, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: edf3c25c6f8894975b4b0e009554dd72, type: 3}
+      skinMask: {fileID: 2800000, guid: 2041ca0faf09648218992930153f1943, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: da1cce1970c4e40e39fbb1da548d0599, type: 3}
+      skinMask: {fileID: 2800000, guid: 570b961dae05243479012c4e21238c3c, type: 3}
+    skinBase: {r: 0.72156864, g: 0.5137255, b: 0.32941177, a: 1}
+    skinShadow: {r: 0.5764706, g: 0.36862746, b: 0.24313726, a: 1}
+    helmetFits: []
+  - id: silver_crop
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: 74394c7423a61462b9e52ba224dfe858, type: 3}
+      skinMask: {fileID: 2800000, guid: 5e38d298a1dfb444e95c39a1fdc45462, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: d74b45f215581436181b85fb500b7dd8, type: 3}
+      skinMask: {fileID: 2800000, guid: 35590d456359b4499a8c9b7b86082b9e, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: 29559463b6c8e45cf8ab2ec9d89ab841, type: 3}
+      skinMask: {fileID: 2800000, guid: 45acae606a9f346989bc4973ff993487, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: 86893dc89bd3446aeabdf68c1a9b5f32, type: 3}
+      skinMask: {fileID: 2800000, guid: 68b70a75b65ce4435a001ef10008ce25, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: 4f61ee6c985ec4332b7a6cc126941f80, type: 3}
+      skinMask: {fileID: 2800000, guid: 0b296446d441547e8af303c8a0fbe093, type: 3}
+    skinBase: {r: 0.5019608, g: 0.31764707, b: 0.21568628, a: 1}
+    skinShadow: {r: 0.3764706, g: 0.23137255, b: 0.16470589, a: 1}
+    helmetFits: []
+  - id: bald_goatee
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: 336f4ff3779ad4bbbb512008d48aa9f8, type: 3}
+      skinMask: {fileID: 2800000, guid: 75ac2a42a4703496ca106a135c80667d, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: 8a03d3d8eaa4b4a6d89f0042819bea13, type: 3}
+      skinMask: {fileID: 2800000, guid: 19e4f7c785eb0473bb39d1b12ad368c4, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: e875926af05a141b484a5bf881012791, type: 3}
+      skinMask: {fileID: 2800000, guid: 10d072da20e9f46548a6431251621596, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: 1fde38b5ac4ee4cda940c92ae25da800, type: 3}
+      skinMask: {fileID: 2800000, guid: 0fe699ea67fc942cf8602d2bb0e4957d, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: a62161cb14bbf48d592c3f48c23123e3, type: 3}
+      skinMask: {fileID: 2800000, guid: a637ec5a137e747a7b1db3ac6db88449, type: 3}
+    skinBase: {r: 0.5921569, g: 0.39215687, b: 0.26666668, a: 1}
+    skinShadow: {r: 0.45882353, g: 0.28627452, b: 0.18431373, a: 1}
+    helmetFits:
+    - headwear: leather_cap
+      view: S
+      offsetPx: {x: 1, y: -6}
+    - headwear: leather_cap
+      view: SE
+      offsetPx: {x: 3, y: -4}
+    - headwear: iron_helm
+      view: S
+      offsetPx: {x: 0, y: -5}
+    - headwear: iron_helm
+      view: SE
+      offsetPx: {x: 6, y: -4}
+    - headwear: iron_helm
+      view: E
+      offsetPx: {x: 1, y: 0}
+    - headwear: steel_helm
+      view: S
+      offsetPx: {x: 0, y: -1}
+    - headwear: steel_helm
+      view: SE
+      offsetPx: {x: 0, y: -2}
+    - headwear: moonsilver_circlet
+      view: S
+      offsetPx: {x: 0, y: -1}
+    - headwear: moonsilver_circlet
+      view: SE
+      offsetPx: {x: -1, y: -3}
+  - id: copper_moustache
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: d105f056c9f7a49d483eafe6820559b9, type: 3}
+      skinMask: {fileID: 2800000, guid: cb172996876b74dccafa8c707c796673, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: 1e2bdd631124b4760bce083613232dbd, type: 3}
+      skinMask: {fileID: 2800000, guid: c27b1b109dabc4cbb91f7b9814d13260, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: 3dfb1087c5c064f00850a2d8b538f885, type: 3}
+      skinMask: {fileID: 2800000, guid: 59dac40dd9b2c4694b7aabf4d5c2fd30, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: f5861339548544c8b94401ba81e9edbd, type: 3}
+      skinMask: {fileID: 2800000, guid: c18705061c30f44b782073efce955fea, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: 5976e7db2d9fd4054aa3d9675a917c7d, type: 3}
+      skinMask: {fileID: 2800000, guid: 55e4f54433ea04e1190bbc0612c0276c, type: 3}
+    skinBase: {r: 0.8862745, g: 0.68235296, b: 0.53333336, a: 1}
+    skinShadow: {r: 0.7411765, g: 0.5019608, b: 0.36862746, a: 1}
+    helmetFits: []
+  - id: chestnut_wave
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: 5d2cbe3215d3e4e439e11050f39cd484, type: 3}
+      skinMask: {fileID: 2800000, guid: 0ecbfccfaf5904b8b93139343cb12a20, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: 56f84180c38324a08b4b540aea7206ee, type: 3}
+      skinMask: {fileID: 2800000, guid: c02bb416a1bca44d0aec2d228b287b4d, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: 385d491cd1bce4f38b4903bb49bb45c5, type: 3}
+      skinMask: {fileID: 2800000, guid: 28af9b15441064ca593a10a7b04c4c95, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: 1c1c39b763adc42a7929849bc701aff2, type: 3}
+      skinMask: {fileID: 2800000, guid: a1cd1d1a7d83b4366b67ed2ae46fd1ef, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: 85895e6f67a8d46f18684daa54ccd6fc, type: 3}
+      skinMask: {fileID: 2800000, guid: 9118e1c9fba754e129797aaf0f96d5b6, type: 3}
+    skinBase: {r: 0.7019608, g: 0.4862745, b: 0.32156864, a: 1}
+    skinShadow: {r: 0.54901963, g: 0.34901962, b: 0.23137255, a: 1}
+    helmetFits: []
+  - id: cropped_coils
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: d51c9a9603f924a36ab666e0090bed5a, type: 3}
+      skinMask: {fileID: 2800000, guid: 52542e221a86f4944a87dc9cf0fe8d1c, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: 5776fe2cca62b4fde94239d65062c039, type: 3}
+      skinMask: {fileID: 2800000, guid: 3bf02d4cebf534466b7f6f34b5de1d3f, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: 8b58681d9e0f9420ebc66724cc3a0c39, type: 3}
+      skinMask: {fileID: 2800000, guid: 03582c99762ee416385e424b18d39b47, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: b7d06fb2bd24c46aba49dd37fc1ed4eb, type: 3}
+      skinMask: {fileID: 2800000, guid: c82546c04ce9a4e2095e33a3a60acaf2, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: 53788ba5b60e94482b7109df93e5cf4e, type: 3}
+      skinMask: {fileID: 2800000, guid: 3f0d041787dbf4a85be88dd6f4ac3300, type: 3}
+    skinBase: {r: 0.44705883, g: 0.2901961, b: 0.20392157, a: 1}
+    skinShadow: {r: 0.32941177, g: 0.20392157, b: 0.14509805, a: 1}
+    helmetFits:
+    - headwear: leather_cap
+      view: S
+      offsetPx: {x: 0, y: -1}
+    - headwear: leather_cap
+      view: SE
+      offsetPx: {x: 1, y: 0}
+  - id: sandy_bob
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: 06a0b99b1730246858c0c73f982f49f5, type: 3}
+      skinMask: {fileID: 2800000, guid: ad130c17ff2fa4d1aa53b7453c9b428c, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: f7e2d44f2c505494aa12200a9f33f2bf, type: 3}
+      skinMask: {fileID: 2800000, guid: 789ca1bf1ff1f4892ac516290c7397f5, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: bac6952d0322c493881439738de6d7f7, type: 3}
+      skinMask: {fileID: 2800000, guid: 3dd137d82c2d2478880f8fc5aca23847, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: d1cb56b5530e5417699f5838fade40fd, type: 3}
+      skinMask: {fileID: 2800000, guid: 34d70016afea149a4ad2db07943d6ec6, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: 9efb99deb175440e3b540860c19f137e, type: 3}
+      skinMask: {fileID: 2800000, guid: fdc9516d22cd041c78b5fde336a17c61, type: 3}
+    skinBase: {r: 0.8509804, g: 0.6745098, b: 0.53333336, a: 1}
+    skinShadow: {r: 0.69411767, g: 0.5137255, b: 0.3882353, a: 1}
+    helmetFits:
+    - headwear: leather_cap
+      view: SE
+      offsetPx: {x: 4, y: 0}
+    - headwear: iron_helm
+      view: SE
+      offsetPx: {x: 2, y: 0}
+    - headwear: iron_helm
+      view: E
+      offsetPx: {x: 1, y: 0}
+    - headwear: steel_helm
+      view: SE
+      offsetPx: {x: 1, y: 0}
+  - id: receding_silver
+    views:
+    - view: S
+      head: {fileID: 21300000, guid: 4b6a20d134d1145ac9d58ebabedfda86, type: 3}
+      skinMask: {fileID: 2800000, guid: ffafc7993ab204bc2a84aadf62351352, type: 3}
+    - view: SE
+      head: {fileID: 21300000, guid: 30033064819e0400aacd74f43da7a5be, type: 3}
+      skinMask: {fileID: 2800000, guid: 4d281f92f78e74db4894b27e66d8ea53, type: 3}
+    - view: E
+      head: {fileID: 21300000, guid: dfba79120ad8549eea9e5256e4fb524b, type: 3}
+      skinMask: {fileID: 2800000, guid: f4d7c3f27b52f4e15b11dc8bfb25a37d, type: 3}
+    - view: NE
+      head: {fileID: 21300000, guid: 274965aec53f645ac85d8bbc9024b745, type: 3}
+      skinMask: {fileID: 2800000, guid: 2800dc1dcfaaa48c98a97801034f3f2a, type: 3}
+    - view: N
+      head: {fileID: 21300000, guid: f86a0be9f11ee48139586d49c875276e, type: 3}
+      skinMask: {fileID: 2800000, guid: b797d91de11e741a6b29562c3d437963, type: 3}
+    skinBase: {r: 0.74509805, g: 0.5803922, b: 0.42745098, a: 1}
+    skinShadow: {r: 0.5882353, g: 0.4392157, b: 0.30980393, a: 1}
+    helmetFits:
+    - headwear: leather_cap
+      view: SE
+      offsetPx: {x: 3, y: 0}
+    - headwear: iron_helm
+      view: E
+      offsetPx: {x: 3, y: 0}
+    - headwear: steel_helm
+      view: E
+      offsetPx: {x: 1, y: 0}
+  civilianOutfits:
+  - citizen_blue
+  - tunic_moss
+  - tunic_rust
+  - tunic_blue
+  - waistcoat_ochre
+  - waistcoat_berry
+  - waistcoat_sage
+  - apron_clay
+  - apron_herb
+  - apron_indigo
+  - coat_teal
+  - coat_wine
+  - coat_navy
   wornHeadwear:
   - item: item.leather_cap
     headwear: leather_cap

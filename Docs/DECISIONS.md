@@ -1954,3 +1954,28 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - `CampTests`: the bay above the camp and open north, both arms, the gate north-west, a ridge no tool breaks.
   - `RoadTests`: the five projects.
   - `RoadPlayModeTests`: repair the gate and walk through, then build and cross the bridge.
+
+## 2026-10-19: more heads and everyday clothes (Astra's head library v2 and civilian outfits v1)
+
+- **Imported and merged.** `import_modular_characters.py` now upserts `library.json` and `points.json` by id instead of overwriting them, so the armour, headwear and blond entries stay. That adds 12 head identities (60 heads and their masks) and 12 everyday outfits (tunic, waistcoat, apron and coat, three colours each; 60 torsos and their masks).
+- **Head identities:** `HoseCharacterDefinition.headSets`, built by setup from `library.json`.
+  - Each head has its five views and masks and its own default skin, which the neck, hands and arms take; the rig uses `SkinOf(head)` unless a skin is set.
+  - Each head has its own helmet nudges (`headwear_fit_offsets`: pixels on the canvas, applied to the helmet under the head, mirrored with the rig).
+  - `HoseRig.HeadId` picks the head; empty means the blond.
+- **Everyday clothes:** `civilianOutfits` is every outfit that isn't armour: the citizen's blue plus the 12.
+  - `HoseRig.CivilianOutfit` is the character's civilian_outfit_id. Mapped armour overrides it while worn; taking the armour off restores it.
+  - Changing clothes or head keeps the pose, stride, direction, helmet and skin: tested against an unchanged twin.
+- **Per contractor, saved:**
+  - `ContractorRecord.HeadId` and `OutfitId` are saved as `head` and `outfit`.
+  - Empty means picked from the contractor's id with a stable FNV hash (`CitizenAppearance`): the same on every load and device, and varied across the crowd.
+  - `JobsService.SetAppearance` (a command) sets either.
+  - The crowd, the heroes leaving and returning, and the Equip Hero portrait all show that look.
+- **Choosing:** Equip Hero's caption under the portrait is now a "Clothes ›" button. It cycles the hero's everyday outfits, saves the choice, and the hero standing at the wagon changes at once.
+- Checked in `ModularCharacterPlayModeTests.HeadsAndEverydayClothes`:
+  - all 13 heads in eight directions while walking, with clothes changed mid-stride;
+  - the head's skin on the head, neck and hands;
+  - armour restoring the chosen clothes;
+  - the helmet kept through changes, with its nudge;
+  - carrying, and the look kept through a save and reload.
+  - The sheet `Captures/modular_people.png` (13 heads by 8 directions, mixed clothes, helmets every fourth row) was looked at: necks match faces, no seams.
+- Astra's Equip Hero test now counts the six slot buttons by name; the Clothes button sits beside them.

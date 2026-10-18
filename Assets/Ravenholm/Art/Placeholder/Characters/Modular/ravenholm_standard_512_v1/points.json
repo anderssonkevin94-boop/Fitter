@@ -2463,6 +2463,3606 @@
       "skin_tint": false,
       "attach_to": "head",
       "draw_after": "head"
+    },
+    "head_chestnut_curls_S": {
+      "file": "Heads/head_chestnut_curls_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        185,
+        80,
+        327,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_chestnut_curls_S_skin.png",
+      "default_skin": {
+        "base": "#97613F",
+        "shadow": "#76472E"
+      }
+    },
+    "head_chestnut_curls_SE": {
+      "file": "Heads/head_chestnut_curls_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        182,
+        80,
+        334,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_chestnut_curls_SE_skin.png",
+      "default_skin": {
+        "base": "#97613F",
+        "shadow": "#76472E"
+      }
+    },
+    "head_chestnut_curls_E": {
+      "file": "Heads/head_chestnut_curls_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        82,
+        327,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_chestnut_curls_E_skin.png",
+      "default_skin": {
+        "base": "#97613F",
+        "shadow": "#76472E"
+      }
+    },
+    "head_chestnut_curls_NE": {
+      "file": "Heads/head_chestnut_curls_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        182,
+        80,
+        322,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_chestnut_curls_NE_skin.png",
+      "default_skin": {
+        "base": "#97613F",
+        "shadow": "#76472E"
+      }
+    },
+    "head_chestnut_curls_N": {
+      "file": "Heads/head_chestnut_curls_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        184,
+        80,
+        329,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_chestnut_curls_N_skin.png",
+      "default_skin": {
+        "base": "#97613F",
+        "shadow": "#76472E"
+      }
+    },
+    "head_black_bob_S": {
+      "file": "Heads/head_black_bob_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        179,
+        82,
+        333,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_black_bob_S_skin.png",
+      "default_skin": {
+        "base": "#C79B69",
+        "shadow": "#A5764E"
+      }
+    },
+    "head_black_bob_SE": {
+      "file": "Heads/head_black_bob_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        80,
+        330,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_black_bob_SE_skin.png",
+      "default_skin": {
+        "base": "#C79B69",
+        "shadow": "#A5764E"
+      }
+    },
+    "head_black_bob_E": {
+      "file": "Heads/head_black_bob_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        85,
+        327,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_black_bob_E_skin.png",
+      "default_skin": {
+        "base": "#C79B69",
+        "shadow": "#A5764E"
+      }
+    },
+    "head_black_bob_NE": {
+      "file": "Heads/head_black_bob_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        181,
+        87,
+        322,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_black_bob_NE_skin.png",
+      "default_skin": {
+        "base": "#C79B69",
+        "shadow": "#A5764E"
+      }
+    },
+    "head_black_bob_N": {
+      "file": "Heads/head_black_bob_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        180,
+        80,
+        332,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_black_bob_N_skin.png",
+      "default_skin": {
+        "base": "#C79B69",
+        "shadow": "#A5764E"
+      }
+    },
+    "head_auburn_crop_S": {
+      "file": "Heads/head_auburn_crop_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        182,
+        80,
+        331,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_auburn_crop_S_skin.png",
+      "default_skin": {
+        "base": "#E2B08A",
+        "shadow": "#C18B67"
+      }
+    },
+    "head_auburn_crop_SE": {
+      "file": "Heads/head_auburn_crop_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        85,
+        330,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_auburn_crop_SE_skin.png",
+      "default_skin": {
+        "base": "#E2B08A",
+        "shadow": "#C18B67"
+      }
+    },
+    "head_auburn_crop_E": {
+      "file": "Heads/head_auburn_crop_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        87,
+        327,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_auburn_crop_E_skin.png",
+      "default_skin": {
+        "base": "#E2B08A",
+        "shadow": "#C18B67"
+      }
+    },
+    "head_auburn_crop_NE": {
+      "file": "Heads/head_auburn_crop_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        181,
+        84,
+        322,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_auburn_crop_NE_skin.png",
+      "default_skin": {
+        "base": "#E2B08A",
+        "shadow": "#C18B67"
+      }
+    },
+    "head_auburn_crop_N": {
+      "file": "Heads/head_auburn_crop_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        181,
+        80,
+        332,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_auburn_crop_N_skin.png",
+      "default_skin": {
+        "base": "#E2B08A",
+        "shadow": "#C18B67"
+      }
+    },
+    "head_silver_beard_S": {
+      "file": "Heads/head_silver_beard_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        182,
+        80,
+        330,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_silver_beard_S_skin.png",
+      "default_skin": {
+        "base": "#CB9470",
+        "shadow": "#A66F50"
+      }
+    },
+    "head_silver_beard_SE": {
+      "file": "Heads/head_silver_beard_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        190,
+        80,
+        327,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_silver_beard_SE_skin.png",
+      "default_skin": {
+        "base": "#CB9470",
+        "shadow": "#A66F50"
+      }
+    },
+    "head_silver_beard_E": {
+      "file": "Heads/head_silver_beard_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        190,
+        88,
+        322,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_silver_beard_E_skin.png",
+      "default_skin": {
+        "base": "#CB9470",
+        "shadow": "#A66F50"
+      }
+    },
+    "head_silver_beard_NE": {
+      "file": "Heads/head_silver_beard_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        181,
+        86,
+        322,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_silver_beard_NE_skin.png",
+      "default_skin": {
+        "base": "#CB9470",
+        "shadow": "#A66F50"
+      }
+    },
+    "head_silver_beard_N": {
+      "file": "Heads/head_silver_beard_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        179,
+        80,
+        334,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_silver_beard_N_skin.png",
+      "default_skin": {
+        "base": "#CB9470",
+        "shadow": "#A66F50"
+      }
+    },
+    "head_black_crop_S": {
+      "file": "Heads/head_black_crop_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        179,
+        80,
+        333,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_black_crop_S_skin.png",
+      "default_skin": {
+        "base": "#B88354",
+        "shadow": "#935E3E"
+      }
+    },
+    "head_black_crop_SE": {
+      "file": "Heads/head_black_crop_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        84,
+        330,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_black_crop_SE_skin.png",
+      "default_skin": {
+        "base": "#B88354",
+        "shadow": "#935E3E"
+      }
+    },
+    "head_black_crop_E": {
+      "file": "Heads/head_black_crop_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        91,
+        327,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_black_crop_E_skin.png",
+      "default_skin": {
+        "base": "#B88354",
+        "shadow": "#935E3E"
+      }
+    },
+    "head_black_crop_NE": {
+      "file": "Heads/head_black_crop_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        181,
+        84,
+        322,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_black_crop_NE_skin.png",
+      "default_skin": {
+        "base": "#B88354",
+        "shadow": "#935E3E"
+      }
+    },
+    "head_black_crop_N": {
+      "file": "Heads/head_black_crop_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        180,
+        80,
+        333,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_black_crop_N_skin.png",
+      "default_skin": {
+        "base": "#B88354",
+        "shadow": "#935E3E"
+      }
+    },
+    "head_silver_crop_S": {
+      "file": "Heads/head_silver_crop_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        179,
+        85,
+        333,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_silver_crop_S_skin.png",
+      "default_skin": {
+        "base": "#805137",
+        "shadow": "#603B2A"
+      }
+    },
+    "head_silver_crop_SE": {
+      "file": "Heads/head_silver_crop_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        85,
+        330,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_silver_crop_SE_skin.png",
+      "default_skin": {
+        "base": "#805137",
+        "shadow": "#603B2A"
+      }
+    },
+    "head_silver_crop_E": {
+      "file": "Heads/head_silver_crop_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        86,
+        327,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_silver_crop_E_skin.png",
+      "default_skin": {
+        "base": "#805137",
+        "shadow": "#603B2A"
+      }
+    },
+    "head_silver_crop_NE": {
+      "file": "Heads/head_silver_crop_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        182,
+        80,
+        322,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_silver_crop_NE_skin.png",
+      "default_skin": {
+        "base": "#805137",
+        "shadow": "#603B2A"
+      }
+    },
+    "head_silver_crop_N": {
+      "file": "Heads/head_silver_crop_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        177,
+        80,
+        336,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_silver_crop_N_skin.png",
+      "default_skin": {
+        "base": "#805137",
+        "shadow": "#603B2A"
+      }
+    },
+    "head_bald_goatee_S": {
+      "file": "Heads/head_bald_goatee_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        181,
+        80,
+        332,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_bald_goatee_S_skin.png",
+      "default_skin": {
+        "base": "#976444",
+        "shadow": "#75492F"
+      }
+    },
+    "head_bald_goatee_SE": {
+      "file": "Heads/head_bald_goatee_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        187,
+        80,
+        329,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_bald_goatee_SE_skin.png",
+      "default_skin": {
+        "base": "#976444",
+        "shadow": "#75492F"
+      }
+    },
+    "head_bald_goatee_E": {
+      "file": "Heads/head_bald_goatee_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        188,
+        80,
+        326,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_bald_goatee_E_skin.png",
+      "default_skin": {
+        "base": "#976444",
+        "shadow": "#75492F"
+      }
+    },
+    "head_bald_goatee_NE": {
+      "file": "Heads/head_bald_goatee_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        184,
+        80,
+        319,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_bald_goatee_NE_skin.png",
+      "default_skin": {
+        "base": "#976444",
+        "shadow": "#75492F"
+      }
+    },
+    "head_bald_goatee_N": {
+      "file": "Heads/head_bald_goatee_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        178,
+        80,
+        335,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_bald_goatee_N_skin.png",
+      "default_skin": {
+        "base": "#976444",
+        "shadow": "#75492F"
+      }
+    },
+    "head_copper_moustache_S": {
+      "file": "Heads/head_copper_moustache_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        178,
+        80,
+        335,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_copper_moustache_S_skin.png",
+      "default_skin": {
+        "base": "#E2AE88",
+        "shadow": "#BD805E"
+      }
+    },
+    "head_copper_moustache_SE": {
+      "file": "Heads/head_copper_moustache_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        187,
+        80,
+        330,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_copper_moustache_SE_skin.png",
+      "default_skin": {
+        "base": "#E2AE88",
+        "shadow": "#BD805E"
+      }
+    },
+    "head_copper_moustache_E": {
+      "file": "Heads/head_copper_moustache_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        187,
+        80,
+        326,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_copper_moustache_E_skin.png",
+      "default_skin": {
+        "base": "#E2AE88",
+        "shadow": "#BD805E"
+      }
+    },
+    "head_copper_moustache_NE": {
+      "file": "Heads/head_copper_moustache_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        183,
+        80,
+        321,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_copper_moustache_NE_skin.png",
+      "default_skin": {
+        "base": "#E2AE88",
+        "shadow": "#BD805E"
+      }
+    },
+    "head_copper_moustache_N": {
+      "file": "Heads/head_copper_moustache_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        177,
+        80,
+        335,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_copper_moustache_N_skin.png",
+      "default_skin": {
+        "base": "#E2AE88",
+        "shadow": "#BD805E"
+      }
+    },
+    "head_chestnut_wave_S": {
+      "file": "Heads/head_chestnut_wave_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        187,
+        80,
+        325,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_chestnut_wave_S_skin.png",
+      "default_skin": {
+        "base": "#B37C52",
+        "shadow": "#8C593B"
+      }
+    },
+    "head_chestnut_wave_SE": {
+      "file": "Heads/head_chestnut_wave_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        80,
+        330,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_chestnut_wave_SE_skin.png",
+      "default_skin": {
+        "base": "#B37C52",
+        "shadow": "#8C593B"
+      }
+    },
+    "head_chestnut_wave_E": {
+      "file": "Heads/head_chestnut_wave_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        187,
+        80,
+        327,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_chestnut_wave_E_skin.png",
+      "default_skin": {
+        "base": "#B37C52",
+        "shadow": "#8C593B"
+      }
+    },
+    "head_chestnut_wave_NE": {
+      "file": "Heads/head_chestnut_wave_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        184,
+        80,
+        320,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_chestnut_wave_NE_skin.png",
+      "default_skin": {
+        "base": "#B37C52",
+        "shadow": "#8C593B"
+      }
+    },
+    "head_chestnut_wave_N": {
+      "file": "Heads/head_chestnut_wave_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        184,
+        80,
+        329,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_chestnut_wave_N_skin.png",
+      "default_skin": {
+        "base": "#B37C52",
+        "shadow": "#8C593B"
+      }
+    },
+    "head_cropped_coils_S": {
+      "file": "Heads/head_cropped_coils_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        176,
+        80,
+        337,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_cropped_coils_S_skin.png",
+      "default_skin": {
+        "base": "#724A34",
+        "shadow": "#543425"
+      }
+    },
+    "head_cropped_coils_SE": {
+      "file": "Heads/head_cropped_coils_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        80,
+        330,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_cropped_coils_SE_skin.png",
+      "default_skin": {
+        "base": "#724A34",
+        "shadow": "#543425"
+      }
+    },
+    "head_cropped_coils_E": {
+      "file": "Heads/head_cropped_coils_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        185,
+        80,
+        329,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_cropped_coils_E_skin.png",
+      "default_skin": {
+        "base": "#724A34",
+        "shadow": "#543425"
+      }
+    },
+    "head_cropped_coils_NE": {
+      "file": "Heads/head_cropped_coils_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        182,
+        80,
+        321,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_cropped_coils_NE_skin.png",
+      "default_skin": {
+        "base": "#724A34",
+        "shadow": "#543425"
+      }
+    },
+    "head_cropped_coils_N": {
+      "file": "Heads/head_cropped_coils_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        183,
+        80,
+        330,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_cropped_coils_N_skin.png",
+      "default_skin": {
+        "base": "#724A34",
+        "shadow": "#543425"
+      }
+    },
+    "head_sandy_bob_S": {
+      "file": "Heads/head_sandy_bob_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        178,
+        80,
+        334,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_sandy_bob_S_skin.png",
+      "default_skin": {
+        "base": "#D9AC88",
+        "shadow": "#B18363"
+      }
+    },
+    "head_sandy_bob_SE": {
+      "file": "Heads/head_sandy_bob_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        183,
+        80,
+        334,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_sandy_bob_SE_skin.png",
+      "default_skin": {
+        "base": "#D9AC88",
+        "shadow": "#B18363"
+      }
+    },
+    "head_sandy_bob_E": {
+      "file": "Heads/head_sandy_bob_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        80,
+        328,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_sandy_bob_E_skin.png",
+      "default_skin": {
+        "base": "#D9AC88",
+        "shadow": "#B18363"
+      }
+    },
+    "head_sandy_bob_NE": {
+      "file": "Heads/head_sandy_bob_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        179,
+        80,
+        325,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_sandy_bob_NE_skin.png",
+      "default_skin": {
+        "base": "#D9AC88",
+        "shadow": "#B18363"
+      }
+    },
+    "head_sandy_bob_N": {
+      "file": "Heads/head_sandy_bob_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        172,
+        80,
+        341,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_sandy_bob_N_skin.png",
+      "default_skin": {
+        "base": "#D9AC88",
+        "shadow": "#B18363"
+      }
+    },
+    "head_receding_silver_S": {
+      "file": "Heads/head_receding_silver_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        178,
+        80,
+        334,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_receding_silver_S_skin.png",
+      "default_skin": {
+        "base": "#BE946D",
+        "shadow": "#96704F"
+      }
+    },
+    "head_receding_silver_SE": {
+      "file": "Heads/head_receding_silver_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        188,
+        80,
+        328,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_receding_silver_SE_skin.png",
+      "default_skin": {
+        "base": "#BE946D",
+        "shadow": "#96704F"
+      }
+    },
+    "head_receding_silver_E": {
+      "file": "Heads/head_receding_silver_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        183,
+        80,
+        331,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_receding_silver_E_skin.png",
+      "default_skin": {
+        "base": "#BE946D",
+        "shadow": "#96704F"
+      }
+    },
+    "head_receding_silver_NE": {
+      "file": "Heads/head_receding_silver_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        180,
+        80,
+        324,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_receding_silver_NE_skin.png",
+      "default_skin": {
+        "base": "#BE946D",
+        "shadow": "#96704F"
+      }
+    },
+    "head_receding_silver_N": {
+      "file": "Heads/head_receding_silver_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        179,
+        80,
+        334,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_receding_silver_N_skin.png",
+      "default_skin": {
+        "base": "#BE946D",
+        "shadow": "#96704F"
+      }
+    },
+    "torso_tunic_moss_S": {
+      "file": "Torsos/torso_tunic_moss_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        142,
+        200,
+        371,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_moss_S_skin.png"
+    },
+    "torso_tunic_moss_SE": {
+      "file": "Torsos/torso_tunic_moss_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        163,
+        203,
+        354,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_moss_SE_skin.png"
+    },
+    "torso_tunic_moss_E": {
+      "file": "Torsos/torso_tunic_moss_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        182,
+        199,
+        314,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_moss_E_skin.png"
+    },
+    "torso_tunic_moss_NE": {
+      "file": "Torsos/torso_tunic_moss_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        158,
+        193,
+        369,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_moss_NE_skin.png"
+    },
+    "torso_tunic_moss_N": {
+      "file": "Torsos/torso_tunic_moss_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        141,
+        199,
+        371,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_moss_N_skin.png"
+    },
+    "torso_tunic_rust_S": {
+      "file": "Torsos/torso_tunic_rust_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        142,
+        200,
+        371,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_rust_S_skin.png"
+    },
+    "torso_tunic_rust_SE": {
+      "file": "Torsos/torso_tunic_rust_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        163,
+        203,
+        354,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_rust_SE_skin.png"
+    },
+    "torso_tunic_rust_E": {
+      "file": "Torsos/torso_tunic_rust_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        182,
+        199,
+        314,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_rust_E_skin.png"
+    },
+    "torso_tunic_rust_NE": {
+      "file": "Torsos/torso_tunic_rust_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        158,
+        193,
+        369,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_rust_NE_skin.png"
+    },
+    "torso_tunic_rust_N": {
+      "file": "Torsos/torso_tunic_rust_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        141,
+        199,
+        371,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_rust_N_skin.png"
+    },
+    "torso_tunic_blue_S": {
+      "file": "Torsos/torso_tunic_blue_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        142,
+        200,
+        371,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_blue_S_skin.png"
+    },
+    "torso_tunic_blue_SE": {
+      "file": "Torsos/torso_tunic_blue_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        163,
+        203,
+        354,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_blue_SE_skin.png"
+    },
+    "torso_tunic_blue_E": {
+      "file": "Torsos/torso_tunic_blue_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        182,
+        199,
+        314,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_blue_E_skin.png"
+    },
+    "torso_tunic_blue_NE": {
+      "file": "Torsos/torso_tunic_blue_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        158,
+        193,
+        369,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_blue_NE_skin.png"
+    },
+    "torso_tunic_blue_N": {
+      "file": "Torsos/torso_tunic_blue_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        141,
+        199,
+        371,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_tunic_blue_N_skin.png"
+    },
+    "torso_waistcoat_ochre_S": {
+      "file": "Torsos/torso_waistcoat_ochre_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        144,
+        200,
+        370,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_ochre_S_skin.png"
+    },
+    "torso_waistcoat_ochre_SE": {
+      "file": "Torsos/torso_waistcoat_ochre_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        158,
+        203,
+        351,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_ochre_SE_skin.png"
+    },
+    "torso_waistcoat_ochre_E": {
+      "file": "Torsos/torso_waistcoat_ochre_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        181,
+        199,
+        314,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_ochre_E_skin.png"
+    },
+    "torso_waistcoat_ochre_NE": {
+      "file": "Torsos/torso_waistcoat_ochre_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        159,
+        193,
+        360,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_ochre_NE_skin.png"
+    },
+    "torso_waistcoat_ochre_N": {
+      "file": "Torsos/torso_waistcoat_ochre_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        143,
+        199,
+        369,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_ochre_N_skin.png"
+    },
+    "torso_waistcoat_berry_S": {
+      "file": "Torsos/torso_waistcoat_berry_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        144,
+        200,
+        370,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_berry_S_skin.png"
+    },
+    "torso_waistcoat_berry_SE": {
+      "file": "Torsos/torso_waistcoat_berry_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        158,
+        203,
+        351,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_berry_SE_skin.png"
+    },
+    "torso_waistcoat_berry_E": {
+      "file": "Torsos/torso_waistcoat_berry_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        181,
+        199,
+        314,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_berry_E_skin.png"
+    },
+    "torso_waistcoat_berry_NE": {
+      "file": "Torsos/torso_waistcoat_berry_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        159,
+        193,
+        360,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_berry_NE_skin.png"
+    },
+    "torso_waistcoat_berry_N": {
+      "file": "Torsos/torso_waistcoat_berry_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        143,
+        199,
+        369,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_berry_N_skin.png"
+    },
+    "torso_waistcoat_sage_S": {
+      "file": "Torsos/torso_waistcoat_sage_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        144,
+        200,
+        370,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_sage_S_skin.png"
+    },
+    "torso_waistcoat_sage_SE": {
+      "file": "Torsos/torso_waistcoat_sage_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        158,
+        203,
+        351,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_sage_SE_skin.png"
+    },
+    "torso_waistcoat_sage_E": {
+      "file": "Torsos/torso_waistcoat_sage_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        181,
+        199,
+        314,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_sage_E_skin.png"
+    },
+    "torso_waistcoat_sage_NE": {
+      "file": "Torsos/torso_waistcoat_sage_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        159,
+        193,
+        360,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_sage_NE_skin.png"
+    },
+    "torso_waistcoat_sage_N": {
+      "file": "Torsos/torso_waistcoat_sage_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        143,
+        199,
+        369,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_waistcoat_sage_N_skin.png"
+    },
+    "torso_apron_clay_S": {
+      "file": "Torsos/torso_apron_clay_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        150,
+        200,
+        364,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_clay_S_skin.png"
+    },
+    "torso_apron_clay_SE": {
+      "file": "Torsos/torso_apron_clay_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        165,
+        203,
+        350,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_clay_SE_skin.png"
+    },
+    "torso_apron_clay_E": {
+      "file": "Torsos/torso_apron_clay_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        189,
+        199,
+        313,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_clay_E_skin.png"
+    },
+    "torso_apron_clay_NE": {
+      "file": "Torsos/torso_apron_clay_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        156,
+        193,
+        375,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_clay_NE_skin.png"
+    },
+    "torso_apron_clay_N": {
+      "file": "Torsos/torso_apron_clay_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        147,
+        199,
+        365,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_clay_N_skin.png"
+    },
+    "torso_apron_herb_S": {
+      "file": "Torsos/torso_apron_herb_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        150,
+        200,
+        364,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_herb_S_skin.png"
+    },
+    "torso_apron_herb_SE": {
+      "file": "Torsos/torso_apron_herb_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        165,
+        203,
+        350,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_herb_SE_skin.png"
+    },
+    "torso_apron_herb_E": {
+      "file": "Torsos/torso_apron_herb_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        189,
+        199,
+        313,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_herb_E_skin.png"
+    },
+    "torso_apron_herb_NE": {
+      "file": "Torsos/torso_apron_herb_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        156,
+        193,
+        375,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_herb_NE_skin.png"
+    },
+    "torso_apron_herb_N": {
+      "file": "Torsos/torso_apron_herb_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        147,
+        199,
+        365,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_herb_N_skin.png"
+    },
+    "torso_apron_indigo_S": {
+      "file": "Torsos/torso_apron_indigo_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        150,
+        200,
+        364,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_indigo_S_skin.png"
+    },
+    "torso_apron_indigo_SE": {
+      "file": "Torsos/torso_apron_indigo_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        165,
+        203,
+        350,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_indigo_SE_skin.png"
+    },
+    "torso_apron_indigo_E": {
+      "file": "Torsos/torso_apron_indigo_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        189,
+        199,
+        313,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_indigo_E_skin.png"
+    },
+    "torso_apron_indigo_NE": {
+      "file": "Torsos/torso_apron_indigo_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        156,
+        193,
+        375,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_indigo_NE_skin.png"
+    },
+    "torso_apron_indigo_N": {
+      "file": "Torsos/torso_apron_indigo_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        147,
+        199,
+        365,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_apron_indigo_N_skin.png"
+    },
+    "torso_coat_teal_S": {
+      "file": "Torsos/torso_coat_teal_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        144,
+        200,
+        370,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_teal_S_skin.png"
+    },
+    "torso_coat_teal_SE": {
+      "file": "Torsos/torso_coat_teal_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        160,
+        203,
+        352,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_teal_SE_skin.png"
+    },
+    "torso_coat_teal_E": {
+      "file": "Torsos/torso_coat_teal_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        190,
+        199,
+        309,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_teal_E_skin.png"
+    },
+    "torso_coat_teal_NE": {
+      "file": "Torsos/torso_coat_teal_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        152,
+        193,
+        360,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_teal_NE_skin.png"
+    },
+    "torso_coat_teal_N": {
+      "file": "Torsos/torso_coat_teal_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        143,
+        199,
+        370,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_teal_N_skin.png"
+    },
+    "torso_coat_wine_S": {
+      "file": "Torsos/torso_coat_wine_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        144,
+        200,
+        370,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_wine_S_skin.png"
+    },
+    "torso_coat_wine_SE": {
+      "file": "Torsos/torso_coat_wine_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        160,
+        203,
+        352,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_wine_SE_skin.png"
+    },
+    "torso_coat_wine_E": {
+      "file": "Torsos/torso_coat_wine_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        190,
+        199,
+        309,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_wine_E_skin.png"
+    },
+    "torso_coat_wine_NE": {
+      "file": "Torsos/torso_coat_wine_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        152,
+        193,
+        360,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_wine_NE_skin.png"
+    },
+    "torso_coat_wine_N": {
+      "file": "Torsos/torso_coat_wine_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        143,
+        199,
+        370,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_wine_N_skin.png"
+    },
+    "torso_coat_navy_S": {
+      "file": "Torsos/torso_coat_navy_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        144,
+        200,
+        370,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_navy_S_skin.png"
+    },
+    "torso_coat_navy_SE": {
+      "file": "Torsos/torso_coat_navy_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        160,
+        203,
+        352,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_navy_SE_skin.png"
+    },
+    "torso_coat_navy_E": {
+      "file": "Torsos/torso_coat_navy_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        190,
+        199,
+        309,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_navy_E_skin.png"
+    },
+    "torso_coat_navy_NE": {
+      "file": "Torsos/torso_coat_navy_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        152,
+        193,
+        360,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_navy_NE_skin.png"
+    },
+    "torso_coat_navy_N": {
+      "file": "Torsos/torso_coat_navy_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        143,
+        199,
+        370,
+        352
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "contains_neck": true,
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "skin_mask": "Masks/torso_coat_navy_N_skin.png"
     }
   },
   "skin_mask": {
@@ -2478,5 +6078,120 @@
     "draw_order": "Render helmet after head, before final assembled outline. Torso remains under head.",
     "hair": "These overlays are fitted over the included blond hair. No automatic hair removal is needed for this set. Fit future head hairstyles to the same skull envelope and check hair protrusion.",
     "skin_tint": false
-  }
+  },
+  "dependency": "ravenholm-modular-armour-v2",
+  "assembly": "Add-on heads. Existing torso owns neck; head mounts and shared canvas origins are unchanged. Head follows existing animation head parent; helmet overlays follow the same parent.",
+  "headwear_fit_offsets": {
+    "chestnut_curls": {
+      "iron_helm": {
+        "SE": [
+          -2,
+          0
+        ]
+      }
+    },
+    "bald_goatee": {
+      "leather_cap": {
+        "S": [
+          1,
+          -6
+        ],
+        "SE": [
+          3,
+          -4
+        ]
+      },
+      "iron_helm": {
+        "S": [
+          0,
+          -5
+        ],
+        "SE": [
+          6,
+          -4
+        ],
+        "E": [
+          1,
+          0
+        ]
+      },
+      "steel_helm": {
+        "S": [
+          0,
+          -1
+        ],
+        "SE": [
+          0,
+          -2
+        ]
+      },
+      "moonsilver_circlet": {
+        "S": [
+          0,
+          -1
+        ],
+        "SE": [
+          -1,
+          -3
+        ]
+      }
+    },
+    "cropped_coils": {
+      "leather_cap": {
+        "S": [
+          0,
+          -1
+        ],
+        "SE": [
+          1,
+          0
+        ]
+      }
+    },
+    "sandy_bob": {
+      "leather_cap": {
+        "SE": [
+          4,
+          0
+        ]
+      },
+      "iron_helm": {
+        "SE": [
+          2,
+          0
+        ],
+        "E": [
+          1,
+          0
+        ]
+      },
+      "steel_helm": {
+        "SE": [
+          1,
+          0
+        ]
+      }
+    },
+    "receding_silver": {
+      "leather_cap": {
+        "SE": [
+          3,
+          0
+        ]
+      },
+      "iron_helm": {
+        "E": [
+          3,
+          0
+        ]
+      },
+      "steel_helm": {
+        "E": [
+          1,
+          0
+        ]
+      }
+    }
+  },
+  "pack_id": "ravenholm_civilian_outfits_v1"
 }

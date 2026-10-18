@@ -18,6 +18,8 @@ MonoBehaviour:
   wornArmour: []
   handMasks: []
   headwearSets: []
+  headSets: []
+  civilianOutfits: []
   wornHeadwear: []
   skinMaterial: {fileID: 0}
   skinBase: {r: 0.85490197, g: 0.5294118, b: 0.35686275, a: 1}

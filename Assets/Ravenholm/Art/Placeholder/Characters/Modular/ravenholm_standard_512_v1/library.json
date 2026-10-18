@@ -10,6 +10,471 @@
         "NE": "head_blond_NE",
         "N": "head_blond_N"
       }
+    },
+    "chestnut_curls": {
+      "label": "Chestnut curls",
+      "views": {
+        "S": "head_chestnut_curls_S",
+        "SE": "head_chestnut_curls_SE",
+        "E": "head_chestnut_curls_E",
+        "NE": "head_chestnut_curls_NE",
+        "N": "head_chestnut_curls_N"
+      },
+      "default_skin": {
+        "base": "#97613F",
+        "shadow": "#76472E"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {
+        "iron_helm": {
+          "SE": [
+            -2,
+            0
+          ]
+        }
+      }
+    },
+    "black_bob": {
+      "label": "Black bob",
+      "views": {
+        "S": "head_black_bob_S",
+        "SE": "head_black_bob_SE",
+        "E": "head_black_bob_E",
+        "NE": "head_black_bob_NE",
+        "N": "head_black_bob_N"
+      },
+      "default_skin": {
+        "base": "#C79B69",
+        "shadow": "#A5764E"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {}
+    },
+    "auburn_crop": {
+      "label": "Auburn crop",
+      "views": {
+        "S": "head_auburn_crop_S",
+        "SE": "head_auburn_crop_SE",
+        "E": "head_auburn_crop_E",
+        "NE": "head_auburn_crop_NE",
+        "N": "head_auburn_crop_N"
+      },
+      "default_skin": {
+        "base": "#E2B08A",
+        "shadow": "#C18B67"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {}
+    },
+    "silver_beard": {
+      "label": "Silver beard",
+      "views": {
+        "S": "head_silver_beard_S",
+        "SE": "head_silver_beard_SE",
+        "E": "head_silver_beard_E",
+        "NE": "head_silver_beard_NE",
+        "N": "head_silver_beard_N"
+      },
+      "default_skin": {
+        "base": "#CB9470",
+        "shadow": "#A66F50"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {}
+    },
+    "black_crop": {
+      "label": "Black crop",
+      "views": {
+        "S": "head_black_crop_S",
+        "SE": "head_black_crop_SE",
+        "E": "head_black_crop_E",
+        "NE": "head_black_crop_NE",
+        "N": "head_black_crop_N"
+      },
+      "default_skin": {
+        "base": "#B88354",
+        "shadow": "#935E3E"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {}
+    },
+    "silver_crop": {
+      "label": "Silver crop",
+      "views": {
+        "S": "head_silver_crop_S",
+        "SE": "head_silver_crop_SE",
+        "E": "head_silver_crop_E",
+        "NE": "head_silver_crop_NE",
+        "N": "head_silver_crop_N"
+      },
+      "default_skin": {
+        "base": "#805137",
+        "shadow": "#603B2A"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {}
+    },
+    "bald_goatee": {
+      "label": "Bald + goatee",
+      "views": {
+        "S": "head_bald_goatee_S",
+        "SE": "head_bald_goatee_SE",
+        "E": "head_bald_goatee_E",
+        "NE": "head_bald_goatee_NE",
+        "N": "head_bald_goatee_N"
+      },
+      "default_skin": {
+        "base": "#976444",
+        "shadow": "#75492F"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {
+        "leather_cap": {
+          "S": [
+            1,
+            -6
+          ],
+          "SE": [
+            3,
+            -4
+          ]
+        },
+        "iron_helm": {
+          "S": [
+            0,
+            -5
+          ],
+          "SE": [
+            6,
+            -4
+          ],
+          "E": [
+            1,
+            0
+          ]
+        },
+        "steel_helm": {
+          "S": [
+            0,
+            -1
+          ],
+          "SE": [
+            0,
+            -2
+          ]
+        },
+        "moonsilver_circlet": {
+          "S": [
+            0,
+            -1
+          ],
+          "SE": [
+            -1,
+            -3
+          ]
+        }
+      }
+    },
+    "copper_moustache": {
+      "label": "Copper moustache",
+      "views": {
+        "S": "head_copper_moustache_S",
+        "SE": "head_copper_moustache_SE",
+        "E": "head_copper_moustache_E",
+        "NE": "head_copper_moustache_NE",
+        "N": "head_copper_moustache_N"
+      },
+      "default_skin": {
+        "base": "#E2AE88",
+        "shadow": "#BD805E"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {}
+    },
+    "chestnut_wave": {
+      "label": "Chestnut wave",
+      "views": {
+        "S": "head_chestnut_wave_S",
+        "SE": "head_chestnut_wave_SE",
+        "E": "head_chestnut_wave_E",
+        "NE": "head_chestnut_wave_NE",
+        "N": "head_chestnut_wave_N"
+      },
+      "default_skin": {
+        "base": "#B37C52",
+        "shadow": "#8C593B"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {}
+    },
+    "cropped_coils": {
+      "label": "Cropped coils",
+      "views": {
+        "S": "head_cropped_coils_S",
+        "SE": "head_cropped_coils_SE",
+        "E": "head_cropped_coils_E",
+        "NE": "head_cropped_coils_NE",
+        "N": "head_cropped_coils_N"
+      },
+      "default_skin": {
+        "base": "#724A34",
+        "shadow": "#543425"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {
+        "leather_cap": {
+          "S": [
+            0,
+            -1
+          ],
+          "SE": [
+            1,
+            0
+          ]
+        }
+      }
+    },
+    "sandy_bob": {
+      "label": "Sandy bob",
+      "views": {
+        "S": "head_sandy_bob_S",
+        "SE": "head_sandy_bob_SE",
+        "E": "head_sandy_bob_E",
+        "NE": "head_sandy_bob_NE",
+        "N": "head_sandy_bob_N"
+      },
+      "default_skin": {
+        "base": "#D9AC88",
+        "shadow": "#B18363"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {
+        "leather_cap": {
+          "SE": [
+            4,
+            0
+          ]
+        },
+        "iron_helm": {
+          "SE": [
+            2,
+            0
+          ],
+          "E": [
+            1,
+            0
+          ]
+        },
+        "steel_helm": {
+          "SE": [
+            1,
+            0
+          ]
+        }
+      }
+    },
+    "receding_silver": {
+      "label": "Receding silver",
+      "views": {
+        "S": "head_receding_silver_S",
+        "SE": "head_receding_silver_SE",
+        "E": "head_receding_silver_E",
+        "NE": "head_receding_silver_NE",
+        "N": "head_receding_silver_N"
+      },
+      "default_skin": {
+        "base": "#BE946D",
+        "shadow": "#96704F"
+      },
+      "compatible_outfits": [
+        "citizen_blue",
+        "steel_armour",
+        "leather_jerkin",
+        "padded_gambeson",
+        "riveted_coat",
+        "fur_brigandine",
+        "moonsilver_mail"
+      ],
+      "compatible_headwear": [
+        "leather_cap",
+        "iron_helm",
+        "steel_helm",
+        "moonsilver_circlet"
+      ],
+      "headwear_fit_offsets": {
+        "leather_cap": {
+          "SE": [
+            3,
+            0
+          ]
+        },
+        "iron_helm": {
+          "E": [
+            3,
+            0
+          ]
+        },
+        "steel_helm": {
+          "E": [
+            1,
+            0
+          ]
+        }
+      }
     }
   },
   "outfit_sets": {
@@ -79,6 +544,198 @@
         "E": "torso_moonsilver_mail_E",
         "NE": "torso_moonsilver_mail_NE",
         "N": "torso_moonsilver_mail_N"
+      }
+    },
+    "tunic_moss": {
+      "label": "Belted tunic \u2014 moss",
+      "style": "tunic",
+      "colourway": "moss",
+      "cloth_palette": [
+        "#6C8C53",
+        "#4E693E"
+      ],
+      "views": {
+        "S": "torso_tunic_moss_S",
+        "SE": "torso_tunic_moss_SE",
+        "E": "torso_tunic_moss_E",
+        "NE": "torso_tunic_moss_NE",
+        "N": "torso_tunic_moss_N"
+      }
+    },
+    "tunic_rust": {
+      "label": "Belted tunic \u2014 rust",
+      "style": "tunic",
+      "colourway": "rust",
+      "cloth_palette": [
+        "#AE6547",
+        "#834933"
+      ],
+      "views": {
+        "S": "torso_tunic_rust_S",
+        "SE": "torso_tunic_rust_SE",
+        "E": "torso_tunic_rust_E",
+        "NE": "torso_tunic_rust_NE",
+        "N": "torso_tunic_rust_N"
+      }
+    },
+    "tunic_blue": {
+      "label": "Belted tunic \u2014 blue",
+      "style": "tunic",
+      "colourway": "blue",
+      "cloth_palette": [
+        "#698BA3",
+        "#4A687E"
+      ],
+      "views": {
+        "S": "torso_tunic_blue_S",
+        "SE": "torso_tunic_blue_SE",
+        "E": "torso_tunic_blue_E",
+        "NE": "torso_tunic_blue_NE",
+        "N": "torso_tunic_blue_N"
+      }
+    },
+    "waistcoat_ochre": {
+      "label": "Waistcoat \u2014 ochre",
+      "style": "waistcoat",
+      "colourway": "ochre",
+      "cloth_palette": [
+        "#B68E45",
+        "#8C6A32"
+      ],
+      "views": {
+        "S": "torso_waistcoat_ochre_S",
+        "SE": "torso_waistcoat_ochre_SE",
+        "E": "torso_waistcoat_ochre_E",
+        "NE": "torso_waistcoat_ochre_NE",
+        "N": "torso_waistcoat_ochre_N"
+      }
+    },
+    "waistcoat_berry": {
+      "label": "Waistcoat \u2014 berry",
+      "style": "waistcoat",
+      "colourway": "berry",
+      "cloth_palette": [
+        "#956072",
+        "#704758"
+      ],
+      "views": {
+        "S": "torso_waistcoat_berry_S",
+        "SE": "torso_waistcoat_berry_SE",
+        "E": "torso_waistcoat_berry_E",
+        "NE": "torso_waistcoat_berry_NE",
+        "N": "torso_waistcoat_berry_N"
+      }
+    },
+    "waistcoat_sage": {
+      "label": "Waistcoat \u2014 sage",
+      "style": "waistcoat",
+      "colourway": "sage",
+      "cloth_palette": [
+        "#8B9A68",
+        "#65734A"
+      ],
+      "views": {
+        "S": "torso_waistcoat_sage_S",
+        "SE": "torso_waistcoat_sage_SE",
+        "E": "torso_waistcoat_sage_E",
+        "NE": "torso_waistcoat_sage_NE",
+        "N": "torso_waistcoat_sage_N"
+      }
+    },
+    "apron_clay": {
+      "label": "Work apron \u2014 clay",
+      "style": "apron",
+      "colourway": "clay",
+      "cloth_palette": [
+        "#B56E4D",
+        "#895039"
+      ],
+      "views": {
+        "S": "torso_apron_clay_S",
+        "SE": "torso_apron_clay_SE",
+        "E": "torso_apron_clay_E",
+        "NE": "torso_apron_clay_NE",
+        "N": "torso_apron_clay_N"
+      }
+    },
+    "apron_herb": {
+      "label": "Work apron \u2014 herb",
+      "style": "apron",
+      "colourway": "herb",
+      "cloth_palette": [
+        "#699071",
+        "#496D52"
+      ],
+      "views": {
+        "S": "torso_apron_herb_S",
+        "SE": "torso_apron_herb_SE",
+        "E": "torso_apron_herb_E",
+        "NE": "torso_apron_herb_NE",
+        "N": "torso_apron_herb_N"
+      }
+    },
+    "apron_indigo": {
+      "label": "Work apron \u2014 indigo",
+      "style": "apron",
+      "colourway": "indigo",
+      "cloth_palette": [
+        "#667C9D",
+        "#475B7B"
+      ],
+      "views": {
+        "S": "torso_apron_indigo_S",
+        "SE": "torso_apron_indigo_SE",
+        "E": "torso_apron_indigo_E",
+        "NE": "torso_apron_indigo_NE",
+        "N": "torso_apron_indigo_N"
+      }
+    },
+    "coat_teal": {
+      "label": "Merchant coat \u2014 teal",
+      "style": "coat",
+      "colourway": "teal",
+      "cloth_palette": [
+        "#4B8D88",
+        "#356962"
+      ],
+      "views": {
+        "S": "torso_coat_teal_S",
+        "SE": "torso_coat_teal_SE",
+        "E": "torso_coat_teal_E",
+        "NE": "torso_coat_teal_NE",
+        "N": "torso_coat_teal_N"
+      }
+    },
+    "coat_wine": {
+      "label": "Merchant coat \u2014 wine",
+      "style": "coat",
+      "colourway": "wine",
+      "cloth_palette": [
+        "#985765",
+        "#723F4C"
+      ],
+      "views": {
+        "S": "torso_coat_wine_S",
+        "SE": "torso_coat_wine_SE",
+        "E": "torso_coat_wine_E",
+        "NE": "torso_coat_wine_NE",
+        "N": "torso_coat_wine_N"
+      }
+    },
+    "coat_navy": {
+      "label": "Merchant coat \u2014 navy",
+      "style": "coat",
+      "colourway": "navy",
+      "cloth_palette": [
+        "#526F8D",
+        "#384E68"
+      ],
+      "views": {
+        "S": "torso_coat_navy_S",
+        "SE": "torso_coat_navy_SE",
+        "E": "torso_coat_navy_E",
+        "NE": "torso_coat_navy_NE",
+        "N": "torso_coat_navy_N"
       }
     }
   },
@@ -173,5 +830,24 @@
     "item.iron_helm": "iron_helm",
     "item.steel_helm": "steel_helm",
     "item.moonsilver_circlet": "moonsilver_circlet"
-  }
+  },
+  "pack_id": "ravenholm-head-library-v2",
+  "merge_mode": "upsert_head_sets",
+  "new_head_ids": [
+    "bald_goatee",
+    "copper_moustache",
+    "chestnut_wave",
+    "cropped_coils",
+    "sandy_bob",
+    "receding_silver"
+  ],
+  "corrected_head_ids": [
+    "chestnut_curls"
+  ],
+  "replaces": "ravenholm-head-library-v1",
+  "dependency": "ravenholm-modular-armour-v2",
+  "dependencies": [
+    "ravenholm-modular-armour-v2 (shared hands, boots and existing rig)",
+    "ravenholm-head-library-v2 (optional diverse heads)"
+  ]
 }
