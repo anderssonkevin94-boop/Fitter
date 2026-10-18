@@ -1298,6 +1298,8 @@ namespace Ravenholm.EditorTools
             def.outfits = new List<HoseCharacterDefinition.Outfit>();
             def.wornArmour = new List<HoseCharacterDefinition.WornArmour>();
             def.handMasks = new List<HoseCharacterDefinition.HandMask>();
+            def.headwearSets = new List<HoseCharacterDefinition.HeadwearSet>();
+            def.wornHeadwear = new List<HoseCharacterDefinition.WornHeadwear>();
             foreach (var v in def.views) { v.head = null; v.headSkinMask = null; }
             if (!File.Exists(libPath)) return;
             var lib = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(libPath));
@@ -1321,8 +1323,24 @@ namespace Ravenholm.EditorTools
                 def.outfits.Add(outfit);
             }
             def.defaultOutfit = (string)character["outfit_id"];
-            var equip = lib["equipment_example"]["equip"];
-            def.wornArmour.Add(new HoseCharacterDefinition.WornArmour { item = "item." + (string)equip["inventory_item_id"], outfit = (string)equip["worn_outfit_id"] });
+            // The items worn as outfits and headwear (pack v2: library.json maps the game's item ids; v1 had one example).
+            if (lib["equipment_to_outfit"] is Newtonsoft.Json.Linq.JObject toOutfit)
+                foreach (var e in toOutfit) def.wornArmour.Add(new HoseCharacterDefinition.WornArmour { item = e.Key, outfit = (string)e.Value });
+            else
+            {
+                var equip = lib["equipment_example"]["equip"];
+                def.wornArmour.Add(new HoseCharacterDefinition.WornArmour { item = "item." + (string)equip["inventory_item_id"], outfit = (string)equip["worn_outfit_id"] });
+            }
+            if (lib["headwear_sets"] is Newtonsoft.Json.Linq.JObject hats)
+                foreach (var h in hats)
+                {
+                    var set = new HoseCharacterDefinition.HeadwearSet { id = h.Key };
+                    foreach (var v in (Newtonsoft.Json.Linq.JObject)h.Value["views"])
+                        set.views.Add(new HoseCharacterDefinition.HeadwearView { view = v.Key, sprite = LoadSprite(dir + "Helmets/" + (string)v.Value) });
+                    def.headwearSets.Add(set);
+                }
+            if (lib["equipment_to_headwear"] is Newtonsoft.Json.Linq.JObject toHat)
+                foreach (var e in toHat) def.wornHeadwear.Add(new HoseCharacterDefinition.WornHeadwear { item = e.Key, headwear = (string)e.Value });
             foreach (var hand in new[] { def.handOpenFront, def.handOpenSide, def.handOpenBack, def.handGripFront, def.handGripSide, def.handGripBack, def.handPointFront, def.handPointSide, def.handPointBack })
                 if (hand != null) def.handMasks.Add(new HoseCharacterDefinition.HandMask { hand = hand, mask = Mask(hand.name) });
             ColorUtility.TryParseHtmlString((string)character["skin_base"], out def.skinBase);

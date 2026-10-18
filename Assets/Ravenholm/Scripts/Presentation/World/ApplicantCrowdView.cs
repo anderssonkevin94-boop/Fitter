@@ -171,8 +171,8 @@ namespace Ravenholm.Presentation
         }
 
         /// <summary>
-        /// Puts headwear (Astra's handoff: fitted to the SE view) or body armour (the modular outfits, 2026-10-18: an
-        /// armour the character definition maps to a worn outfit swaps the torso) on a citizen figure.
+        /// Puts headwear, body armour (the modular outfits and helmets, 2026-10-18: items the character definition maps to a
+        /// worn outfit or headwear set) on a citizen figure, and puts a weapon and a shield in its hands.
         /// </summary>
         private bool Wear(GameObject figure, string itemId)
         {
@@ -181,6 +181,8 @@ namespace Ravenholm.Presentation
             if (rig == null) return false;
             if (def.Category == ItemCategory.Helmet) rig.HeadwearItem = itemId;
             else if (def.Category == ItemCategory.Armor) rig.ArmourItem = itemId;
+            else if (def.Category == ItemCategory.Weapon) rig.HeldWeapon = def;   // carried visibly (Kevin, 2026-10-18)
+            else if (def.Category == ItemCategory.Shield) rig.HeldShield = def;
             else return false;
             return true;
         }

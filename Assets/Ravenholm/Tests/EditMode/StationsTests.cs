@@ -90,10 +90,10 @@ namespace Ravenholm.Tests
             (int x, int y) hill = default;
             for (var s = 20; s < 60 && hill == default; s++)
             {
-                var (px, py) = r.PointAt(r.CampS + s);
                 for (var k = -15; k <= 15 && hill == default; k++)
                 {
-                    var (hx, hy) = ((int)px + k, (int)py - k);
+                    var (bx, by) = r.PointBeside(r.CampS + s, k);   // across the road, whichever way it runs
+                    var (hx, hy) = ((int)System.Math.Round(bx), (int)System.Math.Round(by));
                     if (forest.Config.Grove.InGrove(hx, hy) && forest.TerrainHeight(hx, hy) > 0 && forest.IsRock(hx, hy) && !g.Sites.ToolTooWeak(hx, hy)) hill = (hx, hy);
                 }
             }

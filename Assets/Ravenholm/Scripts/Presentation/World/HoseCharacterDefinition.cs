@@ -50,6 +50,29 @@ namespace Ravenholm.Presentation
             public string outfit;
         }
 
+        /// <summary>A helmet worn over the head (modular v2): one overlay per view on the head's canvas, at zero offset.</summary>
+        [Serializable]
+        public sealed class HeadwearSet
+        {
+            public string id;
+            public List<HeadwearView> views = new List<HeadwearView>();
+        }
+
+        [Serializable]
+        public sealed class HeadwearView
+        {
+            public string view;
+            public Sprite sprite;
+        }
+
+        /// <summary>Equipment worn on the head: equipping the item adds this headwear set's overlay.</summary>
+        [Serializable]
+        public sealed class WornHeadwear
+        {
+            public string item;
+            public string headwear;
+        }
+
         /// <summary>A shared hand's skin mask (the hands are the store owner's; their masks come with the modular pack).</summary>
         [Serializable]
         public sealed class HandMask
@@ -66,6 +89,8 @@ namespace Ravenholm.Presentation
         public string defaultOutfit = "";
         public List<WornArmour> wornArmour = new List<WornArmour>();
         public List<HandMask> handMasks = new List<HandMask>();
+        public List<HeadwearSet> headwearSets = new List<HeadwearSet>();
+        public List<WornHeadwear> wornHeadwear = new List<WornHeadwear>();
         [Tooltip("Tints only skin-masked pixels (R base, G shadow): head, neck and hands.")]
         public Material skinMaterial;
         public Color skinBase = new Color32(0xDA, 0x87, 0x5B, 255);
@@ -87,6 +112,24 @@ namespace Ravenholm.Presentation
         {
             if (string.IsNullOrEmpty(itemId) || wornArmour == null) return null;
             foreach (var w in wornArmour) if (w != null && w.item == itemId) return w.outfit;
+            return null;
+        }
+
+        /// <summary>The headwear set an equipped head item is worn as (null: none, or not worn on this character).</summary>
+        public string HeadwearForItem(string itemId)
+        {
+            if (string.IsNullOrEmpty(itemId) || wornHeadwear == null) return null;
+            foreach (var w in wornHeadwear) if (w != null && w.item == itemId) return w.headwear;
+            return null;
+        }
+
+        /// <summary>A headwear set's overlay in a view (null: not drawn in that view).</summary>
+        public Sprite HelmetFor(string headwearId, string view)
+        {
+            if (string.IsNullOrEmpty(headwearId) || headwearSets == null) return null;
+            foreach (var h in headwearSets)
+                if (h != null && h.id == headwearId)
+                    foreach (var hv in h.views) if (hv != null && hv.view == view) return hv.sprite;
             return null;
         }
 

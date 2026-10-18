@@ -279,6 +279,28 @@ namespace Ravenholm.Tests
             foreach (var (rig, _, _) in rigs) Object.Destroy(rig.transform.parent.gameObject);
         }
 
+        private static Vector2 OpenGround(Vector2 near, float room)
+        {
+            var mask = LayerMask.GetMask(PlayerMotor.BlockerLayerName);
+            var slab = MineSlabView.Current;
+            for (var r = 0f; r < 20f; r += 0.5f)
+            for (var a = 0; a < 16; a++)
+            {
+                var c = near + new Vector2(Mathf.Cos(a * Mathf.PI / 8f), Mathf.Sin(a * Mathf.PI / 8f)) * r;
+                if (Physics2D.OverlapCircle(c, room, mask) != null) continue;
+                var ok = true;
+                for (var b = 0; b < 16 && ok; b++)
+                {
+                    var q = c + new Vector2(Mathf.Cos(b * Mathf.PI / 8f), Mathf.Sin(b * Mathf.PI / 8f) * 0.5f) * room;
+                    if (slab != null && !slab.SurfaceWalkable(q)) ok = false;
+                }
+                if (ok) return c;
+                if (r == 0f) break;
+            }
+            Assert.Fail("no open ground near the camp to walk in");
+            return near;
+        }
+
         /// <summary>
         /// The spec (Docs/ANIMATION_SPEC.md, section 3) in all eight directions, walking in town: the ground speed,
         /// the same cadence everywhere, the feet's reach and the legs' stretch.
@@ -291,7 +313,9 @@ namespace Ravenholm.Tests
             var motor = player.GetComponent<PlayerMotor>();
             var rig = player.GetComponentInChildren<SupplierAnimator>().Rig;
             var def = rig.Definition;
-            var start = (Vector2)player.position;
+            // Open ground with room to walk a couple of units every way (since the camps moved to the rim, 2026-10-18,
+            // what stands beside the spawn varies with the world; walking into it threw off the cadence).
+            var start = OpenGround((Vector2)player.position, 2.6f);
             var cadences = new List<float>();
             for (var k = 0; k < 8; k++)
             {

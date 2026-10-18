@@ -1897,3 +1897,27 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - It also writes the sheet `Captures/modular_characters.png`, which I looked at: no gaps, no head jumps, and the outline only on the outside.
 - The Equip Hero portrait reports armour worn as an outfit as shown (`WorkshopHeroPreview.ArmorShown`); Astra's portrait test checks every armour.
 - The tree-fade test now picks a tree he can stand behind among the trees: on some worlds since the camp moved, the first tree stood at the camp's edge, where he is drawn above the forest and nothing covers him.
+
+## 2026-10-18: armour v2, helmets, and weapons carried visibly (Astra's ravenholm-modular-armour-v2; Kevin: "carry weapons and shields visibly when equipped")
+
+- **Imported** the v2 pack with the same script, which now handles `Helmets/`. Every v1 sprite and anchor in it is byte-identical, which I checked.
+  - 35 torsos: the everyday clothes and six body armours.
+  - 20 helmet overlays: four sets in five views each.
+- **Mappings** come from `library.json`:
+  - `equipment_to_outfit`: `item.leather_jerkin`, `padded_gambeson`, `riveted_coat`, `fur_brigandine`, `steel_coat` → steel_armour, and `moonsilver_mail`.
+  - `equipment_to_headwear`: `item.leather_cap`, `iron_helm`, `steel_helm` and `moonsilver_circlet`.
+  - Head identity, skin, outfit and headwear are independent (`HoseCharacterDefinition.headwearSets` and `wornHeadwear`, `HeadwearForItem`, `HelmetFor`).
+- **Helmets** (`HoseRig`, modular): the helmet is a child of the head at zero offset and draws over it, in all five views and their mirrors. It replaces the old SE-only headwear, which non-modular characters still use. `WornHeadwear` reports what is worn; with none, the hair shows as drawn.
+- **Weapons and shields carried** (`HoseRig.HeldWeapon` and `HeldShield`):
+  - Sized and gripped as the Equip Hero portrait holds them: the item's display art, its grip at the hand, the hand switched to its grip pose, drawn just under the fingers.
+  - The weapon goes in his right hand and the shield in his left. In the mirrored views the rig's reflection swaps the drawn hand parts, so `WeaponHand` is the left part there and the anatomical hand stays the same.
+  - A two-handed weapon leaves no hand for a shield. Heavy two-handed weapons (the maul) hang head-down and trail at 140°, three-quarters length: held upright, the maul's head covered his face. Nothing is drawn while working.
+  - Applicants leaving or returning with a loadout carry its weapon and shield (`ApplicantCrowdView.Wear`).
+- Checked in `ModularCharacterPlayModeTests.EveryArmourHelmetAndHeldItem`:
+  - eight directions while walking, with the armour and helmet swapped on their own schedules mid-stride, against an unswapped twin: no head jump, no sole jump, no size change;
+  - the helmet on the head and over it;
+  - the weapon in the right hand in every direction, and the shield in the other;
+  - a two-handed weapon drops the shield; unequipping empties the hands.
+  - The sheet `Captures/modular_armour.png` (every armour with a helmet and an item in hand, the last row a darker skin) was looked at: eyes visible under every helmet, no hair through the crowns, no neck seams.
+- `ArmourStandPlayModeTests` now expects helmets in the E view too: v2 supplied every view.
+- Two more tests made independent of the world's layout: `StationsTests` finds its hill across the road whichever way it runs, and the walk-spec test walks from open ground it finds rather than from the spawn.

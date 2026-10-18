@@ -60,6 +60,24 @@ namespace Ravenholm.Presentation
         /// </summary>
         public string ArmourItem { get; set; }
 
+        /// <summary>The headwear set drawn now (modular characters; null: none).</summary>
+        public string WornHeadwear { get; private set; }
+
+        /// <summary>
+        /// A weapon and a shield carried in the hands (Kevin, 2026-10-18: heroes carry them visibly when equipped): the
+        /// weapon in his right hand, the shield in his left, as the Equip Hero portrait holds them. In the mirrored views
+        /// the rig's reflection swaps the drawn hands, so the same anatomical hands keep them. A two-handed weapon leaves
+        /// no hand for a shield.
+        /// </summary>
+        public Ravenholm.Content.ItemDefinition HeldWeapon { get; set; }
+        public Ravenholm.Content.ItemDefinition HeldShield { get; set; }
+        private SpriteRenderer _weaponHeld, _shieldHeld;
+
+        /// <summary>The hand holding the weapon now (tests): his right hand, drawn as the left part when mirrored.</summary>
+        public SpriteRenderer WeaponHand => Mirrored ? _handL : _handR;
+        public SpriteRenderer WeaponHeldPart => _weaponHeld;
+        public SpriteRenderer ShieldHeldPart => _shieldHeld;
+
         /// <summary>The outfit drawn now (modular characters; null otherwise).</summary>
         public string WornOutfit { get; private set; }
 
@@ -437,11 +455,13 @@ namespace Ravenholm.Presentation
                 Skin(_head, v.headSkinMask);
             }
             // Headwear rides on the body (its lean, sway and squash; mirrored with the rig), on the body's own canvas.
-            var hat = definition.HeadwearFor(ViewName, HeadwearItem);
+            // Modular (v2): a helmet set over the head, on its canvas at zero offset, riding on it.
+            WornHeadwear = modular ? definition.HeadwearForItem(HeadwearItem) : null;
+            var hat = modular ? definition.HelmetFor(WornHeadwear, ViewName) : definition.HeadwearFor(ViewName, HeadwearItem);
             if (hat != null && _headwear == null)
             {
                 _headwear = new GameObject("Headwear").AddComponent<SpriteRenderer>();
-                _headwear.transform.SetParent(_body.transform, false);
+                _headwear.transform.SetParent(modular && _head != null ? _head.transform : _body.transform, false);
                 _headwear.sharedMaterial = _body.sharedMaterial;
             }
             if (_headwear != null)
@@ -462,6 +482,12 @@ namespace Ravenholm.Presentation
             var ankleR = PlaceBoot(_bootR, v.ankleRight, footR, _footRollR, gf.x);
             LeftFoot = ankleL;
             RightFoot = ankleR;
+            // Holding a weapon or a shield: those hands grip (not while working: the tool's own grip).
+            var shieldOn = HeldShield != null && !(HeldWeapon != null && HeldWeapon.TwoHanded);
+            var gripR = !working && (Mirrored ? shieldOn : HeldWeapon != null);
+            var gripL = !working && (Mirrored ? HeldWeapon != null : shieldOn);
+            if (gripR) handSpriteR = HandGrip();
+            if (gripL) handSpriteL = HandGrip();
             _handL.sprite = handSpriteL;
             _handR.sprite = handSpriteR;
             if (modular)
@@ -493,6 +519,8 @@ namespace Ravenholm.Presentation
                 _handL.flipX = true;   // gripping: the left hand is the right hand's mirror
                 _handR.flipX = false;
             }
+            if (gripL) _handL.flipX = true;
+            if (gripR) _handR.flipX = false;
 
             // --- the hoses
             var outline = OutlineWidth();
@@ -605,12 +633,50 @@ namespace Ravenholm.Presentation
                 _head.sortingOrder = 7;
                 _head.enabled = modular;
             }
+            Held(ref _weaponHeld, "WeaponHeld", working ? null : HeldWeapon, Mirrored ? _handL : _handR, false);
+            Held(ref _shieldHeld, "ShieldHeld", working || !shieldOn ? null : HeldShield, Mirrored ? _handR : _handL, true);
             var topSprite = modular && v.head != null ? v.head : v.body;
             var top = topSprite != null ? topSprite.bounds.max.y : 1f;
             HeadTop = parentOffset.y + (bodyY + top) * parentScale;
         }
 
         public const float SwingCycle = 0.46f;
+
+        /// <summary>
+        /// Draws an item held in a hand, sized and angled as the Equip Hero portrait holds it (the item's display art, its
+        /// grip at the hand), just under the hand's fingers.
+        /// </summary>
+        private void Held(ref SpriteRenderer part, string name, Ravenholm.Content.ItemDefinition item, SpriteRenderer hand, bool shield)
+        {
+            if (item == null) { if (part != null) part.enabled = false; return; }
+            if (part == null)
+            {
+                part = new GameObject(name).AddComponent<SpriteRenderer>();
+                part.sharedMaterial = _bootL.sharedMaterial;
+            }
+            if (part.transform.parent != hand.transform) part.transform.SetParent(hand.transform, false);
+            part.enabled = true;
+            part.sprite = WorkshopUi.ItemSprite(item);
+            if (part.sprite == null) { part.enabled = false; return; }
+            float height;
+            if (shield) height = .46f;
+            else if (item.WeaponTag == Ravenholm.Content.WeaponTag.LightBlade) height = .34f;
+            else if (item.WeaponTag == Ravenholm.Content.WeaponTag.Staff) height = .92f;
+            else if (item.WeaponTag == Ravenholm.Content.WeaponTag.Bow) height = .72f;
+            else height = item.TwoHanded ? .78f : .61f;
+            var hs = hand.transform.localScale.x;
+            var scale = height / Mathf.Max(.01f, part.sprite.bounds.size.y) / Mathf.Max(.01f, hs);
+            part.transform.localScale = new Vector3(hand.flipX ? -scale : scale, scale, 1f);
+            // A heavy two-handed weapon (a maul) hangs head-down from the hand: held upright its head covered his face.
+            var hangs = !shield && item.TwoHanded && item.WeaponTag != Ravenholm.Content.WeaponTag.Staff && item.WeaponTag != Ravenholm.Content.WeaponTag.Bow;
+            if (hangs) height *= 0.75f;   // and hangs short of the ground
+            var angle = shield ? 0f : item.WeaponTag == Ravenholm.Content.WeaponTag.Bow ? 8f : hangs ? 140f : 24f;
+            part.transform.localRotation = Quaternion.Euler(0f, 0f, hand.flipX ? -angle : angle);
+            // Upright blades and staves are gripped near the base; bows and shields at their middle.
+            var gripY = shield || item.WeaponTag == Ravenholm.Content.WeaponTag.Bow ? .5f : .18f;
+            part.transform.localPosition = part.transform.localRotation * new Vector3(0f, (.5f - gripY) * height / Mathf.Max(.01f, hs), 0f);
+            part.sortingOrder = hand.sortingOrder - 1;
+        }
 
         /// <summary>The arms' colour: the skin's base on modular characters (the neck and hands match), else the definition's.</summary>
         private Color ArmColor => definition.Modular ? SkinBase ?? definition.skinBase : definition.armColor;

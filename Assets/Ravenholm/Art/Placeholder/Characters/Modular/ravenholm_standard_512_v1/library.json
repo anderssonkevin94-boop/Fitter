@@ -30,6 +30,56 @@
         "NE": "torso_steel_NE",
         "N": "torso_steel_N"
       }
+    },
+    "leather_jerkin": {
+      "label": "Leather jerkin",
+      "views": {
+        "S": "torso_leather_jerkin_S",
+        "SE": "torso_leather_jerkin_SE",
+        "E": "torso_leather_jerkin_E",
+        "NE": "torso_leather_jerkin_NE",
+        "N": "torso_leather_jerkin_N"
+      }
+    },
+    "padded_gambeson": {
+      "label": "Padded gambeson",
+      "views": {
+        "S": "torso_padded_gambeson_S",
+        "SE": "torso_padded_gambeson_SE",
+        "E": "torso_padded_gambeson_E",
+        "NE": "torso_padded_gambeson_NE",
+        "N": "torso_padded_gambeson_N"
+      }
+    },
+    "riveted_coat": {
+      "label": "Riveted coat",
+      "views": {
+        "S": "torso_riveted_coat_S",
+        "SE": "torso_riveted_coat_SE",
+        "E": "torso_riveted_coat_E",
+        "NE": "torso_riveted_coat_NE",
+        "N": "torso_riveted_coat_N"
+      }
+    },
+    "fur_brigandine": {
+      "label": "Fur brigandine",
+      "views": {
+        "S": "torso_fur_brigandine_S",
+        "SE": "torso_fur_brigandine_SE",
+        "E": "torso_fur_brigandine_E",
+        "NE": "torso_fur_brigandine_NE",
+        "N": "torso_fur_brigandine_N"
+      }
+    },
+    "moonsilver_mail": {
+      "label": "Moonsilver mail",
+      "views": {
+        "S": "torso_moonsilver_mail_S",
+        "SE": "torso_moonsilver_mail_SE",
+        "E": "torso_moonsilver_mail_E",
+        "NE": "torso_moonsilver_mail_NE",
+        "N": "torso_moonsilver_mail_N"
+      }
     }
   },
   "equipment_example": {
@@ -37,20 +87,91 @@
       "head_id": "blond",
       "skin_base": "#DA875B",
       "skin_shadow": "#CA6642",
+      "outfit_id": "citizen_blue",
+      "headwear_id": null
+    },
+    "equip_body": {
+      "inventory_item_id": "item.riveted_coat",
+      "worn_outfit_id": "riveted_coat"
+    },
+    "equip_head": {
+      "inventory_item_id": "item.iron_helm",
+      "headwear_id": "iron_helm"
+    },
+    "unequip_body": {
       "outfit_id": "citizen_blue"
     },
-    "equip": {
-      "inventory_item_id": "steel_coat",
-      "worn_outfit_id": "steel_armour"
-    },
-    "unequip": {
-      "outfit_id": "citizen_blue"
+    "unequip_head": {
+      "headwear_id": null
     }
   },
   "notes": [
-    "Inventory art and worn outfit are separate references.",
-    "Both outfit sets are compatible with the same head set, rig, procedural limbs, hands and boots.",
-    "Switch the outfit_id; preserve pose, animation phase, facing, head_id and skin palette.",
-    "Future outfits must fit this rig or declare a different rig_id."
-  ]
+    "Head identity, body outfit and headwear are independent selections.",
+    "Actual item IDs use the item. prefix from the game content assets.",
+    "Inventory/display art remains separate; these assets are the worn forms.",
+    "The six body armour sets are leather_jerkin, padded_gambeson, riveted_coat, fur_brigandine, steel_armour (item.steel_coat), moonsilver_mail.",
+    "The ordinary clothes and prior steel/head/shared parts are included unchanged for a self-contained handoff.",
+    "Directions, rig dimensions, all attachment anchors and mirrored anatomical-side rules remain unchanged from v1."
+  ],
+  "pack_version": 2,
+  "headwear_sets": {
+    "leather_cap": {
+      "label": "Leather cap",
+      "views": {
+        "S": "helmet_leather_cap_S",
+        "SE": "helmet_leather_cap_SE",
+        "E": "helmet_leather_cap_E",
+        "NE": "helmet_leather_cap_NE",
+        "N": "helmet_leather_cap_N"
+      },
+      "fitted_head_family": "ravenholm_standard_blond_v1"
+    },
+    "iron_helm": {
+      "label": "Iron helm",
+      "views": {
+        "S": "helmet_iron_helm_S",
+        "SE": "helmet_iron_helm_SE",
+        "E": "helmet_iron_helm_E",
+        "NE": "helmet_iron_helm_NE",
+        "N": "helmet_iron_helm_N"
+      },
+      "fitted_head_family": "ravenholm_standard_blond_v1"
+    },
+    "steel_helm": {
+      "label": "Steel helm",
+      "views": {
+        "S": "helmet_steel_helm_S",
+        "SE": "helmet_steel_helm_SE",
+        "E": "helmet_steel_helm_E",
+        "NE": "helmet_steel_helm_NE",
+        "N": "helmet_steel_helm_N"
+      },
+      "fitted_head_family": "ravenholm_standard_blond_v1"
+    },
+    "moonsilver_circlet": {
+      "label": "Moonsilver circlet",
+      "views": {
+        "S": "helmet_moonsilver_circlet_S",
+        "SE": "helmet_moonsilver_circlet_SE",
+        "E": "helmet_moonsilver_circlet_E",
+        "NE": "helmet_moonsilver_circlet_NE",
+        "N": "helmet_moonsilver_circlet_N"
+      },
+      "fitted_head_family": "ravenholm_standard_blond_v1"
+    }
+  },
+  "equipment_to_outfit": {
+    "item.steel_coat": "steel_armour",
+    "item.leather_jerkin": "leather_jerkin",
+    "item.padded_gambeson": "padded_gambeson",
+    "item.riveted_coat": "riveted_coat",
+    "item.fur_brigandine": "fur_brigandine",
+    "item.moonsilver_mail": "moonsilver_mail"
+  },
+  "equipment_to_headwear": {
+    "item.leather_cap": "leather_cap",
+    "item.iron_helm": "iron_helm",
+    "item.steel_helm": "steel_helm",
+    "item.moonsilver_circlet": "moonsilver_circlet"
+  }
 }

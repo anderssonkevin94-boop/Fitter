@@ -312,6 +312,166 @@
    ],
    "ppu": 340
   },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_iron_helm_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_iron_helm_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_iron_helm_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_iron_helm_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_iron_helm_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_leather_cap_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_leather_cap_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_leather_cap_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_leather_cap_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_leather_cap_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_moonsilver_circlet_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_moonsilver_circlet_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_moonsilver_circlet_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_moonsilver_circlet_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_moonsilver_circlet_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_steel_helm_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_steel_helm_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_steel_helm_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_steel_helm_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Helmets/helmet_steel_helm_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
   "Characters/Modular/ravenholm_standard_512_v1/Masks/hand_grip_back_skin.png": {
    "pivot": [
     0.50098,
@@ -445,6 +605,181 @@
    ],
    "ppu": 340
   },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_fur_brigandine_E_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_fur_brigandine_NE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_fur_brigandine_N_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_fur_brigandine_SE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_fur_brigandine_S_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_leather_jerkin_E_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_leather_jerkin_NE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_leather_jerkin_N_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_leather_jerkin_SE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_leather_jerkin_S_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_moonsilver_mail_E_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_moonsilver_mail_NE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_moonsilver_mail_N_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_moonsilver_mail_SE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_moonsilver_mail_S_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_padded_gambeson_E_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_padded_gambeson_NE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_padded_gambeson_N_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_padded_gambeson_SE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_padded_gambeson_S_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_riveted_coat_E_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_riveted_coat_NE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_riveted_coat_N_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_riveted_coat_SE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_riveted_coat_S_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
   "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_steel_E_skin.png": {
    "pivot": [
     0.50098,
@@ -513,6 +848,206 @@
    "ppu": 340
   },
   "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_clothes_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_fur_brigandine_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_fur_brigandine_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_fur_brigandine_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_fur_brigandine_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_fur_brigandine_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_leather_jerkin_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_leather_jerkin_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_leather_jerkin_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_leather_jerkin_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_leather_jerkin_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_moonsilver_mail_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_moonsilver_mail_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_moonsilver_mail_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_moonsilver_mail_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_moonsilver_mail_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_padded_gambeson_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_padded_gambeson_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_padded_gambeson_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_padded_gambeson_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_padded_gambeson_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_riveted_coat_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_riveted_coat_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_riveted_coat_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_riveted_coat_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_riveted_coat_SE.png": {
    "outline": true,
    "pivot": [
     0.50098,

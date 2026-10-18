@@ -17,6 +17,8 @@ MonoBehaviour:
   defaultOutfit: 
   wornArmour: []
   handMasks: []
+  headwearSets: []
+  wornHeadwear: []
   skinMaterial: {fileID: 0}
   skinBase: {r: 0.85490197, g: 0.5294118, b: 0.35686275, a: 1}
   skinShadow: {r: 0.7921569, g: 0.4, b: 0.25882354, a: 1}

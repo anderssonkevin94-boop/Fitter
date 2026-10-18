@@ -191,14 +191,14 @@ namespace Ravenholm.Tests
                 Assert.AreEqual("SE", rig.ViewName);
                 Assert.IsTrue(rig.Mirrored);
                 Assert.IsTrue(rig.HeadwearShown, $"{key} worn in SW (the SE view mirrored)");
-                // East and north: not fitted yet, so none (rather than a hat floating off the head).
+                // East: fitted too since Astra's armour v2 (2026-10-18): every view has its helmet now.
                 for (var i = 0; i < 40; i++)
                 {
                     fig.transform.position += new Vector3(0.03f, 0f, 0f);
                     yield return null;
                 }
                 Assert.AreEqual("E", rig.ViewName);
-                Assert.IsFalse(rig.HeadwearShown, "no E view supplied");
+                Assert.IsTrue(rig.HeadwearShown, $"{key} worn in E (every view supplied in v2)");
                 Object.Destroy(fig);
                 yield return null;
             }
