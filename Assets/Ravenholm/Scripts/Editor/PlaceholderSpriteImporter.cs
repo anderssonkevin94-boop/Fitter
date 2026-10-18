@@ -19,7 +19,7 @@ namespace Ravenholm.EditorTools
         private static Dictionary<string, (Vector2 pivot, Vector4 border, bool hasBorder, float ppu)> _meta;
         private static float _ppu = 128f;
 
-        public override uint GetVersion() => 12;
+        public override uint GetVersion() => 13;
 
         private void OnPreprocessTexture()
         {
@@ -58,6 +58,22 @@ namespace Ravenholm.EditorTools
             if (rel.StartsWith("Stacks/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Astra's modular Blacksmith (2026-10-17): untrimmed canvases, as the pack asks (its points are canvas pixels).
             if (rel.StartsWith("Blacksmith/")) settings.spriteMeshType = SpriteMeshType.FullRect;
+            // Astra's modular characters (2026-10-18): heads and torsos on one 512 canvas, untrimmed and not lossily
+            // compressed (they meet at zero offset; flat colours stay exact). Skin masks are data: linear, point filtered,
+            // uncompressed, and no colour bled into their transparent pixels.
+            if (rel.StartsWith("Characters/Modular/"))
+            {
+                settings.spriteMeshType = SpriteMeshType.FullRect;
+                ti.textureCompression = TextureImporterCompression.Uncompressed;
+                if (rel.Contains("/Masks/"))
+                {
+                    ti.sRGBTexture = false;
+                    ti.alphaIsTransparency = false;
+                    settings.filterMode = FilterMode.Point;
+                    settings.sRGBTexture = false;
+                    settings.alphaIsTransparency = false;
+                }
+            }
             // Outline-free character parts: the game's outline is drawn inside each sprite's rectangle.
             if (rel.StartsWith("Characters/StoreOwner/") || rel.StartsWith("Characters/Citizens/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Ground and blocks fill their shapes edge to edge: full-rect so neighbours meet without mesh gaps.

@@ -49,15 +49,29 @@ namespace Ravenholm.Tests
             root.Hud.Tips.HideAll();
             var forest = ForestGridView.Current;
             var sim = root.Services.Sites.Get("site.forest");
-            var tree = CampPlayModeTests.TreeAhead(sim, 10);
-            Assert.IsTrue(forest.CellOf(tree.x, tree.y, out var cell));
+            // A tree he can stand just behind (higher on the screen), where its crown covers him: on some worlds the spot
+            // behind the first tree is blocked (a trunk, a hill) and he is pushed off it, so try the next one along.
             var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
-            motor.Teleport(IsoMap.World(cell) + new Vector2(0f, -1.5f));   // go there first: the forest draws round him
-            yield return new WaitForSeconds(0.3f);
-            // Just behind the tree (higher on the screen), where its crown covers him.
-            motor.Teleport((Vector2)forest.RendererAt(cell).transform.position + new Vector2(0f, 0.3f));
-            yield return new WaitForSeconds(0.6f);
-            Assert.IsTrue(forest.TreeFaded(cell), "the tree in front of him fades");
+            var cell = default(Vector3Int);
+            var stood = false;
+            for (var ahead = 10; ahead < 60 && !stood; ahead += 4)
+            {
+                var tree = CampPlayModeTests.TreeAhead(sim, ahead);
+                if (!forest.CellOf(tree.x, tree.y, out cell)) continue;
+                motor.Teleport(IsoMap.World(cell) + new Vector2(0f, -1.5f));   // go there first: the forest draws round him
+                yield return new WaitForSeconds(0.3f);
+                if (forest.RendererAt(cell) == null) continue;
+                var spot = (Vector2)forest.RendererAt(cell).transform.position + new Vector2(0f, 0.3f);
+                motor.Teleport(spot);
+                yield return new WaitForSeconds(0.6f);
+                // Among the trees (sorted on the Ground layer with them): on camp ground he is drawn above the forest, so
+                // nothing there covers him (a tree at the camp's edge, on some worlds).
+                var group = motor.GetComponent<UnityEngine.Rendering.SortingGroup>();
+                stood = Vector2.Distance(motor.transform.position, spot) < 0.15f && group != null && group.sortingLayerName == "Ground";
+            }
+            Assert.IsTrue(stood, "a tree he can stand behind");
+            var r0 = forest.RendererAt(cell);
+            Assert.IsTrue(forest.TreeFaded(cell), $"the tree in front of him fades (tree {cell} height {forest.HeightAt(cell)}, his feet {forest.PlayerFeet}, tree order {r0.sortingOrder} layer {r0.sortingLayerName}, him {motor.transform.position}, tree at {r0.transform.position}, bounds {r0.bounds})");
             yield return Capture.Take("tree_fade");
             motor.Teleport((Vector2)forest.RendererAt(cell).transform.position + new Vector2(0f, -1.5f));   // in front of it now
             yield return new WaitForSeconds(0.6f);

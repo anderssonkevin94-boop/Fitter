@@ -52,7 +52,29 @@ namespace Ravenholm.Presentation
         public Vector2 RightFoot { get; private set; }
 
         private Transform _rig;
-        private SpriteRenderer _body, _bootL, _bootR, _handL, _handR, _tool, _headwear;
+        private SpriteRenderer _body, _bootL, _bootR, _handL, _handR, _tool, _headwear, _head;
+
+        /// <summary>
+        /// Body armour worn (modular characters, Astra's standard rig v1, 2026-10-18): an item the definition maps to an
+        /// outfit swaps the torso; anything else (or none) is the everyday outfit. Head, skin, facing and pose are kept.
+        /// </summary>
+        public string ArmourItem { get; set; }
+
+        /// <summary>The outfit drawn now (modular characters; null otherwise).</summary>
+        public string WornOutfit { get; private set; }
+
+        /// <summary>The skin's base and shadow (modular characters): head, neck, hands and arms; null: the definition's.</summary>
+        public Color? SkinBase { get; set; }
+        public Color? SkinShadow { get; set; }
+
+        /// <summary>The head (modular characters), riding on the torso at zero offset.</summary>
+        public SpriteRenderer HeadAttachment => _head;
+
+        private Material _plainMaterial;
+        private MaterialPropertyBlock _skinBlock;
+        private static readonly int SkinMaskId = Shader.PropertyToID("_SkinMask");
+        private static readonly int SkinBaseId = Shader.PropertyToID("_SkinBase");
+        private static readonly int SkinShadowId = Shader.PropertyToID("_SkinShadow");
 
         /// <summary>
         /// The item worn on the head (Astra's equipment handoff, 2026-10-16): drawn over the body in the views it was fitted
@@ -397,6 +419,23 @@ namespace Ravenholm.Presentation
 
             // --- place the painted parts
             _body.sprite = v.body;
+            var modular = definition.Modular;
+            if (modular)
+            {
+                // A head over a worn outfit, on one canvas: the head rides on the torso at zero offset (its head mount is
+                // every torso's), so it shares the torso's lean, sway, bob, squash and mirror; no per-outfit nudges.
+                WornOutfit = definition.OutfitForArmour(ArmourItem) ?? definition.defaultOutfit;
+                var (torso, torsoMask) = definition.TorsoFor(WornOutfit, ViewName);
+                _body.sprite = torso;
+                if (_head == null)
+                {
+                    _head = new GameObject("Head").AddComponent<SpriteRenderer>();
+                    _head.transform.SetParent(_body.transform, false);
+                }
+                _head.sprite = v.head;
+                Skin(_body, torsoMask);
+                Skin(_head, v.headSkinMask);
+            }
             // Headwear rides on the body (its lean, sway and squash; mirrored with the rig), on the body's own canvas.
             var hat = definition.HeadwearFor(ViewName, HeadwearItem);
             if (hat != null && _headwear == null)
@@ -425,6 +464,11 @@ namespace Ravenholm.Presentation
             RightFoot = ankleR;
             _handL.sprite = handSpriteL;
             _handR.sprite = handSpriteR;
+            if (modular)
+            {
+                Skin(_handL, definition.HandMaskFor(handSpriteL));
+                Skin(_handR, definition.HandMaskFor(handSpriteR));
+            }
             _handL.transform.localPosition = wristL;
             _handR.transform.localPosition = wristR;
             _handL.transform.localScale = Vector3.one * _handScaleL;
@@ -466,11 +510,11 @@ namespace Ravenholm.Presentation
             var restArmR = side ? Vector2.Distance(shoulderR, wristR) : armLen;
             // In the diagonal and profile views his left arm is the far one: smaller with distance (arm, sleeve, hand).
             var far = side ? 1f : definition.farLimbScale;
-            DrawTube(_armL, shoulderL, wristL, restArmL, side ? Vector2.zero : elbowDir, definition.armWidth * far, definition.armWidthEnd * far, definition.armColor, outline);
+            DrawTube(_armL, shoulderL, wristL, restArmL, side ? Vector2.zero : elbowDir, definition.armWidth * far, definition.armWidthEnd * far, ArmColor, outline);
             _armEndL = _path[_path.Count - 1] - _path[_path.Count - 2];
             DrawSleeve(_sleeveL, outline, far);
             if (!side) _handL.transform.localScale = Vector3.one * far;
-            DrawTube(_armR, shoulderR, wristR, restArmR, side ? Vector2.zero : elbowDir, definition.armWidth, definition.armWidthEnd, definition.armColor, outline);
+            DrawTube(_armR, shoulderR, wristR, restArmR, side ? Vector2.zero : elbowDir, definition.armWidth, definition.armWidthEnd, ArmColor, outline);
             _armEndR = _path[_path.Count - 1] - _path[_path.Count - 2];
             DrawSleeve(_sleeveR, outline);
             // Relaxed hands follow the end of their arm (the art hangs straight down), so the wrist never kinks.
@@ -531,6 +575,10 @@ namespace Ravenholm.Presentation
                 // His right arm is the near one in every painted diagonal and profile (SE, E, NE): always in front of
                 // the body, back three-quarter view included (the far arm is the one behind).
                 Order(_armR, 7); _handR.sortingOrder = 9;
+                // A modular torso paints its own shoulder caps (Astra's standard rig v1): at rest and walking the near arm
+                // hangs from under the cap (behind the torso) and only its hand passes in front; the swing below keeps
+                // its own order.
+                if (modular) Order(_armR, 0);
             }
             _body.sortingOrder = 6;
             if (_headwear != null) _headwear.sortingOrder = 7;   // over the head; the hands (8, 9) still pass in front
@@ -549,11 +597,41 @@ namespace Ravenholm.Presentation
                 _handR.sortingOrder = front ? 9 : 1;
             }
 
-            var top = v.body != null ? v.body.bounds.max.y : 1f;
+            if (_head != null)
+            {
+                // The head draws over its torso and under whatever passes in front of the body (7 and up move one up).
+                foreach (var r in _rig.GetComponentsInChildren<Renderer>())
+                    if (r != _head && r != _body && r.sortingOrder >= 7 && r.sortingOrder < 100) r.sortingOrder++;
+                _head.sortingOrder = 7;
+                _head.enabled = modular;
+            }
+            var topSprite = modular && v.head != null ? v.head : v.body;
+            var top = topSprite != null ? topSprite.bounds.max.y : 1f;
             HeadTop = parentOffset.y + (bodyY + top) * parentScale;
         }
 
         public const float SwingCycle = 0.46f;
+
+        /// <summary>The arms' colour: the skin's base on modular characters (the neck and hands match), else the definition's.</summary>
+        private Color ArmColor => definition.Modular ? SkinBase ?? definition.skinBase : definition.armColor;
+
+        /// <summary>Tints a part's skin-masked pixels with this character's skin (nothing else changes); no mask: as painted.</summary>
+        private void Skin(SpriteRenderer sr, Texture2D mask)
+        {
+            if (_plainMaterial == null) _plainMaterial = _bootL.sharedMaterial;
+            if (mask == null || definition.skinMaterial == null)
+            {
+                if (sr.sharedMaterial != _plainMaterial) { sr.sharedMaterial = _plainMaterial; sr.SetPropertyBlock(null); }
+                return;
+            }
+            if (sr.sharedMaterial != definition.skinMaterial) sr.sharedMaterial = definition.skinMaterial;
+            _skinBlock ??= new MaterialPropertyBlock();
+            sr.GetPropertyBlock(_skinBlock);
+            _skinBlock.SetTexture(SkinMaskId, mask);
+            _skinBlock.SetColor(SkinBaseId, SkinBase ?? definition.skinBase);
+            _skinBlock.SetColor(SkinShadowId, SkinShadow ?? definition.skinShadow);
+            sr.SetPropertyBlock(_skinBlock);
+        }
 
         /// <summary>
         /// Places a boot moved by <paramref name="offset"/> and pitched by <paramref name="angle"/> (degrees, toe up

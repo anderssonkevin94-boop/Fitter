@@ -1277,8 +1277,64 @@ namespace Ravenholm.EditorTools
             def.legColor = ColorUtility.TryParseHtmlString((string)limbs["leg_colour"], out var lc) ? lc : def.legColor;
             def.sleeves = false;          // the shirt's sleeves are painted on the body
             def.pickaxe = def.axe = null; // no tools
+            ApplyModular(def);
             EditorUtility.SetDirty(def);
             return def;
+        }
+
+        public const string ModularRig = "ravenholm_standard_512_v1";
+        public const string SkinMaterialPath = ConfigDir + "SkinTint.mat";
+
+        /// <summary>
+        /// Astra's modular characters (2026-10-18): the citizen drawn as a head over a worn outfit, from the pack's
+        /// library.json (head set, everyday outfit, the armour worn as an outfit) and its skin masks. The painted bodies stay
+        /// as the fallback. No pack: unchanged.
+        /// </summary>
+        private static void ApplyModular(HoseCharacterDefinition def)
+        {
+            var dir = "Characters/Modular/" + ModularRig + "/";
+            var libPath = PlaceholderSpriteImporter.ArtRoot + dir + "library.json";
+            def.rigId = "";
+            def.outfits = new List<HoseCharacterDefinition.Outfit>();
+            def.wornArmour = new List<HoseCharacterDefinition.WornArmour>();
+            def.handMasks = new List<HoseCharacterDefinition.HandMask>();
+            foreach (var v in def.views) { v.head = null; v.headSkinMask = null; }
+            if (!File.Exists(libPath)) return;
+            var lib = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(libPath));
+            Texture2D Mask(string name) => AssetDatabase.LoadAssetAtPath<Texture2D>(PlaceholderSpriteImporter.ArtRoot + dir + "Masks/" + name + "_skin.png");
+            var character = lib["equipment_example"]["character"];
+            var headSet = lib["head_sets"][(string)character["head_id"]]["views"];
+            foreach (var v in def.views)
+            {
+                var name = (string)headSet[v.name];
+                v.head = LoadSprite(dir + "Heads/" + name);
+                v.headSkinMask = Mask(name);
+            }
+            foreach (var o in (Newtonsoft.Json.Linq.JObject)lib["outfit_sets"])
+            {
+                var outfit = new HoseCharacterDefinition.Outfit { id = o.Key };
+                foreach (var v in (Newtonsoft.Json.Linq.JObject)o.Value["views"])
+                {
+                    var name = (string)v.Value;
+                    outfit.views.Add(new HoseCharacterDefinition.OutfitView { view = v.Key, torso = LoadSprite(dir + "Torsos/" + name), skinMask = Mask(name) });
+                }
+                def.outfits.Add(outfit);
+            }
+            def.defaultOutfit = (string)character["outfit_id"];
+            var equip = lib["equipment_example"]["equip"];
+            def.wornArmour.Add(new HoseCharacterDefinition.WornArmour { item = "item." + (string)equip["inventory_item_id"], outfit = (string)equip["worn_outfit_id"] });
+            foreach (var hand in new[] { def.handOpenFront, def.handOpenSide, def.handOpenBack, def.handGripFront, def.handGripSide, def.handGripBack, def.handPointFront, def.handPointSide, def.handPointBack })
+                if (hand != null) def.handMasks.Add(new HoseCharacterDefinition.HandMask { hand = hand, mask = Mask(hand.name) });
+            ColorUtility.TryParseHtmlString((string)character["skin_base"], out def.skinBase);
+            ColorUtility.TryParseHtmlString((string)character["skin_shadow"], out def.skinShadow);
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(SkinMaterialPath);
+            if (mat == null)
+            {
+                mat = new Material(Shader.Find("Ravenholm/SpriteSkinTint")) { name = "SkinTint" };
+                AssetDatabase.CreateAsset(mat, SkinMaterialPath);
+            }
+            def.skinMaterial = mat;
+            def.rigId = ModularRig;
         }
 
         /// <summary>

@@ -1,6 +1,125 @@
 {
  "ppu": 128,
  "sprites": {
+  "Blacksmith/blacksmith_kit.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/blacksmith_rug.png": {
+   "pivot": [
+    0.5,
+    0.3
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/crafting_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/crafting_1_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/crafting_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/crafting_2_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/crafting_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/crafting_3_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/delivery_mat.png": {
+   "pivot": [
+    0.5,
+    0.375
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/furnace_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/furnace_1_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/furnace_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/furnace_2_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/furnace_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/furnace_3_glow.png": {
+   "pivot": [
+    0.5,
+    0.21875
+   ],
+   "ppu": 256
+  },
+  "Blacksmith/pickup_mat.png": {
+   "pivot": [
+    0.5,
+    0.375
+   ],
+   "ppu": 256
+  },
   "Buildings/bld_apothecary.png": {
    "outline": true,
    "pivot": [
@@ -22,6 +141,14 @@
    "pivot": [
     0.4992,
     0.27
+   ],
+   "ppu": 256
+  },
+  "Buildings/bld_kitchen.png": {
+   "outline": true,
+   "pivot": [
+    0.4992,
+    0.2917
    ],
    "ppu": 256
   },
@@ -106,6 +233,326 @@
    "ppu": 340
   },
   "Characters/Citizens/citizen_blond_blue/body_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Citizens/citizen_blond_blue/headwear_iron_helm_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Citizens/citizen_blond_blue/headwear_leather_cap_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Citizens/citizen_blond_blue/headwear_moonsilver_circlet_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Citizens/citizen_blond_blue/headwear_steel_helm_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Heads/head_blond_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Heads/head_blond_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Heads/head_blond_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Heads/head_blond_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Heads/head_blond_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/hand_grip_back_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/hand_grip_front_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/hand_grip_side_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/hand_open_back_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/hand_open_front_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/hand_open_side_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/hand_point_back_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/hand_point_front_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/hand_point_side_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/head_blond_E_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/head_blond_NE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/head_blond_N_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/head_blond_SE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/head_blond_S_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_clothes_E_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_clothes_NE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_clothes_N_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_clothes_SE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_clothes_S_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_steel_E_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_steel_NE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_steel_N_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_steel_SE_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Masks/torso_steel_S_skin.png": {
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_clothes_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_clothes_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_clothes_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_clothes_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_clothes_SE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_steel_E.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_steel_N.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_steel_NE.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_steel_S.png": {
+   "outline": true,
+   "pivot": [
+    0.50098,
+    0.13184
+   ],
+   "ppu": 340
+  },
+  "Characters/Modular/ravenholm_standard_512_v1/Torsos/torso_steel_SE.png": {
    "outline": true,
    "pivot": [
     0.50098,
@@ -975,6 +1422,30 @@
    ],
    "ppu": 256
   },
+  "Furniture/armor_stand_base_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Furniture/armor_stand_base_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Furniture/armor_stand_base_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
   "Furniture/desk_1.png": {
    "outline": true,
    "pivot": [
@@ -1087,6 +1558,22 @@
    ],
    "ppu": 256
   },
+  "Furniture/long_rack_1_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/long_rack_1_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
   "Furniture/long_rack_2_left.png": {
    "outline": true,
    "pivot": [
@@ -1103,6 +1590,22 @@
    ],
    "ppu": 256
   },
+  "Furniture/long_rack_2_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/long_rack_2_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
   "Furniture/long_rack_3_left.png": {
    "outline": true,
    "pivot": [
@@ -1116,6 +1619,22 @@
    "pivot": [
     0.5,
     0.14286
+   ],
+   "ppu": 256
+  },
+  "Furniture/long_rack_3_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/long_rack_3_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
    ],
    "ppu": 256
   },
@@ -1159,6 +1678,22 @@
    ],
    "ppu": 256
   },
+  "Furniture/potion_shelf_1_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.625,
+    0.11471
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_1_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
   "Furniture/potion_shelf_2.png": {
    "outline": true,
    "pivot": [
@@ -1172,6 +1707,22 @@
    "pivot": [
     0.5,
     0.14286
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_2_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.625,
+    0.11471
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_2_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
    ],
    "ppu": 256
   },
@@ -1199,6 +1750,22 @@
    ],
    "ppu": 256
   },
+  "Furniture/potion_shelf_3_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/potion_shelf_3_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
   "Furniture/weapon_rack_1_left.png": {
    "outline": true,
    "pivot": [
@@ -1212,6 +1779,22 @@
    "pivot": [
     0.5,
     0.14286
+   ],
+   "ppu": 256
+  },
+  "Furniture/weapon_rack_1_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/weapon_rack_1_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
    ],
    "ppu": 256
   },
@@ -1231,6 +1814,22 @@
    ],
    "ppu": 256
   },
+  "Furniture/weapon_rack_2_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/weapon_rack_2_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
+   ],
+   "ppu": 256
+  },
   "Furniture/weapon_rack_3_left.png": {
    "outline": true,
    "pivot": [
@@ -1244,6 +1843,22 @@
    "pivot": [
     0.5,
     0.14286
+   ],
+   "ppu": 256
+  },
+  "Furniture/weapon_rack_3_stand_A.png": {
+   "outline": true,
+   "pivot": [
+    0.71053,
+    0.14667
+   ],
+   "ppu": 256
+  },
+  "Furniture/weapon_rack_3_stand_B.png": {
+   "outline": true,
+   "pivot": [
+    0.28947,
+    0.14667
    ],
    "ppu": 256
   },
@@ -1277,7 +1892,25 @@
     0.5
    ]
   },
+  "Icons/Items/icon_hearty_pie.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Icons/Items/icon_iron_dagger.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_iron_helm.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_iron_shield.png": {
    "pivot": [
     0.5,
     0.5
@@ -1295,6 +1928,18 @@
     0.5
    ]
   },
+  "Icons/Items/icon_leather_cap.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_leather_jerkin.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Icons/Items/icon_maple_longbow.png": {
    "pivot": [
     0.5,
@@ -1307,6 +1952,12 @@
     0.5
    ]
   },
+  "Icons/Items/icon_moonsilver_circlet.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Icons/Items/icon_moonsilver_focus.png": {
    "pivot": [
     0.5,
@@ -1314,6 +1965,18 @@
    ]
   },
   "Icons/Items/icon_moonsilver_mail.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_mushroom_stew.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_padded_gambeson.png": {
    "pivot": [
     0.5,
     0.5
@@ -1343,6 +2006,18 @@
     0.5
    ]
   },
+  "Icons/Items/icon_steel_helm.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Items/icon_steel_kite_shield.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Icons/Items/icon_steel_maul.png": {
    "pivot": [
     0.5,
@@ -1367,6 +2042,12 @@
     0.5
    ]
   },
+  "Icons/Items/icon_trail_rations.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Icons/Items/icon_trapsense_draught.png": {
    "pivot": [
     0.5,
@@ -1379,7 +2060,19 @@
     0.5
    ]
   },
+  "Icons/Items/icon_wooden_shield.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Icons/Resources/icon_arcane_dust.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
+  "Icons/Resources/icon_berries.png": {
    "pivot": [
     0.5,
     0.5
@@ -1481,6 +2174,12 @@
     0.5
    ]
   },
+  "Icons/Resources/icon_mushroom.png": {
+   "pivot": [
+    0.5,
+    0.5
+   ]
+  },
   "Icons/Resources/icon_rope.png": {
    "pivot": [
     0.5,
@@ -1509,6 +2208,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_antidote_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_antidote_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_arcane_dust_A.png": {
    "outline": true,
    "pivot": [
@@ -1518,6 +2233,22 @@
    "ppu": 256
   },
   "Items/item_arcane_dust_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_arcane_dust_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_arcane_dust_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1541,6 +2272,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_cedar_bow_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_bow_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_cedar_log_A.png": {
    "outline": true,
    "pivot": [
@@ -1550,6 +2297,22 @@
    "ppu": 256
   },
   "Items/item_cedar_log_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_log_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_log_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1573,6 +2336,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_cedar_lumber_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_lumber_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_cedar_staff_A.png": {
    "outline": true,
    "pivot": [
@@ -1582,6 +2361,22 @@
    "ppu": 256
   },
   "Items/item_cedar_staff_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_staff_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_cedar_staff_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1605,6 +2400,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_coal_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_coal_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_copper_ingot_A.png": {
    "outline": true,
    "pivot": [
@@ -1614,6 +2425,22 @@
    "ppu": 256
   },
   "Items/item_copper_ingot_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_copper_ingot_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_copper_ingot_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1637,6 +2464,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_copper_ore_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_copper_ore_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_copper_ward_staff_A.png": {
    "outline": true,
    "pivot": [
@@ -1646,6 +2489,22 @@
    "ppu": 256
   },
   "Items/item_copper_ward_staff_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_copper_ward_staff_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_copper_ward_staff_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1685,6 +2544,38 @@
    ],
    "ppu": 256
   },
+  "Items/item_fur_brigandine_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_fur_brigandine_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_fur_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_fur_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_gem_A.png": {
    "outline": true,
    "pivot": [
@@ -1694,6 +2585,22 @@
    "ppu": 256
   },
   "Items/item_gem_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_gem_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_gem_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1717,6 +2624,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_herb_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_herb_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_iron_dagger_A.png": {
    "outline": true,
    "pivot": [
@@ -1733,6 +2656,30 @@
    ],
    "ppu": 256
   },
+  "Items/item_iron_dagger_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_dagger_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_helm_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
   "Items/item_iron_ingot_A.png": {
    "outline": true,
    "pivot": [
@@ -1742,6 +2689,22 @@
    "ppu": 256
   },
   "Items/item_iron_ingot_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_ingot_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_ingot_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1765,6 +2728,30 @@
    ],
    "ppu": 256
   },
+  "Items/item_iron_ore_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_ore_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_shield_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
   "Items/item_iron_sword_A.png": {
    "outline": true,
    "pivot": [
@@ -1774,6 +2761,22 @@
    "ppu": 256
   },
   "Items/item_iron_sword_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_sword_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_iron_sword_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1797,6 +2800,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_ironwood_greatbow_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_ironwood_greatbow_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_ironwood_log_A.png": {
    "outline": true,
    "pivot": [
@@ -1806,6 +2825,22 @@
    "ppu": 256
   },
   "Items/item_ironwood_log_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_ironwood_log_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_ironwood_log_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1829,6 +2864,30 @@
    ],
    "ppu": 256
   },
+  "Items/item_ironwood_lumber_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_ironwood_lumber_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_leather_cap_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
   "Items/item_maple_log_A.png": {
    "outline": true,
    "pivot": [
@@ -1838,6 +2897,22 @@
    "ppu": 256
   },
   "Items/item_maple_log_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_maple_log_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_maple_log_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1861,6 +2936,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_maple_longbow_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_maple_longbow_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_maple_lumber_A.png": {
    "outline": true,
    "pivot": [
@@ -1870,6 +2961,22 @@
    "ppu": 256
   },
   "Items/item_maple_lumber_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_maple_lumber_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_maple_lumber_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1893,6 +3000,30 @@
    ],
    "ppu": 256
   },
+  "Items/item_moonsilver_blade_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_blade_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_circlet_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
   "Items/item_moonsilver_focus_A.png": {
    "outline": true,
    "pivot": [
@@ -1902,6 +3033,22 @@
    "ppu": 256
   },
   "Items/item_moonsilver_focus_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_focus_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_focus_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1925,6 +3072,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_moonsilver_ingot_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_ingot_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_moonsilver_mail_A.png": {
    "outline": true,
    "pivot": [
@@ -1934,6 +3097,22 @@
    "ppu": 256
   },
   "Items/item_moonsilver_mail_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_mail_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_mail_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1957,6 +3136,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_moonsilver_ore_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_moonsilver_ore_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_pathfinder_draught_A.png": {
    "outline": true,
    "pivot": [
@@ -1966,6 +3161,22 @@
    "ppu": 256
   },
   "Items/item_pathfinder_draught_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_pathfinder_draught_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_pathfinder_draught_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -1989,6 +3200,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_recovery_tonic_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_recovery_tonic_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_riveted_coat_A.png": {
    "outline": true,
    "pivot": [
@@ -1998,6 +3225,22 @@
    "ppu": 256
   },
   "Items/item_riveted_coat_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_riveted_coat_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_riveted_coat_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -2021,6 +3264,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_rope_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_rope_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_steel_coat_A.png": {
    "outline": true,
    "pivot": [
@@ -2034,6 +3293,30 @@
    "pivot": [
     0.5,
     0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_coat_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_coat_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_helm_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
    ],
    "ppu": 256
   },
@@ -2053,6 +3336,30 @@
    ],
    "ppu": 256
   },
+  "Items/item_steel_ingot_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_ingot_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_kite_shield_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
   "Items/item_steel_maul_A.png": {
    "outline": true,
    "pivot": [
@@ -2062,6 +3369,22 @@
    "ppu": 256
   },
   "Items/item_steel_maul_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_maul_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_maul_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -2085,6 +3408,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_steel_stiletto_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_stiletto_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_steel_sword_A.png": {
    "outline": true,
    "pivot": [
@@ -2094,6 +3433,22 @@
    "ppu": 256
   },
   "Items/item_steel_sword_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_sword_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_steel_sword_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -2117,6 +3472,22 @@
    ],
    "ppu": 256
   },
+  "Items/item_strong_tonic_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_strong_tonic_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
   "Items/item_trapsense_draught_A.png": {
    "outline": true,
    "pivot": [
@@ -2126,6 +3497,22 @@
    "ppu": 256
   },
   "Items/item_trapsense_draught_B.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_trapsense_draught_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_trapsense_draught_side.png": {
    "outline": true,
    "pivot": [
     0.5,
@@ -2146,6 +3533,70 @@
    "pivot": [
     0.5,
     0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_warding_draught_front.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_warding_draught_side.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.10938
+   ],
+   "ppu": 256
+  },
+  "Items/item_wooden_shield_A.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/stand_head.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/stand_head_fur_brigandine.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/stand_head_moonsilver_mail.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/stand_head_riveted_coat.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
+   ],
+   "ppu": 256
+  },
+  "Items/stand_head_steel_coat.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.17969
    ],
    "ppu": 256
   },
@@ -2208,6 +3659,454 @@
     0.08333
    ],
    "ppu": 256
+  },
+  "Ox/ox_E_stand.png": {
+   "outline": true,
+   "pivot": [
+    0.3890625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_E_walk_1.png": {
+   "outline": true,
+   "pivot": [
+    0.3890625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_E_walk_2.png": {
+   "outline": true,
+   "pivot": [
+    0.3890625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_E_walk_3.png": {
+   "outline": true,
+   "pivot": [
+    0.3890625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_E_walk_4.png": {
+   "outline": true,
+   "pivot": [
+    0.3890625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_E_walk_5.png": {
+   "outline": true,
+   "pivot": [
+    0.3890625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_E_walk_6.png": {
+   "outline": true,
+   "pivot": [
+    0.3890625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NE_stand.png": {
+   "outline": true,
+   "pivot": [
+    0.4658203125,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NE_walk_1.png": {
+   "outline": true,
+   "pivot": [
+    0.4658203125,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NE_walk_2.png": {
+   "outline": true,
+   "pivot": [
+    0.4658203125,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NE_walk_3.png": {
+   "outline": true,
+   "pivot": [
+    0.4658203125,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NE_walk_4.png": {
+   "outline": true,
+   "pivot": [
+    0.4658203125,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NE_walk_5.png": {
+   "outline": true,
+   "pivot": [
+    0.4658203125,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NE_walk_6.png": {
+   "outline": true,
+   "pivot": [
+    0.4658203125,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NW_stand.png": {
+   "outline": true,
+   "pivot": [
+    0.5333984375,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NW_walk_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5333984375,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NW_walk_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5333984375,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NW_walk_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5333984375,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NW_walk_4.png": {
+   "outline": true,
+   "pivot": [
+    0.5333984375,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NW_walk_5.png": {
+   "outline": true,
+   "pivot": [
+    0.5333984375,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_NW_walk_6.png": {
+   "outline": true,
+   "pivot": [
+    0.5333984375,
+    0.21738281250000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_N_stand.png": {
+   "outline": true,
+   "pivot": [
+    0.499609375,
+    0.173828125
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_N_walk_1.png": {
+   "outline": true,
+   "pivot": [
+    0.499609375,
+    0.173828125
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_N_walk_2.png": {
+   "outline": true,
+   "pivot": [
+    0.499609375,
+    0.173828125
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_N_walk_3.png": {
+   "outline": true,
+   "pivot": [
+    0.499609375,
+    0.173828125
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_N_walk_4.png": {
+   "outline": true,
+   "pivot": [
+    0.499609375,
+    0.173828125
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_N_walk_5.png": {
+   "outline": true,
+   "pivot": [
+    0.499609375,
+    0.173828125
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_N_walk_6.png": {
+   "outline": true,
+   "pivot": [
+    0.499609375,
+    0.173828125
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SE_stand.png": {
+   "outline": true,
+   "pivot": [
+    0.4083984375,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SE_walk_1.png": {
+   "outline": true,
+   "pivot": [
+    0.4083984375,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SE_walk_2.png": {
+   "outline": true,
+   "pivot": [
+    0.4083984375,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SE_walk_3.png": {
+   "outline": true,
+   "pivot": [
+    0.4083984375,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SE_walk_4.png": {
+   "outline": true,
+   "pivot": [
+    0.4083984375,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SE_walk_5.png": {
+   "outline": true,
+   "pivot": [
+    0.4083984375,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SE_walk_6.png": {
+   "outline": true,
+   "pivot": [
+    0.4083984375,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SW_stand.png": {
+   "outline": true,
+   "pivot": [
+    0.5908203125,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SW_walk_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5908203125,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SW_walk_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5908203125,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SW_walk_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5908203125,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SW_walk_4.png": {
+   "outline": true,
+   "pivot": [
+    0.5908203125,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SW_walk_5.png": {
+   "outline": true,
+   "pivot": [
+    0.5908203125,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_SW_walk_6.png": {
+   "outline": true,
+   "pivot": [
+    0.5908203125,
+    0.1572265625
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_S_stand.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.18320312500000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_S_walk_1.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.18320312500000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_S_walk_2.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.18320312500000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_S_walk_3.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.18320312500000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_S_walk_4.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.18320312500000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_S_walk_5.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.18320312500000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_S_walk_6.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.18320312500000002
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_W_stand.png": {
+   "outline": true,
+   "pivot": [
+    0.61015625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_W_walk_1.png": {
+   "outline": true,
+   "pivot": [
+    0.61015625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_W_walk_2.png": {
+   "outline": true,
+   "pivot": [
+    0.61015625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_W_walk_3.png": {
+   "outline": true,
+   "pivot": [
+    0.61015625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_W_walk_4.png": {
+   "outline": true,
+   "pivot": [
+    0.61015625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_W_walk_5.png": {
+   "outline": true,
+   "pivot": [
+    0.61015625,
+    0.19374999999999998
+   ],
+   "ppu": 720
+  },
+  "Ox/ox_W_walk_6.png": {
+   "outline": true,
+   "pivot": [
+    0.61015625,
+    0.19374999999999998
+   ],
+   "ppu": 720
   },
   "Painted/Blocks/block_basalt.png": {
    "pivot": [
@@ -2537,6 +4436,188 @@
    "pivot": [
     0.4975,
     0.08333
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_castle.png": {
+   "pivot": [
+    0.3448275862068966,
+    0.10430839002267578
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_castle_approach_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_castle_approach_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_castle_approach_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_castle_approach_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_crown_highlands_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_crown_highlands_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_crown_highlands_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_crown_highlands_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_hollow_wood_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_hollow_wood_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_hollow_wood_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_hollow_wood_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_meadows_edge_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_meadows_edge_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_meadows_edge_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_meadows_edge_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_river_bend_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_river_bend_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_river_bend_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_river_bend_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_witchlight_fen_leg_upleft.png": {
+   "pivot": [
+    0.6666666666666666,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_witchlight_fen_leg_upright.png": {
+   "pivot": [
+    0.3333333333333333,
+    0.5
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_witchlight_fen_turn_left.png": {
+   "pivot": [
+    0.30834086118638965,
+    0.33355027660266845
+   ],
+   "ppu": 256
+  },
+  "Pass/distant_witchlight_fen_turn_right.png": {
+   "pivot": [
+    0.6914509331727875,
+    0.33333333333333337
+   ],
+   "ppu": 256
+  },
+  "Pass/valley_floor.png": {
+   "pivot": [
+    0.5,
+    0.5
    ],
    "ppu": 256
   },
@@ -2951,6 +5032,13 @@
    ],
    "ppu": 512
   },
+  "Stacks/stack_berries.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
   "Stacks/stack_cedar_bow.png": {
    "pivot": [
     0.5,
@@ -3028,6 +5116,13 @@
    ],
    "ppu": 512
   },
+  "Stacks/stack_hearty_pie.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
   "Stacks/stack_herb.png": {
    "pivot": [
     0.5,
@@ -3042,6 +5137,13 @@
    ],
    "ppu": 512
   },
+  "Stacks/stack_iron_helm.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
   "Stacks/stack_iron_ingot.png": {
    "pivot": [
     0.5,
@@ -3050,6 +5152,13 @@
    "ppu": 512
   },
   "Stacks/stack_iron_ore.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Stacks/stack_iron_shield.png": {
    "pivot": [
     0.5,
     0.0833333
@@ -3084,6 +5193,20 @@
    ],
    "ppu": 512
   },
+  "Stacks/stack_leather_cap.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Stacks/stack_leather_jerkin.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
   "Stacks/stack_maple_log.png": {
    "pivot": [
     0.5,
@@ -3112,6 +5235,13 @@
    ],
    "ppu": 512
   },
+  "Stacks/stack_moonsilver_circlet.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
   "Stacks/stack_moonsilver_focus.png": {
    "pivot": [
     0.5,
@@ -3134,6 +5264,27 @@
    "ppu": 512
   },
   "Stacks/stack_moonsilver_ore.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Stacks/stack_mushroom.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Stacks/stack_mushroom_stew.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Stacks/stack_padded_gambeson.png": {
    "pivot": [
     0.5,
     0.0833333
@@ -3175,7 +5326,21 @@
    ],
    "ppu": 512
   },
+  "Stacks/stack_steel_helm.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
   "Stacks/stack_steel_ingot.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Stacks/stack_steel_kite_shield.png": {
    "pivot": [
     0.5,
     0.0833333
@@ -3210,6 +5375,13 @@
    ],
    "ppu": 512
   },
+  "Stacks/stack_trail_rations.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
   "Stacks/stack_trapsense_draught.png": {
    "pivot": [
     0.5,
@@ -3218,6 +5390,13 @@
    "ppu": 512
   },
   "Stacks/stack_warding_draught.png": {
+   "pivot": [
+    0.5,
+    0.0833333
+   ],
+   "ppu": 512
+  },
+  "Stacks/stack_wooden_shield.png": {
    "pivot": [
     0.5,
     0.0833333
@@ -3259,6 +5438,13 @@
     0.5,
     0.8351
    ]
+  },
+  "Tiles/tile_bridge.png": {
+   "pivot": [
+    0.5,
+    0.57566
+   ],
+   "ppu": 256
   },
   "Tiles/tile_dirt.png": {
    "pivot": [
@@ -3677,611 +5863,6 @@
    ],
    "ppu": 256
   },
-  "Wagon/wagon_parked_1.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256
-  },
-  "Wagon/wagon_parked_2.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256
-  },
-  "Wagon/wagon_parked_3.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256
-  },
-  "Wagon/carpet_1.png": {
-   "outline": false,
-   "pivot": [
-    0.5,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Wagon/carpet_edge_1_a.png": {
-   "outline": false,
-   "pivot": [
-    0.5,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Wagon/carpet_edge_1_b.png": {
-   "outline": false,
-   "pivot": [
-    0.5,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Wagon/carpet_2.png": {
-   "outline": false,
-   "pivot": [
-    0.5,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Wagon/carpet_edge_2_a.png": {
-   "outline": false,
-   "pivot": [
-    0.5,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Wagon/carpet_edge_2_b.png": {
-   "outline": false,
-   "pivot": [
-    0.5,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Wagon/carpet_3.png": {
-   "outline": false,
-   "pivot": [
-    0.5,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Wagon/carpet_edge_3_a.png": {
-   "outline": false,
-   "pivot": [
-    0.5,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Wagon/carpet_edge_3_b.png": {
-   "outline": false,
-   "pivot": [
-    0.5,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Furniture/weapon_rack_1_stand_A.png": {
-   "outline": true,
-   "pivot": [
-    0.71053,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/weapon_rack_1_stand_B.png": {
-   "outline": true,
-   "pivot": [
-    0.28947,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/weapon_rack_2_stand_A.png": {
-   "outline": true,
-   "pivot": [
-    0.71053,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/weapon_rack_2_stand_B.png": {
-   "outline": true,
-   "pivot": [
-    0.28947,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/weapon_rack_3_stand_A.png": {
-   "outline": true,
-   "pivot": [
-    0.71053,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/weapon_rack_3_stand_B.png": {
-   "outline": true,
-   "pivot": [
-    0.28947,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/long_rack_1_stand_A.png": {
-   "outline": true,
-   "pivot": [
-    0.71053,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/long_rack_1_stand_B.png": {
-   "outline": true,
-   "pivot": [
-    0.28947,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/long_rack_2_stand_A.png": {
-   "outline": true,
-   "pivot": [
-    0.71053,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/long_rack_2_stand_B.png": {
-   "outline": true,
-   "pivot": [
-    0.28947,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/long_rack_3_stand_A.png": {
-   "outline": true,
-   "pivot": [
-    0.71053,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/long_rack_3_stand_B.png": {
-   "outline": true,
-   "pivot": [
-    0.28947,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/potion_shelf_1_stand_A.png": {
-   "outline": true,
-   "pivot": [
-    0.625,
-    0.11471
-   ],
-   "ppu": 256
-  },
-  "Furniture/potion_shelf_1_stand_B.png": {
-   "outline": true,
-   "pivot": [
-    0.28947,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/potion_shelf_2_stand_A.png": {
-   "outline": true,
-   "pivot": [
-    0.625,
-    0.11471
-   ],
-   "ppu": 256
-  },
-  "Furniture/potion_shelf_2_stand_B.png": {
-   "outline": true,
-   "pivot": [
-    0.28947,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/potion_shelf_3_stand_A.png": {
-   "outline": true,
-   "pivot": [
-    0.71053,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Furniture/potion_shelf_3_stand_B.png": {
-   "outline": true,
-   "pivot": [
-    0.28947,
-    0.14667
-   ],
-   "ppu": 256
-  },
-  "Wagon/ox_walk.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.09333
-   ],
-   "ppu": 256
-  },
-  "Wagon/camp_sign.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.04
-   ],
-   "ppu": 256
-  },
-  "Icons/Items/icon_iron_helm.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_iron_helm.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Items/icon_leather_cap.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_leather_cap.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Items/icon_steel_helm.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_steel_helm.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Items/icon_moonsilver_circlet.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_moonsilver_circlet.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Items/icon_wooden_shield.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_wooden_shield.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Items/icon_iron_shield.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_iron_shield.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Items/icon_steel_kite_shield.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_steel_kite_shield.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Buildings/bld_kitchen.png": {
-   "outline": true,
-   "pivot": [
-    0.4992,
-    0.2917
-   ],
-   "ppu": 256
-  },
-  "Icons/Resources/icon_berries.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_berries.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Resources/icon_mushroom.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_mushroom.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Items/icon_trail_rations.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_trail_rations.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Items/icon_mushroom_stew.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_mushroom_stew.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Items/icon_hearty_pie.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_hearty_pie.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Items/icon_leather_jerkin.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_leather_jerkin.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Icons/Items/icon_padded_gambeson.png": {
-   "pivot": [
-    0.5,
-    0.5
-   ]
-  },
-  "Stacks/stack_padded_gambeson.png": {
-   "pivot": [
-    0.5,
-    0.0833333
-   ],
-   "ppu": 512
-  },
-  "Tiles/tile_bridge.png": {
-   "pivot": [
-    0.5,
-    0.57566
-   ],
-   "ppu": 256
-  },
-  "Furniture/armor_stand_base_1.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Furniture/armor_stand_base_2.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Furniture/armor_stand_base_3.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Items/stand_head_riveted_coat.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Items/stand_head_fur_brigandine.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Items/stand_head_steel_coat.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Items/stand_head_moonsilver_mail.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Items/stand_head.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Items/item_leather_cap_A.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Characters/Citizens/citizen_blond_blue/headwear_leather_cap_SE.png": {
-   "outline": true,
-   "pivot": [
-    0.50098,
-    0.13184
-   ],
-   "ppu": 340
-  },
-  "Items/item_iron_helm_A.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Characters/Citizens/citizen_blond_blue/headwear_iron_helm_SE.png": {
-   "outline": true,
-   "pivot": [
-    0.50098,
-    0.13184
-   ],
-   "ppu": 340
-  },
-  "Items/item_steel_helm_A.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Characters/Citizens/citizen_blond_blue/headwear_steel_helm_SE.png": {
-   "outline": true,
-   "pivot": [
-    0.50098,
-    0.13184
-   ],
-   "ppu": 340
-  },
-  "Items/item_moonsilver_circlet_A.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Characters/Citizens/citizen_blond_blue/headwear_moonsilver_circlet_SE.png": {
-   "outline": true,
-   "pivot": [
-    0.50098,
-    0.13184
-   ],
-   "ppu": 340
-  },
-  "Items/item_wooden_shield_A.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Items/item_iron_shield_A.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
-  "Items/item_steel_kite_shield_A.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.17969
-   ],
-   "ppu": 256
-  },
   "Wagon/WalkIn/cart_back.png": {
    "pivot": [
     0.5071614583333334,
@@ -4289,7 +5870,28 @@
    ],
    "ppu": 256
   },
+  "Wagon/WalkIn/cart_front.png": {
+   "pivot": [
+    0.5071614583333334,
+    0.193359375
+   ],
+   "ppu": 256
+  },
+  "Wagon/WalkIn/cart_roof.png": {
+   "pivot": [
+    0.5071614583333334,
+    0.193359375
+   ],
+   "ppu": 256
+  },
   "Wagon/WalkIn/cart_shafts.png": {
+   "pivot": [
+    0.5071614583333334,
+    0.193359375
+   ],
+   "ppu": 256
+  },
+  "Wagon/WalkIn/cart_silhouette.png": {
    "pivot": [
     0.5071614583333334,
     0.193359375
@@ -4317,1429 +5919,115 @@
    ],
    "ppu": 256
   },
-  "Wagon/WalkIn/cart_front.png": {
+  "Wagon/camp_sign.png": {
+   "outline": true,
    "pivot": [
-    0.5071614583333334,
-    0.193359375
+    0.5,
+    0.04
    ],
    "ppu": 256
   },
-  "Wagon/WalkIn/cart_roof.png": {
-   "pivot": [
-    0.5071614583333334,
-    0.193359375
-   ],
-   "ppu": 256
-  },
-  "Wagon/WalkIn/cart_silhouette.png": {
-   "pivot": [
-    0.5071614583333334,
-    0.193359375
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_meadows_edge_leg_upright.png": {
-   "pivot": [
-    0.3333333333333333,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_meadows_edge_leg_upleft.png": {
-   "pivot": [
-    0.6666666666666666,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_meadows_edge_turn_left.png": {
-   "pivot": [
-    0.30834086118638965,
-    0.33355027660266845
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_meadows_edge_turn_right.png": {
-   "pivot": [
-    0.6914509331727875,
-    0.33333333333333337
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_river_bend_leg_upright.png": {
-   "pivot": [
-    0.3333333333333333,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_river_bend_leg_upleft.png": {
-   "pivot": [
-    0.6666666666666666,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_river_bend_turn_left.png": {
-   "pivot": [
-    0.30834086118638965,
-    0.33355027660266845
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_river_bend_turn_right.png": {
-   "pivot": [
-    0.6914509331727875,
-    0.33333333333333337
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_hollow_wood_leg_upright.png": {
-   "pivot": [
-    0.3333333333333333,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_hollow_wood_leg_upleft.png": {
-   "pivot": [
-    0.6666666666666666,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_hollow_wood_turn_left.png": {
-   "pivot": [
-    0.30834086118638965,
-    0.33355027660266845
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_hollow_wood_turn_right.png": {
-   "pivot": [
-    0.6914509331727875,
-    0.33333333333333337
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_witchlight_fen_leg_upright.png": {
-   "pivot": [
-    0.3333333333333333,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_witchlight_fen_leg_upleft.png": {
-   "pivot": [
-    0.6666666666666666,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_witchlight_fen_turn_left.png": {
-   "pivot": [
-    0.30834086118638965,
-    0.33355027660266845
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_witchlight_fen_turn_right.png": {
-   "pivot": [
-    0.6914509331727875,
-    0.33333333333333337
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_crown_highlands_leg_upright.png": {
-   "pivot": [
-    0.3333333333333333,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_crown_highlands_leg_upleft.png": {
-   "pivot": [
-    0.6666666666666666,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_crown_highlands_turn_left.png": {
-   "pivot": [
-    0.30834086118638965,
-    0.33355027660266845
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_crown_highlands_turn_right.png": {
-   "pivot": [
-    0.6914509331727875,
-    0.33333333333333337
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_castle_approach_leg_upright.png": {
-   "pivot": [
-    0.3333333333333333,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_castle_approach_leg_upleft.png": {
-   "pivot": [
-    0.6666666666666666,
-    0.5
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_castle_approach_turn_left.png": {
-   "pivot": [
-    0.30834086118638965,
-    0.33355027660266845
-   ],
-   "ppu": 256
-  },
-  "Pass/distant_castle_approach_turn_right.png": {
-   "pivot": [
-    0.6914509331727875,
-    0.33333333333333337
-   ],
-   "ppu": 256
-  },
-  "Pass/valley_floor.png": {
+  "Wagon/carpet_1.png": {
+   "outline": false,
    "pivot": [
     0.5,
     0.5
    ],
    "ppu": 256
   },
-  "Pass/distant_castle.png": {
+  "Wagon/carpet_2.png": {
+   "outline": false,
    "pivot": [
-    0.3448275862068966,
-    0.10430839002267578
-   ],
-   "ppu": 256
-  },
-  "Ox/ox_N_stand.png": {
-   "outline": true,
-   "pivot": [
-    0.499609375,
-    0.173828125
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_N_walk_1.png": {
-   "outline": true,
-   "pivot": [
-    0.499609375,
-    0.173828125
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_N_walk_2.png": {
-   "outline": true,
-   "pivot": [
-    0.499609375,
-    0.173828125
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_N_walk_3.png": {
-   "outline": true,
-   "pivot": [
-    0.499609375,
-    0.173828125
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_N_walk_4.png": {
-   "outline": true,
-   "pivot": [
-    0.499609375,
-    0.173828125
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_N_walk_5.png": {
-   "outline": true,
-   "pivot": [
-    0.499609375,
-    0.173828125
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_N_walk_6.png": {
-   "outline": true,
-   "pivot": [
-    0.499609375,
-    0.173828125
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NE_stand.png": {
-   "outline": true,
-   "pivot": [
-    0.4658203125,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NE_walk_1.png": {
-   "outline": true,
-   "pivot": [
-    0.4658203125,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NE_walk_2.png": {
-   "outline": true,
-   "pivot": [
-    0.4658203125,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NE_walk_3.png": {
-   "outline": true,
-   "pivot": [
-    0.4658203125,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NE_walk_4.png": {
-   "outline": true,
-   "pivot": [
-    0.4658203125,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NE_walk_5.png": {
-   "outline": true,
-   "pivot": [
-    0.4658203125,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NE_walk_6.png": {
-   "outline": true,
-   "pivot": [
-    0.4658203125,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_E_stand.png": {
-   "outline": true,
-   "pivot": [
-    0.3890625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_E_walk_1.png": {
-   "outline": true,
-   "pivot": [
-    0.3890625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_E_walk_2.png": {
-   "outline": true,
-   "pivot": [
-    0.3890625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_E_walk_3.png": {
-   "outline": true,
-   "pivot": [
-    0.3890625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_E_walk_4.png": {
-   "outline": true,
-   "pivot": [
-    0.3890625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_E_walk_5.png": {
-   "outline": true,
-   "pivot": [
-    0.3890625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_E_walk_6.png": {
-   "outline": true,
-   "pivot": [
-    0.3890625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SE_stand.png": {
-   "outline": true,
-   "pivot": [
-    0.4083984375,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SE_walk_1.png": {
-   "outline": true,
-   "pivot": [
-    0.4083984375,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SE_walk_2.png": {
-   "outline": true,
-   "pivot": [
-    0.4083984375,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SE_walk_3.png": {
-   "outline": true,
-   "pivot": [
-    0.4083984375,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SE_walk_4.png": {
-   "outline": true,
-   "pivot": [
-    0.4083984375,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SE_walk_5.png": {
-   "outline": true,
-   "pivot": [
-    0.4083984375,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SE_walk_6.png": {
-   "outline": true,
-   "pivot": [
-    0.4083984375,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_S_stand.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.18320312500000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_S_walk_1.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.18320312500000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_S_walk_2.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.18320312500000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_S_walk_3.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.18320312500000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_S_walk_4.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.18320312500000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_S_walk_5.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.18320312500000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_S_walk_6.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.18320312500000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SW_stand.png": {
-   "outline": true,
-   "pivot": [
-    0.5908203125,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SW_walk_1.png": {
-   "outline": true,
-   "pivot": [
-    0.5908203125,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SW_walk_2.png": {
-   "outline": true,
-   "pivot": [
-    0.5908203125,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SW_walk_3.png": {
-   "outline": true,
-   "pivot": [
-    0.5908203125,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SW_walk_4.png": {
-   "outline": true,
-   "pivot": [
-    0.5908203125,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SW_walk_5.png": {
-   "outline": true,
-   "pivot": [
-    0.5908203125,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_SW_walk_6.png": {
-   "outline": true,
-   "pivot": [
-    0.5908203125,
-    0.1572265625
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_W_stand.png": {
-   "outline": true,
-   "pivot": [
-    0.61015625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_W_walk_1.png": {
-   "outline": true,
-   "pivot": [
-    0.61015625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_W_walk_2.png": {
-   "outline": true,
-   "pivot": [
-    0.61015625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_W_walk_3.png": {
-   "outline": true,
-   "pivot": [
-    0.61015625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_W_walk_4.png": {
-   "outline": true,
-   "pivot": [
-    0.61015625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_W_walk_5.png": {
-   "outline": true,
-   "pivot": [
-    0.61015625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_W_walk_6.png": {
-   "outline": true,
-   "pivot": [
-    0.61015625,
-    0.19374999999999998
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NW_stand.png": {
-   "outline": true,
-   "pivot": [
-    0.5333984375,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NW_walk_1.png": {
-   "outline": true,
-   "pivot": [
-    0.5333984375,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NW_walk_2.png": {
-   "outline": true,
-   "pivot": [
-    0.5333984375,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NW_walk_3.png": {
-   "outline": true,
-   "pivot": [
-    0.5333984375,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NW_walk_4.png": {
-   "outline": true,
-   "pivot": [
-    0.5333984375,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NW_walk_5.png": {
-   "outline": true,
-   "pivot": [
-    0.5333984375,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Ox/ox_NW_walk_6.png": {
-   "outline": true,
-   "pivot": [
-    0.5333984375,
-    0.21738281250000002
-   ],
-   "ppu": 720
-  },
-  "Items/item_antidote_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_antidote_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_arcane_dust_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_arcane_dust_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_cedar_bow_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_cedar_bow_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_cedar_log_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_cedar_log_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_cedar_lumber_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_cedar_lumber_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_cedar_staff_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_cedar_staff_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_coal_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_coal_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_copper_ingot_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_copper_ingot_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_copper_ore_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_copper_ore_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_copper_ward_staff_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_copper_ward_staff_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_fur_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_fur_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_fur_brigandine_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_fur_brigandine_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_gem_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_gem_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_herb_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_herb_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_iron_dagger_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_iron_dagger_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_iron_ingot_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_iron_ingot_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_iron_ore_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_iron_ore_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_iron_sword_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_iron_sword_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_ironwood_greatbow_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_ironwood_greatbow_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_ironwood_log_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_ironwood_log_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_ironwood_lumber_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_ironwood_lumber_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_maple_log_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_maple_log_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_maple_longbow_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_maple_longbow_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_maple_lumber_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_maple_lumber_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_moonsilver_blade_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_moonsilver_blade_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_moonsilver_focus_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_moonsilver_focus_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_moonsilver_ingot_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_moonsilver_ingot_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_moonsilver_mail_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_moonsilver_mail_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_moonsilver_ore_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_moonsilver_ore_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_pathfinder_draught_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_pathfinder_draught_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_recovery_tonic_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_recovery_tonic_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_riveted_coat_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_riveted_coat_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_rope_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_rope_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_steel_coat_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_steel_coat_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_steel_ingot_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_steel_ingot_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_steel_maul_front.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_steel_maul_side.png": {
-   "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Items/item_steel_stiletto_front.png": {
-   "outline": true,
-   "pivot": [
     0.5,
-    0.10938
+    0.5
    ],
    "ppu": 256
   },
-  "Items/item_steel_stiletto_side.png": {
-   "outline": true,
+  "Wagon/carpet_3.png": {
+   "outline": false,
    "pivot": [
     0.5,
-    0.10938
+    0.5
    ],
    "ppu": 256
   },
-  "Items/item_steel_sword_front.png": {
-   "outline": true,
+  "Wagon/carpet_edge_1_a.png": {
+   "outline": false,
    "pivot": [
     0.5,
-    0.10938
+    0.5
    ],
    "ppu": 256
   },
-  "Items/item_steel_sword_side.png": {
-   "outline": true,
+  "Wagon/carpet_edge_1_b.png": {
+   "outline": false,
    "pivot": [
     0.5,
-    0.10938
+    0.5
    ],
    "ppu": 256
   },
-  "Items/item_strong_tonic_front.png": {
-   "outline": true,
+  "Wagon/carpet_edge_2_a.png": {
+   "outline": false,
    "pivot": [
     0.5,
-    0.10938
+    0.5
    ],
    "ppu": 256
   },
-  "Items/item_strong_tonic_side.png": {
-   "outline": true,
+  "Wagon/carpet_edge_2_b.png": {
+   "outline": false,
    "pivot": [
     0.5,
-    0.10938
+    0.5
    ],
    "ppu": 256
   },
-  "Items/item_trapsense_draught_front.png": {
-   "outline": true,
+  "Wagon/carpet_edge_3_a.png": {
+   "outline": false,
    "pivot": [
     0.5,
-    0.10938
+    0.5
    ],
    "ppu": 256
   },
-  "Items/item_trapsense_draught_side.png": {
-   "outline": true,
+  "Wagon/carpet_edge_3_b.png": {
+   "outline": false,
    "pivot": [
     0.5,
-    0.10938
+    0.5
    ],
    "ppu": 256
   },
-  "Items/item_warding_draught_front.png": {
+  "Wagon/ox_walk.png": {
    "outline": true,
    "pivot": [
     0.5,
-    0.10938
+    0.09333
    ],
    "ppu": 256
   },
-  "Items/item_warding_draught_side.png": {
+  "Wagon/wagon_parked_1.png": {
    "outline": true,
-   "pivot": [
-    0.5,
-    0.10938
-   ],
-   "ppu": 256
-  },
-  "Blacksmith/blacksmith_kit.png": {
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256,
-   "outline": true
-  },
-  "Blacksmith/blacksmith_rug.png": {
-   "pivot": [
-    0.5,
-    0.3
-   ],
-   "ppu": 256
-  },
-  "Blacksmith/crafting_1.png": {
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256,
-   "outline": true
-  },
-  "Blacksmith/crafting_1_glow.png": {
    "pivot": [
     0.5,
     0.21875
    ],
    "ppu": 256
   },
-  "Blacksmith/crafting_2.png": {
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256,
-   "outline": true
-  },
-  "Blacksmith/crafting_2_glow.png": {
+  "Wagon/wagon_parked_2.png": {
+   "outline": true,
    "pivot": [
     0.5,
     0.21875
    ],
    "ppu": 256
   },
-  "Blacksmith/crafting_3.png": {
+  "Wagon/wagon_parked_3.png": {
+   "outline": true,
    "pivot": [
     0.5,
     0.21875
-   ],
-   "ppu": 256,
-   "outline": true
-  },
-  "Blacksmith/crafting_3_glow.png": {
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256
-  },
-  "Blacksmith/delivery_mat.png": {
-   "pivot": [
-    0.5,
-    0.375
-   ],
-   "ppu": 256
-  },
-  "Blacksmith/furnace_1.png": {
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256,
-   "outline": true
-  },
-  "Blacksmith/furnace_1_glow.png": {
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256
-  },
-  "Blacksmith/furnace_2.png": {
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256,
-   "outline": true
-  },
-  "Blacksmith/furnace_2_glow.png": {
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256
-  },
-  "Blacksmith/furnace_3.png": {
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256,
-   "outline": true
-  },
-  "Blacksmith/furnace_3_glow.png": {
-   "pivot": [
-    0.5,
-    0.21875
-   ],
-   "ppu": 256
-  },
-  "Blacksmith/pickup_mat.png": {
-   "pivot": [
-    0.5,
-    0.375
    ],
    "ppu": 256
   }

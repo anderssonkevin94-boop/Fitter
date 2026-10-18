@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "rig_id": "ravenholm_standard_512_v1",
+  "head_sets": {
+    "blond": {
+      "views": {
+        "S": "head_blond_S",
+        "SE": "head_blond_SE",
+        "E": "head_blond_E",
+        "NE": "head_blond_NE",
+        "N": "head_blond_N"
+      }
+    }
+  },
+  "outfit_sets": {
+    "citizen_blue": {
+      "views": {
+        "S": "torso_clothes_S",
+        "SE": "torso_clothes_SE",
+        "E": "torso_clothes_E",
+        "NE": "torso_clothes_NE",
+        "N": "torso_clothes_N"
+      }
+    },
+    "steel_armour": {
+      "views": {
+        "S": "torso_steel_S",
+        "SE": "torso_steel_SE",
+        "E": "torso_steel_E",
+        "NE": "torso_steel_NE",
+        "N": "torso_steel_N"
+      }
+    }
+  },
+  "equipment_example": {
+    "character": {
+      "head_id": "blond",
+      "skin_base": "#DA875B",
+      "skin_shadow": "#CA6642",
+      "outfit_id": "citizen_blue"
+    },
+    "equip": {
+      "inventory_item_id": "steel_coat",
+      "worn_outfit_id": "steel_armour"
+    },
+    "unequip": {
+      "outfit_id": "citizen_blue"
+    }
+  },
+  "notes": [
+    "Inventory art and worn outfit are separate references.",
+    "Both outfit sets are compatible with the same head set, rig, procedural limbs, hands and boots.",
+    "Switch the outfit_id; preserve pose, animation phase, facing, head_id and skin palette.",
+    "Future outfits must fit this rig or declare a different rig_id."
+  ]
+}

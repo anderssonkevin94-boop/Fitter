@@ -1869,3 +1869,31 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - `CampTests`: the rim within 20 cells up the screen from the camp but more than 8, and the gate at least 12 world units across the screen.
   - `RoadPlayModeTests`: the wagon's floor is on land on every level, plus a capture from the counter.
 - Two test helpers (`DigTestKit.HillBlocks`, `CampPlayModeTests.TreeAhead`) searched across the road with a fixed screen direction, which only works for a road straight up the screen. They now use `PointBeside`, so they search across the road whichever way it runs.
+
+## 2026-10-18: modular characters (Astra's ravenholm-modular-characters-v1: one head, outfits that swap)
+
+- **Imported** by `Tools/ArtImport/import_modular_characters.py` into `Art/Placeholder/Characters/Modular/ravenholm_standard_512_v1/`: the heads, torsos and skin masks, plus `points.json` and `library.json`. The previews are not imported.
+  - The script checks that the pack's shared hands and boots are byte-identical to the store owner's, which the game already has.
+  - Heads and torsos use the store owner's ground pivot (pixel 256, 444) at 340 PPU. They are untrimmed and uncompressed, so they meet exactly.
+  - Masks are data: linear, point filtered, uncompressed, and no colour is bled into their transparent pixels.
+- **The citizen is modular** (`ProjectSetup.ApplyModular`, from the pack's `library.json`): head set blond, everyday outfit citizen_blue, and `item.steel_coat` worn as steel_armour. Other armour keeps the everyday outfit.
+  - `HoseCharacterDefinition` gains a head and skin mask per view, outfits (a torso and mask per view), worn armour (item → outfit), hand masks, and the skin's base and shadow.
+  - The painted bodies stay as the fallback: a definition without heads draws them as before. The supplier is unchanged.
+- **The rig** (`HoseRig`):
+  - The torso is drawn in the body's place, and the head is its child at zero offset, so they share the lean, bob, sway, squash and mirror. There are no per-outfit nudges.
+  - The view is chosen once for head, torso and boots. Mirrored directions flip the whole rig about the ground pixel, which is the pack's "+1 px" rule.
+  - `ArmourItem` picks the outfit (`WornOutfit`). A swap changes only the torso: pose, phase, feet, hands and head stay put, which is tested against an unswapped twin.
+  - Draw order: the head sits over its torso, and everything at 7 and above moves up one.
+  - At rest and walking, the near arm hangs from under the torso's painted shoulder cap, and its hand still passes in front. The pack's rule is "the shoulder cap remains above the arm root".
+- **Skin**: the `Ravenholm/SpriteSkinTint` shader (`SkinTint.mat`) replaces only masked pixels with the character's skin base or shadow, on the head, the neck and the hands; the arms use the skin base. `SkinBase` and `SkinShadow` on the rig set a second palette.
+- **Wearing it**:
+  - Applicants leaving or returning with a loadout wear its body armour as well as its helmet (`ApplicantCrowdView.Wear`).
+  - The Equip Hero portrait shows the steel outfit instead of laying the item picture over the body. Unmapped armour still uses the overlay, and the head stays its own part.
+- **Outline**: the game's outline copies sit behind the whole figure, so the neck covers the head's lower outline and only the assembled silhouette is outlined.
+- Checked in `ModularCharacterPlayModeTests`:
+  - all eight directions, idle and walking, swapping the coat on and off mid-stride;
+  - carrying in every direction;
+  - a second skin on the head, torso and hands.
+  - It also writes the sheet `Captures/modular_characters.png`, which I looked at: no gaps, no head jumps, and the outline only on the outside.
+- The Equip Hero portrait reports armour worn as an outfit as shown (`WorkshopHeroPreview.ArmorShown`); Astra's portrait test checks every armour.
+- The tree-fade test now picks a tree he can stand behind among the trees: on some worlds since the camp moved, the first tree stood at the camp's edge, where he is drawn above the forest and nothing covers him.

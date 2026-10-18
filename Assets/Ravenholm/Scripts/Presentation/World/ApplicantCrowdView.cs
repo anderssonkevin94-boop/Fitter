@@ -165,19 +165,23 @@ namespace Ravenholm.Presentation
             var c = _root.Services.Jobs.Board.Contractor(e.ContractorId);
             var from = _shown.TryGetValue(e.ContractorId, out var go) ? (Vector2)go.transform.position : spots.Count > 0 ? Spot(0) : Vector2.zero;
             var walker = Spawn(c, from, false);
-            // Kitted out: the helmet from the loadout is worn on the way (the loadout holds the Store's item instances).
-            foreach (var i in e.Items) if (Wear(walker, _root.Services.Logistics.System.DefinitionOfItem(i))) break;
+            // Kitted out: the helmet and body armour from the loadout are worn on the way (the loadout holds the Store's item instances).
+            foreach (var i in e.Items) Wear(walker, _root.Services.Logistics.System.DefinitionOfItem(i));
             StartCoroutine(Depart(walker, from));
         }
 
-        /// <summary>Puts headwear on a citizen figure if the item is headwear (Astra's handoff: fitted to the SE view).</summary>
+        /// <summary>
+        /// Puts headwear (Astra's handoff: fitted to the SE view) or body armour (the modular outfits, 2026-10-18: an
+        /// armour the character definition maps to a worn outfit swaps the torso) on a citizen figure.
+        /// </summary>
         private bool Wear(GameObject figure, string itemId)
         {
-            if (figure == null || string.IsNullOrEmpty(itemId) || !_root.Services.Catalogue.TryGet<ItemDefinition>(itemId, out var def)
-                || def.Category != ItemCategory.Helmet) return false;
+            if (figure == null || string.IsNullOrEmpty(itemId) || !_root.Services.Catalogue.TryGet<ItemDefinition>(itemId, out var def)) return false;
             var rig = figure.GetComponentInChildren<HoseRig>();
             if (rig == null) return false;
-            rig.HeadwearItem = itemId;
+            if (def.Category == ItemCategory.Helmet) rig.HeadwearItem = itemId;
+            else if (def.Category == ItemCategory.Armor) rig.ArmourItem = itemId;
+            else return false;
             return true;
         }
 

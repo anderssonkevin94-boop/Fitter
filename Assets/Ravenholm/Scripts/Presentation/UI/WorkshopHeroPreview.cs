@@ -16,7 +16,9 @@ namespace Ravenholm.Presentation
         private SpriteRenderer _armorLayer, _weaponLayer, _shieldLayer, _portraitHead;
         private Sprite _headSprite;
 
-        public bool ArmorShown => _armorLayer != null && _armorLayer.enabled;
+        // Shown either as the item laid over the body or, on a modular character, worn as its outfit (2026-10-18).
+        public bool ArmorShown => _armorLayer != null && _armorLayer.enabled || WornAsOutfit;
+        private bool WornAsOutfit => _rig != null && _body != null && _rig.Definition.Modular && _rig.WornOutfit == _rig.Definition.OutfitForArmour(_body.Id);
         public bool WeaponShown => _weaponLayer != null && _weaponLayer.enabled;
         public bool ShieldShown => _shieldLayer != null && _shieldLayer.enabled;
         public bool HeadwearShown => _rig != null && _rig.HeadwearShown;
@@ -60,6 +62,7 @@ namespace Ravenholm.Presentation
         {
             if (_rig == null) return;
             _rig.HeadwearItem = _head != null ? _head.Id : null;
+            _rig.ArmourItem = _body != null ? _body.Id : null;   // modular characters wear mapped armour as their outfit
             _rig.Drive("SE", HoseRig.Pose.Idle, 0, Time.unscaledDeltaTime, Vector2.zero, 1);
             DrawArmor();
             DrawHeldItem(ref _weaponLayer, "EquippedWeapon", _weapon, _rig.RightHandAttachment, false);
@@ -83,11 +86,14 @@ namespace Ravenholm.Presentation
 
         private void DrawArmor()
         {
-            var layer = Layer(ref _armorLayer, "EquippedArmor", _rig.BodyAttachment, _body);
+            // A modular character wearing armour its definition maps to an outfit shows that outfit's torso (2026-10-18):
+            // no item picture laid over the body.
+            var worn = _rig.Definition.Modular && _body != null && _rig.Definition.OutfitForArmour(_body.Id) != null;
+            var layer = Layer(ref _armorLayer, "EquippedArmor", _rig.BodyAttachment, worn ? null : _body);
             _rig.BodyAttachment.enabled = layer == null;
             if (_portraitHead != null) _portraitHead.enabled = layer != null;
             if (layer == null) return;
-            DrawPortraitHead();
+            if (!_rig.Definition.Modular) DrawPortraitHead();   // a modular head is its own part: it stays as drawn
             var view = _rig.Definition.Get("SE");
             var shoulder = (view.shoulderLeft + view.shoulderRight) * .5f;
             var hips = (view.hipLeft + view.hipRight) * .5f;

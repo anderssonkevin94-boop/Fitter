@@ -21,6 +21,94 @@ namespace Ravenholm.Presentation
             public Vector2 shoulderLeft, shoulderRight, hipLeft, hipRight, ankleLeft, ankleRight, wristLeft, wristRight;
             [Tooltip("Headwear fitted to this view's body (same canvas and pivot), by item id. Views without one show none.")]
             public List<Headwear> headwear = new List<Headwear>();
+            [Tooltip("Modular characters (Astra's standard rig v1, 2026-10-18): the head, on the body's canvas and pivot (its head mount meets every torso's at zero offset), and its skin mask.")]
+            public Sprite head;
+            public Texture2D headSkinMask;
+        }
+
+        /// <summary>A worn outfit: a torso per view (with its neck and shoulder caps) on the body canvas, and skin masks.</summary>
+        [Serializable]
+        public sealed class Outfit
+        {
+            public string id;
+            public List<OutfitView> views = new List<OutfitView>();
+        }
+
+        [Serializable]
+        public sealed class OutfitView
+        {
+            public string view;
+            public Sprite torso;
+            public Texture2D skinMask;
+        }
+
+        /// <summary>Equipment worn as an outfit: equipping the item (body armour) swaps the torso to this outfit.</summary>
+        [Serializable]
+        public sealed class WornArmour
+        {
+            public string item;
+            public string outfit;
+        }
+
+        /// <summary>A shared hand's skin mask (the hands are the store owner's; their masks come with the modular pack).</summary>
+        [Serializable]
+        public sealed class HandMask
+        {
+            public Sprite hand;
+            public Texture2D mask;
+        }
+
+        [Header("Modular (head + outfit; empty: the painted body per view)")]
+        [Tooltip("The rig the parts fit (points.json rig_id); outfits must declare the same.")]
+        public string rigId = "";
+        public List<Outfit> outfits = new List<Outfit>();
+        [Tooltip("The everyday outfit, worn when no mapped armour is equipped.")]
+        public string defaultOutfit = "";
+        public List<WornArmour> wornArmour = new List<WornArmour>();
+        public List<HandMask> handMasks = new List<HandMask>();
+        [Tooltip("Tints only skin-masked pixels (R base, G shadow): head, neck and hands.")]
+        public Material skinMaterial;
+        public Color skinBase = new Color32(0xDA, 0x87, 0x5B, 255);
+        public Color skinShadow = new Color32(0xCA, 0x66, 0x42, 255);
+
+        /// <summary>Whether this character is drawn as a head over a worn outfit (otherwise one painted body per view).</summary>
+        public bool Modular
+        {
+            get
+            {
+                if (outfits == null || outfits.Count == 0) return false;
+                foreach (var v in views) if (v == null || v.head == null) return false;
+                return true;
+            }
+        }
+
+        /// <summary>The outfit an equipped body-armour item is worn as (null: the item isn't worn as an outfit).</summary>
+        public string OutfitForArmour(string itemId)
+        {
+            if (string.IsNullOrEmpty(itemId) || wornArmour == null) return null;
+            foreach (var w in wornArmour) if (w != null && w.item == itemId) return w.outfit;
+            return null;
+        }
+
+        /// <summary>The torso and its skin mask for an outfit in a view; the default outfit when that one is missing.</summary>
+        public (Sprite torso, Texture2D mask) TorsoFor(string outfitId, string view)
+        {
+            foreach (var id in new[] { outfitId, defaultOutfit })
+            {
+                if (string.IsNullOrEmpty(id) || outfits == null) continue;
+                foreach (var o in outfits)
+                    if (o != null && o.id == id)
+                        foreach (var ov in o.views)
+                            if (ov != null && ov.view == view && ov.torso != null) return (ov.torso, ov.skinMask);
+            }
+            return (null, null);
+        }
+
+        public Texture2D HandMaskFor(Sprite hand)
+        {
+            if (hand == null || handMasks == null) return null;
+            foreach (var h in handMasks) if (h != null && h.hand == hand) return h.mask;
+            return null;
         }
 
         [Serializable]

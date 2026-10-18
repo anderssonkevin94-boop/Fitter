@@ -1,0 +1,1134 @@
+{
+  "schema_version": 1,
+  "rig_id": "ravenholm_standard_512_v1",
+  "coordinates": {
+    "origin": "top-left",
+    "units": "integer pixel centres",
+    "body_canvas": [
+      512,
+      512
+    ],
+    "boot_canvas": [
+      512,
+      512
+    ],
+    "hand_canvas": [
+      256,
+      256
+    ],
+    "ground": [
+      256,
+      444
+    ],
+    "standing_height_px": 365,
+    "body_top_y": 80,
+    "torso_bottom_y": 352
+  },
+  "directions": {
+    "S": {
+      "source": "S",
+      "mirror_x": false,
+      "swap_anatomical_sides": false
+    },
+    "SE": {
+      "source": "SE",
+      "mirror_x": false,
+      "swap_anatomical_sides": false
+    },
+    "E": {
+      "source": "E",
+      "mirror_x": false,
+      "swap_anatomical_sides": false
+    },
+    "NE": {
+      "source": "NE",
+      "mirror_x": false,
+      "swap_anatomical_sides": false
+    },
+    "N": {
+      "source": "N",
+      "mirror_x": false,
+      "swap_anatomical_sides": false
+    },
+    "NW": {
+      "source": "NE",
+      "mirror_x": true,
+      "swap_anatomical_sides": true
+    },
+    "W": {
+      "source": "E",
+      "mirror_x": true,
+      "swap_anatomical_sides": true
+    },
+    "SW": {
+      "source": "SE",
+      "mirror_x": true,
+      "swap_anatomical_sides": true
+    }
+  },
+  "mirror_rule": {
+    "pixel": "x = width - 1 - x",
+    "part_placement": "Mirror the assembled rig, or mirror every part and all its anchors in the same 512px canvas. Hand-local coordinates use width 256.",
+    "ground_after_mirror": [
+      255,
+      444
+    ],
+    "retain_scene_ground": "When keeping the world origin at [256,444], translate the complete mirrored assembly +1px in X.",
+    "anatomical_sides": "Reflection exchanges anatomical left/right. For mirrored directions, target left uses the mirrored source right sprite/anchor and target right uses mirrored source left. Preserve the character gameplay hand assignment when carrying items."
+  },
+  "limbs": {
+    "arm_colour": "#DA875B",
+    "leg_colour": "#6D594B",
+    "arm_width_px": 18,
+    "leg_width_px": 20
+  },
+  "views": {
+    "S": {
+      "head_mount": [
+        256,
+        208
+      ],
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "wrist_targets": {
+        "left": [
+          344,
+          329
+        ],
+        "right": [
+          168,
+          329
+        ]
+      },
+      "ankle_left": [
+        294,
+        403
+      ],
+      "ankle_right": [
+        218,
+        403
+      ],
+      "rest_draw_order": [
+        "legs_and_boots",
+        "arms_and_hands",
+        "torso",
+        "head"
+      ],
+      "hand_view": "front"
+    },
+    "SE": {
+      "head_mount": [
+        256,
+        211
+      ],
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "wrist_targets": {
+        "left": [
+          340,
+          329
+        ],
+        "right": [
+          179,
+          329
+        ]
+      },
+      "ankle_left": [
+        292,
+        403
+      ],
+      "ankle_right": [
+        224,
+        403
+      ],
+      "rest_draw_order": [
+        "legs_and_boots",
+        "arms_and_hands",
+        "torso",
+        "head"
+      ],
+      "hand_view": "front"
+    },
+    "E": {
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "wrist_targets": {
+        "left": [
+          267,
+          304
+        ],
+        "right": [
+          180,
+          329
+        ]
+      },
+      "ankle_left": [
+        267,
+        403
+      ],
+      "ankle_right": [
+        243,
+        403
+      ],
+      "rest_draw_order": [
+        "legs_and_boots",
+        "arms_and_hands",
+        "torso",
+        "head"
+      ],
+      "hand_view": "side"
+    },
+    "NE": {
+      "head_mount": [
+        256,
+        201
+      ],
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "wrist_targets": {
+        "left": [
+          174,
+          329
+        ],
+        "right": [
+          341,
+          329
+        ]
+      },
+      "ankle_left": [
+        222,
+        403
+      ],
+      "ankle_right": [
+        290,
+        403
+      ],
+      "rest_draw_order": [
+        "legs_and_boots",
+        "arms_and_hands",
+        "torso",
+        "head"
+      ],
+      "hand_view": "back"
+    },
+    "N": {
+      "head_mount": [
+        256,
+        207
+      ],
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "wrist_targets": {
+        "left": [
+          168,
+          329
+        ],
+        "right": [
+          344,
+          329
+        ]
+      },
+      "ankle_left": [
+        218,
+        403
+      ],
+      "ankle_right": [
+        294,
+        403
+      ],
+      "rest_draw_order": [
+        "legs_and_boots",
+        "arms_and_hands",
+        "torso",
+        "head"
+      ],
+      "hand_view": "back"
+    }
+  },
+  "assets": {
+    "head_blond_S": {
+      "file": "Heads/head_blond_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        179,
+        80,
+        333,
+        208
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_blond_S_skin.png"
+    },
+    "torso_clothes_S": {
+      "file": "Torsos/torso_clothes_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        144,
+        200,
+        368,
+        352
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": true,
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/torso_clothes_S_skin.png"
+    },
+    "torso_steel_S": {
+      "file": "Torsos/torso_steel_S.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        155,
+        200,
+        356,
+        352
+      ],
+      "head_mount": [
+        256,
+        208
+      ],
+      "contains_neck": true,
+      "shoulder_left": [
+        330,
+        255
+      ],
+      "hip_left": [
+        294,
+        346
+      ],
+      "shoulder_right": [
+        182,
+        255
+      ],
+      "hip_right": [
+        218,
+        346
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/torso_steel_S_skin.png"
+    },
+    "head_blond_SE": {
+      "file": "Heads/head_blond_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        80,
+        330,
+        211
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_blond_SE_skin.png"
+    },
+    "torso_clothes_SE": {
+      "file": "Torsos/torso_clothes_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        162,
+        203,
+        350,
+        352
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": true,
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/torso_clothes_SE_skin.png"
+    },
+    "torso_steel_SE": {
+      "file": "Torsos/torso_steel_SE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        163,
+        203,
+        348,
+        352
+      ],
+      "head_mount": [
+        256,
+        211
+      ],
+      "contains_neck": true,
+      "shoulder_left": [
+        329,
+        267
+      ],
+      "hip_left": [
+        291,
+        346
+      ],
+      "shoulder_right": [
+        193,
+        264
+      ],
+      "hip_right": [
+        227,
+        346
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/torso_steel_SE_skin.png"
+    },
+    "head_blond_E": {
+      "file": "Heads/head_blond_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        186,
+        80,
+        327,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_blond_E_skin.png"
+    },
+    "torso_clothes_E": {
+      "file": "Torsos/torso_clothes_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        184,
+        199,
+        311,
+        352
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": true,
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/torso_clothes_E_skin.png"
+    },
+    "torso_steel_E": {
+      "file": "Torsos/torso_steel_E.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        189,
+        199,
+        309,
+        352
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": true,
+      "shoulder_left": [
+        269,
+        244
+      ],
+      "hip_left": [
+        267,
+        346
+      ],
+      "shoulder_right": [
+        203,
+        262
+      ],
+      "hip_right": [
+        245,
+        346
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/torso_steel_E_skin.png"
+    },
+    "head_blond_NE": {
+      "file": "Heads/head_blond_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        181,
+        80,
+        322,
+        201
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_blond_NE_skin.png"
+    },
+    "torso_clothes_NE": {
+      "file": "Torsos/torso_clothes_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        152,
+        193,
+        359,
+        352
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": true,
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/torso_clothes_NE_skin.png"
+    },
+    "torso_steel_NE": {
+      "file": "Torsos/torso_steel_NE.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        164,
+        193,
+        357,
+        352
+      ],
+      "head_mount": [
+        256,
+        201
+      ],
+      "contains_neck": true,
+      "shoulder_left": [
+        188,
+        257
+      ],
+      "hip_left": [
+        222,
+        346
+      ],
+      "shoulder_right": [
+        325,
+        257
+      ],
+      "hip_right": [
+        290,
+        346
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/torso_steel_NE_skin.png"
+    },
+    "head_blond_N": {
+      "file": "Heads/head_blond_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        176,
+        80,
+        336,
+        207
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": false,
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/head_blond_N_skin.png"
+    },
+    "torso_clothes_N": {
+      "file": "Torsos/torso_clothes_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        146,
+        199,
+        366,
+        352
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": true,
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/torso_clothes_N_skin.png"
+    },
+    "torso_steel_N": {
+      "file": "Torsos/torso_steel_N.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        150,
+        199,
+        362,
+        352
+      ],
+      "head_mount": [
+        256,
+        207
+      ],
+      "contains_neck": true,
+      "shoulder_left": [
+        183,
+        251
+      ],
+      "hip_left": [
+        218,
+        346
+      ],
+      "shoulder_right": [
+        329,
+        251
+      ],
+      "hip_right": [
+        294,
+        346
+      ],
+      "rig_id": "ravenholm_standard_512_v1",
+      "skin_mask": "Masks/torso_steel_N_skin.png"
+    },
+    "boot_E_left": {
+      "file": "Shared/boot_E_left.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        245,
+        399,
+        314,
+        444
+      ],
+      "ankle": [
+        267,
+        403
+      ]
+    },
+    "boot_E_right": {
+      "file": "Shared/boot_E_right.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        221,
+        399,
+        290,
+        444
+      ],
+      "ankle": [
+        243,
+        403
+      ]
+    },
+    "boot_NE_left": {
+      "file": "Shared/boot_NE_left.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        198,
+        399,
+        259,
+        444
+      ],
+      "ankle": [
+        222,
+        403
+      ]
+    },
+    "boot_NE_right": {
+      "file": "Shared/boot_NE_right.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        266,
+        399,
+        327,
+        444
+      ],
+      "ankle": [
+        290,
+        403
+      ]
+    },
+    "boot_N_left": {
+      "file": "Shared/boot_N_left.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        190,
+        399,
+        245,
+        444
+      ],
+      "ankle": [
+        218,
+        403
+      ]
+    },
+    "boot_N_right": {
+      "file": "Shared/boot_N_right.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        266,
+        399,
+        321,
+        444
+      ],
+      "ankle": [
+        294,
+        403
+      ]
+    },
+    "boot_SE_left": {
+      "file": "Shared/boot_SE_left.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        266,
+        399,
+        329,
+        444
+      ],
+      "ankle": [
+        292,
+        403
+      ]
+    },
+    "boot_SE_right": {
+      "file": "Shared/boot_SE_right.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        198,
+        399,
+        261,
+        444
+      ],
+      "ankle": [
+        224,
+        403
+      ]
+    },
+    "boot_S_left": {
+      "file": "Shared/boot_S_left.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        269,
+        399,
+        328,
+        444
+      ],
+      "ankle": [
+        294,
+        403
+      ]
+    },
+    "boot_S_right": {
+      "file": "Shared/boot_S_right.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "bounds": [
+        184,
+        399,
+        243,
+        444
+      ],
+      "ankle": [
+        218,
+        403
+      ]
+    },
+    "hand_grip_back": {
+      "file": "Shared/hand_grip_back.png",
+      "canvas": [
+        256,
+        256
+      ],
+      "bounds": [
+        105,
+        124,
+        145,
+        163
+      ],
+      "wrist": [
+        128,
+        128
+      ],
+      "grip": [
+        126,
+        147
+      ],
+      "skin_mask": "Masks/hand_grip_back_skin.png"
+    },
+    "hand_grip_front": {
+      "file": "Shared/hand_grip_front.png",
+      "canvas": [
+        256,
+        256
+      ],
+      "bounds": [
+        111,
+        124,
+        144,
+        163
+      ],
+      "wrist": [
+        128,
+        128
+      ],
+      "grip": [
+        129,
+        147
+      ],
+      "skin_mask": "Masks/hand_grip_front_skin.png"
+    },
+    "hand_grip_side": {
+      "file": "Shared/hand_grip_side.png",
+      "canvas": [
+        256,
+        256
+      ],
+      "bounds": [
+        117,
+        124,
+        149,
+        163
+      ],
+      "wrist": [
+        128,
+        128
+      ],
+      "grip": [
+        134,
+        147
+      ],
+      "skin_mask": "Masks/hand_grip_side_skin.png"
+    },
+    "hand_open_back": {
+      "file": "Shared/hand_open_back.png",
+      "canvas": [
+        256,
+        256
+      ],
+      "bounds": [
+        109,
+        124,
+        151,
+        169
+      ],
+      "wrist": [
+        128,
+        128
+      ],
+      "skin_mask": "Masks/hand_open_back_skin.png"
+    },
+    "hand_open_front": {
+      "file": "Shared/hand_open_front.png",
+      "canvas": [
+        256,
+        256
+      ],
+      "bounds": [
+        104,
+        124,
+        148,
+        169
+      ],
+      "wrist": [
+        128,
+        128
+      ],
+      "skin_mask": "Masks/hand_open_front_skin.png"
+    },
+    "hand_open_side": {
+      "file": "Shared/hand_open_side.png",
+      "canvas": [
+        256,
+        256
+      ],
+      "bounds": [
+        117,
+        124,
+        146,
+        169
+      ],
+      "wrist": [
+        128,
+        128
+      ],
+      "skin_mask": "Masks/hand_open_side_skin.png"
+    },
+    "hand_point_back": {
+      "file": "Shared/hand_point_back.png",
+      "canvas": [
+        256,
+        256
+      ],
+      "bounds": [
+        123,
+        107,
+        182,
+        142
+      ],
+      "wrist": [
+        128,
+        128
+      ],
+      "skin_mask": "Masks/hand_point_back_skin.png"
+    },
+    "hand_point_front": {
+      "file": "Shared/hand_point_front.png",
+      "canvas": [
+        256,
+        256
+      ],
+      "bounds": [
+        118,
+        120,
+        173,
+        155
+      ],
+      "wrist": [
+        128,
+        128
+      ],
+      "skin_mask": "Masks/hand_point_front_skin.png"
+    },
+    "hand_point_side": {
+      "file": "Shared/hand_point_side.png",
+      "canvas": [
+        256,
+        256
+      ],
+      "bounds": [
+        122,
+        115,
+        178,
+        150
+      ],
+      "wrist": [
+        128,
+        128
+      ],
+      "skin_mask": "Masks/hand_point_side_skin.png"
+    }
+  },
+  "skin_mask": {
+    "encoding": "R=base skin coverage, G=skin shadow coverage; B=0; alpha=255 on skin, 0 elsewhere. Data mask, not display art.",
+    "base": "#DA875B",
+    "shadow": "#CA6642",
+    "usage": "Tint only masked pixels. Use the same base and shadow skin colours for head, torso neck, hands, and procedural arms. Sample as linear data with point filtering."
+  }
+}
