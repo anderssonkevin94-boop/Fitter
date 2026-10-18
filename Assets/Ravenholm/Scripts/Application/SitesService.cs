@@ -305,7 +305,12 @@ namespace Ravenholm.Services
         public int PlayerToolTier => _catalogue.TryGet<WorkerEquipmentDefinition>(PlayerToolId, out var e) ? e.Tier : 1;
 
         /// <summary>The tool tier a camp's gate needs at a map cell (0 = any tool).</summary>
-        public int RequiredToolTier(int x, int y) => _catalogue.CurrentCamp != null ? _catalogue.CurrentCamp.Ridge.GateTierAt(x, y) : 0;
+        public int RequiredToolTier(int x, int y)
+        {
+            // The level the company is on (each level has its own gate and ridges), else the road's.
+            var ridge = Level > 0 && _catalogue.CurrentCamp != null ? _catalogue.CurrentCamp.RidgeFor(Level) : _catalogue.CurrentCamp?.Ridge;
+            return ridge != null ? ridge.GateTierAt(x, y) : 0;
+        }
 
         /// <summary>A gate the supplier's tool can't get through yet.</summary>
         public bool ToolTooWeak(int x, int y) => RequiredToolTier(x, y) > PlayerToolTier;
@@ -313,6 +318,7 @@ namespace Ravenholm.Services
         /// <summary>The name of the first tool of a tier (for "Needs the Iron tool").</summary>
         public string ToolNameOfTier(int tier)
         {
+            if (tier >= Domain.Sites.RidgeLayout.UnbreakableTier) return "a way through the gate";   // the pass's ridges
             foreach (var e in _catalogue.All())
                 if (e is WorkerEquipmentDefinition w && w.Slot == EquipmentSlot.Tool && w.Tier == tier) return w.DisplayName;
             return $"a tier {tier} tool";

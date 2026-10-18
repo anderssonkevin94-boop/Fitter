@@ -48,6 +48,8 @@ namespace Ravenholm.Domain.Sites
             public bool Rock;
             /// <summary>A build project (a bridge, a causeway): the land is a gap until it is built; no tool needed.</summary>
             public bool Project;
+            /// <summary>A project that is a barrier, not a gap (a gate to repair): the ground stays; the gate blocks until built.</summary>
+            public bool Barrier;
         }
 
         public double StartX, StartY;
@@ -90,81 +92,161 @@ namespace Ravenholm.Domain.Sites
         /// <summary>The cells the road ends short of the rim.</summary>
         public const int PlateauRoadInset = 2;
 
-        /// <summary>A gate on a level: how far either side of the road its band reaches (cells).</summary>
-        public const double PlateauGateHalfWidth = 7;
+        /// <summary>A gate on a level: how far either side of the road its band reaches (cells): the pass's width.</summary>
+        public const double PlateauGateHalfWidth = 3.5;
 
-        /// <summary>The side rim the level's gate is on: +1 east (screen right, levels 1, 3, 5), -1 west.</summary>
-        public int PlateauSide => Level % 2 == 0 ? 1 : -1;
+        /// <summary>The pass to a level's gate: its last cells of road, between ridges, and the corridor's half-width.</summary>
+        public const double PassLength = 16, PassHalfWidth = 2.6;
+
+        /// <summary>A tool tier no tool reaches: the pass's ridges can't be broken (the gate is the way through).</summary>
+        public const int UnbreakableTier = 99;
+
+        /// <summary>Kept for old callers: the side the gate used to be on. The horseshoe's gate is always to the north-west.</summary>
+        public int PlateauSide => -1;
+
+        /// <summary>The bay: the open middle of the horseshoe, a drop with the valley and the castle beyond (world units).</summary>
+        public double BayCX, BayCY, BayRX, BayRY;
 
         /// <summary>
-        /// The outline's sizes from <see cref="LevelSize"/> and where the camp stands: just below the north rim (Kevin,
-        /// 2026-10-18: "locate the campsites with a view of the parallax"), the rim about 7 world units above the camp's
-        /// centre, clear of the camp's buildings, so the castle shows over the edge from camp.
+        /// A level is a horseshoe (Kevin's drawing, 2026-10-19): wide land open to the north in the middle, the bay, so the
+        /// camp at the bottom of the U looks over the drop to the valley and the castle; arms either side reach north, the
+        /// road climbs the west one to a narrow pass in the north-west between ridges no tool breaks, with the level's gate
+        /// in it. Forest and hills mix all over. Each level's proportions vary a little (its seed).
         /// </summary>
         public void SetLevelAround(double campCellX, double campCellY)
         {
             var (wx, wy) = (( campCellX - campCellY) * 0.5, (campCellX + campCellY) * 0.25 + 0.25);
-            LevelRX = LevelSize * 0.4;
-            LevelRY = LevelSize * 0.2;
+            double V(int k, double spread) => 1 + spread * (Hash01(k, 131, Seed) * 2 - 1);
+            LevelRX = LevelSize * 0.48 * V(1, 0.06);
+            LevelRY = LevelSize * 0.32 * V(2, 0.06);
             LevelCX = wx + 1;
-            LevelCY = wy - LevelRY * 0.42;
+            LevelCY = wy - 13 + LevelRY;                       // about 13 units of land south of the camp
+            BayRX = LevelRX * 0.38 * V(3, 0.12);
+            BayRY = LevelRY * 0.62 * V(4, 0.1);
+            BayCX = wx + 0.5 + 2.5 * (Hash01(5, 131, Seed) * 2 - 1);
+            BayCY = wy + 7.0 + BayRY;                          // its bottom edge just behind the wagon: the view from camp
         }
+
+        private static (double x, double y) CellOfWorld(double wx, double wy) => (wx + 2 * (wy - 0.25), 2 * (wy - 0.25) - wx);
 
         private void BuildPlateau()
         {
-            // From the camp down and across the screen to the side rim: toward a point a quarter of the way down that side.
-            var tx = LevelCX + PlateauSide * LevelRX;
-            var ty = LevelCY - LevelRY * 0.25;
-            var (sx, sy) = (StartX, StartY);
-            var (swx, swy) = ((sx - sy) * 0.5, (sx + sy) * 0.25 + 0.25);
-            // World to cells: wx = (x - y) / 2, wy = (x + y) / 4.
-            var dwx = tx - swx;
-            var dwy = ty - swy;
-            var (dx, dy) = (dwx + 2 * dwy, 2 * dwy - dwx);
-            var dl = Math.Sqrt(dx * dx + dy * dy);
-            dx /= dl;
-            dy /= dl;
-            double ex = sx, ey = sy;
-            while (InPlateau((int)Math.Round(ex + dx), (int)Math.Round(ey + dy))) { ex += dx; ey += dy; }
-            ex -= dx * PlateauRoadInset * 1.41;
-            ey -= dy * PlateauRoadInset * 1.41;
-            var len = Math.Sqrt((ex - StartX) * (ex - StartX) + (ey - StartY) * (ey - StartY));
-            var n = Math.Max(1, (int)Math.Ceiling(len));
-            for (var k = 0; k <= n; k++)
-                _line.Add((StartX + (ex - StartX) * k / n, StartY + (ey - StartY) * k / n, len * k / n));
+            // From the camp west below the bay, up the west arm, to the north-west tip: the pass.
+            var (cwx, cwy) = ((StartX - StartY) * 0.5, (StartX + StartY) * 0.25 + 0.25);
+            var armX = LevelCX - LevelRX * 0.62;
+            var pts = new List<(double x, double y)>
+            {
+                (cwx, cwy),
+                (BayCX - BayRX - 2.5, cwy + 1.0),
+                (armX, LevelCY + LevelRY * 0.1),
+                (armX - 0.5, LevelCY + LevelRY * 0.55),
+            };
+            // On to the outline's edge, a few cells short of it.
+            var (tx, ty) = pts[pts.Count - 1];
+            for (var k = 0; k < 400; k++)
+            {
+                var (nx, ny) = (tx - 0.02, ty + 0.06);
+                var (cx, cy) = CellOfWorld(nx, ny);
+                if (!InPlateau((int)Math.Round(cx), (int)Math.Round(cy))) break;
+                (tx, ty) = (nx, ny);
+            }
+            pts.Add((tx + 0.02 * 12, ty - 0.06 * 12));   // the inset
+            // Rounded corners (two passes of corner cutting), then back to cells along one line.
+            for (var pass = 0; pass < 2; pass++)
+            {
+                var sm = new List<(double x, double y)> { pts[0] };
+                for (var i = 0; i + 1 < pts.Count; i++)
+                {
+                    var (ax, ay) = pts[i]; var (bx, by) = pts[i + 1];
+                    if (i > 0) sm.Add((ax * 0.75 + bx * 0.25, ay * 0.75 + by * 0.25));
+                    if (i + 2 < pts.Count) sm.Add((ax * 0.25 + bx * 0.75, ay * 0.25 + by * 0.75));
+                }
+                sm.Add(pts[pts.Count - 1]);
+                pts = sm;
+            }
+            var s = 0.0;
+            (double x, double y)? last = null;
+            for (var i = 0; i + 1 < pts.Count; i++)
+            {
+                var a = CellOfWorld(pts[i].x, pts[i].y);
+                var b = CellOfWorld(pts[i + 1].x, pts[i + 1].y);
+                var len = Math.Sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
+                var n = Math.Max(1, (int)Math.Ceiling(len * 2));
+                for (var k = 0; k < n; k++)
+                {
+                    var p = (x: a.x + (b.x - a.x) * k / n, y: a.y + (b.y - a.y) * k / n);
+                    if (last.HasValue) s += Math.Sqrt((p.x - last.Value.x) * (p.x - last.Value.x) + (p.y - last.Value.y) * (p.y - last.Value.y));
+                    _line.Add((p.x, p.y, s));
+                    last = p;
+                }
+            }
+            var end = CellOfWorld(pts[pts.Count - 1].x, pts[pts.Count - 1].y);
+            if (last.HasValue) s += Math.Sqrt((end.x - last.Value.x) * (end.x - last.Value.x) + (end.y - last.Value.y) * (end.y - last.Value.y));
+            _line.Add((end.x, end.y, s));
         }
 
         /// <summary>
-        /// Inside the level's outline: an ellipse on screen at the front, a squarer (superellipse) top toward the castle; its
-        /// radius swells and dips in a few broad lobes (fewer along the top), and the very edge is a little ragged.
+        /// Inside the level's outline (an ellipse on screen with broad lobes and a ragged edge) and not in the bay.
         /// </summary>
-        private bool InPlateau(int x, int y)
+        private bool InPlateau(int x, int y) => InOutline(x, y) && !InBay(x, y);
+
+        private bool InOutline(int x, int y)
         {
             var wx = (x - y) * 0.5;
             var wy = (x + y) * 0.25 + 0.25;
             var dx = (wx - LevelCX) / LevelRX;
             var dy = (wy - LevelCY) / LevelRY;
             var a = Math.Atan2(dy, dx);
-            var top = Math.Max(0, Math.Sin(a));   // 1 straight up the screen, 0 at the sides and below
-            var p = 2 + 2.5 * top;
+            var top = Math.Max(0, Math.Sin(a));
+            var p = 2 + 1.5 * top;
             var m = Math.Pow(Math.Pow(Math.Abs(dx), p) + Math.Pow(Math.Abs(dy), p), 1 / p);
             var lobes = 0.11 * Math.Sin(2 * a + Phase(1)) + 0.08 * Math.Sin(3 * a + Phase(2)) + 0.05 * Math.Sin(5 * a + Phase(3));
-            var r = 1 + lobes * (1 - 0.7 * top) + 0.035 * (Noise2(x / 3.0, y / 3.0, 31) * 2 - 1);
+            var r = 1 + lobes * (1 - 0.5 * top) + 0.035 * (Noise2(x / 3.0, y / 3.0, 31) * 2 - 1);
             return m <= r;
+        }
+
+        /// <summary>The bay: the horseshoe's open middle (an ellipse on screen with a wavering edge), reaching past the north rim.</summary>
+        public bool InBay(int x, int y)
+        {
+            if (!Plateau) return false;
+            var wx = (x - y) * 0.5;
+            var wy = (x + y) * 0.25 + 0.25;
+            var dx = (wx - BayCX) / BayRX;
+            var dy = (wy - BayCY) / BayRY;
+            var a = Math.Atan2(dy, dx);
+            var r = 1 + 0.07 * Math.Sin(3 * a + Phase(6)) + 0.05 * Math.Sin(5 * a + Phase(7)) + 0.04 * (Noise2(x / 3.0, y / 3.0, 57) * 2 - 1);
+            return dx * dx + dy * dy <= r * r || dy > 0.6 && Math.Abs(dx) <= r;   // and straight on north, out of the land
+        }
+
+        /// <summary>The pass's ridges: the last stretch of road runs between them; no tool breaks them (the gate is the way).</summary>
+        public bool InPassRidge(int x, int y)
+        {
+            if (!Plateau || !InPlateau(x, y)) return false;
+            var (s, off, d) = Locate(x, y);
+            // Across the west arm's tip only (wide enough to seal it), never out on the far arm.
+            return s > Length - PassLength && Math.Abs(off) > PassHalfWidth && d < 16 && !ExitClear(x, y);
+        }
+
+        /// <summary>The way through the pass, between its ridges: kept clear (the gate stands in it).</summary>
+        public bool InPassCorridor(int x, int y)
+        {
+            if (!Plateau || !InPlateau(x, y)) return false;
+            var (s, off, d) = Locate(x, y);
+            return s > Length - PassLength && Math.Abs(off) <= PassHalfWidth && d < 16;
         }
 
         private double Phase(int k) => Hash01(k, 77, Seed) * Math.PI * 2;
 
         /// <summary>
-        /// The overlook: the ground between the camp and the north rim, open grass with no trees or hills, so the castle
-        /// shows over the edge from camp (Kevin, 2026-10-18).
+        /// The overlook: the ground between the camp and the bay's edge, open grass with no trees or hills, so the castle
+        /// shows over the drop from camp (Kevin, 2026-10-18).
         /// </summary>
         public bool InOverlook(int x, int y)
         {
             if (!Plateau) return false;
             var (cwx, cwy) = ((StartX - StartY) * 0.5, (StartX + StartY) * 0.25 + 0.25);
             var (wx, wy) = ((x - y) * 0.5, (x + y) * 0.25 + 0.25);
-            return wy > cwy + 2.5 && Math.Abs(wx - cwx) < 13;
+            return wy > cwy + 2.5 && wy < Math.Min(BayCY, cwy + 9.5) && Math.Abs(wx - cwx) < 11;   // just the camp's front, not up the arms
         }
 
         /// <summary>Cells round the road's end past the gate, where the way on to the next level is: never a tree.</summary>
@@ -596,7 +678,8 @@ namespace Ravenholm.Domain.Sites
         public bool InLand(int x, int y)
         {
             // The camp's clearing is land too, but never past the north rim (no bump over the castle view).
-            if (Plateau) return InPlateau(x, y) || InClearing(x, y) && (x + y) * 0.25 + 0.25 < LevelCY + LevelRY * 0.85;
+            // The camp's clearing is land too, but never in the bay (the view stays a drop).
+            if (Plateau) return InPlateau(x, y) || InClearing(x, y) && InOutline(x, y) && !InBay(x, y);
             var (s, off, d) = Locate(x, y);
             var noise = EdgeNoise * (Noise2(x / 5.0, y / 5.0, 31) * 2 - 1);
             if (InCove(x, y)) return false;
@@ -635,7 +718,7 @@ namespace Ravenholm.Domain.Sites
         public bool InGrove(int x, int y) => InLand(x, y) && !InClearing(x, y) && !(GateAt(x, y) is Gate g && g.Project);
 
         /// <summary>A cell of a build project's gap (a ravine to bridge, a flood to cross): no ground until it is built.</summary>
-        public bool InProjectGap(int x, int y) => InLand(x, y) && GateAt(x, y) is Gate g && g.Project;
+        public bool InProjectGap(int x, int y) => InLand(x, y) && GateAt(x, y) is Gate g && g.Project && !g.Barrier;
 
         /// <summary>The index of the gate a cell lies in (-1: none).</summary>
         public int GateIndexAt(int x, int y)
@@ -688,6 +771,7 @@ namespace Ravenholm.Domain.Sites
         public int GateTierAt(int x, int y)
         {
             var (s, off, _) = Locate(x, y);
+            if (Plateau && InPassRidge(x, y)) return UnbreakableTier;   // the pass's ridges: no tool breaks them
             if (Plateau && Math.Abs(off) > PlateauGateHalfWidth) return 0;
             foreach (var g in Gates) if (Math.Abs(s - g.S) < g.Thickness * 0.5) return g.Project ? 0 : g.Tier;
             return 0;
@@ -740,6 +824,7 @@ namespace Ravenholm.Domain.Sites
         {
             height = 0;
             if (!InGrove(x, y)) return true;
+            if (Plateau && InPassRidge(x, y)) { height = 5; return true; }   // the pass's ridges, five blocks high
             var gate = GateAt(x, y);
             if (gate == null) return false;
             height = gate.Rock ? 4 : 0;
@@ -752,9 +837,8 @@ namespace Ravenholm.Domain.Sites
         /// </summary>
         public int HeightCap(int x, int y)
         {
-            if (Plateau && Locate(x, y).off > 0) return 0;   // a level's forest side is flat
-            // Flat along the north rim: no hill columns standing up into the castle view over the camp (2026-10-18).
-            if (Plateau && ((x + y) * 0.25 + 0.25 > LevelCY && !InPlateau(x + 5, y + 5) || InOverlook(x, y))) return 0;
+            // Hills and forest mix all over a level (Kevin, 2026-10-19); flat only where the camp looks out over the bay.
+            if (Plateau && InOverlook(x, y)) return 0;
             var fromClearing = ClearingDistance(x, y) - FlatMargin;
             var fromRoad = RoadDistance(x, y) - RoadHalfWidth - 1;
             return Math.Max(0, (int)Math.Floor(Math.Min(fromClearing, fromRoad) * 2));
@@ -767,7 +851,7 @@ namespace Ravenholm.Domain.Sites
         public bool FixedOpen(ulong seed, int x, int y, out bool open)
         {
             open = false;
-            if (Plateau && (ExitClear(x, y) || InOverlook(x, y))) { open = true; return true; }   // the way on, and the view, stay clear
+            if (Plateau && (ExitClear(x, y) || InOverlook(x, y) || InPassRidge(x, y) || InPassCorridor(x, y))) { open = true; return true; }   // the way on, the view, the bare ridges and the pass between them
             if (GateAt(x, y) != null) return true;
             if (!OnRoad(x, y)) return false;
             open = Hash01(x, y, 71 + (int)(seed % 997)) < 0.75;

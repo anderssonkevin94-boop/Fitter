@@ -65,18 +65,17 @@ namespace Ravenholm.Presentation
         }
 
         /// <summary>
-        /// The level's side edge straight across the screen from a point, on the side away from its gate (the camp is up
-        /// by the north rim now, 2026-10-18), a little past it: the wagon comes up over it.
+        /// The level's front edge straight down the screen from a point (the horseshoe's camp sits at the bottom of the U,
+        /// 2026-10-19), a little past it: the wagon comes up over it.
         /// </summary>
         public static Vector2 ArrivalEdge(Ravenholm.Domain.Sites.RidgeLayout ridge, Vector2 from)
         {
             var c = IsoMap.CellF(from);
-            var side = -ridge.PlateauSide;   // one cell across the screen: (+1, -1) right, (-1, +1) left
-            for (var k = 0; k < 120; k++)
+            for (var k = 0; k < 160; k++)
             {
-                var x = Mathf.RoundToInt(c.x + side * k);
-                var y = Mathf.RoundToInt(c.y - side * k);
-                if (!ridge.InLand(x, y)) return IsoMap.World(c.x + side * (k + 2f), c.y - side * (k + 2f));
+                var x = Mathf.RoundToInt(c.x - k);
+                var y = Mathf.RoundToInt(c.y - k);
+                if (!ridge.InLand(x, y)) return IsoMap.World(c.x - k - 2f, c.y - k - 2f);
             }
             return from;
         }

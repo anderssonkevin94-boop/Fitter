@@ -186,6 +186,9 @@ namespace Ravenholm.Content
         /// per level), its camp in the same place by its north rim (the castle view) and its own gate on a side rim. Without levels, the
         /// one road (any level gives it). Derived data, built once per level; the asset is never changed.
         /// </summary>
+        /// <summary>The project that is a gate to repair (a barrier in the pass, not a gap to fill).</summary>
+        public const string GateProject = "Gate";
+
         public RidgeLayout RidgeFor(int level)
         {
             if (!plateau) level = 0;
@@ -245,9 +248,10 @@ namespace Ravenholm.Content
                 {
                     var g = gates[i];
                     // A level's own gate stands across its far corner; the other levels' gates are elsewhere (never met here).
-                    var at = plateau ? (i == level ? r.Length - 4 : r.Length + 1000 + 100 * i)
+                    var at = plateau ? (i == level ? r.Length - 8 : r.Length + 1000 + 100 * i)   // in the pass, short of its end
                         : switchback && i < r.TurnSpans.Count ? r.TurnSpans[i].Mid : campS + g.ahead;
-                    r.Gates.Add(new RidgeLayout.Gate { S = at, Thickness = g.thickness, Tier = g.tier, Rock = g.rock, Project = !string.IsNullOrEmpty(g.project) });
+                    r.Gates.Add(new RidgeLayout.Gate { S = at, Thickness = g.thickness, Tier = g.tier, Rock = g.rock, Project = !string.IsNullOrEmpty(g.project),
+                        Barrier = g.project == GateProject });
                 }
                 if (level == 0) _ridge = r;
                 else _levels[level] = r;
@@ -344,6 +348,13 @@ namespace Ravenholm.Content
             edgeNoise = 0f;
             roadWobble = road;
             edgeGap = 0f;
+            _ridge = null;
+            _levels.Clear();
+        }
+
+        public void EditorSetGates(List<GateSpec> gateList)
+        {
+            gates = gateList;
             _ridge = null;
             _levels.Clear();
         }

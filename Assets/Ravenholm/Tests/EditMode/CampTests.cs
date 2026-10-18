@@ -27,8 +27,9 @@ namespace Ravenholm.Tests
             Assert.IsTrue(r.InClearing(cx, cy), "the camp's clearing");
             if (camp.Plateau)
             {
-                // Gated levels (Kevin, 2026-10-16): a square plateau of 60 cells, the camp at its front, the road on to the
-                // gate across the far corner; nothing past its edges.
+                // The horseshoe (Kevin's drawing, 2026-10-19): wide land open to the north in the middle (the bay), the camp
+                // at the bottom of the U looking over it, arms either side, the gate in a pass to the north-west; nothing
+                // past the level's edges.
                 Assert.AreEqual(60, camp.LevelSize);
                 var e = r.Extent;
                 int land = 0;
@@ -39,24 +40,44 @@ namespace Ravenholm.Tests
                     if (outside) Assert.IsFalse(r.InLand(x, y), $"nothing past the level at ({x}, {y})");
                     else if (r.InLand(x, y)) land++;
                 }
-                Assert.Greater(land, 3200, "about 60 x 60");
-                Assert.Less(land, 4800, "about 60 x 60");
-                // The camp stands just below the north rim (Kevin, 2026-10-18: the castle view from camp): straight up the
-                // screen from it the land ends within about ten world units, and that rim is broad, not a corner.
+                Assert.Greater(land, 4000, $"a big level ({land} cells)");
+                Assert.Less(land, 8000, $"but not endless ({land} cells)");
+                // Straight up the screen from the camp the land ends at the bay within about ten world units (the castle
+                // view), clear of the camp's buildings; and the bay stays open on north (no land further up that line).
                 var up = 0;
-                while (up < 80 && r.InLand((int)cx + up, (int)cy + up)) up++;
-                Assert.Less(up, 20, $"the north rim close above the camp ({up} cells up the screen)");
+                while (up < 120 && r.InLand((int)cx + up, (int)cy + up)) up++;
+                Assert.Less(up, 20, $"the bay close above the camp ({up} cells up the screen)");
                 Assert.Greater(up, 8, "but clear of the camp's buildings");
-                var (rx, ry) = ((int)cx + up - 3, (int)cy + up - 3);
-                var across = 0;
-                for (var k = -30; k <= 30; k++) if (r.InLand(rx + k, ry - k)) across++;
-                Assert.Greater(across, 30, $"a broad north rim ({across} cells across near the top)");
-                Assert.Greater(r.Length - r.CampS, 20, "the road crosses the level to the gate");
+                Assert.IsTrue(r.InBay((int)cx + up + 2, (int)cy + up + 2), "the bay");
+                for (var k = up + 2; k < up + 80; k++) Assert.IsFalse(r.InLand((int)cx + k, (int)cy + k), "open to the north: the view to the castle");
+                // Arms either side of the bay reach north past it.
+                var wy0 = (cx + cy) * 0.25 + 0.25;
+                var (bwy, bwx) = (r.BayCY, r.BayCX);
+                int Arm(double side)
+                {
+                    var n = 0;
+                    for (var dx = 2.0; dx < 30; dx += 0.5)
+                    {
+                        var wx = bwx + side * (r.BayRX + dx);
+                        var (x, y) = ((int)Math.Round(wx + 2 * (bwy - 0.25)), (int)Math.Round(2 * (bwy - 0.25) - wx));
+                        if (r.InLand(x, y)) n++;
+                    }
+                    return n;
+                }
+                Assert.Greater(Arm(-1), 6, "a west arm beside the bay");
+                Assert.Greater(Arm(1), 6, "an east arm beside the bay");
+                Assert.Greater(r.Length - r.CampS, 30, "the road climbs to the pass");
+                // The gate: to the north-west, in a narrow pass between ridges no tool breaks.
                 var (gx, gy) = r.PointAt(r.Gates[0].S);
-                Assert.Greater(r.PlateauSide * ((gx - gy) - (cx - cy)) * 0.5, 12, "the gate is on a side rim, across the screen from the camp");
+                var (gwx, gwy) = ((gx - gy) * 0.5, (gx + gy) * 0.25 + 0.25);
+                var cwx = (cx - cy) * 0.5;
+                Assert.Less(gwx, cwx - 8, "the gate is west of the camp");
+                Assert.Greater(gwy, wy0 + 8, "and north of it");
                 Assert.IsTrue(r.GateAt((int)gx, (int)gy) != null, "the gate on the road");
-                var (bx, by) = r.PointBeside(r.Gates[0].S, 12);
-                Assert.IsNull(r.GateAt((int)Math.Round(bx), (int)Math.Round(by)), "only by the road");
+                Assert.IsTrue(r.Gates[0].Project && r.Gates[0].Barrier, "a gate to repair, not a gap");
+                var (bx, by) = r.PointBeside(r.Gates[0].S, 5);
+                Assert.IsTrue(r.InPassRidge((int)Math.Round(bx), (int)Math.Round(by)), "a ridge beside the pass");
+                Assert.AreEqual(RidgeLayout.UnbreakableTier, r.GateTierAt((int)Math.Round(bx), (int)Math.Round(by)), "that no tool breaks");
                 for (var g = 1; g < r.Gates.Count; g++) Assert.Greater(r.Gates[g].S, r.Length, "only this level's gate");
                 return;
             }
@@ -97,7 +118,7 @@ namespace Ravenholm.Tests
         }
 
         [Test]
-        public void TheRoadLeadsForwardAndTheGateNeedsTheIronTool()
+        public void TheRoadLeadsForwardAndEachGateIsSomethingToFix()
         {
             var camp = Camp();
             var r = camp.Ridge;
@@ -113,9 +134,10 @@ namespace Ravenholm.Tests
             }
             Assert.Greater(road, 60, "the old road runs on ahead");
             Assert.AreEqual(5, camp.Gates.Count, "one blocker between each pair of the six camps");
-            var (gx, gy) = r.PointAt(r.CampS + camp.GateAhead(0));
-            Assert.AreEqual(2, r.GateTierAt((int)gx, (int)gy), "the gate across the road needs the iron tool");
-            Assert.IsTrue(r.FixedOpen(42, (int)gx, (int)gy, out var open) && !open, "solid: no gaps in the old trees");
+            // The horseshoe levels (2026-10-19): every gate is a project to fix; the pass's ridges are what no tool breaks.
+            foreach (var g in camp.Gates) Assert.IsFalse(string.IsNullOrEmpty(g.project), "each level's gate is something to fix");
+            var (gx, gy) = r.PointAt(r.Gates[0].S);
+            Assert.AreEqual(0, r.GateTierAt((int)gx, (int)gy), "the gate itself takes no tool: it is repaired");
             var (fx, fy) = r.PointAt(r.CampS + 20);
             Assert.AreEqual(0, r.GateTierAt((int)fx, (int)fy), "the forest before it takes any tool");
         }

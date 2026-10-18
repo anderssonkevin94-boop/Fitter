@@ -5219,6 +5219,22 @@
     0.5
    ]
   },
+  "Props/gate_closed.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.052083333333333336
+   ],
+   "ppu": 256
+  },
+  "Props/gate_open.png": {
+   "outline": true,
+   "pivot": [
+    0.5,
+    0.052083333333333336
+   ],
+   "ppu": 256
+  },
   "Props/pile_ingots.png": {
    "pivot": [
     0.4982,

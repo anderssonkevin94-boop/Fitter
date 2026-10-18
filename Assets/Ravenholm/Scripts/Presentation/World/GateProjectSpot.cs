@@ -20,6 +20,8 @@ namespace Ravenholm.Presentation
         [SerializeField] private TileBase fillStone;
         [Tooltip("Gated levels: this sign follows the company's level.")]
         [SerializeField] private bool levels;
+        [Tooltip("A gate to repair in the pass (the horseshoe levels, 2026-10-19): closed until built, then open. Placeholder art.")]
+        [SerializeField] private Sprite gateClosed, gateOpen;
 
         public static GateProjectSpot Current { get; private set; }
 
@@ -34,7 +36,15 @@ namespace Ravenholm.Presentation
         public bool Shown => _active;
         public IReadOnlyList<Vector3Int> GapCells => _gap;
 
-        public override string ContextVerb => "Build";   // with the title: "Build the bridge"
+        public override string ContextVerb => _barrierGate ? "Repair" : "Build";   // with the title: "Build the bridge", "Repair the gate"
+
+        private bool _barrierGate;
+        private SpriteRenderer _barrier;
+        private BoxCollider2D _barrierBlock;
+
+        /// <summary>The gate standing in the pass (a barrier project), or null (tests).</summary>
+        public SpriteRenderer Barrier => _barrierGate ? _barrier : null;
+        public bool BarrierBlocks => _barrierGate && _barrierBlock != null && _barrierBlock.enabled;
         public override bool OpensOwnPanel => true;
         public override bool IsContextAvailable => Available;
         public override float ContextPriority => 2f;   // the road's way on: ahead of the trees and rocks within a step of it
@@ -47,8 +57,10 @@ namespace Ravenholm.Presentation
         }
 
         /// <summary>Gated levels: one sign for whichever level the company is on.</summary>
-        public void EditorSetupLevels(Tilemap groundMap, TileBase planks, TileBase stones)
+        public void EditorSetupLevels(Tilemap groundMap, TileBase planks, TileBase stones, Sprite closed, Sprite open)
         {
+            gateClosed = closed;
+            gateOpen = open;
             levels = true;
             gate = -1;
             ground = groundMap;
@@ -91,6 +103,8 @@ namespace Ravenholm.Presentation
             _gap.Clear();
             var name = camp.ProjectName(gate);
             _active = !string.IsNullOrEmpty(name);
+            _barrierGate = false;
+            if (_barrier != null) { _barrier.enabled = false; _barrierBlock.enabled = false; }
             if (!_active)
             {
                 if (_sign != null) _sign.enabled = false;
@@ -110,8 +124,10 @@ namespace Ravenholm.Presentation
                 var s = ridge.Gates[gate].S - 5;
                 var (px, py) = ridge.PointBeside(s, ridge.RoadOffsetAt(s));
                 transform.position = IsoMap.World((float)px, (float)py);
+                if (ridge.Gates[gate].Barrier) PlaceBarrier(ridge, ridge.Gates[gate].S);
             }
-            var sb = new StringBuilder($"The road needs a {name.ToLowerInvariant()} here. It takes ");
+            var sb = new StringBuilder(_barrierGate ? "The old gate needs repairing before the road goes on. It takes "
+                                                    : $"The road needs a {name.ToLowerInvariant()} here. It takes ");
             var first = true;
             foreach (var c in camp.ProjectCost(gate))
             {
@@ -120,6 +136,33 @@ namespace Ravenholm.Presentation
             }
             EditorSetup($"the {name.ToLowerInvariant()}", sb.Append(" from your stock.").ToString(), "");
             Apply();
+        }
+
+        /// <summary>The gate across the pass: its picture standing on the road, and a wall the supplier can't pass until built.</summary>
+        private void PlaceBarrier(Domain.Sites.RidgeLayout ridge, double s)
+        {
+            _barrierGate = true;
+            if (_barrier == null)
+            {
+                var go = new GameObject("Pass Gate");
+                go.transform.SetParent(transform.parent, false);
+                _barrier = go.AddComponent<SpriteRenderer>();
+                _barrier.spriteSortPoint = SpriteSortPoint.Pivot;
+                if (_sign != null) { _barrier.sharedMaterial = _sign.sharedMaterial; _barrier.sortingLayerID = _sign.sortingLayerID; }
+                go.AddComponent<SpriteOutline>();
+                var block = new GameObject("Pass Gate Wall") { layer = LayerMask.NameToLayer(PlayerMotor.BlockerLayerName) };
+                block.transform.SetParent(go.transform, false);
+                _barrierBlock = block.AddComponent<BoxCollider2D>();
+            }
+            var (gx, gy) = ridge.PointAt(s);
+            var (ax, ay) = ridge.PointAt(s - 1);
+            var at = IsoMap.World((float)gx, (float)gy);
+            var dir = (Vector2)at - (Vector2)IsoMap.World((float)ax, (float)ay);
+            _barrier.transform.position = at;
+            // The wall lies across the road (the road's direction on screen, turned a quarter), as wide as the pass.
+            _barrierBlock.size = new Vector2(Mathf.Max(3f, (float)(Domain.Sites.RidgeLayout.PassHalfWidth * 2 + 2) * 0.72f), 0.3f);
+            _barrierBlock.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f);
+            _barrier.enabled = true;
         }
 
         private void OnBuilt(int g)
@@ -145,6 +188,11 @@ namespace Ravenholm.Presentation
                     ground.SetTransformMatrix(c, Matrix4x4.Translate(new Vector3(0f, -drop, 0f)));
                 }
                 if (levels && MineSlabView.Current != null) MineSlabView.Current.RefreshGround();   // the gap's cliffs go
+            }
+            if (_barrierGate && _barrier != null)
+            {
+                _barrier.sprite = built ? gateOpen : gateClosed;   // repaired: the doors stand open
+                _barrierBlock.enabled = !built;
             }
             if (_sign != null) _sign.enabled = !built;
             if (_collider != null) _collider.enabled = !built;

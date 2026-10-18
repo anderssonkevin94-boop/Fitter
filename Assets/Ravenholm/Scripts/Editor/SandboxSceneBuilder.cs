@@ -175,7 +175,8 @@ namespace Ravenholm.EditorTools
                 lc.isTrigger = true;
                 lc.size = new Vector2(1.2f, 1.6f);
                 lc.offset = new Vector2(0f, 0.6f);
-                levelSign.gameObject.AddComponent<GateProjectSpot>().EditorSetupLevels(_groundMap, tilesForProjects["bridge"], tilesForProjects["plaza"]);
+                levelSign.gameObject.AddComponent<GateProjectSpot>().EditorSetupLevels(_groundMap, tilesForProjects["bridge"], tilesForProjects["plaza"],
+                    ProjectSetup.LoadSprite("Props/gate_closed"), ProjectSetup.LoadSprite("Props/gate_open"));
             }
             for (var g = 0; g < road.Gates.Count && !road.Plateau; g++)
             {

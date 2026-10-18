@@ -1933,3 +1933,24 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - It is a child of the castle, so it moves and grows with it, with its foot on the castle's ground, centred on the castle's art.
   - It draws between the far layer and the castle.
 - Checked in the captures: the castle view from the wagon's counter, and the level overviews (the valley floor below the cliffs, no streaks).
+
+## 2026-10-19: horseshoe levels (Kevin's drawing in the Camp Planner)
+
+- **The shape:** every level is a horseshoe.
+  - Wide land is open to the north in the middle: **the bay**, a drop with the valley and the castle beyond. It reaches past the north rim, so the view is never closed.
+  - The camp sits at the bottom of the U. The bay's edge is about seven world units above the camp's centre, just behind the wagon, so the castle shows from the counter.
+  - **Arms** either side reach north. Forest and hills mix all over ("a healthy landscape"): the old rule that kept one side of the road flat is gone. Only the overlook in front of the camp stays flat and treeless.
+  - Code: `RidgeLayout.SetLevelAround`, `InOutline`, `InBay`, `InOverlook`. Proportions vary per level by its seed (outline ±6 %, bay ±10–12 %, the bay's centre ±2.5 units).
+- **The road** runs from the camp west below the bay, up the west arm, to the north-west tip (`BuildPlateau`, corners rounded). The wagon arrives on a new level from the south edge.
+- **The pass:**
+  - The last 16 cells of road run between **ridges** five blocks high that no tool breaks (`InPassRidge`, `UnbreakableTier` = 99; the button reads "Needs a way through the gate"). They cover only the west arm's tip, within 16 cells of the road.
+  - The corridor between them (`InPassCorridor`, 2.6 cells each side of the road) and the way out past it stay clear of trees.
+- **Gates are things to fix** (Kevin: "we are unlocking the old path to the castle, so we're fixing something at each stage"). There are no tool gates any more. The five levels in order: repair the gate (cedar lumber 8, iron 4), a bridge (maple lumber 12, rope 6), a causeway (ironwood lumber 12, steel 6), the sealed gate (steel 8, ironwood lumber 8), and the last bridge (moonsilver 6, rope 10).
+  - A gate project is a **barrier** (`Gate.Barrier`), not a gap: the ground stays, and a placeholder gate stands in the pass with a wall across it.
+  - Repairing it from the sign ("Repair the gate") opens the doors and drops the wall (`GateProjectSpot`).
+  - The placeholder art is `Tools/ArtImport/make_gate_placeholder.py` → `Props/gate_closed.png` and `gate_open.png`; Astra will replace it.
+- **Tool check on the current level:** `SitesService.RequiredToolTier` reads the level the company is on, not level 1's layout. It always read level 1 before.
+- Tests updated to the horseshoe and checked by eye in the level overviews:
+  - `CampTests`: the bay above the camp and open north, both arms, the gate north-west, a ridge no tool breaks.
+  - `RoadTests`: the five projects.
+  - `RoadPlayModeTests`: repair the gate and walk through, then build and cross the bridge.

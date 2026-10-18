@@ -186,7 +186,8 @@ namespace Ravenholm.Presentation
         /// <summary>The ground was laid anew (another level, gated levels 2026-10-16): its cliffs and walkable ground again.</summary>
         public void RefreshGround()
         {
-            if (!enabled) return;
+            // Not started yet (a save on a later level lays its ground before this view's Start): Start does this itself.
+            if (!enabled || Sim == null) return;
             _oreCache.Clear();
             _drawKey = "";
             CollectEdges();

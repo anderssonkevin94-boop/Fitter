@@ -81,6 +81,24 @@ namespace Ravenholm.EditorTools
                 EditorUtility.SetDirty(camp);
             }
 
+            // The horseshoe levels (Kevin, 2026-10-19: "we are unlocking the old path to the castle, so we're fixing
+            // something at each stage"): every level's gate is a project in its north-west pass, never a tool gate. The
+            // pass's ridges are unbreakable, so the project is the way on. Costs grow along the road.
+            if (camp.Gates.Count == 0 || camp.Gates[0].project != CampDefinition.GateProject)
+            {
+                CampDefinition.GateSpec P(string project, List<ResourceCost> cost) =>
+                    new CampDefinition.GateSpec { ahead = 0, thickness = 4, tier = 0, rock = false, project = project, projectCost = cost };
+                camp.EditorSetGates(new List<CampDefinition.GateSpec>
+                {
+                    P(CampDefinition.GateProject, M(("cedar_lumber", 8), ("iron_ingot", 4))),       // the old gate, repaired
+                    P("Bridge", M(("maple_lumber", 12), ("rope", 6))),                               // a broken bridge over a ravine
+                    P("Causeway", M(("ironwood_lumber", 12), ("steel_ingot", 6))),                   // a flooded pass
+                    P(CampDefinition.GateProject, M(("steel_ingot", 8), ("ironwood_lumber", 8))),    // a sealed gate
+                    P("Bridge", M(("moonsilver_ingot", 6), ("rope", 10))),                           // the last bridge to the castle
+                });
+                EditorUtility.SetDirty(camp);
+            }
+
             // The moonsilver tool (tier 4) and the site equipment that unlocks it.
             var toolPath = WorkerDir + "equipment_tool_moonsilver.asset";
             var toolCreated = !File.Exists(toolPath);

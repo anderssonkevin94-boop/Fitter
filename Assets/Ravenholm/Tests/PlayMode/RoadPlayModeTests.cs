@@ -135,7 +135,7 @@ namespace Ravenholm.Tests
         }
 
         [UnityTest]
-        public IEnumerator TheBridgeIsBuiltAndWalkedAcross()
+        public IEnumerator TheGateIsRepairedAndTheBridgeWalkedAcross()
         {
             yield return Boot();
             var root = GameRoot.Instance;
@@ -144,13 +144,33 @@ namespace Ravenholm.Tests
             var mine = MineSlabView.Current;
             var spot = GateProjectSpot.Current;
             Assert.NotNull(spot, "the level's project sign is in the scene");
-            Assert.IsFalse(spot.Shown, "level 1's gate is old trees: no sign");
+            // Meadow's Edge (level 1, the horseshoe, 2026-10-19): the old gate in the north-west pass, closed and walled until
+            // repaired from stock; then it stands open.
+            Assert.IsTrue(spot.Shown, "level 1's gate is a gate to repair: its sign");
+            Assert.AreEqual("Repair", spot.ContextVerb);
+            Assert.IsNotNull(spot.Barrier, "the gate stands in the pass");
+            Assert.IsTrue(spot.BarrierBlocks, "closed: nobody walks through");
+            motor.Teleport(spot.transform.position + new Vector3(0.6f, -0.3f));
+            SandboxSceneController.Current.SnapPlayerToSavedPosition();
+            yield return new WaitForSeconds(0.6f);
+            Assert.AreSame(spot, SandboxSceneController.Current.ContextTarget, "the sign offers the repair");
+            yield return Capture.Take("road_gate_closed");
+            spot.OnInspected();
+            Assert.IsFalse(s.Camp.IsBuilt(0), "not without the lumber and iron");
+            s.Logistics.System.ProduceShared("resource.cedar_lumber", 8, "test");
+            s.Logistics.System.ProduceShared("resource.iron_ingot", 4, "test");
+            spot.OnInspected();
+            Assert.IsTrue(s.Camp.IsBuilt(0));
+            yield return null;
+            Assert.IsFalse(spot.BarrierBlocks, "repaired: the gate stands open");
+            yield return Capture.Take("road_gate_open");
 
-            // Hollow Wood (level 3): its gate is the ravine, a gap until built.
-            yield return JumpTo(2);
+            // River Bend (level 2): its gate is the ravine, a gap until built.
+            yield return JumpTo(1);
             Assert.IsTrue(spot.Shown, "the bridge's sign before the ravine");
-            Assert.AreEqual(2, spot.Gate);
-            Assert.Greater(spot.GapCells.Count, 10, "a ravine across the land");
+            Assert.AreEqual(1, spot.Gate);
+            Assert.IsNull(spot.Barrier, "a gap, not a gate");
+            Assert.Greater(spot.GapCells.Count, 6, "a ravine across the pass");
             var mid = spot.GapCells.OrderBy(c => (c - spot.GapCells[spot.GapCells.Count / 2]).sqrMagnitude).First();
             var midWorld = IsoMap.World(mid);
             Assert.IsFalse(mine.SurfaceWalkable(midWorld), "nobody crosses the ravine yet");
@@ -160,12 +180,12 @@ namespace Ravenholm.Tests
             Assert.AreSame(spot, SandboxSceneController.Current.ContextTarget, "the sign offers the bridge");
             yield return Capture.Take("road_ravine");
             spot.OnInspected();
-            Assert.IsFalse(s.Camp.IsBuilt(2), "not without the timber and rope");
+            Assert.IsFalse(s.Camp.IsBuilt(1), "not without the timber and rope");
 
-            s.Logistics.System.ProduceShared("resource.ironwood_lumber", 12, "test");
-            s.Logistics.System.ProduceShared("resource.rope", 8, "test");
+            s.Logistics.System.ProduceShared("resource.maple_lumber", 12, "test");
+            s.Logistics.System.ProduceShared("resource.rope", 6, "test");
             spot.OnInspected();
-            Assert.IsTrue(s.Camp.IsBuilt(2));
+            Assert.IsTrue(s.Camp.IsBuilt(1));
             yield return null;
             foreach (var c in spot.GapCells) Assert.IsTrue(mine.SurfaceWalkable(IsoMap.World(c)), $"plank at {c}");
             var forest = ForestGridView.Current;
@@ -176,13 +196,13 @@ namespace Ravenholm.Tests
             Assert.Less(Vector2.Distance(motor.transform.position, midWorld), 0.5f, "standing on the bridge, not sent back");
             yield return Capture.Take("road_bridge");
 
-            // Witchlight Fen (level 4): the causeway's sign; the debug jump back to level 1 lays its ground again.
-            yield return JumpTo(3);
-            Assert.IsTrue(spot.Shown && spot.Gate == 3, "the causeway's sign");
+            // Hollow Wood (level 3): the causeway's sign; the debug jump back to level 1 lays its ground again.
+            yield return JumpTo(2);
+            Assert.IsTrue(spot.Shown && spot.Gate == 2, "the causeway's sign");
             yield return Capture.Take("road_flood");
             yield return JumpTo(0);
             Assert.AreEqual(0, LevelView.Current.Painted);
-            Assert.IsFalse(spot.Shown);
+            Assert.IsTrue(spot.Shown, "level 1's gate sign again");
             Assert.Less(Vector2.Distance(motor.transform.position, s.Camp.CentreOf(0)), 9f, "back at Meadow's Edge");
             CollectionAssert.IsEmpty(s.Logistics.System.Audit());
         }

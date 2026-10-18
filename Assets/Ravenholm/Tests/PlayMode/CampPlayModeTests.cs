@@ -141,21 +141,12 @@ namespace Ravenholm.Tests
             Assert.Greater(sim.TreeDurabilityMicro(far.x, far.y), sim.TreeDurabilityMicro(ahead.x, ahead.y));
             if (!camp.Plateau) Assert.Greater(mine.SurfaceBand(far.x, far.y), mine.SurfaceBand(ahead.x, ahead.y), "deeper ore further forward");
 
-            // The gate: old trees across the ridge that the basic tool can't cut.
+            // The gate (the horseshoe levels, 2026-10-19): a project in the north-west pass, between ridges no tool breaks.
             var gateAhead = camp.GateAhead(0);
-            var gate = TreeAhead(sim, gateAhead - 1, anyTier: true);
-            Assert.Greater(r.GateTierAt(gate.x, gate.y), 0, "a gate tree");
-            Assert.IsTrue(S.Sites.ToolTooWeak(gate.x, gate.y), "too tough for the basic tool");
-            Motor.Teleport(forest.WorkSpotOf(gate));
-            yield return null;
-            yield return null;
-            var spot = SandboxSceneController.Current.ContextTarget as ForestChopSpot;
-            if (spot != null && spot.Cell == gate)
-            {
-                Assert.AreEqual("Needs", spot.ContextVerb, "the button says what is needed");
-                Assert.IsFalse(spot.Holdable);
-            }
-            Assert.AreEqual(0, S.Sites.PlayerChopCell("site.forest", gate.x, gate.y, 5f), "no progress on a gate tree");
+            var (ridgeX, ridgeY) = r.PointBeside(r.Gates[0].S, 5);
+            var rx = (int)System.Math.Round(ridgeX); var ry = (int)System.Math.Round(ridgeY);
+            Assert.IsTrue(r.InPassRidge(rx, ry), "a ridge beside the pass");
+            Assert.IsTrue(S.Sites.ToolTooWeak(rx, ry), "no tool breaks it");
 
             // Pictures for Kevin: the camp, the road ahead, the gate, the next clearing.
             yield return Look(Vector2.zero, "journey_camp");
@@ -283,7 +274,7 @@ namespace Ravenholm.Tests
             var ground = Map("Ground");
             Assert.NotNull(forest);
             Assert.IsTrue(sim.GroveMode, "any tree can be cut");
-            var t0 = TreeAhead(sim, 20);
+            var t0 = TreeAhead(sim, 20, withNeighbour: true);   // on flat ground with a tree beside it (hills are everywhere now)
             var (ax, ay) = (t0.x, t0.y);
             Assert.IsTrue(forest.CellOf(ax, ay, out var firstCell));
             var first = ground.GetCellCenterWorld(firstCell);

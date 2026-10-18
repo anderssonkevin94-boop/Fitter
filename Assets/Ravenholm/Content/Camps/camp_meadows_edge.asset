@@ -70,47 +70,58 @@ MonoBehaviour:
   bandLength: 80
   flatMargin: 3
   gates:
-  - ahead: 55
+  - ahead: 0
     thickness: 4
-    tier: 2
+    tier: 0
     rock: 0
-    project: 
-    projectCost: []
-  - ahead: 150
-    thickness: 4
-    tier: 3
-    rock: 1
-    project: 
-    projectCost: []
-  - ahead: 245
+    project: Gate
+    projectCost:
+    - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
+      quantity: 8
+    - resource: {fileID: 11400000, guid: 7c9623d2f89ef4f0bb58c106302da3e3, type: 2}
+      quantity: 4
+  - ahead: 0
     thickness: 4
     tier: 0
     rock: 0
     project: Bridge
     projectCost:
-    - resource: {fileID: 11400000, guid: f2308962299684f249002d4e000bc0d4, type: 2}
+    - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
       quantity: 12
     - resource: {fileID: 11400000, guid: 25819f9025cc84311bdfe1999e38525c, type: 2}
-      quantity: 8
-  - ahead: 340
+      quantity: 6
+  - ahead: 0
     thickness: 4
     tier: 0
     rock: 0
     project: Causeway
     projectCost:
-    - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}
+    - resource: {fileID: 11400000, guid: f2308962299684f249002d4e000bc0d4, type: 2}
       quantity: 12
     - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
       quantity: 6
-  - ahead: 435
+  - ahead: 0
     thickness: 4
-    tier: 4
-    rock: 1
-    project: 
-    projectCost: []
+    tier: 0
+    rock: 0
+    project: Gate
+    projectCost:
+    - resource: {fileID: 11400000, guid: f748b0cfc6ba244d2ae222ebc3a03cf0, type: 2}
+      quantity: 8
+    - resource: {fileID: 11400000, guid: f2308962299684f249002d4e000bc0d4, type: 2}
+      quantity: 8
+  - ahead: 0
+    thickness: 4
+    tier: 0
+    rock: 0
+    project: Bridge
+    projectCost:
+    - resource: {fileID: 11400000, guid: 0d02005e92bed413891ba93034540535, type: 2}
+      quantity: 6
+    - resource: {fileID: 11400000, guid: 25819f9025cc84311bdfe1999e38525c, type: 2}
+      quantity: 10
   plateau: 1
   levelSize: 60
-  levelOrigin: {x: -24, y: -21}
   switchback: 0
   legLength: 40
   firstLegLength: 69

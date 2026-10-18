@@ -37,11 +37,9 @@ namespace Ravenholm.Tests
             Assert.AreEqual(6, road.CampCount);
             CollectionAssert.AreEqual(new[] { "Meadow's Edge", "River Bend", "Hollow Wood", "Witchlight Fen", "Crown Highlands", "Castle Approach" },
                 Enumerable.Range(0, 6).Select(road.CampName));
-            Assert.AreEqual(2, road.Gates[0].tier, "level 1: old trees, the iron tool");
-            Assert.IsTrue(road.Gates[1].rock && road.Gates[1].tier == 3, "level 2: a rockslide, the tempered tool");
-            Assert.AreEqual("Bridge", road.Gates[2].project, "level 3: a ravine to bridge");
-            Assert.AreEqual("Causeway", road.Gates[3].project, "level 4: a flood to cross");
-            Assert.AreEqual(4, road.Gates[4].tier, "level 5: the sealed gate needs the moonsilver tool");
+            // The horseshoe levels (Kevin, 2026-10-19): something to fix on the old road at each stage.
+            CollectionAssert.AreEqual(new[] { "Gate", "Bridge", "Causeway", "Gate", "Bridge" }, road.Gates.Select(g => g.project),
+                "repair the gate, bridge the ravine, cross the flood, open the sealed gate, the last bridge");
             Assert.IsTrue(Cat.Equipment.Any(e => e.Slot == EquipmentSlot.Tool && e.Tier == 4), "and the moonsilver tool exists");
             for (var level = 0; level < 6; level++)
             {
@@ -77,21 +75,21 @@ namespace Ravenholm.Tests
         {
             var g = Boot();
             var camp = g.Camp;
-            camp.DebugJumpTo(2);   // level 3, Hollow Wood: its gate is the ravine
+            camp.DebugJumpTo(1);   // level 2, River Bend: its gate is the ravine
             var ridge = camp.Ridge;
-            var (gx, gy) = ridge.PointAt(ridge.Gates[2].S);
+            var (gx, gy) = ridge.PointAt(ridge.Gates[1].S);
             Assert.IsTrue(ridge.InProjectGap((int)gx, (int)gy), "a ravine across the road");
             Assert.IsFalse(ridge.InGrove((int)gx, (int)gy), "no trees in it");
             Assert.AreEqual(0, ridge.GateTierAt((int)gx, (int)gy), "no tool gets you across: build the bridge");
-            StringAssert.Contains("Needs", camp.BuildBlockedReason(2));
-            g.Logistics.System.ProduceShared("resource.ironwood_lumber", 12, "test");
-            g.Logistics.System.ProduceShared("resource.rope", 8, "test");
-            Assert.IsNull(camp.Build(2));
-            Assert.IsTrue(camp.IsBuilt(2));
-            Assert.AreEqual(0, g.Logistics.System.SharedAvailable("resource.ironwood_lumber"), "paid from stock");
-            Assert.AreEqual("Already built", camp.BuildBlockedReason(2));
+            StringAssert.Contains("Needs", camp.BuildBlockedReason(1));
+            g.Logistics.System.ProduceShared("resource.maple_lumber", 12, "test");
+            g.Logistics.System.ProduceShared("resource.rope", 6, "test");
+            Assert.IsNull(camp.Build(1));
+            Assert.IsTrue(camp.IsBuilt(1));
+            Assert.AreEqual(0, g.Logistics.System.SharedAvailable("resource.maple_lumber"), "paid from stock");
+            Assert.AreEqual("Already built", camp.BuildBlockedReason(1));
             g.Scheduler.SaveNow("test");
-            Assert.IsTrue(Boot().Camp.IsBuilt(2), "the bridge stays built");
+            Assert.IsTrue(Boot().Camp.IsBuilt(1), "the bridge stays built");
             CollectionAssert.IsEmpty(g.Logistics.System.Audit());
         }
 
