@@ -1921,3 +1921,15 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - The sheet `Captures/modular_armour.png` (every armour with a helmet and an item in hand, the last row a darker skin) was looked at: eyes visible under every helmet, no hair through the crowns, no neck seams.
 - `ArmourStandPlayModeTests` now expects helmets in the E view too: v2 supplied every view.
 - Two more tests made independent of the world's layout: `StationsTests` finds its hill across the road whichever way it runs, and the walk-spec test walks from open ground it finds rather than from the spawn.
+
+## 2026-10-18: the backdrop (Kevin: the parallax too extreme, the stretched bottom looked off, mountains behind the castle)
+
+- **Gentler parallax:** `ParallaxBackdrop.parallaxStrength` = 0.35 scales the pack's factors (front 0.6 → 0.21, near 0.35 → 0.12, and so on). Each layer keeps its relative depth; all of them slide about a third as much.
+- **Below the painting:**
+  - The nearest full-width layer (view_near) continues as Astra's seamless valley floor (`Pass/valley_floor`, made to repeat), tiled down under it, in place of its stretched bottom row.
+  - The front bushes stop at their edge instead of streaking down.
+  - These are set by `fill_mode` in our copy of `View/parallax.json` (floor or none). The far layers keep their fills, which are hidden.
+- **Mountains behind the castle:** `View/castle_mountains.png` is drawn by `Tools/ArtImport/make_castle_mountains.py`. It is a stand-in until Astra paints one: three angular snow-capped peaks in the far layer's haze palette, with one shadow face each, paler peaks behind, and a mist band at the foot in the far layer's own colour.
+  - It is a child of the castle, so it moves and grows with it, with its foot on the castle's ground, centred on the castle's art.
+  - It draws between the far layer and the castle.
+- Checked in the captures: the castle view from the wagon's counter, and the level overviews (the valley floor below the cliffs, no streaks).

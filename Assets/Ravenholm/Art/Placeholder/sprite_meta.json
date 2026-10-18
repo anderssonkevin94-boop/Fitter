@@ -6286,6 +6286,13 @@
    ],
    "ppu": 256
   },
+  "View/castle_mountains.png": {
+   "pivot": [
+    0.5,
+    0.08571428571428572
+   ],
+   "ppu": 256
+  },
   "View/cliff_lip_corner.png": {
    "pivot": [
     0.5,

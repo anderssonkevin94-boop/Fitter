@@ -24,6 +24,8 @@ namespace Ravenholm.Presentation
             public Sprite top;
             [Tooltip("Optional: stretched DOWN from the layer's bottom (its bottom edge extended; the pack's extend_bottom_edge).")]
             public Sprite fill;
+            [Tooltip("Optional: a seamless ground repeated below the layer instead of a stretched fill (Kevin, 2026-10-18: the stretched bottom looked off).")]
+            public Sprite floor;
             [Tooltip("Top-left of the layer in Astra's composition (pixels, y down).")]
             public Vector2 originPx;
             [Range(0f, 1f)] public float factor;
@@ -53,6 +55,12 @@ namespace Ravenholm.Presentation
         [SerializeField] private float castleScale = 0.62f;
         [Tooltip("How much bigger the castle stands at each camp up the road.")]
         [SerializeField] private float castleGrowth = 0.08f;
+        [Tooltip("A mountain range standing behind the castle (it moves and grows with it), so it sits in the landscape.")]
+        [SerializeField] private Sprite castleBackdrop;
+        [SerializeField] private Vector2 castleBackdropOffset;
+
+        [Tooltip("How strongly the layers slide with the camera: 1 = the pack's parallax factors (Kevin, 2026-10-18: too extreme).")]
+        [Range(0f, 1f)] [SerializeField] private float parallaxStrength = 0.35f;
 
         [Header("Valley traveller (on the mid layer)")]
         [SerializeField] private Sprite walker;
@@ -90,6 +98,12 @@ namespace Ravenholm.Presentation
             screenWidthPx = widthPx;
             valleyColour = valley;
             material = mat;
+        }
+
+        public void EditorSetupCastleBackdrop(Sprite sprite, Vector2 offset)
+        {
+            castleBackdrop = sprite;
+            castleBackdropOffset = offset;
         }
 
         public void EditorSetupCastle(Sprite sprite, int layerIndex, Vector2 groundInLayerPx, float scale)
@@ -136,7 +150,17 @@ namespace Ravenholm.Presentation
                         var up = Renderer(copy, "Top", l.top, Vector2.zero, l.order);
                         up.transform.localScale = new Vector3(1f, fillDepth * pixelsPerUnit / Mathf.Max(1f, l.top.rect.height), 1f);
                     }
-                    if (l.fill != null)
+                    if (l.floor != null)
+                    {
+                        // The valley floor, repeated down from the layer's bottom across its width (seamless tiles).
+                        var w = l.sprite.bounds.size.x;
+                        var h = fillDepth / Mathf.Max(0.01f, scale);
+                        var floor = Renderer(copy, "Floor", l.floor, new Vector2(w * 0.5f, -l.sprite.bounds.size.y - h * 0.5f + 0.15f), l.order - 1);
+                        floor.drawMode = SpriteDrawMode.Tiled;
+                        floor.tileMode = SpriteTileMode.Continuous;
+                        floor.size = new Vector2(w, h);
+                    }
+                    else if (l.fill != null)
                     {
                         var soft = Soft(l.fill);
                         var down = Renderer(copy, "Fill", soft, new Vector2(0f, -l.sprite.bounds.size.y), l.order);
@@ -154,9 +178,14 @@ namespace Ravenholm.Presentation
             }
             if (castle != null && castleLayer >= 0 && castleLayer < _built.Count)
             {
-                var sr = Renderer(transform, "Castle", castle, Vector2.zero, layers[castleLayer].order + 1);
+                var sr = Renderer(transform, "Castle", castle, Vector2.zero, layers[castleLayer].order + 2);
                 sr.transform.localScale = Vector3.one * castleScale * scale;
                 _castle = sr.transform;
+                if (castleBackdrop != null)
+                {
+                    var range = Renderer(_castle, "Mountains", castleBackdrop, castleBackdropOffset, layers[castleLayer].order + 1);
+                    range.transform.localScale = Vector3.one;
+                }
             }
             _root = GameRoot.Instance;
             if (_root != null)
@@ -209,7 +238,7 @@ namespace Ravenholm.Presentation
             var camX = _camera != null ? _camera.transform.position.x : 0f;
             // Centred on the castle: it stands straight ahead of the camp (the road winds either side of it).
             var centre = -castleGroundInLayerPx.x * scale / pixelsPerUnit;
-            return new Vector2(centre + l.originPx.x * scale / pixelsPerUnit + camX * (1f - l.factor),
+            return new Vector2(centre + l.originPx.x * scale / pixelsPerUnit + camX * (1f - l.factor * parallaxStrength),
                                ScreenTop() - TopOffset - l.originPx.y * scale / pixelsPerUnit);
         }
 

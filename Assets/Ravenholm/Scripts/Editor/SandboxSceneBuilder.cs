@@ -860,7 +860,10 @@ namespace Ravenholm.EditorTools
                 {
                     sprite = ProjectSetup.LoadSprite("View/" + file),
                     top = (int)l["order"] == 0 ? ProjectSetup.LoadSprite("View/" + file + "_top") : null,
-                    fill = (bool?)l["extend_bottom_edge"] == true ? ProjectSetup.LoadSprite("View/" + file + "_fill") : null,
+                    // Below the painting (Kevin, 2026-10-18: the stretched bottom looked off): the nearest full-width layer
+                    // continues as Astra's seamless valley floor; the front bushes stop at their edge.
+                    fill = (bool?)l["extend_bottom_edge"] == true && (string)l["fill_mode"] == null ? ProjectSetup.LoadSprite("View/" + file + "_fill") : null,
+                    floor = (string)l["fill_mode"] == "floor" ? ProjectSetup.LoadSprite("Pass/valley_floor") : null,
                     originPx = new Vector2((float)l["origin_px"][0], (float)l["origin_px"][1]),
                     factor = (float)l["parallax_factor"],
                     order = ParallaxBackdrop.BaseOrder + (int)l["order"] * 5,
@@ -874,6 +877,9 @@ namespace Ravenholm.EditorTools
             var c = par["castle"];
             backdrop.EditorSetupCastle(ProjectSetup.LoadSprite("View/castle"), index[((string)c["parent"])],
                 new Vector2((float)c["ground_in_parent_px"][0], (float)c["ground_in_parent_px"][1]), (float)c["scale"]);   // as the pack composed it (Kevin's view, 2026-10-16)
+            // Mountains behind the castle (Kevin, 2026-10-18: "so it looks more embedded"): the range's foot on the castle's
+            // ground, centred on the castle's art (its pivot is at its gate, 174 px right of its middle).
+            backdrop.EditorSetupCastleBackdrop(ProjectSetup.LoadSprite("View/castle_mountains"), new Vector2(-174f / 256f, 0f));
             var w = par["walker"];
             var road = new List<Vector2>();
             foreach (var p in w["road_path_px"]) road.Add(new Vector2((float)p[0], (float)p[1]));

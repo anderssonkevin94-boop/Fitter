@@ -48,7 +48,8 @@
       ],
       "parallax_factor": 0.35,
       "repeat_x": true,
-      "extend_bottom_edge": true
+      "extend_bottom_edge": true,
+      "fill_mode": "floor"
     },
     {
       "file": "view_front.png",
@@ -59,7 +60,8 @@
       ],
       "parallax_factor": 0.6,
       "repeat_x": true,
-      "extend_bottom_edge": true
+      "extend_bottom_edge": true,
+      "fill_mode": "none"
     }
   ],
   "castle": {
@@ -215,5 +217,6 @@
         1000
       ]
     ]
-  }
+  },
+  "ravenholm_notes": "fill_mode (added in the game, 2026-10-18): 'floor' repeats Pass/valley_floor below the layer; 'none' draws nothing below it; absent: the stretched bottom-edge fill."
 }
