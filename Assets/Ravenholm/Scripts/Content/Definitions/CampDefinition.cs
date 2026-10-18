@@ -183,7 +183,7 @@ namespace Ravenholm.Content
 
         /// <summary>
         /// The land of a level (gated levels, 2026-10-16): each camp's own plateau, its outline and woods its own (a seed
-        /// per level), its camp in the same place at its front and its own gate on the north rim. Without levels, the
+        /// per level), its camp in the same place by its north rim (the castle view) and its own gate on a side rim. Without levels, the
         /// one road (any level gives it). Derived data, built once per level; the asset is never changed.
         /// </summary>
         public RidgeLayout RidgeFor(int level)

@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using Ravenholm.Content;
 using Ravenholm.Domain.Sites;
@@ -40,16 +41,22 @@ namespace Ravenholm.Tests
                 }
                 Assert.Greater(land, 3200, "about 60 x 60");
                 Assert.Less(land, 4800, "about 60 x 60");
-                // The rim toward the castle (north) is broad, not a corner: land right across, some way either side of the road.
-                var (ex, ey) = r.PointAt(r.Length);
+                // The camp stands just below the north rim (Kevin, 2026-10-18: the castle view from camp): straight up the
+                // screen from it the land ends within about ten world units, and that rim is broad, not a corner.
+                var up = 0;
+                while (up < 80 && r.InLand((int)cx + up, (int)cy + up)) up++;
+                Assert.Less(up, 20, $"the north rim close above the camp ({up} cells up the screen)");
+                Assert.Greater(up, 8, "but clear of the camp's buildings");
+                var (rx, ry) = ((int)cx + up - 3, (int)cy + up - 3);
                 var across = 0;
-                for (var k = -30; k <= 30; k++) if (r.InLand((int)ex + k - 2, (int)ey - k - 2)) across++;
+                for (var k = -30; k <= 30; k++) if (r.InLand(rx + k, ry - k)) across++;
                 Assert.Greater(across, 30, $"a broad north rim ({across} cells across near the top)");
                 Assert.Greater(r.Length - r.CampS, 20, "the road crosses the level to the gate");
                 var (gx, gy) = r.PointAt(r.Gates[0].S);
-                Assert.Greater(gx + gy, cx + cy + 30, "the gate is up the screen from the camp (north, toward the castle)");
+                Assert.Greater(r.PlateauSide * ((gx - gy) - (cx - cy)) * 0.5, 12, "the gate is on a side rim, across the screen from the camp");
                 Assert.IsTrue(r.GateAt((int)gx, (int)gy) != null, "the gate on the road");
-                Assert.IsNull(r.GateAt((int)gx + 12, (int)gy - 12), "only by the road");
+                var (bx, by) = r.PointBeside(r.Gates[0].S, 12);
+                Assert.IsNull(r.GateAt((int)Math.Round(bx), (int)Math.Round(by)), "only by the road");
                 for (var g = 1; g < r.Gates.Count; g++) Assert.Greater(r.Gates[g].S, r.Length, "only this level's gate");
                 return;
             }

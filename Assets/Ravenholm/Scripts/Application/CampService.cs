@@ -61,7 +61,7 @@ namespace Ravenholm.Services
         /// <summary>The land the company is on: this camp's level (the one road without levels).</summary>
         public Domain.Sites.RidgeLayout Ridge => Road != null ? Road.RidgeFor(Index) : null;
 
-        /// <summary>Where the level is left: the road's end on the north rim, just past the gate (world).</summary>
+        /// <summary>Where the level is left: the road's end on its side rim, just past the gate (world).</summary>
         public Vector2 ExitWorld
         {
             get

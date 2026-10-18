@@ -38,10 +38,11 @@ namespace Ravenholm.Tests
             var seen = new System.Collections.Generic.HashSet<(int, int)>();
             for (var s = ahead; s < ridge.Length - ridge.CampS; s++)
             {
-                var (px, py) = ridge.PointAt(ridge.CampS + s);
                 for (var dx = -15; dx <= 15; dx++)
                 {
-                    var (x, y) = ((int)px + dx, (int)py - dx);
+                    // Across the road, whichever way it runs (on a level it runs across the screen to a side rim, 2026-10-18).
+                    var (bx, by) = ridge.PointBeside(ridge.CampS + s, dx);
+                    var (x, y) = ((int)System.Math.Round(bx), (int)System.Math.Round(by));
                     if (!seen.Add((x, y)) || g.Sites.ToolTooWeak(x, y)) continue;
                     for (var level = forest.TerrainHeight(x, y); level >= 1; level--) yield return (x, y, level);
                 }

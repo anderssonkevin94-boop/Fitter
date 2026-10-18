@@ -73,9 +73,10 @@ namespace Ravenholm.Domain.Sites
         /// <summary>
         /// A level: one organic plateau of about <see cref="LevelSize"/>² cells, cliffs all round (the valley view beyond).
         /// Its outline is drawn on screen: rounded and lobed at the front and sides; toward the castle (north, up the
-        /// screen) a broad, gently bowed rim rather than a corner (Kevin, 2026-10-16). The camp stands toward the front;
-        /// the road runs straight up the screen from it to the rim, where the level's gate is. Left of the road (screen
-        /// left) is flat forest; right of it, the hills, the Mine's ground.
+        /// screen) a broad, gently bowed rim rather than a corner (Kevin, 2026-10-16). The camp stands just below that
+        /// north rim, looking out at the castle (Kevin, 2026-10-18); the road runs from it down and across to a side rim
+        /// (east on odd levels, west on even ones), where the level's gate is. Left of the road is flat forest; right of
+        /// it, the hills, the Mine's ground.
         /// </summary>
         public bool Plateau;
         public int LevelSize = 60;
@@ -92,23 +93,41 @@ namespace Ravenholm.Domain.Sites
         /// <summary>A gate on a level: how far either side of the road its band reaches (cells).</summary>
         public const double PlateauGateHalfWidth = 7;
 
-        /// <summary>The outline's sizes from <see cref="LevelSize"/> and where the camp stands (its clearing toward the front).</summary>
+        /// <summary>The side rim the level's gate is on: +1 east (screen right, levels 1, 3, 5), -1 west.</summary>
+        public int PlateauSide => Level % 2 == 0 ? 1 : -1;
+
+        /// <summary>
+        /// The outline's sizes from <see cref="LevelSize"/> and where the camp stands: just below the north rim (Kevin,
+        /// 2026-10-18: "locate the campsites with a view of the parallax"), the rim about 7 world units above the camp's
+        /// centre, clear of the camp's buildings, so the castle shows over the edge from camp.
+        /// </summary>
         public void SetLevelAround(double campCellX, double campCellY)
         {
             var (wx, wy) = (( campCellX - campCellY) * 0.5, (campCellX + campCellY) * 0.25 + 0.25);
             LevelRX = LevelSize * 0.4;
             LevelRY = LevelSize * 0.2;
             LevelCX = wx + 1;
-            LevelCY = wy + LevelRY * 0.45;
+            LevelCY = wy - LevelRY * 0.42;
         }
 
         private void BuildPlateau()
         {
-            // Straight up the screen (+x and +y together) from the camp to the rim.
-            double ex = StartX, ey = StartY;
-            while (InPlateau((int)Math.Round(ex + 1), (int)Math.Round(ey + 1))) { ex += 1; ey += 1; }
-            ex -= PlateauRoadInset;
-            ey -= PlateauRoadInset;
+            // From the camp down and across the screen to the side rim: toward a point a quarter of the way down that side.
+            var tx = LevelCX + PlateauSide * LevelRX;
+            var ty = LevelCY - LevelRY * 0.25;
+            var (sx, sy) = (StartX, StartY);
+            var (swx, swy) = ((sx - sy) * 0.5, (sx + sy) * 0.25 + 0.25);
+            // World to cells: wx = (x - y) / 2, wy = (x + y) / 4.
+            var dwx = tx - swx;
+            var dwy = ty - swy;
+            var (dx, dy) = (dwx + 2 * dwy, 2 * dwy - dwx);
+            var dl = Math.Sqrt(dx * dx + dy * dy);
+            dx /= dl;
+            dy /= dl;
+            double ex = sx, ey = sy;
+            while (InPlateau((int)Math.Round(ex + dx), (int)Math.Round(ey + dy))) { ex += dx; ey += dy; }
+            ex -= dx * PlateauRoadInset * 1.41;
+            ey -= dy * PlateauRoadInset * 1.41;
             var len = Math.Sqrt((ex - StartX) * (ex - StartX) + (ey - StartY) * (ey - StartY));
             var n = Math.Max(1, (int)Math.Ceiling(len));
             for (var k = 0; k <= n; k++)
@@ -135,6 +154,18 @@ namespace Ravenholm.Domain.Sites
         }
 
         private double Phase(int k) => Hash01(k, 77, Seed) * Math.PI * 2;
+
+        /// <summary>
+        /// The overlook: the ground between the camp and the north rim, open grass with no trees or hills, so the castle
+        /// shows over the edge from camp (Kevin, 2026-10-18).
+        /// </summary>
+        public bool InOverlook(int x, int y)
+        {
+            if (!Plateau) return false;
+            var (cwx, cwy) = ((StartX - StartY) * 0.5, (StartX + StartY) * 0.25 + 0.25);
+            var (wx, wy) = ((x - y) * 0.5, (x + y) * 0.25 + 0.25);
+            return wy > cwy + 2.5 && Math.Abs(wx - cwx) < 13;
+        }
 
         /// <summary>Cells round the road's end past the gate, where the way on to the next level is: never a tree.</summary>
         public bool ExitClear(int x, int y)
@@ -564,7 +595,8 @@ namespace Ravenholm.Domain.Sites
 
         public bool InLand(int x, int y)
         {
-            if (Plateau) return InPlateau(x, y) || InClearing(x, y);
+            // The camp's clearing is land too, but never past the north rim (no bump over the castle view).
+            if (Plateau) return InPlateau(x, y) || InClearing(x, y) && (x + y) * 0.25 + 0.25 < LevelCY + LevelRY * 0.85;
             var (s, off, d) = Locate(x, y);
             var noise = EdgeNoise * (Noise2(x / 5.0, y / 5.0, 31) * 2 - 1);
             if (InCove(x, y)) return false;
@@ -721,6 +753,8 @@ namespace Ravenholm.Domain.Sites
         public int HeightCap(int x, int y)
         {
             if (Plateau && Locate(x, y).off > 0) return 0;   // a level's forest side is flat
+            // Flat along the north rim: no hill columns standing up into the castle view over the camp (2026-10-18).
+            if (Plateau && ((x + y) * 0.25 + 0.25 > LevelCY && !InPlateau(x + 5, y + 5) || InOverlook(x, y))) return 0;
             var fromClearing = ClearingDistance(x, y) - FlatMargin;
             var fromRoad = RoadDistance(x, y) - RoadHalfWidth - 1;
             return Math.Max(0, (int)Math.Floor(Math.Min(fromClearing, fromRoad) * 2));
@@ -733,7 +767,7 @@ namespace Ravenholm.Domain.Sites
         public bool FixedOpen(ulong seed, int x, int y, out bool open)
         {
             open = false;
-            if (Plateau && ExitClear(x, y)) { open = true; return true; }   // the way on through the gate stays clear
+            if (Plateau && (ExitClear(x, y) || InOverlook(x, y))) { open = true; return true; }   // the way on, and the view, stay clear
             if (GateAt(x, y) != null) return true;
             if (!OnRoad(x, y)) return false;
             open = Hash01(x, y, 71 + (int)(seed % 997)) < 0.75;

@@ -1859,3 +1859,13 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - Auto spots fill in the racks' order (pinned, strongest, newest) and never repeat an item chosen elsewhere on that kind of piece.
   - A dressed armour stand's spots are Body, Head and Shield, each limited to its category.
 - Checked in `DisplayPickerPlayModeTests` and by looking at the capture.
+
+## 2026-10-18: camps by the north rim, with the castle view (Kevin: "locate the campsites with a view of the parallax"; gate on a side rim)
+
+- **Each level's camp stands just below its north rim.** The castle backdrop is anchored to the screen, about a third of the way down, so it only shows where the land's edge is lower on screen than that. In practice that means the edge has to be a few steps up the screen from where you stand. The plateau is now laid with its rim about 7 world units above the camp's centre (`SetLevelAround`: centre 0.42 × the half-height below the camp). That puts the rim just behind the wagon, so standing at the wagon's counter the castle and valley show over the edge (`level*_view.png`).
+- **The overlook** (`RidgeLayout.InOverlook`): between the camp and the rim, open grass with no trees and no hills. The hills also stay flat within 5 cells of the north rim, so nothing stands up into the view. The camp's clearing never adds land past the rim.
+- **The gate is on a side rim** (Kevin's pick): east on levels 1, 3 and 5, west on 2, 4 and 6 (`PlateauSide`). The road runs from the camp down and across to a point a quarter of the way down that side; the gate's old trees stand across it near the rim. The wagon arrives on a new level from the opposite side (`DriveView.ArrivalEdge`).
+- Checked:
+  - `CampTests`: the rim within 20 cells up the screen from the camp but more than 8, and the gate at least 12 world units across the screen.
+  - `RoadPlayModeTests`: the wagon's floor is on land on every level, plus a capture from the counter.
+- Two test helpers (`DigTestKit.HillBlocks`, `CampPlayModeTests.TreeAhead`) searched across the road with a fixed screen direction, which only works for a road straight up the screen. They now use `PointBeside`, so they search across the road whichever way it runs.

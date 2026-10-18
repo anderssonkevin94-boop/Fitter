@@ -52,6 +52,8 @@ namespace Ravenholm.Tests
             var tree = CampPlayModeTests.TreeAhead(sim, 10);
             Assert.IsTrue(forest.CellOf(tree.x, tree.y, out var cell));
             var motor = SandboxSceneController.Current.Player.GetComponent<PlayerMotor>();
+            motor.Teleport(IsoMap.World(cell) + new Vector2(0f, -1.5f));   // go there first: the forest draws round him
+            yield return new WaitForSeconds(0.3f);
             // Just behind the tree (higher on the screen), where its crown covers him.
             motor.Teleport((Vector2)forest.RendererAt(cell).transform.position + new Vector2(0f, 0.3f));
             yield return new WaitForSeconds(0.6f);

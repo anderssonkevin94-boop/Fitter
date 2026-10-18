@@ -82,11 +82,11 @@ namespace Ravenholm.Tests
             var r = sim.Config.Grove.Ridge;
             for (var s = ahead; s < r.Length - r.CampS; s += 1)
             {
-                var (px, py) = r.PointAt(r.CampS + s);
                 for (var k = 0; k <= 12; k++)
                 foreach (var side in new[] { k, -k })
                 {
-                    var (x, y) = ((int)px + side, (int)py - side);
+                    var (bx, by) = r.PointBeside(r.CampS + s, side);   // across the road, whichever way it runs
+                    var (x, y) = ((int)System.Math.Round(bx), (int)System.Math.Round(by));
                     if (!sim.CanChop(x, y) || !anyTier && r.GateTierAt(x, y) != 0) continue;
                     // On flat ground with another flat tree right beside it (the trees are spaced out: not every one has).
                     if (withNeighbour && (sim.TerrainHeight(x, y) != 0 ||

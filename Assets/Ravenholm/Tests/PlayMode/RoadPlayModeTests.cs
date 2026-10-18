@@ -122,6 +122,13 @@ namespace Ravenholm.Tests
                 Assert.Less(Vector2.Distance(motor.transform.position, s.Camp.CentreOf(level)), 9f, $"level {level + 1}: the supplier is at the camp");
                 Assert.AreEqual(level < 5, s.Camp.HasNext, level < 5 ? "a gate on to the next level" : "the last level: the castle ahead");
                 yield return Capture.Take($"level{level + 1}_camp");
+                // The camp by the north rim (Kevin, 2026-10-18): all of the wagon on land, and from its counter the castle view.
+                var cart = ShopView.Current.Wagon.GetComponent<WalkInCart>();
+                foreach (var q in cart.Footprint)
+                    Assert.IsTrue(mine.SurfaceWalkable((Vector2)cart.transform.position + q), $"level {level + 1}: the wagon's floor is on land");
+                motor.Teleport(ShopView.Current.Wagon.position);
+                yield return new WaitForSeconds(0.5f);
+                yield return Capture.Take($"level{level + 1}_view");
                 yield return Overview($"level{level + 1}_overview");
             }
             CollectionAssert.IsEmpty(s.Logistics.System.Audit());
