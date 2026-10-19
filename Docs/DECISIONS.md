@@ -2013,4 +2013,4 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - the maul kept off;
   - footprints blocking, with room at the wagon's steps;
   - captures in front of and behind the displays.
-- **Floor mats:** the wagon shop's patterned carpet is left as is, pending Kevin's answer on whether it is the "floor mat" to remove. The teal cloth is part of the potion display's art.
+- **Floor mats:** Kevin removed the wagon shop's patterned carpet and its fringe (2026-10-19). The shop's floor tiles still define where furniture goes and grow with the wagon, but they are no longer drawn; the furniture stands on the cobbles. The teal cloth is part of the potion display's art.

@@ -77,6 +77,25 @@ namespace Ravenholm.Tests
         }
 
         /// <summary>The first tree that can be cut on or beside the line, at least <paramref name="ahead"/> cells forward of the camp.</summary>
+        /// <summary>
+        /// The furthest tree of this level at most <paramref name="before"/> cells forward (searching back toward the camp):
+        /// the world seed differs every new game, and the narrow pass before a gate is sometimes bare.
+        /// </summary>
+        public static Vector3Int FarTree(SiteSimulator sim, double before)
+        {
+            var r = sim.Config.Grove.Ridge;
+            for (var s = before; s >= 20; s -= 1)
+            for (var k = 0; k <= 12; k++)
+            foreach (var side in new[] { k, -k })
+            {
+                var (bx, by) = r.PointBeside(r.CampS + s, side);
+                var (x, y) = ((int)System.Math.Round(bx), (int)System.Math.Round(by));
+                if (sim.CanChop(x, y) && r.GateTierAt(x, y) == 0) return new Vector3Int(x, y, 0);
+            }
+            Assert.Fail($"no tree before {before}");
+            return default;
+        }
+
         public static Vector3Int TreeAhead(SiteSimulator sim, double ahead, bool anyTier = false, bool withNeighbour = false)
         {
             var r = sim.Config.Grove.Ridge;
@@ -135,7 +154,7 @@ namespace Ravenholm.Tests
             // Further forward: tougher trees, and the hills hold deeper layers.
             var mine = S.Sites.Get("site.mine");
             // Gated levels (2026-10-16): one band per level, tougher toward its gate; the next band is the next level's.
-            var far = TreeAhead(sim, camp.Plateau ? camp.GateAhead(0) - 8 : 100);
+            var far = camp.Plateau ? FarTree(sim, camp.GateAhead(0) - 2) : TreeAhead(sim, 100);
             Assert.AreEqual(1, sim.BandOf(ahead.x, ahead.y));
             if (!camp.Plateau) Assert.Greater(sim.BandOf(far.x, far.y), 1, "a later band further forward");
             Assert.Greater(sim.TreeDurabilityMicro(far.x, far.y), sim.TreeDurabilityMicro(ahead.x, ahead.y));
@@ -289,7 +308,7 @@ namespace Ravenholm.Tests
 
             // Further forward costs more: the next band (beyond the gate) more again.
             var road = GameRoot.Instance.Services.Catalogue.CurrentCamp;
-            var t1 = TreeAhead(sim, road.Plateau ? road.GateAhead(0) - 8 : 100);
+            var t1 = road.Plateau ? FarTree(sim, road.GateAhead(0) - 2) : TreeAhead(sim, 100);
             Assert.Greater(sim.TreeDurabilityMicro(t1.x, t1.y), Ravenholm.Domain.Sites.SiteMath.Durability(sim.Config, 1, 0) * 1000,
                 road.Plateau ? "toward the gate, tougher than the first" : "band 2's trees are tougher than band 1's first");
             Motor.Teleport(first);   // on the stump, among the standing trees

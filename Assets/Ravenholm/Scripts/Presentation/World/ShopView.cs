@@ -37,9 +37,6 @@ namespace Ravenholm.Presentation
         [SerializeField] private WalkInCartArt walkInCart = new WalkInCartArt();
         [Tooltip("Astra's ox (V12): standing hitched at the parked wagon.")]
         [SerializeField] private OxArt ox = new OxArt();
-        [SerializeField] private Sprite[] carpetSprites = Array.Empty<Sprite>();
-        [SerializeField] private Sprite[] carpetEdgeA = Array.Empty<Sprite>();
-        [SerializeField] private Sprite[] carpetEdgeB = Array.Empty<Sprite>();
 
         /// <summary>The wagon's depth behind the carpet (tiles along B) and where its counter is.</summary>
         public const float WagonDepth = 1.4f;
@@ -96,13 +93,7 @@ namespace Ravenholm.Presentation
         public void EditorSetupOx(OxArt art) => ox = art;
 
 
-        public void EditorSetupWagon(Sprite[] wagons, Sprite[] carpets, Sprite[] edgesA, Sprite[] edgesB)
-        {
-            wagonSprites = wagons;
-            carpetSprites = carpets;
-            carpetEdgeA = edgesA;
-            carpetEdgeB = edgesB;
-        }
+        public void EditorSetupWagon(Sprite[] wagons) => wagonSprites = wagons;
 
         public void EditorSetupVariants(Sprite windowL, Sprite windowR, Sprite doorL, Sprite doorR)
         {
@@ -292,28 +283,14 @@ namespace Ravenholm.Presentation
         private static Sprite Pick(Sprite[] sprites, int i) => sprites.Length == 0 ? null : sprites[Mathf.Clamp(i, 0, sprites.Length - 1)];
 
         /// <summary>
-        /// The wagon shop: the carpet laid on the ground with its fringe, the wagon parked behind it (its long side, folded
-        /// down into the counter, facing the carpet), the Store's marker at the counter. Nothing hides anything: no walls.
+        /// The wagon shop: its floor (the carpet's tiles, no longer drawn: Kevin removed the carpet, 2026-10-19; the
+        /// furniture stands on the ground), the wagon parked behind it (its long side, folded down into the counter, facing
+        /// the floor), the Store's marker at the counter. Nothing hides anything: no walls.
         /// </summary>
         private void RebuildWagon()
         {
             var shop = _root.Services.Shop;
-            var grid = shop.Grid;
             var art = ArtIndex(shop.WagonLevel);
-            foreach (var t in grid.Floor)
-            {
-                var sr = Sprite(_shell, "Carpet", Pick(carpetSprites, art), TileCentre(t.A, t.B));
-                sr.sortingLayerName = "Ground";
-                sr.sortingOrder = 1;
-            }
-            foreach (var e in grid.Edges)
-            {
-                var ((a0, b0), (a1, b1)) = ShopGrid.Ends(e.Tile, e.Side);
-                var alongA = e.Side == EdgeSide.BackLeft || e.Side == EdgeSide.FrontRight;
-                var sr = Sprite(_shell, "Fringe", Pick(alongA ? carpetEdgeA : carpetEdgeB, art), (Vertex(a0, b0) + Vertex(a1, b1)) * 0.5f);
-                sr.sortingLayerName = "Ground";
-                sr.sortingOrder = 2;
-            }
 
             var size = shop.CarpetSize;
             if (walkInCart != null && walkInCart.Valid)

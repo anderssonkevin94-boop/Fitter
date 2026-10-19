@@ -64,7 +64,8 @@ namespace Ravenholm.Tests
             Assert.IsTrue(s.Shop.Wagon);
             Assert.AreEqual(4, view.Views.Count, "the starting furniture stands on the carpet");
             var shell = view.transform.Find("Shell");
-            Assert.AreEqual(16, shell.Cast<Transform>().Count(t => t.name == "Carpet"), "a 4 x 4 carpet");
+            Assert.AreEqual(16, s.Shop.Grid.Floor.Count(), "a 4 x 4 floor");
+            Assert.AreEqual(0, shell.Cast<Transform>().Count(t => t.name == "Carpet" || t.name == "Fringe"), "no carpet (Kevin, 2026-10-19)");
             Assert.AreEqual(0, shell.Cast<Transform>().Count(t => t.name == "Wall" || t.name == "LowWall"), "no walls");
             Assert.NotNull(view.Wagon, "the wagon is parked behind the carpet");
             Assert.NotNull(view.Wagon.GetComponent<StationInspectable>(), "its counter opens the Store");

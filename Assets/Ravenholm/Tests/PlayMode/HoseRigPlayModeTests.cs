@@ -319,6 +319,10 @@ namespace Ravenholm.Tests
             var cadences = new List<float>();
             for (var k = 0; k < 8; k++)
             {
+                // Let go of the stick first: still walking the last direction, he drifted off the open ground checked
+                // round the start before turning (the NE leg then met whatever stood past it).
+                GameRoot.Instance.InputRouter.ScriptedMove = null;
+                yield return new WaitForSeconds(0.3f);
                 motor.Teleport(start);
                 yield return new WaitForSeconds(0.25f);
                 var a = k * Mathf.PI / 4f;

@@ -637,7 +637,7 @@ namespace Ravenholm.EditorTools
             // The wagon shop (the journey, step 3): placeholders until Astra's ox and wagon land.
             Sprite[] Levels(string name) => new[] { ProjectSetup.LoadSprite($"Wagon/{name}".Replace("#", "1")), ProjectSetup.LoadSprite($"Wagon/{name}".Replace("#", "2")),
                 ProjectSetup.LoadSprite($"Wagon/{name}".Replace("#", "3")) };
-            view.EditorSetupWagon(Levels("wagon_parked_#"), Levels("carpet_#"), Levels("carpet_edge_#_a"), Levels("carpet_edge_#_b"));
+            view.EditorSetupWagon(Levels("wagon_parked_#"));
             view.EditorSetupWalkInCart(LoadWalkInCart());
             view.EditorSetupOx(LoadOx());
             return go.transform;
