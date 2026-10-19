@@ -311,8 +311,9 @@ namespace Ravenholm.Presentation
             Sprite handSpriteL = HandOpen(), handSpriteR = HandOpen();
             _tool.enabled = false;
             CarryAnchor = null;
-            var shoulderL = v.shoulderLeft + Vector2.up * bodyY + swayX;
-            var shoulderR = v.shoulderRight + Vector2.up * bodyY + swayX;
+            var modularArms = definition.Modular;
+            var shoulderL = (modularArms ? definition.ModularShoulder(v, true) : v.shoulderLeft) + Vector2.up * bodyY + swayX;
+            var shoulderR = (modularArms ? definition.ModularShoulder(v, false) : v.shoulderRight) + Vector2.up * bodyY + swayX;
             _lean = working ? 0f : walkLean;
             if (working)
             {
@@ -553,11 +554,14 @@ namespace Ravenholm.Presentation
             var restArmR = side ? Vector2.Distance(shoulderR, wristR) : armLen;
             // In the diagonal and profile views his left arm is the far one: smaller with distance (arm, sleeve, hand).
             var far = side ? 1f : definition.farLimbScale;
-            DrawTube(_armL, shoulderL, wristL, restArmL, side ? Vector2.zero : elbowDir, definition.armWidth * far, definition.armWidthEnd * far, ArmColor, outline);
+            // On a modular torso the arm's top is under its sleeve cap: start it a little way in, so its rounded root (and
+            // that root's outline) never peeks past the sleeve's edge.
+            var hidden = modular ? definition.sleeveCapRadius * 0.45f : 0f;
+            DrawTube(_armL, shoulderL, wristL, restArmL, side ? Vector2.zero : elbowDir, definition.armWidth * far, definition.armWidthEnd * far, ArmColor, outline, hidden);
             _armEndL = _path[_path.Count - 1] - _path[_path.Count - 2];
             DrawSleeve(_sleeveL, outline, far);
             if (!side) _handL.transform.localScale = Vector3.one * far;
-            DrawTube(_armR, shoulderR, wristR, restArmR, side ? Vector2.zero : elbowDir, definition.armWidth, definition.armWidthEnd, ArmColor, outline);
+            DrawTube(_armR, shoulderR, wristR, restArmR, side ? Vector2.zero : elbowDir, definition.armWidth, definition.armWidthEnd, ArmColor, outline, hidden);
             _armEndR = _path[_path.Count - 1] - _path[_path.Count - 2];
             DrawSleeve(_sleeveR, outline);
             // Relaxed hands follow the end of their arm (the art hangs straight down), so the wrist never kinks.
@@ -605,6 +609,12 @@ namespace Ravenholm.Presentation
                 // in front of the body.
                 Order(_armL, 0); Order(_armR, 0);
                 _handL.sortingOrder = _handNearL ? 9 : 1; _handR.sortingOrder = _handNearR ? 9 : 1;
+                if (modular)
+                {
+                    // A modular torso: both arms hang in front of it, coming out from under its sleeves (the caps, below).
+                    Order(_armL, 7); Order(_armR, 7);
+                    _handL.sortingOrder = 8; _handR.sortingOrder = 8;
+                }
                 _handNearL = _handNearR = false;
                 Order(_legL, 2); Order(_legR, 2);
                 _bootL.sortingOrder = 3; _bootR.sortingOrder = 3;
@@ -618,10 +628,6 @@ namespace Ravenholm.Presentation
                 // His right arm is the near one in every painted diagonal and profile (SE, E, NE): always in front of
                 // the body, back three-quarter view included (the far arm is the one behind).
                 Order(_armR, 7); _handR.sortingOrder = 9;
-                // A modular torso paints its own shoulder caps (Astra's standard rig v1): at rest and walking the near arm
-                // hangs from under the cap (behind the torso) and only its hand passes in front; the swing below keeps
-                // its own order.
-                if (modular) Order(_armR, 0);
             }
             _body.sortingOrder = 6;
             if (_headwear != null) _headwear.sortingOrder = 7;   // over the head; the hands (8, 9) still pass in front
@@ -648,6 +654,7 @@ namespace Ravenholm.Presentation
                 _head.sortingOrder = 7;
                 _head.enabled = modular;
             }
+            ShoulderCaps(modular, v);
             Held(ref _weaponHeld, "WeaponHeld", working ? null : HeldWeapon, Mirrored ? _handL : _handR, false);
             Held(ref _shieldHeld, "ShieldHeld", working || !shieldOn ? null : HeldShield, Mirrored ? _handR : _handL, true);
             var topSprite = modular && v.head != null ? v.head : v.body;
@@ -777,7 +784,7 @@ namespace Ravenholm.Presentation
         /// A hose from a to b: as long as it is at rest it bows sideways (toward <paramref name="bowDir"/>) to keep its
         /// length; pulled further it stretches straight.
         /// </summary>
-        private void DrawTube(Tube t, Vector2 a, Vector2 b, float restLength, Vector2 bowDir, float width, float widthEnd, Color color, float outline)
+        private void DrawTube(Tube t, Vector2 a, Vector2 b, float restLength, Vector2 bowDir, float width, float widthEnd, Color color, float outline, float trim = 0f)
         {
             var d = Vector2.Distance(a, b);
             var along = d > 0.0001f ? (b - a) / d : Vector2.down;
@@ -798,10 +805,74 @@ namespace Ravenholm.Presentation
                 var u = 1f - s;
                 _path.Add(u * u * u * a + 3f * u * u * s * c1 + 3f * u * s * s * c2 + s * s * s * b);
             }
+            TrimStart(trim);
             Fill(t.FillMesh, width, widthEnd, color);
             Fill(t.OutlineMesh, width + 2f * outline, widthEnd + 2f * outline, GameRoot.Instance != null && GameRoot.Instance.Config.SandboxSettings.outlines != null
                 ? GameRoot.Instance.Config.SandboxSettings.outlines.color : Color.black);
             t.Outline.enabled = outline > 0f;
+        }
+
+        private SpriteRenderer _caps;
+        private static readonly int CapAId = Shader.PropertyToID("_CapA");
+        private static readonly int CapBId = Shader.PropertyToID("_CapB");
+
+        /// <summary>
+        /// The shoulder caps (Kevin, 2026-10-19: the arms looked stuck on). An arm in front of a modular torso is drawn from
+        /// the shoulder, and then the torso again over it, cut to a circle round that shoulder: the sleeve covers the arm's
+        /// top and the arm comes out from under it, as Astra's rig asks ("the shoulder cap remains above the arm root").
+        /// Drawn under the hands.
+        /// </summary>
+        private void ShoulderCaps(bool modular, HoseCharacterDefinition.View v)
+        {
+            var torso = _body.sprite;
+            var frontL = modular && _armL.Fill.sortingOrder > _body.sortingOrder;
+            var frontR = modular && _armR.Fill.sortingOrder > _body.sortingOrder;
+            if (!(frontL || frontR) || torso == null || definition.skinMaterial == null)
+            {
+                if (_caps != null) _caps.enabled = false;
+                return;
+            }
+            if (_caps == null)
+            {
+                _caps = new GameObject("ShoulderCaps").AddComponent<SpriteRenderer>();
+                _caps.transform.SetParent(_body.transform, false);
+            }
+            _caps.enabled = true;
+            _caps.sprite = torso;
+            _caps.sharedMaterial = definition.skinMaterial;
+            var top = Mathf.Max(frontL ? _armL.Fill.sortingOrder : 0, frontR ? _armR.Fill.sortingOrder : 0);
+            _caps.sortingOrder = top + 1;
+            foreach (var hand in new[] { _handL, _handR })
+                if (hand.sortingOrder > _body.sortingOrder && hand.sortingOrder <= _caps.sortingOrder) hand.sortingOrder = _caps.sortingOrder + 1;
+            // Circles in the sprite's own pixels (from its bottom-left), round each front arm's shoulder.
+            var ppu = torso.pixelsPerUnit;
+            var r = definition.sleeveCapRadius * ppu;
+            Vector4 Circle(Vector2 shoulder, bool on) => new Vector4(torso.pivot.x + shoulder.x * ppu, torso.pivot.y + shoulder.y * ppu, r, on ? 1f : 0f);
+            _skinBlock ??= new MaterialPropertyBlock();
+            _body.GetPropertyBlock(_skinBlock);   // the torso's skin and mask
+            _skinBlock.SetVector(CapAId, Circle(definition.ModularShoulder(v, true), frontL));
+            _skinBlock.SetVector(CapBId, Circle(definition.ModularShoulder(v, false), frontR));
+            _caps.SetPropertyBlock(_skinBlock);
+            _skinBlock.SetVector(CapAId, Vector4.zero);
+            _skinBlock.SetVector(CapBId, Vector4.zero);
+        }
+
+        /// <summary>
+        /// Drops the path's first <paramref name="length"/> units (an arm in front of a modular torso starts at its sleeve's
+        /// hem, Kevin 2026-10-19: started at the shoulder its root showed over the cap; hidden behind the torso, the arm
+        /// came out of the body's side halfway down).
+        /// </summary>
+        private void TrimStart(float length)
+        {
+            if (length <= 0f || _path.Count < 3) return;
+            var left = length;
+            while (_path.Count > 2)
+            {
+                var seg = Vector2.Distance(_path[0], _path[1]);
+                if (seg > left) { _path[0] = Vector2.Lerp(_path[0], _path[1], left / seg); return; }
+                left -= seg;
+                _path.RemoveAt(0);
+            }
         }
 
         /// <summary>The sleeve: the first stretch of the arm just drawn (its path is still in _path), wider, in shirt cream.</summary>

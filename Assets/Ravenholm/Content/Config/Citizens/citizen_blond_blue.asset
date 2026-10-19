@@ -743,6 +743,7 @@ MonoBehaviour:
   skinMaterial: {fileID: 2100000, guid: 1303dacc3f95747569ba2888565dfff8, type: 2}
   skinBase: {r: 0.85490197, g: 0.5294118, b: 0.35686275, a: 1}
   skinShadow: {r: 0.7921569, g: 0.4, b: 0.25882354, a: 1}
+  sleeveCapRadius: 0.16
   views:
   - name: S
     body: {fileID: 21300000, guid: c896416efabe342efbc14820bc09c19f, type: 3}
@@ -759,6 +760,8 @@ MonoBehaviour:
     headwear: []
     head: {fileID: 21300000, guid: 177b6982e05c4440aab49269a3ef5b45, type: 3}
     headSkinMask: {fileID: 2800000, guid: d6962076bcca0468bb523f75fab1a11e, type: 3}
+    shoulderJointLeft: {x: 0.2, y: 0.6}
+    shoulderJointRight: {x: -0.19117647, y: 0.6}
   - name: SE
     body: {fileID: 21300000, guid: c5f53c9838c6b4aa292e50cdacc24d37, type: 3}
     bootLeft: {fileID: 21300000, guid: 24968fa7952c3456da8266774ae5532a, type: 3}
@@ -782,6 +785,8 @@ MonoBehaviour:
       sprite: {fileID: 21300000, guid: 36337a710309b40eba267a6d411a4751, type: 3}
     head: {fileID: 21300000, guid: 7210a6273938640cdb0a87007174db63, type: 3}
     headSkinMask: {fileID: 2800000, guid: 581ce139f383d4cb1a0fa947c8dd863a, type: 3}
+    shoulderJointLeft: {x: 0.19411765, y: 0.5764706}
+    shoulderJointRight: {x: -0.13235295, y: 0.57058823}
   - name: E
     body: {fileID: 21300000, guid: e62eafd8f656245a08cd4c32da0cf580, type: 3}
     bootLeft: {fileID: 21300000, guid: d2473e225b55944eb866e5bcdc6fa775, type: 3}
@@ -797,6 +802,8 @@ MonoBehaviour:
     headwear: []
     head: {fileID: 21300000, guid: 994f917c440a84cc380e846be8e81734, type: 3}
     headSkinMask: {fileID: 2800000, guid: b32b1e24f9e98419ba4e5c99a5f9b64e, type: 3}
+    shoulderJointLeft: {x: 0.04117647, y: 0.60882354}
+    shoulderJointRight: {x: -0.06764706, y: 0.59705883}
   - name: NE
     body: {fileID: 21300000, guid: fcdde9b3e3a7f447da5b87943af100d5, type: 3}
     bootLeft: {fileID: 21300000, guid: dc82049dfb4534ef2be924957d67be14, type: 3}
@@ -812,6 +819,8 @@ MonoBehaviour:
     headwear: []
     head: {fileID: 21300000, guid: 089bd19a9dd6d42faa1a860df4c39884, type: 3}
     headSkinMask: {fileID: 2800000, guid: 05364bd4b6e334a2e984cd18b5b8bdf5, type: 3}
+    shoulderJointLeft: {x: -0.17352942, y: 0.62352943}
+    shoulderJointRight: {x: 0.15588236, y: 0.5882353}
   - name: N
     body: {fileID: 21300000, guid: c236df4c174df4b5fb719a936ded717d, type: 3}
     bootLeft: {fileID: 21300000, guid: db223932559484458ad0467e0ad50dc7, type: 3}
@@ -827,6 +836,8 @@ MonoBehaviour:
     headwear: []
     head: {fileID: 21300000, guid: 5dfa25316fe3146a18ece5d2da96abf0, type: 3}
     headSkinMask: {fileID: 2800000, guid: dc3378e8035314ec0a843cfaf7cf1ee2, type: 3}
+    shoulderJointLeft: {x: -0.19705883, y: 0.59411764}
+    shoulderJointRight: {x: 0.19705883, y: 0.59411764}
   handOpenFront: {fileID: 21300000, guid: 2f2e9f895829b427d8c47048bbdafb05, type: 3}
   handOpenSide: {fileID: 21300000, guid: 635633d49ab9b4747ab64b9cc5685440, type: 3}
   handOpenBack: {fileID: 21300000, guid: 9904df0224d8d476988487d015dbdfa5, type: 3}

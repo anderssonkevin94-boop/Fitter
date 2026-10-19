@@ -9,6 +9,8 @@ Shader "Ravenholm/SpriteSkinTint"
         [PerRendererData] _SkinMask ("Skin mask", 2D) = "black" {}
         [PerRendererData] _SkinBase ("Skin", Color) = (0.855, 0.529, 0.357, 1)
         [PerRendererData] _SkinShadow ("Skin shadow", Color) = (0.792, 0.4, 0.259, 1)
+        [PerRendererData] _CapA ("Shoulder cap A (x, y px from the bottom-left, radius px, on)", Vector) = (0, 0, 0, 0)
+        [PerRendererData] _CapB ("Shoulder cap B", Vector) = (0, 0, 0, 0)
     }
     SubShader
     {
@@ -31,6 +33,10 @@ Shader "Ravenholm/SpriteSkinTint"
             SAMPLER(sampler_point_clamp);
             half4 _SkinBase;
             half4 _SkinShadow;
+            float4 _MainTex_TexelSize;
+            // The shoulder caps (2026-10-19): a copy of the torso drawn over the arms, cut to circles round the shoulders,
+            // so each arm comes out from under its sleeve. Off (w = 0): the whole sprite.
+            float4 _CapA, _CapB;
 
             struct Attributes { float3 positionOS : POSITION; float2 uv : TEXCOORD0; float4 color : COLOR; };
             struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float4 color : COLOR; };
@@ -46,6 +52,14 @@ Shader "Ravenholm/SpriteSkinTint"
 
             half4 Frag(Varyings i) : SV_Target
             {
+                if (_CapA.w > 0.5 || _CapB.w > 0.5)
+                {
+                    float2 px = i.uv * _MainTex_TexelSize.zw;
+                    float2 da = px - _CapA.xy, db = px - _CapB.xy;
+                    bool inA = _CapA.w > 0.5 && dot(da, da) <= _CapA.z * _CapA.z;
+                    bool inB = _CapB.w > 0.5 && dot(db, db) <= _CapB.z * _CapB.z;
+                    if (!inA && !inB) discard;
+                }
                 half4 t = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
                 half4 m = SAMPLE_TEXTURE2D(_SkinMask, sampler_point_clamp, i.uv);   // data: always point sampled
                 half cover = m.r + m.g;

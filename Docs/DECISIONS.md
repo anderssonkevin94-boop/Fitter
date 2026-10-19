@@ -1979,3 +1979,18 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - carrying, and the look kept through a save and reload.
   - The sheet `Captures/modular_people.png` (13 heads by 8 directions, mixed clothes, helmets every fourth row) was looked at: necks match faces, no seams.
 - Astra's Equip Hero test now counts the six slot buttons by name; the Clothes button sits beside them.
+
+## 2026-10-19: arms hang from the shoulders (Kevin: "it's an arm with a shoulder, so attach it where a shoulder should be")
+
+- **Cause:** the arms hung from the rig's shoulder anchors (Astra's `points.json`). Those sit on the body, lower and further in than the sleeves, so the arm came out of the chest. I tried two wrong fixes first: the arm behind the torso (it then came out of the body's side halfway down), and the arm starting at the sleeve's hem (it looked pinned on).
+- **Shoulder joints:** each view now has `shoulderJointLeft` and `shoulderJointRight`, where each sleeve meets the body at its top. They were measured on the torsos' sleeves and confirmed by Kevin on a marked picture. In canvas pixels, left then right:
+  - S (324, 240) (191, 240)
+  - SE (322, 248) (211, 250)
+  - E (270, 237) (233, 241)
+  - NE (197, 232) (309, 244)
+  - N (189, 242) (323, 242)
+
+  `ProjectSetup.ShoulderJointsPx` sets them; `ModularShoulder` returns them.
+- **The sleeve over the arm:** on a modular torso, the arms in front of it (head-on both, otherwise the near one) are drawn from the joint. The torso is then drawn again over them, cut to a circle round each front arm's shoulder (`sleeveCapRadius` 0.16 units). This is the `ShoulderCaps` overlay, using the `_CapA` and `_CapB` circles in `SpriteSkinTint`. The sleeve covers the arm's top and the arm comes out from under it; the hands stay above.
+- The arm starts a little way inside the cap (0.45 of its radius), so its rounded root and outline never peek past the sleeve.
+- Checked on a large render of the S, SE, E and NE views at mid-stride (apron, coat, tunic, waistcoat and steel armour, light and dark skin), shown to Kevin.

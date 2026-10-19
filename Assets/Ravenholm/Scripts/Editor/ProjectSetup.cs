@@ -1283,6 +1283,14 @@ namespace Ravenholm.EditorTools
         }
 
         public const string ModularRig = "ravenholm_standard_512_v1";
+        private const float ppuModular = 340f;
+
+        /// <summary>Each source view's shoulder joints (left, right) on the standard rig's canvas, in pixels from the top-left.</summary>
+        private static readonly Dictionary<string, (float lx, float ly, float rx, float ry)> ShoulderJointsPx = new Dictionary<string, (float, float, float, float)>
+        {
+            { "S", (324, 240, 191, 240) }, { "SE", (322, 248, 211, 250) }, { "E", (270, 237, 233, 241) },
+            { "NE", (197, 232, 309, 244) }, { "N", (189, 242, 323, 242) },
+        };
         public const string SkinMaterialPath = ConfigDir + "SkinTint.mat";
 
         /// <summary>
@@ -1302,7 +1310,7 @@ namespace Ravenholm.EditorTools
             def.wornHeadwear = new List<HoseCharacterDefinition.WornHeadwear>();
             def.headSets = new List<HoseCharacterDefinition.HeadSet>();
             def.civilianOutfits = new List<string>();
-            foreach (var v in def.views) { v.head = null; v.headSkinMask = null; }
+            foreach (var v in def.views) { v.head = null; v.headSkinMask = null; v.shoulderJointLeft = v.shoulderJointRight = Vector2.zero; }
             if (!File.Exists(libPath)) return;
             var lib = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(libPath));
             Texture2D Mask(string name) => AssetDatabase.LoadAssetAtPath<Texture2D>(PlaceholderSpriteImporter.ArtRoot + dir + "Masks/" + name + "_skin.png");
@@ -1313,6 +1321,14 @@ namespace Ravenholm.EditorTools
                 var name = (string)headSet[v.name];
                 v.head = LoadSprite(dir + "Heads/" + name);
                 v.headSkinMask = Mask(name);
+                // The shoulder joints (Kevin, 2026-10-19, confirmed on a marked picture): where each sleeve meets the body at
+                // its top, measured on the torsos' sleeves (canvas pixels, top-left); the pack's shoulder anchors sit lower
+                // and further in, on the body, and the arms hung from them looked stuck on.
+                if (ShoulderJointsPx.TryGetValue(v.name, out var j))
+                {
+                    v.shoulderJointLeft = new Vector2((j.lx - 256f) / ppuModular, (444f - j.ly) / ppuModular);
+                    v.shoulderJointRight = new Vector2((j.rx - 256f) / ppuModular, (444f - j.ry) / ppuModular);
+                }
             }
             foreach (var o in (Newtonsoft.Json.Linq.JObject)lib["outfit_sets"])
             {
