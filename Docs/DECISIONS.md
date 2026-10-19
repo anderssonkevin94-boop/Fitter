@@ -1980,17 +1980,15 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - The sheet `Captures/modular_people.png` (13 heads by 8 directions, mixed clothes, helmets every fourth row) was looked at: necks match faces, no seams.
 - Astra's Equip Hero test now counts the six slot buttons by name; the Clothes button sits beside them.
 
-## 2026-10-19: arms hang from the shoulders (Kevin: "it's an arm with a shoulder, so attach it where a shoulder should be")
+## 2026-10-19: arms follow Astra's rig; in profile the near arm hangs in front (replaces "arms hang from the shoulders")
 
-- **Cause:** the arms hung from the rig's shoulder anchors (Astra's `points.json`). Those sit on the body, lower and further in than the sleeves, so the arm came out of the chest. I tried two wrong fixes first: the arm behind the torso (it then came out of the body's side halfway down), and the arm starting at the sleeve's hem (it looked pinned on).
-- **Shoulder joints:** each view now has `shoulderJointLeft` and `shoulderJointRight`, where each sleeve meets the body at its top. They were measured on the torsos' sleeves and confirmed by Kevin on a marked picture. In canvas pixels, left then right:
-  - S (324, 240) (191, 240)
-  - SE (322, 248) (211, 250)
-  - E (270, 237) (233, 241)
-  - NE (197, 232) (309, 244)
-  - N (189, 242) (323, 242)
-
-  `ProjectSetup.ShoulderJointsPx` sets them; `ModularShoulder` returns them.
-- **The sleeve over the arm:** on a modular torso, the arms in front of it (head-on both, otherwise the near one) are drawn from the joint. The torso is then drawn again over them, cut to a circle round each front arm's shoulder (`sleeveCapRadius` 0.16 units). This is the `ShoulderCaps` overlay, using the `_CapA` and `_CapB` circles in `SpriteSkinTint`. The sleeve covers the arm's top and the arm comes out from under it; the hands stay above.
-- The arm starts a little way inside the cap (0.45 of its radius), so its rounded root and outline never peek past the sleeve.
-- Checked on a large render of the S, SE, E and NE views at mid-stride (apron, coat, tunic, waistcoat and steel armour, light and dark skin), shown to Kevin.
+- **Cause:** the arms are drawn by code and the sleeves are painted on the torso, with one draw order between them. Every attempt that moved the arm's root (trimmed to the sleeve hem, shoulder joints with a sleeve cap) showed the seam somewhere.
+- **Fix:** Astra's own rig (`points.json` `rest_draw_order`): legs, then arms and hands, then the torso, then the head.
+  - The arms hang from her shoulder anchors **behind** the torso to her wrist targets, so they show below the sleeves with the hands beside the body, as in her walk preview.
+  - The swing is scaled by `modularSwingScale` (0.3), so the hands never cross the body.
+  - The shoulder joints and the head-on hand-inward move are removed for modular characters.
+- **Exception, the profile (E/W):** the pack hangs the near arm behind the back, where it read as an arm on his back.
+  - It hangs in front of the body instead, from a root inside the short sleeve, canvas px (215, 268), straight down to (213, 336). These are set by `ProjectSetup.NearArmPx` into `View.nearArmRoot` and `View.nearArmWrist`.
+  - The torso is drawn again over the arm's top, cut to a circle round that root (`profileCapRadius` 0.059 units = 20 px; the `SleeveCap` overlay using `_CapA`), so the arm comes out of the sleeve's opening. The sleeves end at y 284-291 on every torso.
+  - Known small overlap: the padded gambeson's pad ends at y ~300, so in profile the arm covers its lower edge.
+- Checked on renders of all eight directions over four stride moments (coat, waistcoat on dark skin, riveted armour), plus every outfit and armour (19) in E and W. Kevin said to install it.

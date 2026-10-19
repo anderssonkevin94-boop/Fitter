@@ -24,8 +24,8 @@ namespace Ravenholm.Presentation
             [Tooltip("Modular characters (Astra's standard rig v1, 2026-10-18): the head, on the body's canvas and pivot (its head mount meets every torso's at zero offset), and its skin mask.")]
             public Sprite head;
             public Texture2D headSkinMask;
-            [Tooltip("Modular torsos: the shoulder joints the arms hang from (units): where each sleeve meets the body at its top (Kevin, 2026-10-19). Zero: the rig's shoulder anchors.")]
-            public Vector2 shoulderJointLeft, shoulderJointRight;
+            [Tooltip("Modular torsos, profile views (Kevin, 2026-10-19): the near arm hangs in front of the body from this root inside its sleeve to this wrist (units). Zero: the rig's anchors, behind the torso.")]
+            public Vector2 nearArmRoot, nearArmWrist;
         }
 
         /// <summary>A worn outfit: a torso per view (with its neck and shoulder caps) on the body canvas, and skin masks.</summary>
@@ -132,15 +132,10 @@ namespace Ravenholm.Presentation
         public Material skinMaterial;
         public Color skinBase = new Color32(0xDA, 0x87, 0x5B, 255);
         public Color skinShadow = new Color32(0xCA, 0x66, 0x42, 255);
-        [Tooltip("Modular torsos paint short sleeves or shoulder caps: the torso is drawn again over an arm in front of it, cut to a circle this wide round the shoulder, so the arm comes out from under its sleeve (units).")]
-        [Min(0f)] public float sleeveCapRadius = 0.16f;
-        /// <summary>A view's shoulder joint for an arm on a modular torso (the view's joint, else the rig's anchor).</summary>
-        public Vector2 ModularShoulder(View v, bool left)
-        {
-            var joint = left ? v.shoulderJointLeft : v.shoulderJointRight;
-            return joint != Vector2.zero ? joint : left ? v.shoulderLeft : v.shoulderRight;
-        }
-
+        [Tooltip("Modular torsos paint short sleeves: the torso is drawn again over a profile view's near arm, cut to a circle this wide round its root, so the arm comes out of the sleeve's opening (units).")]
+        [Min(0f)] public float profileCapRadius = 0.059f;
+        [Tooltip("Modular characters swing their arms by this share of armSwing, so the hands stay beside the body as in Astra's walk preview.")]
+        [Range(0f, 1f)] public float modularSwingScale = 0.3f;
         /// <summary>Whether this character is drawn as a head over a worn outfit (otherwise one painted body per view).</summary>
         public bool Modular
         {
