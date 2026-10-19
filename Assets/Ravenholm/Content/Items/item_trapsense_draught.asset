@@ -38,6 +38,13 @@ MonoBehaviour:
     b: {fileID: 21300000, guid: d40ee59440df1412194acec1ed7745ce, type: 3}
     side: {fileID: 21300000, guid: 61792e0829381484ca72914854d72c50, type: 3}
     aRunsUpRight: 0
+    frontBounds:
+      serializedVersion: 2
+      x: 89
+      y: 128
+      width: 79
+      height: 100
+    frontTip: {x: 129, y: 128}
   displayA: {fileID: 21300000, guid: 9c16105a5d1bd4c9ebe2a554d67b483e, type: 3}
   displayB: {fileID: 21300000, guid: d40ee59440df1412194acec1ed7745ce, type: 3}
   displayBoundsA:

@@ -111,7 +111,7 @@ namespace Ravenholm.Presentation
         {
             var v = View;
             if (v == null) return new List<(ItemDefinition, int, string)>();
-            Func<ItemDefinition, bool> fits = v.LayeredStand ? (Func<ItemDefinition, bool>)(i => v.Definition.Shows(i) && i.Category == ShopView.LayeredSpots[spot]) : v.Definition.Shows;
+            Func<ItemDefinition, bool> fits = v.LayeredStand ? (Func<ItemDefinition, bool>)(i => v.Definition.Shows(i) && i.Category == ShopView.LayeredSpots[spot]) : i => v.Definition.Shows(i) && v.Seats(i);
             return ShopView.Representative(_root, fits);
         }
 

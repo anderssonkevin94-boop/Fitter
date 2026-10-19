@@ -881,6 +881,36 @@ namespace Ravenholm.EditorTools
         }
 
         /// <summary>
+        /// An item's front view, measured from its PNG (pixels, top-left origin): its visible bounds, and the mean of its top
+        /// opaque row (an upright blade's tip), for Astra's posed display slots.
+        /// </summary>
+        private static (Rect bounds, Vector2 tip) MeasureFront(string path)
+        {
+            if (!File.Exists(path)) return (default, default);
+            var tex = new Texture2D(2, 2);
+            if (!tex.LoadImage(File.ReadAllBytes(path))) { UnityEngine.Object.DestroyImmediate(tex); return (default, default); }
+            int w = tex.width, h = tex.height, minX = w, maxX = -1, minY = h, maxY = -1;
+            var px = tex.GetPixels32();
+            for (var y = 0; y < h; y++)
+            for (var x = 0; x < w; x++)
+            {
+                if (px[y * w + x].a < 128) continue;
+                var top = h - 1 - y;   // texture rows run bottom-up
+                minX = Mathf.Min(minX, x); maxX = Mathf.Max(maxX, x); minY = Mathf.Min(minY, top); maxY = Mathf.Max(maxY, top);
+            }
+            Vector2 tip = default;
+            if (maxX >= 0)
+            {
+                float sum = 0f; var n = 0;
+                var row = h - 1 - minY;
+                for (var x = 0; x < w; x++) if (px[row * w + x].a >= 128) { sum += x; n++; }
+                tip = new Vector2(sum / n + 0.5f, minY);
+            }
+            UnityEngine.Object.DestroyImmediate(tex);
+            return maxX < 0 ? (default, default) : (new Rect(minX, minY, maxX - minX + 1, maxY - minY + 1), tip);
+        }
+
+        /// <summary>
         /// The modular shop (Shop Titans style, Kevin 2026-10-15): the shop (4 x 6 tiles to start, 2 x 2 blocks to buy,
         /// a 10 x 10 lot) and its furniture types, with art, footprints, slots and costs per level. The art comes from
         /// Astra's furniture pack (points.json) and the shop placeholders; prices are created once (balance starting
@@ -913,12 +943,36 @@ namespace Ravenholm.EditorTools
                 foreach (var sl in a["slots"]) slots.Add(new Rect((float)sl["x"], (float)sl["y"], (float)sl["w"], (float)sl["h"]));
                 var w = (float)a["canvas"]["w"];
                 var h = (float)a["canvas"]["h"];
-                return new ShopFurnitureDefinition.Art
+                var art = new ShopFurnitureDefinition.Art
                 {
                     sprite = LoadSprite("Furniture/" + file),
                     ground = new Vector2((float)a["pivot"]["x"] * w, (1f - (float)a["pivot"]["y"]) * h),
                     slots = slots,
+                    visible = a["bounds"] != null ? new Rect((float)a["bounds"]["x"], (float)a["bounds"]["y"], (float)a["bounds"]["w"], (float)a["bounds"]["h"]) : default,
                 };
+                // Schema 2 (Astra's approved displays, 2026-10-19): each slot's anchor, turn and order, and an overlay over
+                // the items. Tip-anchored weapon slots seat blades (validated with straight swords only).
+                foreach (var sl in a["slots"])
+                {
+                    if (sl["anchor"] == null) break;
+                    var role = (string)sl["anchor_role"] ?? "";
+                    var tip = role.IndexOf("tip", System.StringComparison.OrdinalIgnoreCase) >= 0;
+                    art.poses.Add(new ShopFurnitureDefinition.SlotPose
+                    {
+                        anchor = new Vector2((float)sl["anchor"]["x"], (float)sl["anchor"]["y"]),
+                        clockwiseDegrees = (float?)sl["rotation_clockwise_degrees"] ?? 0f,
+                        order = (int?)sl["draw_order"] ?? 5,
+                        tipAnchor = tip,
+                        seats = tip ? WeaponTag.Blade : WeaponTag.None,
+                    });
+                }
+                if (a["foreground"] != null)
+                {
+                    var fg = Path.GetFileNameWithoutExtension((string)a["foreground"]);
+                    art.foreground = LoadSprite("Furniture/" + fg);
+                    art.foregroundOrder = (int?)pts["assets"][fg + ".png"]?["draw_order"] ?? 30;
+                }
+                return art;
             }
             bool Has(string file) => pts["assets"][file + ".png"] != null;
 
@@ -989,9 +1043,14 @@ namespace Ravenholm.EditorTools
 
             // The wagon shop (the journey, step 3): free-standing versions of the wall pieces (placeholders: the wall art on
             // legs, 2 x 1 tiles), the walled pieces no longer sold, and the desk retired (the wagon's counter does its job).
+            // Astra's approved displays (2026-10-19) replace a stand's level-1 art in her approved angle only: the long rail
+            // descending to the right, the game's facing B. The other facing and levels keep their placeholders.
+            var approvedB = new Dictionary<(string, int), string> { { ("weapon_rack", 1), "weapon_cradle_1_A" }, { ("potion_shelf", 1), "potion_display_1_A" } };
             ShopFurnitureDefinition.Level S(string key, int n, int gold, List<ResourceCost> mats) => new ShopFurnitureDefinition.Level
             {
-                footprint = new V2(2, 1), facingA = Astra($"{key}_{n}_stand_A"), facingB = Astra($"{key}_{n}_stand_B"), gold = gold, materials = mats,
+                footprint = new V2(2, 1), facingA = Astra($"{key}_{n}_stand_A"),
+                facingB = approvedB.TryGetValue((key, n), out var approved) && Has(approved) ? Astra(approved) : Astra($"{key}_{n}_stand_B"),
+                gold = gold, materials = mats,
             };
             ShopFurnitureDefinition Standing(string key, string name, FurnitureDisplay display, ShopFurnitureDefinition wallPiece)
             {
@@ -1051,7 +1110,9 @@ namespace Ravenholm.EditorTools
                     if (catalogue.TryGet<ItemDefinition>("item." + key, out var it))
                     {
                         var stand = it.StandLayer != StandLayer.None;
-                        it.EditorSetViews(new ObjectViews { a = stand ? null : V("A"), front = V("front"), b = stand ? null : V("B"), side = V("side"), aRunsUpRight = upRight });
+                        var views = new ObjectViews { a = stand ? null : V("A"), front = V("front"), b = stand ? null : V("B"), side = V("side"), aRunsUpRight = upRight };
+                        (views.frontBounds, views.frontTip) = MeasureFront(PlaceholderSpriteImporter.ArtRoot + $"Items/item_{key}_front.png");
+                        it.EditorSetViews(views);
                         EditorUtility.SetDirty(it);
                     }
                     else if (catalogue.TryGet<ResourceDefinition>("resource." + key, out var res))

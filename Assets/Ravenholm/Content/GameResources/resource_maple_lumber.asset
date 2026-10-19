@@ -26,5 +26,12 @@ MonoBehaviour:
     b: {fileID: 21300000, guid: d4d61b3e2bad24318b0c10bb3496ff7a, type: 3}
     side: {fileID: 21300000, guid: 3d7a4205985364dbb9e8d1a582de6225, type: 3}
     aRunsUpRight: 0
+    frontBounds:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    frontTip: {x: 0, y: 0}
   mineBlock: {fileID: 0}
   mapTint: {r: 0.6, g: 0.6, b: 0.6, a: 1}

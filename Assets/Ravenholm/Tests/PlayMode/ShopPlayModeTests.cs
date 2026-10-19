@@ -75,7 +75,7 @@ namespace Ravenholm.Tests
                 s.Logistics.System.CreateStoreItem(id, "test stock");
             SandboxSceneController.Current.Player.GetComponent<PlayerMotor>().Teleport(view.TileCentre(1, -1));
             yield return new WaitForSeconds(0.5f);
-            Assert.AreEqual(2, Piece("furniture.weapon_stand").VisibleCount, "sword and maul");
+            Assert.AreEqual(1, Piece("furniture.weapon_stand").VisibleCount, "the sword: the cradle seats blades only, not the maul");
             Assert.AreEqual(2, Piece("furniture.display_table").VisibleCount, "dagger and stiletto on the level 1 table");
             Assert.AreEqual(1, Piece("furniture.armor_stand").VisibleCount);
             Assert.AreEqual(2, Piece("furniture.potion_stand").VisibleCount);

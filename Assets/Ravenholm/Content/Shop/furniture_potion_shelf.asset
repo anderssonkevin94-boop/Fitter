@@ -47,6 +47,15 @@ MonoBehaviour:
         width: 47
         height: 64
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 137
+        y: 212
+        width: 240
+        height: 297
+      foregroundOrder: 30
     facingB:
       sprite: {fileID: 21300000, guid: 4e960151a00c5413bafb9d6bb2ca8ddc, type: 3}
       ground: {x: 152, y: 480}
@@ -72,6 +81,15 @@ MonoBehaviour:
         width: 44
         height: 64
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 24
+        y: 112
+        width: 256
+        height: 289
+      foregroundOrder: 30
     gold: 25
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -112,6 +130,15 @@ MonoBehaviour:
         width: 36
         height: 54
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 136
+        y: 220
+        width: 240
+        height: 293
+      foregroundOrder: 30
     facingB:
       sprite: {fileID: 21300000, guid: 5787b3d4ffdae4490a24987d726c666f, type: 3}
       ground: {x: 152, y: 480}
@@ -147,6 +174,15 @@ MonoBehaviour:
         width: 36
         height: 53
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 24
+        y: 104
+        width: 256
+        height: 349
+      foregroundOrder: 30
     gold: 55
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -204,6 +240,15 @@ MonoBehaviour:
         width: 36
         height: 48
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 24
+        y: 122
+        width: 256
+        height: 296
+      foregroundOrder: 30
     facingB:
       sprite: {fileID: 21300000, guid: 12b247b1f68f748e7839f435873cd943, type: 3}
       ground: {x: 152, y: 480}
@@ -254,6 +299,15 @@ MonoBehaviour:
         width: 36
         height: 48
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 24
+        y: 125
+        width: 256
+        height: 299
+      foregroundOrder: 30
     gold: 120
     materials:
     - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}

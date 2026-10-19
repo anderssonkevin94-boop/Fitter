@@ -35,6 +35,30 @@ namespace Ravenholm.Content
             public List<Rect> slots = new List<Rect>();
             [Tooltip("The armour stand: the support alone on the same canvas, drawn under body armour (the mannequin's torso would show at the armour's edges).")]
             public Sprite armored;
+            [Tooltip("Astra's posed slots (schema 2, 2026-10-19): one per slot box, in order. Empty: items fit their boxes as before.")]
+            public List<SlotPose> poses = new List<SlotPose>();
+            [Tooltip("Drawn over the items on the same canvas and pivot (the weapon cradle's tip rail).")]
+            public Sprite foreground;
+            [Tooltip("The art's visible pixels on its canvas (top-left origin), when the pack gives them; sizes the tap target.")]
+            public Rect visible;
+            public int foregroundOrder = 30;
+        }
+
+        /// <summary>
+        /// How an item sits in a posed slot (pixels from the sprite's top-left): its front view turned clockwise, fitted
+        /// uniformly into the slot box, and placed so its anchor point lands on <see cref="anchor"/>: the blade's tip, or the
+        /// bottom centre of its visible pixels. Items the pose does not seat (another weapon kind) keep the plain box fit.
+        /// </summary>
+        [Serializable]
+        public sealed class SlotPose
+        {
+            public Vector2 anchor;
+            public float clockwiseDegrees;
+            public int order = 5;
+            [Tooltip("The anchor is the tip of the turned item (its upright top); otherwise its visible bottom centre.")]
+            public bool tipAnchor;
+            [Tooltip("Weapons seated by this pose (tip-anchored poses); other weapons keep the plain box fit.")]
+            public WeaponTag seats = WeaponTag.None;
         }
 
         [Serializable]

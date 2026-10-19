@@ -27,11 +27,29 @@ MonoBehaviour:
       ground: {x: 256, y: 420}
       slots: []
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 101
+        y: 200
+        width: 320
+        height: 287
+      foregroundOrder: 30
     facingB:
       sprite: {fileID: 21300000, guid: feb8030b1114d4ba687421eed763258a, type: 3}
       ground: {x: 256, y: 420}
       slots: []
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 113
+        y: 205
+        width: 268
+        height: 287
+      foregroundOrder: 30
     gold: 0
     materials: []
   - footprint: {x: 2, y: 1}
@@ -40,11 +58,29 @@ MonoBehaviour:
       ground: {x: 256, y: 420}
       slots: []
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 104
+        y: 198
+        width: 316
+        height: 286
+      foregroundOrder: 30
     facingB:
       sprite: {fileID: 21300000, guid: 87c70d1166f144df79ef0bf0edd7ead3, type: 3}
       ground: {x: 256, y: 420}
       slots: []
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 107
+        y: 200
+        width: 278
+        height: 291
+      foregroundOrder: 30
     gold: 60
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -57,11 +93,29 @@ MonoBehaviour:
       ground: {x: 256, y: 420}
       slots: []
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 98
+        y: 199
+        width: 319
+        height: 284
+      foregroundOrder: 30
     facingB:
       sprite: {fileID: 21300000, guid: ecccb148c55804f4781b2b183ea243fe, type: 3}
       ground: {x: 256, y: 420}
       slots: []
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 107
+        y: 224
+        width: 279
+        height: 267
+      foregroundOrder: 30
     gold: 150
     materials:
     - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}

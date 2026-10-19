@@ -3838,6 +3838,282 @@
     }
    ],
    "source_pack": "placeholder: the wall piece on legs (make_wagon_placeholders.py)"
+  },
+  "weapon_cradle_1_A.png": {
+   "file": "Furniture/weapon_cradle_1_A.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1796875
+   },
+   "bounds": {
+    "x": 145,
+    "y": 252,
+    "w": 221,
+    "h": 200
+   },
+   "level": 1,
+   "role": "base",
+   "footprint": {
+    "u": 1.25,
+    "v": 0.65
+   },
+   "registration": {
+    "scale": 0.26,
+    "source_ground": {
+     "x": 800,
+     "y": 710
+    },
+    "offset": {
+     "x": 48,
+     "y": 235
+    }
+   },
+   "slots": [
+    {
+     "id": "weapon_1",
+     "kind": "weapon",
+     "x": 192,
+     "y": 240,
+     "w": 68,
+     "h": 146,
+     "anchor": {
+      "x": 208,
+      "y": 386
+     },
+     "anchor_role": "Lowest opaque blade-tip pixel after rotation and fit",
+     "support": {
+      "x": 216,
+      "y": 285
+     },
+     "rotation_clockwise_degrees": 184.5,
+     "fit": "contain",
+     "source_orientation": "upright blade-up front view",
+     "draw_order": 10
+    },
+    {
+     "id": "weapon_2",
+     "kind": "weapon",
+     "x": 233,
+     "y": 256,
+     "w": 68,
+     "h": 146,
+     "anchor": {
+      "x": 249,
+      "y": 402
+     },
+     "anchor_role": "Lowest opaque blade-tip pixel after rotation and fit",
+     "support": {
+      "x": 257,
+      "y": 301
+     },
+     "rotation_clockwise_degrees": 184.5,
+     "fit": "contain",
+     "source_orientation": "upright blade-up front view",
+     "draw_order": 11
+    },
+    {
+     "id": "weapon_3",
+     "kind": "weapon",
+     "x": 274,
+     "y": 272,
+     "w": 68,
+     "h": 146,
+     "anchor": {
+      "x": 290,
+      "y": 418
+     },
+     "anchor_role": "Lowest opaque blade-tip pixel after rotation and fit",
+     "support": {
+      "x": 298,
+      "y": 317
+     },
+     "rotation_clockwise_degrees": 184.5,
+     "fit": "contain",
+     "source_orientation": "upright blade-up front view",
+     "draw_order": 12
+    }
+   ],
+   "foreground": "Furniture/weapon_cradle_1_A_front.png",
+   "draw_order": 0,
+   "source_pack": "ravenholm-shop-displays-approved (Astra, 2026-10-19; approved angle = the game's facing B)"
+  },
+  "weapon_cradle_1_A_front.png": {
+   "file": "Furniture/weapon_cradle_1_A_front.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1796875
+   },
+   "bounds": {
+    "x": 181,
+    "y": 388,
+    "w": 127,
+    "h": 54
+   },
+   "role": "foreground_tip_rail",
+   "parent": "weapon_cradle_1_A",
+   "draw_order": 30,
+   "slots": [],
+   "source_pack": "ravenholm-shop-displays-approved (Astra, 2026-10-19; approved angle = the game's facing B)"
+  },
+  "potion_display_1_A.png": {
+   "file": "Furniture/potion_display_1_A.png",
+   "canvas": {
+    "w": 512,
+    "h": 512
+   },
+   "ground": {
+    "x": 256,
+    "y": 420
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.1796875
+   },
+   "bounds": {
+    "x": 77,
+    "y": 200,
+    "w": 358,
+    "h": 275
+   },
+   "level": 1,
+   "role": "base",
+   "footprint": {
+    "u": 1.6,
+    "v": 1
+   },
+   "registration": {
+    "scale": 0.355,
+    "source_ground": {
+     "x": 900,
+     "y": 690
+    },
+    "offset": {
+     "x": -63,
+     "y": 175
+    }
+   },
+   "slots": [
+    {
+     "id": "potion_1",
+     "kind": "potion",
+     "row": "back",
+     "x": 187,
+     "y": 154,
+     "w": 50,
+     "h": 70,
+     "anchor": {
+      "x": 212,
+      "y": 224
+     },
+     "anchor_role": "Bottom centre of tight visible item bounds",
+     "fit": "contain",
+     "rotation_clockwise_degrees": 0,
+     "draw_order": 10
+    },
+    {
+     "id": "potion_2",
+     "kind": "potion",
+     "row": "back",
+     "x": 254,
+     "y": 176,
+     "w": 50,
+     "h": 70,
+     "anchor": {
+      "x": 279,
+      "y": 246
+     },
+     "anchor_role": "Bottom centre of tight visible item bounds",
+     "fit": "contain",
+     "rotation_clockwise_degrees": 0,
+     "draw_order": 11
+    },
+    {
+     "id": "potion_3",
+     "kind": "potion",
+     "row": "back",
+     "x": 322,
+     "y": 202,
+     "w": 50,
+     "h": 70,
+     "anchor": {
+      "x": 347,
+      "y": 272
+     },
+     "anchor_role": "Bottom centre of tight visible item bounds",
+     "fit": "contain",
+     "rotation_clockwise_degrees": 0,
+     "draw_order": 12
+    },
+    {
+     "id": "potion_4",
+     "kind": "potion",
+     "row": "front",
+     "x": 137,
+     "y": 208,
+     "w": 50,
+     "h": 70,
+     "anchor": {
+      "x": 162,
+      "y": 278
+     },
+     "anchor_role": "Bottom centre of tight visible item bounds",
+     "fit": "contain",
+     "rotation_clockwise_degrees": 0,
+     "draw_order": 13
+    },
+    {
+     "id": "potion_5",
+     "kind": "potion",
+     "row": "front",
+     "x": 203,
+     "y": 234,
+     "w": 50,
+     "h": 70,
+     "anchor": {
+      "x": 228,
+      "y": 304
+     },
+     "anchor_role": "Bottom centre of tight visible item bounds",
+     "fit": "contain",
+     "rotation_clockwise_degrees": 0,
+     "draw_order": 14
+    },
+    {
+     "id": "potion_6",
+     "kind": "potion",
+     "row": "front",
+     "x": 269,
+     "y": 259,
+     "w": 50,
+     "h": 70,
+     "anchor": {
+      "x": 294,
+      "y": 329
+     },
+     "anchor_role": "Bottom centre of tight visible item bounds",
+     "fit": "contain",
+     "rotation_clockwise_degrees": 0,
+     "draw_order": 15
+    }
+   ],
+   "draw_order": 0,
+   "source_pack": "ravenholm-shop-displays-approved (Astra, 2026-10-19; approved angle = the game's facing B)"
   }
  }
 }

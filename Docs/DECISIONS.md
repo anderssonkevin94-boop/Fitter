@@ -1992,3 +1992,25 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - The torso is drawn again over the arm's top, cut to a circle round that root (`profileCapRadius` 0.059 units = 20 px; the `SleeveCap` overlay using `_CapA`), so the arm comes out of the sleeve's opening. The sleeves end at y 284-291 on every torso.
   - Known small overlap: the padded gambeson's pad ends at y ~300, so in profile the arm covers its lower edge.
 - Checked on renders of all eight directions over four stride moments (coat, waistcoat on dark skin, riveted armour), plus every outfit and armour (19) in E and W. Kevin said to install it.
+
+## 2026-10-19: Astra's approved shop displays (weapon cradle, potion display)
+
+- **Art:** from `ravenholm-shop-displays-approved` (points.json schema 2), in `Art/Placeholder/Furniture/`.
+  - Files: `weapon_cradle_1_A`, `weapon_cradle_1_A_front` and `potion_display_1_A`.
+  - Import: 512 canvases, 256 PPU, pivot (0.5, 0.1797), point filtering, uncompressed, full rect. The tip rail is not outlined.
+  - The pack's assets are merged into `Furniture/points.json`; their pivots are in `sprite_meta.json`.
+- **Facing:** Astra's approved angle (long rail descending to the right) is the game's **facing B**. The art replaces level 1 facing B of the Weapon Stand and the Potion Stand (`ProjectSetup` `approvedB`). Facing A and levels 2-3 keep their placeholders. Both stands start in facing B at the wagon.
+- **Renderer (schema 2):**
+  - `ShopFurnitureDefinition.Art` gains `poses`: per slot, the anchor, the clockwise turn, the order, a tip anchor or bottom-centre anchor, and the weapon kind it seats.
+  - It also gains `foreground` / `foregroundOrder` (the tip rail at 30, over the items at 10-15) and `visible`, the art's bounds. The tap target is sized from `visible`, because the full empty canvas covered the display table's tap.
+  - `FurnitureView.Posed` draws the item's front view. The view's visible pixels are fitted uniformly, after turning, into the slot box, then turned, and its anchor point is set on the slot's anchor. That point is the blade's tip (the mean of the top opaque row, upright) or the visible bottom centre.
+  - `ObjectViews.frontBounds` / `frontTip` are measured from the PNGs at setup (`MeasureFront`).
+- **Seating:** Astra validated only straight swords. The cradle's slots seat blades (`WeaponTag.Blade`): the maul and other weapons are not stocked there or offered in its picker (`FurnitureView.Seats`); they wait for another display. Potions and food fill the six pads, back row (slots 1-3) before front.
+- **Checks:** `ShopDisplaysPlayModeTests` checks:
+  - tip and foot on the anchors;
+  - turn and fit;
+  - orders and rail;
+  - the maul kept off;
+  - footprints blocking, with room at the wagon's steps;
+  - captures in front of and behind the displays.
+- **Floor mats:** the wagon shop's patterned carpet is left as is, pending Kevin's answer on whether it is the "floor mat" to remove. The teal cloth is part of the potion display's art.

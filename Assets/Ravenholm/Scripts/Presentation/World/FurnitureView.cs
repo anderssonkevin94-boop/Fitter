@@ -27,6 +27,7 @@ namespace Ravenholm.Presentation
         private string _stockKey = "";
         private ShopFurnitureDefinition.Art _art;
         private SpriteRenderer _armorLayer, _headLayer, _headwearLayer, _shieldLayer;
+        private SpriteRenderer _foreground;
 
         public string PlacementId { get; private set; }
         public int Level { get; private set; }
@@ -37,6 +38,12 @@ namespace Ravenholm.Presentation
         public int VisibleCount { get; private set; }
         public IReadOnlyList<Rect> Boxes => _boxes;
         public SpriteRenderer Visual => _visual;
+        /// <summary>The art shown now (level and facing).</summary>
+        public ShopFurnitureDefinition.Art Art => _art;
+        /// <summary>The overlay drawn over the items (the weapon cradle's tip rail), or null.</summary>
+        public SpriteRenderer Foreground => _foreground != null && _foreground.enabled ? _foreground : null;
+        /// <summary>The item renderers, slot by slot (tests).</summary>
+        public IReadOnlyList<SpriteRenderer> ItemRenderers => _items;
 
         /// <summary>Creates the piece's object under <paramref name="parent"/>.</summary>
         public static FurnitureView Create(Transform parent, ShopFurnitureDefinition def, Material material, int blockerLayer)
@@ -76,6 +83,21 @@ namespace Ravenholm.Presentation
             _visual.sprite = art.sprite;
             ShowEquipment(null, null, null);
             _visual.flipX = Mirrored;
+            // Astra's schema-2 displays (2026-10-19): an overlay on the same canvas and pivot, over the items.
+            if (art.foreground != null && _foreground == null)
+            {
+                _foreground = new GameObject("Foreground").AddComponent<SpriteRenderer>();
+                _foreground.transform.SetParent(transform, false);
+                _foreground.spriteSortPoint = SpriteSortPoint.Pivot;
+                _foreground.sharedMaterial = _visual.sharedMaterial;
+            }
+            if (_foreground != null)
+            {
+                _foreground.sprite = art.foreground;
+                _foreground.enabled = art.foreground != null;
+                _foreground.flipX = Mirrored;
+                _foreground.sortingOrder = art.foregroundOrder;
+            }
 
             if (_footprint != null)
             {
@@ -115,7 +137,7 @@ namespace Ravenholm.Presentation
                 t.outlineColor = new Color32(59, 42, 32, 255);
                 t.outlineWidth = 0.3f;
                 t.rectTransform.sizeDelta = new Vector2(0.6f, 0.3f);
-                t.sortingOrder = 6;
+                t.sortingOrder = art.poses.Count > 0 ? Mathf.Max(art.foregroundOrder, 20) + 1 : 6;
                 _badges.Add(t);
                 go.SetActive(false);
             }
@@ -148,6 +170,14 @@ namespace Ravenholm.Presentation
                 _items[i].gameObject.SetActive(on);
                 if (!on) continue;
                 VisibleCount++;
+                _items[i].transform.localRotation = Quaternion.identity;
+                _items[i].flipX = false;
+                _items[i].sortingOrder = 5;
+                if (Posed(_items[i], i, stock[i].def))
+                {
+                    _badges[i].text = stock[i].count > 1 ? "×" + stock[i].count : "";
+                    continue;
+                }
                 // Astra's display view for this facing (A on left-facing pieces), fitted by its visible bounds; else the stack sprite.
                 var view = stock[i].def.DisplaySprite(Facing == Facing.B, out var visible);
                 if (view != null)
@@ -251,6 +281,61 @@ namespace Ravenholm.Presentation
                 }
                 _badges[i].text = set[i].count > 1 ? "×" + set[i].count : "";
             }
+        }
+
+        /// <summary>
+        /// Whether this piece can show the item as its art asks: a posed display seating weapons (the cradle's tip-anchored
+        /// slots) takes only that kind of weapon with a measured front view; everything else takes all it shows.
+        /// </summary>
+        public bool Seats(ItemDefinition item)
+        {
+            if (item == null || _art == null || _art.poses.Count == 0 || !_art.poses[0].tipAnchor) return true;
+            return item.Category == ItemCategory.Weapon && item.WeaponTag == _art.poses[0].seats
+                   && item.Views.front != null && item.Views.frontBounds.width >= 1f;
+        }
+
+        /// <summary>
+        /// Astra's posed slot (schema 2, 2026-10-19): the item's front view, its visible pixels fitted uniformly (turned)
+        /// into the slot box, turned clockwise, with its anchor point (the upright top: a blade's tip; else the visible
+        /// bottom centre) on the slot's anchor, drawn at the slot's order. False when the slot has no pose, the item has no
+        /// measured front view, or the pose does not seat this kind of weapon (it then keeps the plain box fit).
+        /// </summary>
+        private bool Posed(SpriteRenderer sr, int i, ItemDefinition item)
+        {
+            if (_art == null || i >= _art.poses.Count) return false;
+            var pose = _art.poses[i];
+            var front = item.Views.front;
+            var vis = item.Views.frontBounds;
+            if (front == null || vis.width < 1f || vis.height < 1f) return false;
+            if (pose.tipAnchor && (item.Category != ItemCategory.Weapon || item.WeaponTag != pose.seats)) return false;
+            sr.sprite = front;
+            sr.sortingOrder = pose.order;
+            var turn = pose.clockwiseDegrees * (Mirrored ? 1f : -1f);   // Unity turns counter-clockwise; a mirror reverses it
+            var rad = turn * Mathf.Deg2Rad;
+            var box = _boxes[i];
+            var ppu = front.pixelsPerUnit;
+            var cos = Mathf.Abs(Mathf.Cos(rad));
+            var sin = Mathf.Abs(Mathf.Sin(rad));
+            var w = (vis.width * cos + vis.height * sin) / ppu;
+            var h = (vis.width * sin + vis.height * cos) / ppu;
+            var scale = Mathf.Min(box.width / w, box.height / h);
+            // The anchor point relative to the sprite's pivot (units, y up).
+            var pivotPx = new Vector2(front.pivot.x, front.rect.height - front.pivot.y);
+            var pointPx = pose.tipAnchor ? item.Views.frontTip : new Vector2(vis.center.x, vis.yMax);
+            var point = new Vector2((pointPx.x - pivotPx.x) / ppu, (pivotPx.y - pointPx.y) / ppu);
+            var rot = Quaternion.Euler(0f, 0f, turn);
+            var anchorX = (pose.anchor.x - _art.ground.x) / _def.PixelsPerUnit;
+            var anchor = new Vector2(Mirrored ? -anchorX : anchorX, (_art.ground.y - pose.anchor.y) / _def.PixelsPerUnit);
+            if (Mirrored) point.x = -point.x;
+            sr.flipX = Mirrored;
+            sr.transform.localScale = Vector3.one * scale;
+            sr.transform.localRotation = rot;
+            sr.transform.localPosition = anchor - (Vector2)(rot * (point * scale));
+            var badge = _badges[i].transform;
+            badge.localScale = Vector3.one / Mathf.Max(scale, 0.001f);
+            badge.rotation = Quaternion.identity;
+            badge.position = transform.TransformPoint(new Vector3(box.xMax, box.yMin + 0.04f, 0f));
+            return true;
         }
 
         /// <summary>Scales a display view uniformly so its visible part fits the box, standing on the box's bottom centre.</summary>

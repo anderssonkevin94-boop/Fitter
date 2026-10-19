@@ -80,6 +80,12 @@ namespace Ravenholm.EditorTools
             if (rel.StartsWith("Painted/Blocks/") || rel.StartsWith("Painted/Ground/")) settings.spriteMeshType = SpriteMeshType.FullRect;
             // Outline-free nature and buildings (v4): the game's outline is drawn inside the sprite's rectangle.
             if (rel.StartsWith("Painted/Nature/") || rel.StartsWith("Nature/") || rel.StartsWith("Buildings/") || rel.StartsWith("Furniture/")) settings.spriteMeshType = SpriteMeshType.FullRect;
+            // Astra's approved shop displays (2026-10-19): 256 PPU, point filtering, uncompressed, full canvas, as the pack asks.
+            if (rel.StartsWith("Furniture/weapon_cradle_") || rel.StartsWith("Furniture/potion_display_"))
+            {
+                ti.textureCompression = TextureImporterCompression.Uncompressed;
+                settings.filterMode = FilterMode.Point;
+            }
             // Astra's ox, eight-direction walk V12 (2026-10-16): full 1280 canvases (pivots on each direction's ground
             // anchor), point filtering as the pack asks; capped at 512 (still above his size on screen) for the phone's memory.
             if (rel.StartsWith("Ox/"))

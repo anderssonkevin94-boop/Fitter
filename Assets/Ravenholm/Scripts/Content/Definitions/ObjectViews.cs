@@ -15,6 +15,10 @@ namespace Ravenholm.Content
         public Sprite a, front, b, side;
         [Tooltip("View A's long side climbs to the right on screen (B's to the left); measured from the art at import.")]
         public bool aRunsUpRight = true;
+        [Tooltip("The front view's visible pixels (top-left origin), measured from the art at import.")]
+        public Rect frontBounds;
+        [Tooltip("The front view's top tip (pixels, top-left origin): the mean of its top opaque row (a blade's point, upright).")]
+        public Vector2 frontTip;
 
         public bool Any => a != null || front != null || b != null || side != null;
 

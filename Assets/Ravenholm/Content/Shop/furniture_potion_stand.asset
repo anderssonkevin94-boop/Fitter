@@ -47,31 +47,89 @@ MonoBehaviour:
         width: 47
         height: 64
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      foregroundOrder: 30
     facingB:
-      sprite: {fileID: 21300000, guid: 418e4f9d7430e42d3bf5b8353f308405, type: 3}
-      ground: {x: 88, y: 512}
+      sprite: {fileID: 21300000, guid: 66f5864e71b614cec8d14a379d9c04b0, type: 3}
+      ground: {x: 256, y: 420}
       slots:
       - serializedVersion: 2
-        x: 69
-        y: 126
-        width: 44
-        height: 64
+        x: 187
+        y: 154
+        width: 50
+        height: 70
       - serializedVersion: 2
-        x: 158
-        y: 164
-        width: 44
-        height: 64
+        x: 254
+        y: 176
+        width: 50
+        height: 70
       - serializedVersion: 2
-        x: 66
-        y: 216
-        width: 44
-        height: 64
+        x: 322
+        y: 202
+        width: 50
+        height: 70
       - serializedVersion: 2
-        x: 153
-        y: 253
-        width: 44
-        height: 64
+        x: 137
+        y: 208
+        width: 50
+        height: 70
+      - serializedVersion: 2
+        x: 203
+        y: 234
+        width: 50
+        height: 70
+      - serializedVersion: 2
+        x: 269
+        y: 259
+        width: 50
+        height: 70
       armored: {fileID: 0}
+      poses:
+      - anchor: {x: 212, y: 224}
+        clockwiseDegrees: 0
+        order: 10
+        tipAnchor: 0
+        seats: 0
+      - anchor: {x: 279, y: 246}
+        clockwiseDegrees: 0
+        order: 11
+        tipAnchor: 0
+        seats: 0
+      - anchor: {x: 347, y: 272}
+        clockwiseDegrees: 0
+        order: 12
+        tipAnchor: 0
+        seats: 0
+      - anchor: {x: 162, y: 278}
+        clockwiseDegrees: 0
+        order: 13
+        tipAnchor: 0
+        seats: 0
+      - anchor: {x: 228, y: 304}
+        clockwiseDegrees: 0
+        order: 14
+        tipAnchor: 0
+        seats: 0
+      - anchor: {x: 294, y: 329}
+        clockwiseDegrees: 0
+        order: 15
+        tipAnchor: 0
+        seats: 0
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 77
+        y: 200
+        width: 358
+        height: 275
+      foregroundOrder: 30
     gold: 25
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -112,6 +170,15 @@ MonoBehaviour:
         width: 36
         height: 54
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      foregroundOrder: 30
     facingB:
       sprite: {fileID: 21300000, guid: e10bb401ff7aa4a458d7943588489843, type: 3}
       ground: {x: 88, y: 512}
@@ -147,6 +214,15 @@ MonoBehaviour:
         width: 36
         height: 53
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      foregroundOrder: 30
     gold: 55
     materials:
     - resource: {fileID: 11400000, guid: 031bac048a58c4985bfe04cfd309a08d, type: 2}
@@ -204,6 +280,15 @@ MonoBehaviour:
         width: 36
         height: 48
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      foregroundOrder: 30
     facingB:
       sprite: {fileID: 21300000, guid: 2e5de7bf3e6794d54bf69b10a2aa71e3, type: 3}
       ground: {x: 88, y: 512}
@@ -254,6 +339,15 @@ MonoBehaviour:
         width: 36
         height: 48
       armored: {fileID: 0}
+      poses: []
+      foreground: {fileID: 0}
+      visible:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      foregroundOrder: 30
     gold: 120
     materials:
     - resource: {fileID: 11400000, guid: c7639ddd788d14cacab48c5cafb28eb7, type: 2}

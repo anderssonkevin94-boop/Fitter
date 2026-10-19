@@ -518,6 +518,13 @@ namespace Ravenholm.Presentation
             var sprite = view.Visual.sprite;
             if (col == null || sprite == null) return;
             var b = sprite.bounds;
+            var vis = view.Art != null ? view.Art.visible : default;
+            if (vis.width > 0f)
+            {
+                // The art's visible part (a full, mostly empty canvas would cover its neighbours' taps).
+                var ppu = sprite.pixelsPerUnit;
+                b = new Bounds(new Vector3((vis.center.x - view.Art.ground.x) / ppu, (view.Art.ground.y - vis.center.y) / ppu), new Vector3(vis.width / ppu, vis.height / ppu));
+            }
             col.size = new Vector2(b.size.x * 0.8f, b.size.y * 0.7f);
             col.offset = new Vector2(view.Mirrored ? -b.center.x : b.center.x, b.center.y);
         }
@@ -600,7 +607,7 @@ namespace Ravenholm.Presentation
                 {
                     if (spot >= chosen.Count || chosen[spot] == "") return default;
                     foreach (var e in list)
-                        if (e.def.Id == chosen[spot] && (only == null || e.def.Category == only)) return (e.def, e.count);
+                        if (e.def.Id == chosen[spot] && (only == null || e.def.Category == only) && v.Seats(e.def)) return (e.def, e.count);
                     return default;   // out of stock (or not this spot's kind): Auto
                 }
                 var slice = new List<(ItemDefinition, int)>();
@@ -623,7 +630,8 @@ namespace Ravenholm.Presentation
                     for (var i = 0; i < slice.Count; i++)
                     {
                         if (slice[i].Item1 != null) continue;
-                        while (next < list.Count && !taken.Add(list[next].def.Id)) next++;
+                        // A posed display takes only what it seats (Astra's cradle: blades); the rest go to other pieces.
+                        while (next < list.Count && (!v.Seats(list[next].def) || !taken.Add(list[next].def.Id))) next++;
                         if (next < list.Count) { slice[i] = (list[next].def, list[next].count); next++; }
                     }
                 }
