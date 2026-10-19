@@ -367,11 +367,8 @@ namespace Ravenholm.EditorTools
                     continue;
                 }
 
-                string key;
-                var plaza = Mathf.Abs(c.x) / 3.6f + Mathf.Abs(c.y - 2.4f) / 2.0f < 1f;
-                if (plaza) key = "plaza";
-                else if (NearAnyPath(c, paths, 0.55f)) key = PathKey(x, y);
-                else key = GrassKey(x, y);
+                // No paved plaza round the shop (Kevin, 2026-10-19: "the weird white tiles under the stand"): grass and paths.
+                var key = NearAnyPath(c, paths, 0.55f) ? PathKey(x, y) : GrassKey(x, y);
                 tm.SetTile(cell, tiles[key]);
                 Tint(tm, cell, camp, ridge, x, y);
             }

@@ -2014,3 +2014,7 @@ Kevin's playtest of the camp bays: the flat valley green past the edge makes the
   - footprints blocking, with room at the wagon's steps;
   - captures in front of and behind the displays.
 - **Floor mats:** Kevin removed the wagon shop's patterned carpet and its fringe (2026-10-19). The shop's floor tiles still define where furniture goes and grow with the wagon, but they are no longer drawn; the furniture stands on the cobbles. The teal cloth is part of the potion display's art.
+
+## 2026-10-19: no paved plaza round the shop
+
+Kevin: "remove the weird white tiles under the stand". The town's plaza diamond of cobble tiles (round (0, 2.4) in `SandboxSceneBuilder`) is now grass. The paths stay. The old road outside the town keeps its cobble patches.
